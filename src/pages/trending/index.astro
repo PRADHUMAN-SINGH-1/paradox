@@ -1,0 +1,50 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+import demand from '../../data/demand.json';
+const top = demand.opportunities.slice(0, 6);
+---
+<MakerLayout title="Global Generator Trends — PARADOX Makers" description="A transparent global attention radar that helps PARADOX Makers surface useful free generators people may need right now.">
+  <main class="maker-main">
+    <section class="maker-hero compact-hero">
+      <div>
+        <div class="maker-kicker">GLOBAL ATTENTION RADAR</div>
+        <h1>What people are<br/><em>making right now.</em></h1>
+        <p>PARADOX Makers checks public, privacy-safe signals and uses them to decide which existing tools deserve more visibility. It does not track individual people and it does not pretend these signals are Google keyword volume.</p>
+      </div>
+      <div class="maker-proof">
+        <div class="proof-tile"><strong>REFRESHED</strong><span>{demand.refreshedAt}</span></div>
+        <div class="proof-tile"><strong>PUBLIC SIGNALS</strong><span>Wikimedia + GDELT</span></div>
+        <div class="proof-tile"><strong>NO ACCOUNTS</strong><span>Nothing is required from visitors.</span></div>
+      </div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head">
+        <div><div class="maker-label">TOP OPPORTUNITIES</div><h2>Follow attention,<br/>serve a real job.</h2></div>
+        <p>These are rankings among PARADOX Makers' existing utilities. A higher signal changes prominence, not the underlying claim or tool.</p>
+      </div>
+      <div class="maker-tools">
+        {top.map((item, index) => (
+          <a class="maker-card" href={item.route}>
+            <div>
+              <div class="maker-card-top"><div class="maker-icon">0{index + 1}</div><span aria-hidden="true">↗</span></div>
+              <h2>{item.label}</h2>
+              <p>Open the focused {item.mode} tool and make something immediately.</p>
+            </div>
+            <div class="maker-open">Use this tool →</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="maker-section">
+      <article class="maker-why">
+        <div class="maker-label">HOW THIS WORKS</div>
+        <h1>Automatic, but not spammy.</h1>
+        <p>Every refresh reads public aggregate signals from Wikimedia's Analytics API and GDELT's global news data. The site can change which existing generator is featured, which guide is promoted and which preset is suggested.</p>
+        <p>It deliberately does not manufacture thousands of near-identical search pages from those feeds. Google treats scaled pages created mainly to manipulate rankings as spam, so the automation is constrained to useful, real tools and transparent trend evidence.</p>
+        <p><a href="/">Back to all generators →</a></p>
+      </article>
+    </section>
+  </main>
+</MakerLayout>
