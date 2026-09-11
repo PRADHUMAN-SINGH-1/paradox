@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "name": "PARADOX Autonomous SEO Engine",
+  "mode": "closed-loop",
+  "signals": [
+    "Google Trends Trending Now",
+    "Wikimedia pageviews",
+    "GDELT news attention",
+    "Hacker News",
+    "GitHub repository velocity",
+    "public-apis/public-apis discovery registry",
+    "whizkydee/Awesome-APIs discovery registry",
+    "Google Search Console when configured",
+    "Bing Webmaster when configured"
+  ],
+  "actions": [
+    "score demand",
+    "match demand to a real tool",
+    "retain pages that earn impressions or clicks",
+    "publish high-confidence opportunities",
+    "retire weak pages",
+    "refresh sitemap",
+    "submit sitemap/indexing hooks when credentials are configured"
+  ],
+  "guardrails": [
+    "no private search-history collection",
+    "no guaranteed ranking claims",
+    "30 active demand pages maximum",
+    "no blind use of every catalogued API",
+    "API candidates must be evaluated for access, terms, rate limits and usefulness"
+  ]
+}
