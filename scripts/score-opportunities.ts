@@ -1,122 +1,21 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-type DemandPoint = {
-  query: string;
-  traffic?: number;
-  avg7?: number;
-  avg30?: number;
-  geo?: string;
-  history?: Array<{ date: string; value: number }>;
-};
-
-type RawDemand = {
-  signals?: DemandPoint[];
-  sources?: Record<string, unknown>;
-};
-
-type Opportunity = {
-  slug: string;
-  query: string;
-  geo?: string;
-  toolId: string;
-  score: number;
-  metrics: {
-    demandVelocity: number;
-    utilityIntent: number;
-    competitionSaturation: number;
-    feasibilityMultiplier: 0 | 1;
-  };
-};
-
-const TOOL_MAP: Record<string, string[]> = {
-  calculator: ["calculator", "calculate", "percentage", "percent", "tip", "discount", "age"],
-  generator: ["generator", "generate", "random", "bingo", "teams", "wheel", "bracket", "raffle", "certificate", "seating"],
-  converter: ["convert", "converter", "conversion", "unit", "currency", "timezone"],
-};
-
-const INFO_ONLY = ["what is", "meaning", "definition", "history", "who is", "why", "news", "latest"];
-const ACTION_WORDS = ["calculator", "calculate", "generator", "generate", "converter", "convert", "maker", "planner", "picker", "template"];
-
-const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-const normalise = (v: unknown) => String(v ?? "").toLowerCase().replace(/[^a-z0-9\s-]/g, " ").replace(/\s+/g, " ").trim();
-
-function demandVelocity(point: DemandPoint): number {
-  if (point.avg7 != null && point.avg30 != null) {
-    const baseline = Math.max(1, point.avg30);
-    return Number(clamp(50 + ((point.avg7 - baseline) / baseline) * 50, 0, 100).toFixed(2));
-  }
-  const history = point.history ?? [];
-  if (history.length) {
-    const last30 = history.slice(-30).map(x => x.value);
-    const last7 = last30.slice(-7);
-    const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length);
-    const a7 = avg(last7);
-    const a30 = Math.max(1, avg(last30));
-    return Number(clamp(50 + ((a7 - a30) / a30) * 50, 0, 100).toFixed(2));
-  }
-  return Number(clamp(Math.log10(Math.max(10, point.traffic ?? 0)) * 12, 0, 100).toFixed(2));
-}
-
-function utilityIntent(query: string): number {
-  const q = normalise(query);
-  let score = 0.55;
-  if (ACTION_WORDS.some(word => q.includes(word))) score += 0.75;
-  if (INFO_ONLY.some(word => q.includes(word))) score -= 0.4;
-  if (q.split(" ").length >= 3) score += 0.15;
-  return Number(clamp(score, 0.1, 2).toFixed(2));
-}
-
-function competitionSaturation(query: string): number {
-  const tokens = normalise(query).split(" ").filter(Boolean);
-  const longTailRelief = Math.min(5.5, Math.max(0, tokens.length - 1) * 1.35);
-  const broadPenalty = tokens.length <= 1 ? 1.4 : 0;
-  return Number(clamp(9.5 - longTailRelief + broadPenalty, 1, 10).toFixed(2));
-}
-
-function feasibleTool(query: string): string | null {
-  const q = normalise(query);
-  for (const [toolId, terms] of Object.entries(TOOL_MAP)) {
-    if (terms.some(term => q.includes(term))) return toolId;
-  }
-  return null;
-}
-
-const raw = JSON.parse(await readFile("src/data/raw_demand.json", "utf8")) as RawDemand;
-const points = raw.signals ?? ((raw.sources?.googleTrends as { rows?: DemandPoint[] } | undefined)?.rows ?? []);
-const opportunities: Opportunity[] = [];
-
-for (const point of points) {
-  const query = String(point.query ?? "").trim();
-  const toolId = feasibleTool(query);
-  const feasibilityMultiplier: 0 | 1 = toolId ? 1 : 0;
-  if (!query || !toolId) continue;
-
-  const demand = demandVelocity(point);
-  const intent = utilityIntent(query);
-  const saturation = competitionSaturation(query);
-  const score = Number(((demand * intent / saturation) * feasibilityMultiplier).toFixed(2));
-  if (score <= 80) continue;
-
-  opportunities.push({
-    slug: normalise(query).replace(/\s+/g, "-"),
-    query,
-    geo: point.geo,
-    toolId,
-    score,
-    metrics: {
-      demandVelocity: demand,
-      utilityIntent: intent,
-      competitionSaturation: saturation,
-      feasibilityMultiplier,
-    },
-  });
-}
-
-const unique = [...new Map(opportunities.map(item => [item.slug, item])).values()]
-  .sort((a, b) => b.score - a.score);
-
-await writeFile(
-  "src/data/verified_opportunities.json",
-  JSON.stringify({ version: 1, generatedAt: new Date().toISOString(), formula: "((Demand Velocity * Utility Intent) / Competition Saturation) * Feasibility Multiplier", opportunities: unique }, null, 2) + "\n",
-);
-console.log(`Generated ${unique.length} verified opportunities.`);
+type Signal={query:string;traffic?:number;traffic7d?:number[];traffic30d?:number[];utilityIntent?:number;competitionSaturation?:number;toolId?:string;feasible?:boolean;geo?:string;context?:Record<string,unknown>};
+type RawDemand={signals?:Signal[];history?:Signal[]};
+const INPUT="src/data/raw_demand.json", OUTPUT="src/data/verified_opportunities.json", MIN_SCORE=80;
+const UTILITY=["calculator","generator","converter","maker","planner","picker","counter","timer","chart","bracket","template","checker","formatter","random"];
+const INFO=["what is","meaning","definition","history","who is","why is","how does","news","latest news","biography"];
+const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
+const avg=(a:number[])=>a.length?a.reduce((s,n)=>s+n,0)/a.length:0;
+const norm=(s:unknown)=>String(s??"").toLowerCase().trim().replace(/\s+/g," ");
+function velocity(s:Signal){const r=s.traffic7d??[],b=s.traffic30d??[];if(r.length&&b.length)return Number(clamp(50+((avg(r)-Math.max(avg(b),1))/Math.max(avg(b),1))*50,0,100).toFixed(2));return Number(clamp(Math.log10(Math.max(1,s.traffic??0)+1)*18,0,100).toFixed(2))}
+function intent(q:string,e?:number){if(typeof e==="number")return clamp(e,.1,2);const x=norm(q);let n=.55;if(UTILITY.some(t=>x.includes(t)))n+=.85;if(INFO.some(t=>x.includes(t)))n-=.35;if(x.split(" ").length>=3)n+=.15;return Number(clamp(n,.1,2).toFixed(2))}
+function saturation(q:string,e?:number){if(typeof e==="number")return clamp(e,1,10);const t=norm(q).split(" ").filter(Boolean);const generic=t.filter(x=>["free","online","best","tool","for","the","a","in"].includes(x)).length;return Number(clamp(9.5-Math.min(5.5,Math.max(0,t.length-1)*1.35)+generic*.25,1,10).toFixed(2))}
+function feasible(s:Signal):0|1{return s.feasible===false||!s.toolId?0:1}
+function slug(s:string){return norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,90)}
+const raw:RawDemand=JSON.parse(await readFile(INPUT,"utf8"));const signals=[...(raw.signals??[]),...(raw.history??[])];
+const map=new Map<string,unknown>();
+for(const s of signals){if(!s.query?.trim()||!feasible(s))continue;const v=velocity(s),i=intent(s.query,s.utilityIntent),c=saturation(s.query,s.competitionSaturation),score=Number((v*i/c).toFixed(2));if(score<=MIN_SCORE)continue;const o={...s,slug:slug(s.query),score,metrics:{demandVelocity:v,utilityIntent:i,competitionSaturation:c,feasibilityMultiplier:1}};const old=map.get(slug(s.query)) as {score?:number}|undefined;if(!old||score>(old.score??0))map.set(slug(s.query),o)}
+const opportunities=[...map.values()].sort((a,b)=>(b as any).score-(a as any).score);
+await writeFile(OUTPUT,JSON.stringify({version:1,generatedAt:new Date().toISOString(),formula:"((Demand Velocity * Utility Intent) / Competition Saturation) * Feasibility Multiplier",threshold:MIN_SCORE,opportunities},null,2)+"\n");
+console.log(`Generated ${opportunities.length} verified opportunities.`);
