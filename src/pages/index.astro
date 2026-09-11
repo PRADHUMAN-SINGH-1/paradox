@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const tools=[
+  ['⌁','Resize Image','Set exact dimensions without uploading your photo.','/image-resizer/'],
+  ['↓','Reduce to 20KB','Shrink a photo under a target file size.','/resize-image-to-20kb/'],
+  ['◎','Image Compressor','Compress JPG, PNG or WEBP in your browser.','/image-compressor/'],
+  ['✎','Signature Resizer','Prepare a clean signature image for forms.','/signature-resizer/'],
+  ['▣','Passport Photo','Make a simple passport-style photo canvas.','/passport-photo-maker/'],
+  ['⇄','JPG → PDF','Turn one or many images into a PDF.','/jpg-to-pdf/'],
+  ['▤','Merge PDF','Combine multiple PDF files privately in your browser.','/merge-pdf/'],
+  ['▧','PDF Tools','One place for common PDF jobs.','/pdf-tools/']
+];
+---
+<BaseLayout title="PARADOX Tools — Free Image & PDF Tools, No Account" description="Free browser-based image and PDF tools. Resize images, compress to exact KB, make passport photos, convert JPG to PDF and merge PDFs. No account and no upload required.">
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">FREE BROWSER TOOLS · NO ACCOUNT</div>
+        <h1>Fix the file.<br><em>Finish the form.</em></h1>
+        <p>Resize photos, hit an exact KB limit, make a signature image, convert JPG to PDF and merge PDFs — without sending your files to a server.</p>
+        <div class="hero-actions"><a class="primary" href="#tools">Choose a tool ↓</a><a class="secondary" href="/privacy/">How privacy works</a></div>
+        <div class="trust">✓ Free to use · ✓ No signup · ✓ Browser-side processing · ✓ Mobile friendly</div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="stamp"><div>PARADOX<br>FILE LAB</div><strong>20K</strong></div></div>
+    </section>
+
+    <section class="quick" aria-label="Popular presets">
+      <div class="quick-inner"><div class="eyebrow" style="color:#a9cdbb">FASTEST PATH</div><h2>Need an image under a limit?</h2><div class="preset-row"><a class="preset" href="/resize-image-to-20kb/">20 KB</a><a class="preset" href="/resize-image-to-50kb/">50 KB</a><a class="preset" href="/resize-image-to-100kb/">100 KB</a><a class="preset" href="/resize-image-to-200kb/">200 KB</a><a class="preset" href="/signature-resizer/">SIGNATURE</a><a class="preset" href="/passport-photo-maker/">PASSPORT PHOTO</a></div></div>
+    </section>
+
+    <section class="section" id="tools">
+      <div class="section-head"><div><div class="eyebrow">THE TOOLKIT</div><h2>Use it.<br><em>Move on.</em></h2></div><p>Designed for the moment a website, exam form or application tells you your file is too large, too small or simply the wrong format.</p></div>
+      <div class="tool-grid">
+        {tools.map(([icon,name,desc,href],i)=><a class:list={['tool-card',i===0&&'featured']} href={href}><div class="tool-icon">{icon}</div><div><h3>{name}</h3><p>{desc}</p></div><div class="tool-link">Open tool ↗</div></a>)}
+      </div>
+    </section>
+
+    <section class="section"><div class="why"><div class="eyebrow">WHY PARADOX</div><h2>Your files stay with you.</h2><p>Most everyday image jobs don't need a cloud backend. These tools use browser APIs and local processing so the original file can stay on your device. That also makes the site fast, cheap to operate and easy to use on a phone.</p><p>For search engines, each tool is a real working page rather than a thin article. For people, the useful part is one click away.</p></div></section>
+  </main>
+</BaseLayout>
