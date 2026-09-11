@@ -1,0 +1,15 @@
+<div class="tool-panel pdf-tool" data-mode="pdf">
+  <div class="dropzone" id="pdfDrop"><div style="font-size:42px">▤</div><strong>Drop PDF files here</strong><div style="color:var(--muted);font-size:12px;margin-top:5px">Files stay in this browser tab</div><label class="drop-button" for="pdfFiles">Choose PDFs</label><input id="pdfFiles" type="file" accept="application/pdf" multiple /><div class="file-meta" id="pdfMeta">No files selected</div></div>
+  <div class="controls" id="pdfControls" hidden><div class="control-row"><label for="pdfAction">Action</label><select id="pdfAction"><option value="merge">Merge PDFs</option><option value="jpgpdf">Images to PDF</option></select></div><button class="primary" id="pdfRun">Create PDF →</button></div>
+  <div class="output" id="pdfOutput" hidden></div>
+</div>
+<script type="module">
+  import { PDFDocument } from 'pdf-lib';
+  const root=document.querySelector('.pdf-tool'); if(root){
+    const input=root.querySelector('#pdfFiles'); const drop=root.querySelector('#pdfDrop'); const meta=root.querySelector('#pdfMeta'); const controls=root.querySelector('#pdfControls'); const out=root.querySelector('#pdfOutput'); const run=root.querySelector('#pdfRun'); let files=[];
+    const nice=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';
+    const load=fs=>{files=[...fs]; meta.textContent=files.length?files.map(f=>`${f.name} · ${nice(f.size)}`).join(' · '):'No files selected';controls.hidden=!files.length;out.hidden=true;};
+    input.addEventListener('change',e=>load(e.target.files)); ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')})); ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')})); drop.addEventListener('drop',e=>load(e.dataTransfer.files));
+    run.addEventListener('click',async()=>{if(!files.length)return;run.disabled=true;run.textContent='Working…';try{const action=root.querySelector('#pdfAction').value;const pdf=await PDFDocument.create();if(action==='merge'){for(const f of files){const src=await PDFDocument.load(await f.arrayBuffer());const pages=await pdf.copyPages(src,src.getPageIndices());pages.forEach(p=>pdf.addPage(p));}}else{for(const f of files){if(!f.type.startsWith('image/'))continue;const bytes=await f.arrayBuffer();let img; if(f.type.includes('png'))img=await pdf.embedPng(bytes); else img=await pdf.embedJpg(bytes);const page=pdf.addPage([img.width,img.height]);page.drawImage(img,{x:0,y:0,width:img.width,height:img.height});}} const bytes=await pdf.save();const blob=new Blob([bytes],{type:'application/pdf'});const url=URL.createObjectURL(blob);out.hidden=false;out.innerHTML=`<div class="result-box"><strong>PDF created.</strong> ${nice(blob.size)}<br><a class="download" href="${url}" download="paradox-${action}.pdf">Download PDF ↓</a></div>`;}catch(e){console.error(e);alert('Could not create the PDF. Try standard PDFs or JPG/PNG images.')}finally{run.disabled=false;run.textContent='Create PDF →'}});
+  }
+</script>
