@@ -1,49 +1,57 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
 import demand from '../../data/demand.json';
+import seoOpportunities from '../../data/seo-opportunities.json';
 const top = demand.opportunities.slice(0, 6);
+const trends = demand.globalTrends?.slice(0, 20) || [];
+const catalog = demand.catalogDiscovery || [];
 ---
-<MakerLayout title="Global Generator Trends — PARADOX Makers" description="A transparent global attention radar that helps PARADOX Makers surface useful free generators people may need right now.">
+<MakerLayout title="Global Search & Demand Radar — PARADOX Makers" description="A transparent multi-source demand radar using public aggregate trend, media, Wikimedia, developer and API-catalog signals to surface useful free generators.">
   <main class="maker-main">
     <section class="maker-hero compact-hero">
       <div>
-        <div class="maker-kicker">GLOBAL ATTENTION RADAR</div>
-        <h1>What people are<br/><em>making right now.</em></h1>
-        <p>PARADOX Makers checks public, privacy-safe signals and uses them to decide which existing tools deserve more visibility. It does not track individual people and it does not pretend these signals are Google keyword volume.</p>
+        <div class="maker-kicker">GLOBAL DEMAND INTELLIGENCE</div>
+        <h1>See what is moving.<br/><em>Serve a real job.</em></h1>
+        <p>PARADOX samples public aggregate signals across countries, then maps them to actual tools. It is designed to adapt discovery automatically without buying traffic or tracking individual people.</p>
       </div>
       <div class="maker-proof">
         <div class="proof-tile"><strong>REFRESHED</strong><span>{demand.refreshedAt}</span></div>
-        <div class="proof-tile"><strong>PUBLIC SIGNALS</strong><span>Wikimedia + GDELT</span></div>
-        <div class="proof-tile"><strong>NO ACCOUNTS</strong><span>Nothing is required from visitors.</span></div>
+        <div class="proof-tile"><strong>SEARCH SIGNALS</strong><span>{demand.sourceHealth?.googleTrends?.rows || 0} trend rows</span></div>
+        <div class="proof-tile"><strong>NO PRIVATE DATA</strong><span>Public aggregate sources only.</span></div>
       </div>
     </section>
 
     <section class="maker-section">
-      <div class="maker-section-head">
-        <div><div class="maker-label">TOP OPPORTUNITIES</div><h2>Follow attention,<br/>serve a real job.</h2></div>
-        <p>These are rankings among PARADOX Makers' existing utilities. A higher signal changes prominence, not the underlying claim or tool.</p>
-      </div>
+      <div class="maker-section-head"><div><div class="maker-label">LIVE SIGNAL SAMPLE</div><h2>Trending across<br/>multiple markets.</h2></div><p>Google Trends exposes aggregate Trending Now data for many countries/regions. These rows are signals for discovery, not promises of exact search volume or rankings.</p></div>
       <div class="maker-tools">
-        {top.map((item, index) => (
-          <a class="maker-card" href={item.route}>
-            <div>
-              <div class="maker-card-top"><div class="maker-icon">0{index + 1}</div><span aria-hidden="true">↗</span></div>
-              <h2>{item.label}</h2>
-              <p>Open the focused {item.mode} tool and make something immediately.</p>
-            </div>
-            <div class="maker-open">Use this tool →</div>
-          </a>
-        ))}
+        {trends.map((item, index) => <a class="maker-card" href="/use-cases/"><div><div class="maker-card-top"><div class="maker-icon">{String(index+1).padStart(2,'0')}</div><span>{item.geo}</span></div><h2>{item.query}</h2><p>{item.traffic || 'Trending'} · {item.pubDate || 'current public signal'}</p></div><div class="maker-open">See useful matches →</div></a>)}
       </div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head"><div><div class="maker-label">TOOL FIT</div><h2>Attention becomes<br/><em>action.</em></h2></div><p>Each score is a relative internal ranking. It combines trend matches with public media attention and is used to decide which existing tool gets more visibility.</p></div>
+      <div class="maker-tools">
+        {top.map((item, index) => <a class="maker-card" href={item.route}><div><div class="maker-card-top"><div class="maker-icon">0{index+1}</div><span>score {item.score}</span></div><h2>{item.label}</h2><p>{item.trendMatches?.length || 0} matching trend signals · {item.mediaSignal || 0} media signal units</p></div><div class="maker-open">Use this tool →</div></a>)}
+      </div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head"><div><div class="maker-label">AUTOMATIC SEO LAYER</div><h2>{seoOpportunities.length} focused pages,<br/>only when earned.</h2></div><p>The engine can turn a strong trend/tool match into a focused use-case page. It caps the count and requires a real underlying generator to keep these pages useful instead of creating keyword-only doorway pages.</p></div>
+      <div class="maker-guide-grid">{seoOpportunities.slice(0,8).map(item => <a class="maker-guide" href={`/use-cases/${item.slug}/`}><strong>{item.title}</strong><br/>{item.description}</a>)}</div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head"><div><div class="maker-label">API DISCOVERY</div><h2>Two large API catalogs<br/>feed the scout.</h2></div><p>The public-apis and Awesome-APIs repositories are treated as discovery registries. The engine scans them for relevant public sources; it does not blindly call thousands of third-party APIs.</p></div>
+      <div class="maker-guide-grid">{catalog.map(source => <article class="maker-guide"><strong>{source.name}</strong><br/>{source.scanned ? `Scanned ${source.totalRelevant} relevant catalog entries.` : 'Waiting for the next successful refresh.'}</article>)}</div>
     </section>
 
     <section class="maker-section">
       <article class="maker-why">
-        <div class="maker-label">HOW THIS WORKS</div>
-        <h1>Automatic, but not spammy.</h1>
-        <p>Every refresh reads public aggregate signals from Wikimedia's Analytics API and GDELT's global news data. The site can change which existing generator is featured, which guide is promoted and which preset is suggested.</p>
-        <p>It deliberately does not manufacture thousands of near-identical search pages from those feeds. Google treats scaled pages created mainly to manipulate rankings as spam, so the automation is constrained to useful, real tools and transparent trend evidence.</p>
-        <p><a href="/">Back to all generators →</a></p>
+        <div class="maker-label">WHY THIS IS DIFFERENT</div>
+        <h1>A traffic system, not an ad campaign.</h1>
+        <p>The goal is to compound organic discovery: watch aggregate demand, connect it to a real task, publish only useful pages, update the sitemap during every build, and keep the generators immediately usable.</p>
+        <p>That can increase the probability of organic discovery, but no system can honestly guarantee immediate traffic, rankings, AdSense approval or revenue. Search engines decide what they index and rank.</p>
+        <p><a href="/">Back to PARADOX Makers →</a></p>
       </article>
     </section>
   </main>
