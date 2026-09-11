@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://paradox.engineer/</loc></url>
-  <url><loc>https://paradox.engineer/image-resizer/</loc></url>
-  <url><loc>https://paradox.engineer/image-compressor/</loc></url>
-  <url><loc>https://paradox.engineer/resize-image-to-20kb/</loc></url>
-  <url><loc>https://paradox.engineer/resize-image-to-50kb/</loc></url>
-  <url><loc>https://paradox.engineer/resize-image-to-100kb/</loc></url>
-  <url><loc>https://paradox.engineer/resize-image-to-200kb/</loc></url>
-  <url><loc>https://paradox.engineer/signature-resizer/</loc></url>
-  <url><loc>https://paradox.engineer/passport-photo-maker/</loc></url>
-  <url><loc>https://paradox.engineer/jpg-to-pdf/</loc></url>
-  <url><loc>https://paradox.engineer/merge-pdf/</loc></url>
-  <url><loc>https://paradox.engineer/pdf-tools/</loc></url>
+  <url><loc>https://paradox.engineer/bingo-card-generator/</loc></url>
+  <url><loc>https://paradox.engineer/word-search-generator/</loc></url>
+  <url><loc>https://paradox.engineer/random-team-generator/</loc></url>
+  <url><loc>https://paradox.engineer/decision-wheel/</loc></url>
+  <url><loc>https://paradox.engineer/tournament-bracket-generator/</loc></url>
+  <url><loc>https://paradox.engineer/raffle-ticket-generator/</loc></url>
+  <url><loc>https://paradox.engineer/seating-chart-generator/</loc></url>
+  <url><loc>https://paradox.engineer/certificate-maker/</loc></url>
+  <url><loc>https://paradox.engineer/guides/bingo-cards/</loc></url>
+  <url><loc>https://paradox.engineer/guides/word-searches/</loc></url>
+  <url><loc>https://paradox.engineer/guides/random-teams/</loc></url>
+  <url><loc>https://paradox.engineer/guides/printables/</loc></url>
   <url><loc>https://paradox.engineer/about/</loc></url>
   <url><loc>https://paradox.engineer/privacy/</loc></url>
   <url><loc>https://paradox.engineer/contact/</loc></url>
