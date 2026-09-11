@@ -1,0 +1,30 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+import demand from '../../data/demand.json';
+import seoOpportunities from '../../data/seo-opportunities.json';
+---
+<MakerLayout title="Useful Generator Ideas — PARADOX Makers" description="Demand-driven use cases for PARADOX Makers free generators, selected from aggregate public trend signals.">
+  <main class="maker-main">
+    <section class="maker-hero compact-hero">
+      <div>
+        <div class="maker-kicker">USE CASE LIBRARY</div>
+        <h1>Search demand,<br/><em>turned into tools.</em></h1>
+        <p>These pages connect current public attention signals to real generator jobs. Every page points to a working free browser tool rather than a keyword-only article.</p>
+      </div>
+      <div class="maker-proof">
+        <div class="proof-tile"><strong>{seoOpportunities.length} ACTIVE</strong><span>Demand-selected use cases in this build.</span></div>
+        <div class="proof-tile"><strong>{demand.globalTrends.length} SIGNALS</strong><span>Global trend rows collected for this refresh.</span></div>
+        <div class="proof-tile"><strong>NO ACCOUNT</strong><span>Visitors can use every core generator directly.</span></div>
+      </div>
+    </section>
+    <section class="maker-section">
+      <div class="maker-section-head"><div><div class="maker-label">CURRENT OPPORTUNITIES</div><h2>Useful pages only.</h2></div><p>Automatic selection is deliberately capped. A trend is not enough by itself; PARADOX needs a matching tool that can solve a concrete job.</p></div>
+      <div class="maker-tools">
+        {seoOpportunities.map((item, index) => <a class="maker-card" href={`/use-cases/${item.slug}/`}><div><div class="maker-card-top"><div class="maker-icon">{String(index+1).padStart(2,'0')}</div><span aria-hidden="true">↗</span></div><h2>{item.title}</h2><p>{item.description}</p></div><div class="maker-open">Open use case →</div></a>)}
+      </div>
+    </section>
+    <section class="maker-section">
+      <article class="maker-why"><div class="maker-label">TRANSPARENCY</div><h1>Automation with a brake.</h1><p>PARADOX combines aggregate public trend signals with a fixed set of real tools. It does not publish thousands of cloned keyword pages, scrape private search histories, or claim guaranteed rankings.</p><p><a href="/trending/">See the global demand radar →</a></p></article>
+    </section>
+  </main>
+</MakerLayout>
