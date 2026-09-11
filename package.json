@@ -1,18 +1,1 @@
-{
-  "name": "paradox-tools",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
-  },
-  "dependencies": {
-    "astro": "latest",
-    "pdf-lib": "latest"
-  },
-  "engines": {
-    "node": ">=22"
-  }
-}
+{"name":"paradox-makers","version":"2.0.0","private":true,"type":"module","scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview"},"dependencies":{"astro":"latest"},"engines":{"node":">=22"}}
