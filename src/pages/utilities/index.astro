@@ -1,0 +1,26 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+import opportunities from '../../data/utility-opportunities.json';
+---
+<MakerLayout title="Free Online Utilities — PARADOX Makers" description="Free browser utilities for calculations, conversions, dates, text and everyday tasks.">
+  <main class="maker-main">
+    <section class="maker-hero compact-hero">
+      <div>
+        <div class="maker-kicker">FREE ONLINE UTILITIES</div>
+        <h1>Small tools.<br/><em>Useful answers.</em></h1>
+        <p>Fast browser utilities for calculations, conversions, dates, text and random decisions. No account required.</p>
+      </div>
+      <div class="maker-proof">
+        <div class="proof-tile"><strong>{opportunities.length} TOOLS</strong><span>Generated from a reusable utility system.</span></div>
+        <div class="proof-tile"><strong>BROWSER FIRST</strong><span>Core calculations happen locally.</span></div>
+        <div class="proof-tile"><strong>NO ACCOUNT</strong><span>Open and use immediately.</span></div>
+      </div>
+    </section>
+    <section class="maker-section">
+      <div class="maker-section-head"><div><div class="maker-label">UTILITY LIBRARY</div><h2>Pick a task.</h2></div><p>PARADOX can promote or expand these utilities as new public demand signals appear.</p></div>
+      <div class="maker-tools">
+        {opportunities.map((item, index) => <a class="maker-card" href={`/utilities/${item.slug}/`}><div><div class="maker-card-top"><div class="maker-icon">{String(index+1).padStart(2,'0')}</div><span aria-hidden="true">↗</span></div><h2>{item.label}</h2><p>{item.description}</p></div><div class="maker-open">Use utility →</div></a>)}
+      </div>
+    </section>
+  </main>
+</MakerLayout>
