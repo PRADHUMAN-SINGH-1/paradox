@@ -1,0 +1,9 @@
+---
+const { height = 280, width = '100%', label = 'Advertisement' } = Astro.props;
+---
+<div class="ad-slot ds-ad-slot" style={`min-height:${height}px;width:${width};`} aria-label={label}>
+  <span class="ad-slot-label">{label}</span>
+</div>
+<style>
+.ad-slot-label{font:9px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:rgb(var(--muted));}
+</style>
