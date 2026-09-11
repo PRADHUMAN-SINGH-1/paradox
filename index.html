@@ -1,29 +1,19 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="PARADOX — interactive magic, perception and mind experiments. Choose freely. Then try to catch the method.">
-<title>PARADOX — Try to catch the trick.</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header><a class="logo" href="/">PARADOX<span>°</span></a><div class="navnote">A little magic. No fake mind-reading.</div></header>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0b0a"><meta name="description" content="PARADOX — interactive magic, perception and impossible choices. A playful illusion lab from India for the world."><title>PARADOX — Enter the impossible</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<div id="cursor"></div><canvas id="scene"></canvas>
+<header><a class="brand" href="#">PARADOX<span>°</span></a><nav><a href="#experiments">Experiments</a><a href="#calm">Calm</a><button id="sound">SOUND OFF</button></nav></header>
 <main>
-<section class="landing">
-<div class="tiny">ROOM 01 · THE SEALED PREDICTION</div>
-<h1>Don't try to impress<br>the website.</h1>
-<h1 class="accent">Try to catch it.</h1>
-<p class="intro">A small experiment built from an old magician's idea: make a free choice, then see whether the choice was ever as free as it felt.</p>
-<button class="enter" onclick="startTrick()">Open the envelope <span>→</span></button>
-<p class="promise">Takes about 90 seconds · sound optional · no account</p>
-</section>
-<section class="why">
-<div><span>01</span><h3>Choose</h3><p>Follow your first instinct. Don't overthink it.</p></div>
-<div><span>02</span><h3>Forget</h3><p>We'll lock each decision before moving on.</p></div>
-<div><span>03</span><h3>Catch</h3><p>At the end, you can inspect the method.</p></div>
-</section>
-<section class="note"><div class="scribble">एक छोटा<br>सा खेल.</div><p>Made in India. Built for anyone who likes the moment just before an explanation.</p></section>
-</main>
-<div id="modal" class="modal" aria-hidden="true"><div class="stage"><button class="x" onclick="closeTrick()">×</button><div id="game"></div></div></div>
-<script src="app.js"></script>
-</body></html>
+<section class="hero"><div class="hero-copy"><div class="eyebrow">AN INTERACTIVE ILLUSION LAB · INDIA → EVERYWHERE</div><h1>Look twice.<br><i>Choose once.</i></h1><p>Magic, perception and little psychological traps designed to make you forget your notifications for a minute.</p><button class="cta" onclick="enterLab()">ENTER THE LAB <b>↗</b></button><div class="micro">No account · no tracking · no fake psychic powers</div></div><div class="orbit"><div class="orbit-ring"></div><div class="orbit-dot"></div><div class="orbit-word">YOU<br>ARE<br>ALREADY<br>CHOOSING</div></div><div class="scroll">SCROLL TO GET CAUGHT ↓</div></section>
+<section class="manifesto"><div class="big">We don't want you to<br><em>believe</em> us.</div><div class="small">We want you to try to break the trick.<br><br>Every experiment has a moment where your brain says “I know what's happening.” That's exactly where we start.</div></section>
+<section id="experiments" class="experiments"><div class="section-head"><div><span>THE LAB</span><h2>Pick your<br><i>problem.</i></h2></div><p>Five rooms. Five different ways your intuition can betray you.</p></div>
+<div class="cards">
+<article class="exp featured" onclick="openRoom('prediction')"><div class="num">01</div><div class="visual pred"><span>?</span></div><div><h3>The Sealed Prediction</h3><p>Make three “free” choices. Then open something that was decided before you arrived.</p><b>TRY IT →</b></div></article>
+<article class="exp" onclick="openRoom('cups')"><div class="num">02</div><div class="visual cups"><span>● ● ●</span></div><h3>Three Cups</h3><p>Follow the red bead. Your eyes will swear they did.</p><b>PLAY →</b></article>
+<article class="exp" onclick="openRoom('card')"><div class="num">03</div><div class="visual deck"><span>♠</span></div><h3>The Other Card</h3><p>A classic card impossibility rebuilt for the screen.</p><b>PLAY →</b></article>
+<article class="exp" onclick="openRoom('word')"><div class="num">04</div><div class="visual word"><span>THINK<br>OF<br>ONE</span></div><h3>Don't Say It</h3><p>Think of a word. Don't type it. Don't say it.</p><b>PLAY →</b></article>
+<article class="exp calm-card" onclick="openRoom('calm')"><div class="num">05</div><div class="visual rain"><span>☂</span></div><h3>Monsoon Room</h3><p>No trick. Just 60 seconds of rain, paper and breathing space.</p><b>ENTER →</b></article>
+</div></section>
+<section class="interlude"><div class="giant">YOUR BRAIN<br>IS <span>HELPING.</span></div><p>It predicts. It fills gaps. It commits. It edits memories.<br>We simply give it something interesting to work with.</p></section>
+<section id="calm" class="calm"><div><span class="eyebrow">THE OTHER SIDE</span><h2>Nothing to win.</h2><p>Sometimes the best trick is making a noisy day feel quiet for sixty seconds.</p><button class="ghost" onclick="openRoom('calm')">OPEN CALM ROOM →</button></div><div class="breath"><div></div><span>BREATHE IN · BREATHE OUT</span></div></section>
+<footer><span>PARADOX°</span><span>Made with curiosity in India.</span><span>© 2026</span></footer></main>
+<div id="room" class="room"><button class="close" onclick="closeRoom()">×</button><div id="roomContent"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="app.js"></script></body></html>
