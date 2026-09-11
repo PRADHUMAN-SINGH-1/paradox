@@ -1,45 +1,25 @@
-const modal=document.getElementById('modal'),game=document.getElementById('game');
-const suits=[['♠','Spades'],['♥','Hearts'],['♣','Clubs'],['♦','Diamonds']];
-const target=suits[Math.floor(Math.random()*suits.length)][0];
-let live=[0,1,2,3],chosen=null;
-
-function startTrick(){live=[0,1,2,3];chosen=null;modal.classList.add('open');modal.setAttribute('aria-hidden','false');renderStart()}
-function closeTrick(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
-function card(i){return '<button class="playing" onclick="choose('+i+')"><span class="mark">'+suits[i][0]+'</span><small>'+suits[i][1]+'</small></button>'}
-function renderStart(){game.innerHTML='<div class="game"><div class="game-top">PARADOX / THE SEALED PREDICTION</div><h2>One suit is already sealed.</h2><p>I made the prediction before you entered this room.</p><p>There are four cards. Pick the one your hand wants. No strategy.</p><div class="cards">'+live.map(card).join('')+'</div></div>'}
-
-function choose(i){
- chosen=i;
- const isTarget=suits[i][0]===target;
- if(isTarget){
-   game.innerHTML='<div class="game"><div class="game-top">DECISION 01 · LOCKED</div><h2>Keep that one.</h2><p>Interesting. Don’t touch it again.</p><div class="locked"><b>YOUR CHOICE IS SEALED.</b><br>'+suits[i][0]+' '+suits[i][1]+'</div><button class="continue" onclick="roundTwo()">Continue →</button></div>';
- }else{
-   live=live.filter(x=>x!==i);
-   game.innerHTML='<div class="game"><div class="game-top">DECISION 01 · LOCKED</div><h2>Fair. Let that one go.</h2><p>We won't use your first card. It stays out of the experiment.</p><div class="locked"><b>REMOVED</b><br>'+suits[i][0]+' '+suits[i][1]+'</div><button class="continue" onclick="roundTwo()">Continue →</button></div>';
- }
-}
-function roundTwo(){
- if(live.length===1){finish();return}
- game.innerHTML='<div class="game"><div class="game-top">DECISION 02</div><h2>Now choose again.</h2><p>Pick one of these. If it feels right, keep it. If not, we’ll take it out.</p><div class="cards">'+live.map(card).join('')+'</div></div>';
-}
-function choose(i){
- if(live.length===4){chosen=i; if(suits[i][0]===target){live=[i]}else{live=live.filter(x=>x!==i)}}
- else if(live.length===3){if(suits[i][0]===target){live=live.filter(x=>x!==i); /* target must be protected; move ambiguity to the instruction */ live=[i].concat(live.slice(0,1))}else{live=live.filter(x=>x!==i)}}
- else {live=[targetIndex(), i===targetIndex()?live.find(x=>x!==i):i]}
- if(live.length===1){finish();return}
- game.innerHTML='<div class="game"><div class="game-top">DECISION · NARROWING</div><h2>Good. Two roads left.</h2><p>One final choice. Point to the suit you would rather <b>leave on the table</b>.</p><div class="choice">'+live.map(i=>'<button onclick="last('+i+')">'+suits[i][0]+' '+suits[i][1]+'</button>').join('')+'</div></div>';
-}
-function last(i){
- if(suits[i][0]===target){live=[i]}else{live=[targetIndex()]}
- finish()
-}
-function targetIndex(){return suits.findIndex(s=>s[0]===target)}
-function finish(){
- const t=targetIndex();
- game.innerHTML='<div class="game"><div class="game-top">THE SEALED PREDICTION</div><h2>Now open it.</h2><p>You made the last decision. The envelope has not changed.</p><div class="envelope" onclick="openEnvelope()"><div class="seal">OPEN</div></div><p style="text-align:center;font:11px DM Mono;color:#777">Tap the seal</p>';
- window._pred=t;
-}
-function openEnvelope(){
- const t=suits[window._pred];
- game.innerHTML='<div class="game"><div class="game-top">THE REVEAL</div><h2>There it is.</h2><div class="reveal"><h3>'+t[0]+' · '+t[1]+'.</h3><p>The prediction was fixed before your first click.</p></div><details class="method"><summary>How is this possible?</summary><p>This is the family of ideas magicians call <b>equivoque</b> or the magician’s choice. The performer gives choices that sound ordinary, but each possible answer has a prepared continuation. The object being protected can therefore survive every branch.</p><p>Nothing here reads your mind. The interesting part is psychological: <b>your brain experiences a controlled decision as a free one.</b></p></details><button class="again" onclick="startTrick()">Try to catch it again</button></div>';
-}
+const room=document.getElementById('room'),content=document.getElementById('roomContent');let audio=false,chosen=[];
+function enterLab(){document.getElementById('experiments').scrollIntoView({behavior:'smooth'})}
+function openRoom(type){room.classList.add('open');document.body.style.overflow='hidden';if(type==='prediction')prediction();if(type==='cups')cups();if(type==='card')card();if(type==='word')word();if(type==='calm')calm()}
+function closeRoom(){room.classList.remove('open');document.body.style.overflow='';}
+function shell(tag,title,body){content.innerHTML='<div class="room-inner"><div class="room-tag">'+tag+'</div><h2>'+title+'</h2>'+body+'</div>'}
+function prediction(){shell('ROOM 01 · CLASSIC MENTALISM','The Sealed Prediction','<p>There is one suit inside the envelope. You can make the choices. I will not ask you to type anything, and I will not pretend to read your mind.</p><div class="reveal-box"><b>RULE</b><br>Choose quickly. Your first instinct is the experiment.</div><div class="choice-grid">'+['♠','♥','♣','♦'].map((x,i)=>'<button class="choice-card" onclick="predChoice('+i+')">'+x+'</button>').join('')+'</div>')}
+let predTarget=Math.floor(Math.random()*4);
+function predChoice(i){chosen.push(i);if(chosen.length===1){shell('LOCKED','Interesting choice. Now remove two.','<p>Your first choice is recorded. Pick two suits you want to eliminate.</p><div class="choice-grid">'+['♠','♥','♣','♦'].map((x,j)=>'<button class="choice-card" onclick="removeSuit('+j+',this)">'+x+'</button>').join('')+'</div><div id="count" class="reveal-box">0 / 2 removed</div>')}else predictionEnd()}
+let removed=[];
+function removeSuit(i,b){if(removed.includes(i))return;removed.push(i);b.style.opacity='.2';document.getElementById('count').innerHTML=removed.length+' / 2 removed';if(removed.length===2)setTimeout(()=>{shell('FINAL CHOICE','One suit survives.','<p>Of the two remaining paths, choose the one you would rather keep.</p><div class="room-actions">'+[0,1,2,3].filter(i=>!removed.includes(i)).map(i=>'<button onclick="finalPred('+i+')">'+['♠','♥','♣','♦'][i]+' KEEP</button>').join('')+'</div>')},300)}
+function finalPred(i){predTarget=i;predictionEnd()}
+function predictionEnd(){shell('THE REVEAL','Open the envelope.','<p>You made the decisions. Now comes the only part you cannot influence.</p><div class="room-actions"><button onclick="revealPred()">OPEN THE ENVELOPE ↗</button></div>')}
+function revealPred(){shell('REVEALED','You were guided, not read.','<div class="reveal-box"><h3 style="font:45px Instrument Serif;margin:0">'+['♠ Spades','♥ Hearts','♣ Clubs','♦ Diamonds'][predTarget]+'</h3><p>The illusion is based on <b>equivoque</b>: a classic magician’s-choice principle. Each branch has a prepared continuation, so a free-feeling decision can still lead to a controlled outcome.</p></div><details style="margin-top:30px"><summary style="font:11px DM Mono;cursor:pointer">SHOW ME THE METHOD</summary><p>There is no mind reading here. That's the point. PARADOX turns a centuries-old performance principle into something you can replay, inspect and try to break.</p></details><div class="room-actions"><button onclick="prediction()">TRY AGAIN</button><button class="alt" onclick="closeRoom()">EXIT</button></div>')}
+function cups(){shell('ROOM 02 · ATTENTION','Three Cups','<p>Watch the red bead. Don't look away. Then tell me where it is.</p><div class="cup-row"><div class="cup" onclick="cupPick(0)">A<div class="bead"></div></div><div class="cup" onclick="cupPick(1)">B</div><div class="cup" onclick="cupPick(2)">C</div></div><div class="room-actions"><button onclick="shuffleCups()">SHUFFLE</button></div><div id="cupResult"></div>')}
+let bead=0;
+function shuffleCups(){bead=Math.floor(Math.random()*3);document.querySelectorAll('.cup').forEach((c,i)=>{c.style.transform='translateX('+(i===bead?0:0)+'px) rotate('+(Math.random()*12-6)+'deg)'});document.getElementById('cupResult').innerHTML='<p>Done. Your eyes probably built a story between frames.</p>'}
+function cupPick(i){document.getElementById('cupResult').innerHTML='<div class="reveal-box"><b>You picked '+['A','B','C'][i]+'.</b><p>The interesting question is not whether you got it right. It is how confidently your brain filled in the movement you never actually inspected.</p></div>'}
+function card(){const cards=['♠','♥','♣','♦'];const pick=cards[Math.floor(Math.random()*4)];shell('ROOM 03 · CARD MAGIC','The Other Card','<p>Pick one card. Remember it. We will make the rest of the deck change around your decision.</p><div class="choice-grid">'+cards.map((x,i)=>'<button class="choice-card" onclick="cardReveal('+i+',\''+pick+'\')">'+x+'</button>').join('')+'</div>')}
+function cardReveal(i,pick){shell('THE DECK','Look again.','<div class="reveal-box"><h3 style="font:50px Instrument Serif;margin:0">'+pick+'</h3><p>Classic card magic is built around attention, order, force and memory. The screen lets us exaggerate those principles without pretending the browser is psychic.</p></div><div class="room-actions"><button onclick="card()">PLAY AGAIN</button></div>')}
+function word(){shell('ROOM 04 · MENTALISM','Don’t Say It','<p>Choose one word silently. Do not type it. Do not say it aloud. Choose from these only with your first instinct.</p><div class="word-grid">'+['MONSOON','MANGO','TRAIN','HOME','MIDNIGHT','RIVER','TEA','RAIN','CHAI'].map(x=>'<button onclick="wordReveal(\''+x+'\')">'+x+'</button>').join('')+'</div>')}
+function wordReveal(x){shell('YOU CHOSE','We knew you would hesitate.','<div class="reveal-box"><h3 style="font:50px Instrument Serif;margin:0">'+x+'</h3><p>We didn't read your mind. You clicked it. The reveal is a joke about how easily interfaces can manufacture the feeling of being known.</p></div>')}
+function calm(){shell('ROOM 05 · NO TRICK','Monsoon Room','<p>Put your phone down for a minute. Watch the rain. Breathe with the circle.</p><div class="rainfall">'+Array.from({length:90},(_,i)=>'<i class="drop" style="left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*1+'s"></i>').join('')+'</div><div class="breath-large">BREATHE</div>')}
+document.getElementById('sound').onclick=()=>{audio=!audio;document.getElementById('sound').textContent=audio?'SOUND ON':'SOUND OFF'};
+document.addEventListener('mousemove',e=>{const c=document.getElementById('cursor');c.style.transform='translate3d('+(e.clientX-5)+'px,'+(e.clientY-5)+'px,0)'});
+try{const s=new THREE.Scene();const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);cam.position.z=4;const r=new THREE.WebGLRenderer({canvas:document.getElementById('scene'),alpha:true,antialias:true});r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(innerWidth,innerHeight);const g=new THREE.IcosahedronGeometry(1.4,2);const m=new THREE.MeshBasicMaterial({color:0x9b9386,wireframe:true,transparent:true,opacity:.18});const mesh=new THREE.Mesh(g,m);s.add(mesh);function loop(t){mesh.rotation.x=t*.00015;mesh.rotation.y=t*.00022;mesh.scale.setScalar(1+Math.sin(t*.0007)*.06);r.render(s,cam);requestAnimationFrame(loop)}loop(0);addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();r.setSize(innerWidth,innerHeight)})}catch(e){console.log(e)}
