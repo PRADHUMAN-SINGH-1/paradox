@@ -1,0 +1,50 @@
+[
+  {
+    "slug":"school-bingo-generator",
+    "title":"Bingo Card Generator for School Activities",
+    "description":"Create a printable bingo card for classroom activities, icebreakers and school events with a free browser tool.",
+    "query":"school activities",
+    "toolId":"classroom-bingo",
+    "toolLabel":"Classroom bingo",
+    "toolRoute":"/bingo-card-generator/",
+    "topic":"school",
+    "score":1,
+    "evidence":{"fallback":true}
+  },
+  {
+    "slug":"spelling-word-search-generator",
+    "title":"Word Search Generator for Spelling Practice",
+    "description":"Turn spelling and vocabulary words into a printable word search with a free browser generator.",
+    "query":"spelling practice",
+    "toolId":"word-search-puzzles",
+    "toolLabel":"Word-search puzzles",
+    "toolRoute":"/word-search-generator/",
+    "topic":"spelling",
+    "score":1,
+    "evidence":{"fallback":true}
+  },
+  {
+    "slug":"sports-tournament-bracket-generator",
+    "title":"Tournament Bracket Generator for Sports",
+    "description":"Create a clean knockout bracket for sports tournaments, clubs and competitions with no account required.",
+    "query":"sports tournament",
+    "toolId":"tournament-brackets",
+    "toolLabel":"Tournament brackets",
+    "toolRoute":"/tournament-bracket-generator/",
+    "topic":"sports",
+    "score":1,
+    "evidence":{"fallback":true}
+  },
+  {
+    "slug":"wedding-seating-chart-generator",
+    "title":"Seating Chart Generator for Weddings",
+    "description":"Arrange names into a printable wedding seating chart with a free browser-first generator.",
+    "query":"wedding seating",
+    "toolId":"seating-charts",
+    "toolLabel":"Seating charts",
+    "toolRoute":"/seating-chart-generator/",
+    "topic":"events",
+    "score":1,
+    "evidence":{"fallback":true}
+  }
+]
