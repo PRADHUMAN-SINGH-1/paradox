@@ -1,4 +1,5 @@
 name: Deploy PARADOX Makers
+
 on:
   push:
     branches: ["main"]
@@ -9,6 +10,9 @@ on:
 concurrency:
   group: pages
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -25,9 +29,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Restore SEO memory
         uses: actions/cache@v4
@@ -39,6 +44,7 @@ jobs:
 
       - name: Ingest first-party search performance
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         env:
           GSC_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON_B64 }}
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
@@ -47,18 +53,34 @@ jobs:
 
       - name: Refresh global demand intelligence
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         run: node scripts/update-demand.mjs
 
-      - name: Score verified opportunities\n        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'\n        run: node scripts/score-opportunities.mjs\n\n      - name: Run closed-loop SEO brain
+      - name: Score verified opportunities
+        continue-on-error: true
+        run: node scripts/score-opportunities.mjs
+
+      - name: Run closed-loop SEO brain
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         run: node scripts/seo-brain.mjs
+
+      - name: Prune weak SEO routes
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: node scripts/prune-routes.mjs
 
       - name: Generate demand-driven utility catalog
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         run: node scripts/build-utility-opportunities.mjs
 
       - name: Build SEO sitemap from current plan
+        continue-on-error: true
         run: node scripts/build-sitemap.mjs
+
+      - name: Validate source files
+        run: node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs
 
       - name: Build Astro
         run: npm run build
@@ -76,7 +98,10 @@ jobs:
             src/data/seo-opportunities.json
             src/data/seo-plan.json
             src/data/utility-opportunities.json
+            src/data/verified_opportunities.json
+            src/data/blacklist.json
             public/sitemap.xml
+          if-no-files-found: warn
           retention-days: 7
 
   deploy:
@@ -97,6 +122,8 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -109,6 +136,7 @@ jobs:
         with:
           name: seo-runtime
       - name: Submit sitemap and URLs to search engines
+        continue-on-error: true
         env:
           GSC_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON_B64 }}
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
