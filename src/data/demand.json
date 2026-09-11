@@ -1,0 +1,19 @@
+{
+  "asOf": "2026-09-11",
+  "refreshedAt": "2026-09-11",
+  "sources": [
+    {"name":"Wikimedia Analytics","url":"https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/","scope":"Most-viewed Wikipedia pages across eight language projects."},
+    {"name":"GDELT","url":"https://www.gdeltproject.org/","scope":"Global news-coverage volume signals across languages."}
+  ],
+  "opportunities": [
+    {"id":"classroom-bingo","label":"Classroom bingo","mode":"bingo","route":"/bingo-card-generator/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"word-search-puzzles","label":"Word-search puzzles","mode":"words","route":"/word-search-generator/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"random-teams","label":"Random team splitting","mode":"teams","route":"/random-team-generator/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"decision-wheel","label":"Random decision wheel","mode":"wheel","route":"/decision-wheel/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"tournament-brackets","label":"Tournament brackets","mode":"bracket","route":"/tournament-bracket-generator/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"raffle-tickets","label":"Raffle tickets","mode":"raffle","route":"/raffle-ticket-generator/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"seating-charts","label":"Seating charts","mode":"seating","route":"/seating-chart-generator/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."},
+    {"id":"certificates","label":"Certificates","mode":"certificate","route":"/certificate-maker/","score":0,"wikipediaMatches":[],"note":"Global attention signal; not Google keyword/search-volume data."}
+  ],
+  "disclaimer":"This radar measures public attention signals. It does not expose private user data and does not claim to be Google search volume."
+}
