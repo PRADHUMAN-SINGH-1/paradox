@@ -284,6 +284,22 @@ const seoOpportunities = buildSeoPages([...trends], wikiTitles, gdeltScores);
 
 const topTrends = trends.slice(0,30).map(item => ({ query:item.query, geo:item.geo, traffic:item.trafficLabel, trafficValue:item.traffic, pubDate:item.pubDate }));
 
+// Raw evidence is kept separate from the editorial/scoring layer.
+// A broken source contributes an empty/failure record rather than failing the build.
+const rawDemand = {
+  version:1,
+  generatedAt:new Date().toISOString(),
+  sources:{
+    googleTrends:{ rows:trendBundle.trends, failures:trendBundle.failures },
+    wikimedia:wiki,
+    gdelt:gdeltScores,
+    hackerNews:hackerNews.slice(0,100),
+    github:githubRepos.slice(0,100),
+    apiCatalogs:catalogs
+  },
+  disclaimer:'Raw public aggregate signals only; not Google keyword volume or private user data.'
+};
+
 const output = {
   version:3,
   generatedAt:new Date().toISOString(),
@@ -313,7 +329,7 @@ const output = {
 };
 
 await fs.mkdir('src/data', { recursive:true });
-await fs.writeFile('src/data/demand.json', `${JSON.stringify(output,null,2)}\n`);
+await fs.writeFile('src/data/raw_demand.json', `${JSON.stringify(rawDemand,null,2)}\\n`);\nawait fs.writeFile('src/data/demand.json', `${JSON.stringify(output,null,2)}\n`);
 await fs.writeFile('src/data/seo-opportunities.json', `${JSON.stringify(seoOpportunities,null,2)}\n`);
 await fs.writeFile('src/data/api-sources.json', `${JSON.stringify(catalogs,null,2)}\n`);
 
