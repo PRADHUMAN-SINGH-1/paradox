@@ -1,12 +1,12 @@
 ---
-const { mode = 'resize', title = 'Image tool' } = Astro.props;
-const modeLabel = mode === 'kb' ? 'Target file size' : mode === 'signature' ? 'Signature' : mode === 'passport' ? 'Passport photo' : mode === 'convert' ? 'Convert image' : mode === 'compress' ? 'Compress image' : 'Resize image';
+const { mode = 'resize' } = Astro.props;
+const modeLabel = mode === 'kb' ? 'Target file size' : mode === 'signature' ? 'Signature' : mode === 'passport' ? 'Passport photo' : mode === 'compress' ? 'Compress image' : 'Resize image';
 ---
-<div class="tool-panel image-tool" data-mode={mode}>
+<div class="tool-panel image-tool" data-mode={mode} data-label={modeLabel}>
   <div class="dropzone" id="dropzone">
     <div style="font-size:42px">⌁</div>
     <strong>Drop an image here</strong>
-    <div style="color:var(--muted);font-size:12px;margin-top:5px">JPG, PNG, WEBP or HEIC-supported browser images</div>
+    <div style="color:var(--muted);font-size:12px;margin-top:5px">JPG, PNG, WEBP or other browser-readable image formats</div>
     <label class="drop-button" for="file">Choose image</label>
     <input id="file" type="file" accept="image/*" />
     <div class="file-meta" id="meta">No file selected</div>
@@ -16,8 +16,6 @@ const modeLabel = mode === 'kb' ? 'Target file size' : mode === 'signature' ? 'S
     {mode === 'resize' && <><div class="control-row"><label for="width">Width</label><input id="width" type="number" min="20" value="800" /></div><div class="control-row"><label for="height">Height</label><input id="height" type="number" min="20" value="600" /></div><label style="font:10px DM Mono"><input id="lock" type="checkbox" checked /> Keep aspect ratio</label></>}
     {mode === 'signature' && <div class="control-row"><label for="maxKb">Maximum file size</label><div><input id="maxKb" type="number" min="5" max="500" value="50" /><div style="font:9px DM Mono;color:var(--muted);margin-top:5px">KB</div></div></div>}
     {mode === 'passport' && <div class="control-row"><label for="fit">Output</label><select id="fit"><option value="india">35 × 45 mm · 413 × 531 px</option><option value="us">2 × 2 in · 600 × 600 px</option></select></div>}
-    {mode === 'convert' && <div class="control-row"><label for="format">Output format</label><select id="format"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WEBP</option></select></div>}
-    {mode === 'compress' && <div class="control-row"><label for="quality">Quality</label><div class="range-row"><input id="quality" type="range" min="20" max="95" value="75" /><output id="qualityOut">75%</output></div></div>}
     <button class="primary" id="process">{modeLabel} →</button>
   </div>
   <div class="output" id="output" hidden></div>
@@ -25,7 +23,7 @@ const modeLabel = mode === 'kb' ? 'Target file size' : mode === 'signature' ? 'S
 <script is:inline>
 (() => {
   const root = document.currentScript?.closest('.image-tool'); if(!root) return;
-  const mode = root.dataset.mode;
+  const mode = root.dataset.mode; const label=root.dataset.label||'Process image';
   const input = root.querySelector('#file'); const drop = root.querySelector('#dropzone'); const meta = root.querySelector('#meta');
   const controls = root.querySelector('#controls'); const output = root.querySelector('#output'); const process = root.querySelector('#process');
   let source = null; let file = null;
@@ -34,28 +32,28 @@ const modeLabel = mode === 'kb' ? 'Target file size' : mode === 'signature' ? 'S
   input.addEventListener('change', e=>load(e.target.files[0])); ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')})); ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')})); drop.addEventListener('drop',e=>load(e.dataTransfer.files[0]));
   const canvasBlob = async (canvas, type='image/jpeg', quality=.82) => new Promise(r=>canvas.toBlob(r,type,quality));
   const makeCanvas = (w,h) => { const c=document.createElement('canvas'); c.width=w;c.height=h;const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';return [c,ctx]; };
+  const drawCover = (ctx,img,w,h,fill='#fff') => { const scale=Math.max(w/img.naturalWidth,h/img.naturalHeight); const sw=img.naturalWidth*scale, sh=img.naturalHeight*scale; const x=(w-sw)/2,y=(h-sh)/2; ctx.fillStyle=fill;ctx.fillRect(0,0,w,h);ctx.drawImage(img,x,y,sw,sh); };
   const show = (blob, filename, note='') => { const url=URL.createObjectURL(blob); output.hidden=false; output.innerHTML=`<img alt="Processed image preview" src="${url}"><div class="result-box"><div><strong>Done.</strong> ${fmt(blob.size)}${note ? ' · '+note : ''}</div><a class="download" download="${filename}" href="${url}">Download ${filename} ↓</a></div>`; output.scrollIntoView({behavior:'smooth',block:'nearest'}); };
-  if(root.querySelector('#quality')) root.querySelector('#quality').addEventListener('input',e=>root.querySelector('#qualityOut').value=e.target.value+'%');
   process.addEventListener('click', async () => {
     if(!source) return alert('Choose an image first.');
     process.disabled=true; process.textContent='Processing…';
     try {
       let w=source.naturalWidth,h=source.naturalHeight,type='image/jpeg',quality=.84,filename='paradox-image.jpg',note='';
-      if(mode==='resize'){w=+root.querySelector('#width').value; h=+root.querySelector('#height').value; if(root.querySelector('#lock').checked){const ratio=source.naturalWidth/source.naturalHeight; if(document.activeElement===root.querySelector('#height')) w=Math.round(h*ratio); else h=Math.round(w/ratio);} filename='resized-'+file.name.replace(/\.[^.]+$/,'')+'.jpg';}
-      if(mode==='compress'){w=source.naturalWidth;h=source.naturalHeight;quality=+root.querySelector('#quality').value/100;filename='compressed-'+file.name.replace(/\.[^.]+$/,'')+'.jpg';}
-      if(mode==='convert'){type=root.querySelector('#format').value;filename='converted-'+file.name.replace(/\.[^.]+$/,'')+(type==='image/png'?'.png':type==='image/webp'?'.webp':'.jpg'); if(type==='image/png')quality=1;}
-      if(mode==='signature'){w=Math.min(source.naturalWidth,1000);h=Math.round(w*source.naturalHeight/source.naturalWidth);type='image/jpeg';quality=.82;filename='signature-resized.jpg';}
+      if(mode==='resize'){w=Math.max(20,+root.querySelector('#width').value); h=Math.max(20,+root.querySelector('#height').value); if(root.querySelector('#lock').checked){const ratio=source.naturalWidth/source.naturalHeight; if(document.activeElement===root.querySelector('#height')) w=Math.round(h*ratio); else h=Math.round(w/ratio);} filename='resized-'+file.name.replace(/\.[^.]+$/,'')+'.jpg';}
+      if(mode==='compress'){w=source.naturalWidth;h=source.naturalHeight;quality=+root.querySelector('#quality')?.value/100||.75;filename='compressed-'+file.name.replace(/\.[^.]+$/,'')+'.jpg';}
+      if(mode==='signature'){const maxKb=Math.max(5,+root.querySelector('#maxKb').value);w=Math.min(source.naturalWidth,1000);h=Math.max(80,Math.round(w*source.naturalHeight/source.naturalWidth));type='image/jpeg';quality=.82;filename='signature-resized.jpg';note=`target ≤ ${maxKb} KB`}
       if(mode==='passport'){const fit=root.querySelector('#fit').value;[w,h]=fit==='us'?[600,600]:[413,531];type='image/jpeg';quality=.9;filename='passport-photo.jpg';}
       let blob;
       if(mode==='kb'){
-        const target=Math.max(5,+root.querySelector('#targetKb').value)*1024; w=source.naturalWidth;h=source.naturalHeight; let scale=1;
-        for(let attempt=0;attempt<10;attempt++){const [c,ctx]=makeCanvas(Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)));ctx.drawImage(source,0,0,c.width,c.height);quality=.9;blob=await canvasBlob(c,'image/jpeg',quality); while(blob.size>target && quality>.2){quality-=.08;blob=await canvasBlob(c,'image/jpeg',quality);} if(blob.size<=target){w=c.width;h=c.height;break;} scale*=.82;}
-        filename=`image-${root.querySelector('#targetKb').value}kb.jpg`; note=blob.size<=target?'Within target':'Best effort';
+        const target=Math.max(5,+root.querySelector('#targetKb').value)*1024; let scale=1;
+        for(let attempt=0;attempt<12;attempt++){w=Math.max(1,Math.round(source.naturalWidth*scale));h=Math.max(1,Math.round(source.naturalHeight*scale));const [c,ctx]=makeCanvas(w,h);ctx.drawImage(source,0,0,w,h);quality=.92;blob=await canvasBlob(c,'image/jpeg',quality);while(blob.size>target&&quality>.18){quality-=.08;blob=await canvasBlob(c,'image/jpeg',quality);}if(blob.size<=target)break;scale*=.82;}
+        filename=`image-${root.querySelector('#targetKb').value}kb.jpg`;note=blob.size<=target?'Within target':'Best effort';
       } else {
-        const [c,ctx]=makeCanvas(w,h); if(mode==='passport'){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);} ctx.drawImage(source,0,0,w,h); blob=await canvasBlob(c,type,quality);
+        const [c,ctx]=makeCanvas(w,h); if(mode==='passport') drawCover(ctx,source,w,h,'#fff'); else ctx.drawImage(source,0,0,w,h); blob=await canvasBlob(c,type,quality);
+        if(mode==='signature' && +root.querySelector('#maxKb').value*1024 < blob.size){const target=+root.querySelector('#maxKb').value*1024;while(blob.size>target&&quality>.2){quality-=.07;blob=await canvasBlob(c,'image/jpeg',quality);}}
       }
       show(blob,filename,note);
-    } catch(err){console.error(err); alert('Could not process this file in your browser. Try JPG or PNG.');} finally {process.disabled=false; process.textContent=modeLabel+' →';}
+    } catch(err){console.error(err); alert('Could not process this file in your browser. Try JPG or PNG.');} finally {process.disabled=false; process.textContent=label+' →';}
   });
 })();
 </script>
