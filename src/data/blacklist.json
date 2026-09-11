@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "updatedAt": null,
+  "criteria": {
+    "ageDays": 60,
+    "minImpressions": 100,
+    "maxCtr": 0.005
+  },
+  "slugs": []
+}
