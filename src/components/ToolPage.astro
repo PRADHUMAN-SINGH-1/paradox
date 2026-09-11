@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ImageTool from './ImageTool.astro';
+import PdfTools from './PdfTools.astro';
+const {title,description,mode,kind='image',intro,steps=[],related=[]} = Astro.props;
+const canonical='https://paradox.engineer'+Astro.url.pathname;
+---
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <main class="tool-page">
+    <div class="tool-header"><div class="eyebrow">FREE · NO ACCOUNT · BROWSER-SIDE</div><h1>{title.replace(' — PARADOX Tools','')}</h1><p>{intro}</p></div>
+    <div class="tool-layout">
+      {kind==='pdf' ? <PdfTools/> : <ImageTool mode={mode}/>} 
+      <aside class="info-panel">
+        <h2>How it works</h2>
+        <ol>{steps.map(step=><li>{step}</li>)}</ol>
+        <h3>Your files</h3><p>Processing happens in your browser for these tools. Your original file is not sent to a PARADOX server.</p>
+        <h3>No account</h3><p>Open the tool, choose a file, download the result. There is no sign-in wall.</p>
+        {related.length>0 && <><h3>More free tools</h3><div class="mini-links">{related.map(([n,u])=><a href={u}>{n}</a>)}</div></>}
+      </aside>
+    </div>
+    <div class="ad-note">ADVERTISEMENT</div>
+    <section class="static-page" style="padding:40px 0 0;max-width:none"><h2>Quick guide</h2><p>Use the tool above first. If you are preparing a form submission, keep the downloaded result and check the destination website's current requirements before uploading.</p><p>Need a different size? Try a nearby target page — 20KB, 50KB, 100KB and 200KB presets are available from the homepage.</p></section>
+  </main>
+</BaseLayout>
