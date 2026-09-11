@@ -1,0 +1,10 @@
+[
+  {"slug":"percentage-calculator","mode":"percentage","label":"Percentage Calculator","title":"Percentage Calculator — Free Online Tool","description":"Calculate percentages, discounts, increases and decreases instantly in your browser with no account.","score":1,"matchedTrends":[]},
+  {"slug":"age-calculator","mode":"age","label":"Age Calculator","title":"Age Calculator — Free Online Tool","description":"Calculate an exact age between two dates directly in your browser.","score":1,"matchedTrends":[]},
+  {"slug":"time-zone-converter","mode":"timezone","label":"Time Zone Converter","title":"Time Zone Converter — Free Online Tool","description":"Convert a date and time between time zones without an account or upload.","score":1,"matchedTrends":[]},
+  {"slug":"unit-converter","mode":"units","label":"Unit Converter","title":"Unit Converter — Free Online Tool","description":"Convert common measurements such as kilometers, miles, kilograms, pounds, meters, feet and temperatures.","score":1,"matchedTrends":[]},
+  {"slug":"countdown-timer","mode":"countdown","label":"Countdown Timer","title":"Countdown Timer — Free Online Tool","description":"Count down to a date or deadline directly in your browser.","score":1,"matchedTrends":[]},
+  {"slug":"random-number-generator","mode":"random","label":"Random Number Generator","title":"Random Number Generator — Free Online Tool","description":"Generate one or more random numbers between any minimum and maximum instantly.","score":1,"matchedTrends":[]},
+  {"slug":"word-counter","mode":"text","label":"Word Counter","title":"Word Counter — Free Online Tool","description":"Count words, characters, lines and non-space characters in your text locally in the browser.","score":1,"matchedTrends":[]},
+  {"slug":"date-difference-calculator","mode":"datediff","label":"Date Difference Calculator","title":"Date Difference Calculator — Free Online Tool","description":"Calculate the number of days and weeks between two dates.","score":1,"matchedTrends":[]}
+]
