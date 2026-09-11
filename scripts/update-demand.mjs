@@ -329,7 +329,7 @@ const output = {
 };
 
 await fs.mkdir('src/data', { recursive:true });
-await fs.writeFile('src/data/raw_demand.json', `${JSON.stringify(rawDemand,null,2)}\\n`);\nawait fs.writeFile('src/data/demand.json', `${JSON.stringify(output,null,2)}\n`);
+await fs.writeFile('src/data/raw_demand.json', `${JSON.stringify(rawDemand,null,2)}\n`);\nawait fs.writeFile('src/data/demand.json', `${JSON.stringify(output,null,2)}\n`);
 await fs.writeFile('src/data/seo-opportunities.json', `${JSON.stringify(seoOpportunities,null,2)}\n`);
 await fs.writeFile('src/data/api-sources.json', `${JSON.stringify(catalogs,null,2)}\n`);
 
