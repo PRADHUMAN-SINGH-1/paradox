@@ -53,6 +53,10 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: node scripts/seo-brain.mjs
 
+      - name: Generate demand-driven utility catalog
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: node scripts/build-utility-opportunities.mjs
+
       - name: Build SEO sitemap from current plan
         run: node scripts/build-sitemap.mjs
 
@@ -71,6 +75,7 @@ jobs:
           path: |
             src/data/seo-opportunities.json
             src/data/seo-plan.json
+            src/data/utility-opportunities.json
             public/sitemap.xml
           retention-days: 7
 
