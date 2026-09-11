@@ -3,7 +3,7 @@ on:
   push:
     branches: ["main"]
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "17 */12 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -49,7 +49,7 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: node scripts/update-demand.mjs
 
-      - name: Run closed-loop SEO brain
+      - name: Score verified opportunities\n        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'\n        run: node scripts/score-opportunities.mjs\n\n      - name: Run closed-loop SEO brain
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: node scripts/seo-brain.mjs
 
