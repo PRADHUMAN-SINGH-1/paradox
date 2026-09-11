@@ -1,0 +1,39 @@
+---
+const { title, description, canonical = 'https://paradox.engineer/' } = Astro.props;
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f5ef" />
+    <meta name="description" content={description} />
+    <meta name="google-adsense-account" content="ca-pub-4630615697632107" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.85em' font-size='86'>✳</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
+    <title>{title}</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">PARADOX<span>TOOLS</span></a>
+      <nav>
+        <a href="/image-resizer/">Image Resizer</a>
+        <a href="/image-compressor/">Compressor</a>
+        <a href="/pdf-tools/">PDF Tools</a>
+      </nav>
+      <a class="header-cta" href="/#tools">All tools ↗</a>
+    </header>
+    <slot />
+    <footer class="site-footer">
+      <div><strong>PARADOX TOOLS</strong><span>Free browser tools. No account. Your files stay on your device.</span></div>
+      <nav><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav>
+      <small>© {year} PARADOX ENGINEER</small>
+    </footer>
+  </body>
+</html>
