@@ -1,21 +1,80 @@
 ---
 import MakerLayout from '../layouts/MakerLayout.astro';
 import demand from '../data/demand.json';
-import seoOpportunities from '../data/seo-opportunities.json';
 import utilityOpportunities from '../data/utility-opportunities.json';
-const tools=[['01','Bingo Card Generator','Build custom 5×5 bingo cards from your own prompts, names or vocabulary.','/bingo-card-generator/'],['02','Word Search Generator','Turn a word list into a printable puzzle in seconds.','/word-search-generator/'],['03','Random Team Generator','Split a list into random groups without an account.','/random-team-generator/'],['04','Decision Wheel','Put choices in and get one random answer out.','/decision-wheel/'],['05','Tournament Bracket','Create first-round knockout matchups for teams or players.','/tournament-bracket-generator/'],['06','Raffle Ticket Generator','Make numbered printable tickets for events and fundraisers.','/raffle-ticket-generator/'],['07','Seating Chart Generator','Turn a name list into a clean randomized seating chart.','/seating-chart-generator/'],['08','Certificate Maker','Create a clean certificate for appreciation or recognition.','/certificate-maker/']];
-const trending=demand.opportunities?.slice(0,4) || [];
-const globalTrends=demand.globalTrends?.slice(0,8) || [];
+
+const tools=[
+  {icon:'🎲',name:'Bingo cards',desc:'Make a custom card from names, words or prompts.',href:'/bingo-card-generator/',tags:'school classroom party game'},
+  {icon:'🔎',name:'Word searches',desc:'Turn your words into a printable puzzle.',href:'/word-search-generator/',tags:'school spelling vocabulary puzzle'},
+  {icon:'👥',name:'Random teams',desc:'Split any group fairly in seconds.',href:'/random-team-generator/',tags:'teams school office sports'},
+  {icon:'🎡',name:'Decision wheel',desc:'Put your choices in. Let the wheel decide.',href:'/decision-wheel/',tags:'choice random picker party'},
+  {icon:'🏆',name:'Tournament bracket',desc:'Set up matchups for your next competition.',href:'/tournament-bracket-generator/',tags:'sports tournament competition'},
+  {icon:'🎟️',name:'Raffle tickets',desc:'Create numbered tickets ready to print.',href:'/raffle-ticket-generator/',tags:'event fundraiser giveaway'},
+  {icon:'🪑',name:'Seating chart',desc:'Arrange names into a clean printable plan.',href:'/seating-chart-generator/',tags:'wedding event dinner classroom'},
+  {icon:'🏅',name:'Certificates',desc:'Make a simple certificate people will actually want.',href:'/certificate-maker/',tags:'award graduation appreciation'}
+];
+const utilities=utilityOpportunities.slice(0,8);
+const ranked=(demand.opportunities||[]).filter(x=>x.route).slice(0,3);
+const signals=(demand.globalTrends||[]).slice(0,6);
+const lead=ranked[0] || {label:'Random Team Generator',route:'/random-team-generator/',score:0};
+const countries=[...new Set(signals.map(x=>x.geo).filter(Boolean))].slice(0,6);
 ---
-<MakerLayout title="PARADOX Makers — Free Generators" description="Free browser-first generators and utilities for everyday tasks. No account required.">
-<main class="maker-main">
-<section class="maker-hero"><div><div class="maker-kicker">FREE TOOLS · NO ACCOUNT</div><h1>Find the tool.<br/><em>Finish the job.</em></h1><p>Small utilities for classrooms, parties, teams, events and everyday life. Enter your content, generate the result, then print or save it.</p><div class="maker-actions"><a class="maker-primary" href="#tools">Browse all tools ↓</a><a class="maker-secondary" href="/utilities/">Free utilities ↗</a><a class="maker-secondary" href="/trending/">Global demand radar ↗</a></div></div><div class="maker-proof"><div class="proof-tile"><strong>01 · No account</strong><span>Open a tool and start immediately.</span></div><div class="proof-tile"><strong>02 · Browser-first</strong><span>Core generators run in this browser tab.</span></div><div class="proof-tile"><strong>03 · Demand-aware</strong><span>Public trend signals refresh the discovery layer.</span></div></div></section>
-<section class="maker-section maker-trend-section"><div class="maker-section-head"><div><div class="maker-label">GLOBAL SEARCH SIGNALS</div><h2>What is moving<br/><em>across markets.</em></h2></div><p>PARADOX samples aggregate public trend signals from multiple countries and public data sources. We use them to surface useful tools, not to expose private search histories.</p></div><div class="maker-trend-grid">{globalTrends.map((item,index)=><a class="maker-trend" href="/trending/"><span>0{index+1}</span><div><strong>{item.query}</strong><small>{item.geo} · {item.traffic || 'trend signal'} →</small></div></a>)}</div><p class="maker-trend-note">Trend refresh: {demand.refreshedAt || 'current cycle'} · {demand.sourceHealth?.googleTrends?.rows || 0} public trend rows collected.</p></section>
-<section class="maker-section maker-trend-section"><div class="maker-section-head"><div><div class="maker-label">TOOLS WITH THE STRONGEST FIT</div><h2>Turn attention<br/><em>into something useful.</em></h2></div><p>These rankings combine trend matches with public media attention. The underlying tools stay the same and remain free to use.</p></div><div class="maker-trend-grid">{trending.map((item,index)=><a class="maker-trend" href={item.route}><span>0{index+1}</span><div><strong>{item.label}</strong><small>Signal score {item.score ?? 0} · use the {item.mode} tool →</small></div></a>)}</div><p class="maker-trend-note"><a href="/use-cases/">Browse demand-driven use cases →</a></p></section>
-<section class="maker-section" id="tools"><div class="maker-section-head"><div><div class="maker-label">ALL TOOLS</div><h2>Choose the thing<br/>you need.</h2></div><p>No dashboard. No setup maze. Each page focuses on one job and explains exactly what to enter.</p></div><div class="maker-tools">{tools.map(([number,name,desc,href])=><a class="maker-card" href={href}><div><div class="maker-card-top"><div class="maker-icon">{number}</div><span aria-hidden="true">↗</span></div><h2>{name}</h2><p>{desc}</p></div><div class="maker-open">Open tool →</div></a>)}</div></section>
-<section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">FREE UTILITIES</div><h2>Quick answers.<br/><em>No setup.</em></h2></div><p>Calculations, conversions, dates, text and random decisions designed to be used immediately.</p></div><div class="maker-tools">{utilityOpportunities.slice(0,8).map((item,index)=><a class="maker-card" href={`/utilities/${item.slug}/`}><div><div class="maker-card-top"><div class="maker-icon">U{String(index+1).padStart(2,'0')}</div><span aria-hidden="true">↗</span></div><h2>{item.label}</h2><p>{item.description}</p></div><div class="maker-open">Use utility →</div></a>)}</div><p class="maker-trend-note"><a href="/utilities/">See every utility →</a></p></section>
-<section class="maker-section" id="guides"><div class="maker-section-head"><div><div class="maker-label">GUIDES</div><h2>Get it right<br/>the first time.</h2></div><p>Short practical guides for making better puzzles, teams and printables.</p></div><div class="maker-guide-grid"><a class="maker-guide" href="/guides/bingo-cards/">How to make a better bingo card →</a><a class="maker-guide" href="/guides/word-searches/">How to build a readable word search →</a><a class="maker-guide" href="/guides/random-teams/">How to split a group fairly →</a><a class="maker-guide" href="/guides/printables/">How to print browser-made worksheets cleanly →</a></div></section>
-<section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">DEMAND-DRIVEN PAGES</div><h2>Useful landing pages<br/><em>when the signal earns one.</em></h2></div><p>The system can publish a small number of topic-specific pages when a current public trend maps cleanly to a working generator.</p></div><div class="maker-guide-grid">{seoOpportunities.slice(0,6).map(item=><a class="maker-guide" href={`/use-cases/${item.slug}/`}><strong>{item.title}</strong><br/>{item.description}</a>)}</div></section>
-<section class="maker-section" id="why"><article class="maker-why"><div class="maker-label">WHY IT'S FREE</div><h1>Useful first.<br/>Friction last.</h1><p>PARADOX Makers is designed around quick, focused jobs. There is no account wall for the core generators and no requirement to upload your source material.</p><p>We keep the tools free and support the public site with clearly separated advertising.</p></article></section>
+<MakerLayout title="PARADOX — Free tools for real life" description="Free, simple tools for teams, classrooms, events, games and everyday jobs. No account required.">
+<main class="home">
+  <section class="home-hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="live-dot"></span> FREE · NO ACCOUNT · NO UPLOADS</div>
+      <h1>Got a job?<br><em>Make it easy.</em></h1>
+      <p class="hero-lead">Useful little tools for the things people actually need to get done — from picking teams to making a bracket, puzzle, certificate or seating plan.</p>
+      <div class="hero-search">
+        <span>⌕</span>
+        <input id="toolSearch" type="search" placeholder="What are you trying to make?" aria-label="Search tools" autocomplete="off">
+        <kbd>/</kbd>
+      </div>
+      <div class="hero-links"><a class="button button-dark" href="#tools">Explore tools</a><a class="text-link" href="/utilities/">More quick tools →</a></div>
+    </div>
+    <div class="hero-feature">
+      <div class="feature-label">TODAY'S USEFUL PICK</div>
+      <div class="feature-emoji">✦</div>
+      <div class="feature-body">
+        <span>Based on public global signals</span>
+        <h2>{lead.label}</h2>
+        <p>People are looking for this kind of thing right now. If it helps you, just use it.</p>
+        <a href={lead.route}>Open it free →</a>
+      </div>
+      <div class="feature-meta"><span>{Math.round(lead.score || 0)} signal score</span><span>{countries.length || 1} markets sampled</span></div>
+    </div>
+  </section>
+  <section class="trust-strip"><span>Built for humans</span><span>Instant start</span><span>Works on phone</span><span>Private by default</span><span>Print when you're done</span></section>
+  <section class="section tools-section" id="tools">
+    <div class="section-intro"><div><span class="eyebrow">THE TOOLBOX</span><h2>What do you need<br><em>right now?</em></h2></div><p>Pick a job. Fill in the blanks. Get the result. That's it.</p></div>
+    <div class="tool-grid" id="toolGrid">
+      {tools.map((tool,index)=><a class="tool-card" data-search={tool.name+' '+tool.desc+' '+tool.tags} href={tool.href}><div class="tool-icon">{tool.icon}</div><div class="tool-number">{String(index+1).padStart(2,'0')}</div><h3>{tool.name}</h3><p>{tool.desc}</p><span class="tool-arrow">Use it →</span></a>)}
+    </div>
+    <div id="noResults" class="no-results" hidden>No exact match. Try <a href="/utilities/">the full utility library →</a></div>
+  </section>
+  <section class="section quick-section">
+    <div class="section-intro"><div><span class="eyebrow">QUICK ANSWERS</span><h2>Small problem.<br><em>Instant answer.</em></h2></div><p>Calculations, dates, conversions and text tools for those “I just need this done” moments.</p></div>
+    <div class="quick-grid">{utilities.map(item=><a href={'/utilities/'+item.slug+'/'}><span>{item.label}</span><small>Open →</small></a>)}</div>
+  </section>
+  <section class="section signal-section">
+    <div class="signal-card">
+      <div class="signal-main"><span class="eyebrow">PARADOX RADAR</span><h2>We watch the world.<br><em>Then we make it useful.</em></h2><p>PARADOX combines public trend, news, knowledge and developer signals across markets. The point isn't to chase every trend — it's to notice useful demand and put the right tool in front of people.</p><a class="button button-light" href="/trending/">See the radar →</a></div>
+      <div class="signal-list">{signals.map((item,index)=><a href="/trending/"><span>{String(index+1).padStart(2,'0')}</span><strong>{item.query}</strong><small>{item.geo} · {item.traffic || 'rising'}</small></a>)}</div>
+    </div>
+  </section>
+  <section class="section simple-section">
+    <div class="simple-grid"><div><span class="eyebrow">NO FUSS</span><h2>Open.<br>Make.<br><em>Done.</em></h2></div>
+      <div class="simple-points"><article><b>01</b><div><h3>No account</h3><p>There is no sign-up wall between you and the tool.</p></div></article><article><b>02</b><div><h3>Your stuff stays with you</h3><p>Core generators process your inputs in the browser. We don't need your files.</p></div></article><article><b>03</b><div><h3>Made to finish the job</h3><p>Generate, print or save a result instead of reading a 2,000-word tutorial.</p></div></article></div>
+    </div>
+  </section>
 </main>
+<script is:inline>
+(() => {
+ const input=document.querySelector('#toolSearch'), cards=[...document.querySelectorAll('.tool-card')], empty=document.querySelector('#noResults');
+ if(!input) return;
+ input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let shown=0;cards.forEach(c=>{const ok=!q||c.dataset.search.toLowerCase().includes(q);c.hidden=!ok;if(ok)shown++});empty.hidden=shown>0});
+ window.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==input&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();input.focus()}});
+})();
+</script>
 </MakerLayout>
