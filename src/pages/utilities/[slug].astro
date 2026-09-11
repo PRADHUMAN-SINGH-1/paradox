@@ -1,0 +1,33 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+import UtilityTool from '../../components/UtilityTool.astro';
+import opportunities from '../../data/utility-opportunities.json';
+
+export function getStaticPaths() {
+  return opportunities.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+const { item } = Astro.props;
+const canonical = `https://paradox.engineer/utilities/${item.slug}/`;
+---
+<MakerLayout title={item.title} description={item.description} canonical={canonical}>
+  <UtilityTool mode={item.mode} title={item.label} intro={item.description} />
+  <section class="maker-section utility-seo-copy">
+    <div class="maker-section-head">
+      <div><div class="maker-label">USEFUL, NOT DECORATIVE</div><h2>{item.label} for everyday work.</h2></div>
+      <p>This utility is designed to answer one practical question quickly, entirely in your browser. No account and no upload are required.</p>
+    </div>
+    {item.matchedTrends?.length ? <article class="maker-why"><p>Demand signals currently associated with this utility include {item.matchedTrends.slice(0,4).map((trend, i) => <span>{i ? ', ' : ''}<strong>{trend.query}</strong></span>)}. These are public aggregate signals, not private search history.</p></article> : null}
+  </section>
+</MakerLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context':'https://schema.org',
+  '@type':'SoftwareApplication',
+  name:item.label,
+  description:item.description,
+  url:canonical,
+  applicationCategory:'UtilitiesApplication',
+  operatingSystem:'Web Browser',
+  offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}
+})} />
