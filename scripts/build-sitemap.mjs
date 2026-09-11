@@ -29,9 +29,9 @@ const urls = new Set([
 for (const item of seoOpportunities) urls.add(`/use-cases/${item.slug}/`);
 for (const item of utilityOpportunities) urls.add(`/utilities/${item.slug}/`);
 
-const lastmod = demand.refreshedAt || new Date().toISOString().slice(0,10);
+const lastmod = demand.refreshedAt || new Date().toISOString().slice(0, 10);
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...urls].map(path => `  <url><loc>${base}${path}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`;
 
-await fs.mkdir('public', { recursive:true });
+await fs.mkdir('public', { recursive: true });
 await fs.writeFile('public/sitemap.xml', xml);
 console.log(`Sitemap contains ${urls.size} URLs.`);
