@@ -25,7 +25,7 @@ function roundTwo(){
 function choose(i){
  if(live.length===4){chosen=i; if(suits[i][0]===target){live=[i]}else{live=live.filter(x=>x!==i)}}
  else if(live.length===3){if(suits[i][0]===target){live=live.filter(x=>x!==i); /* target must be protected; move ambiguity to the instruction */ live=[i].concat(live.slice(0,1))}else{live=live.filter(x=>x!==i)}}
- else {live=[i]}
+ else {live=[targetIndex(), i===targetIndex()?live.find(x=>x!==i):i]}
  if(live.length===1){finish();return}
  game.innerHTML='<div class="game"><div class="game-top">DECISION · NARROWING</div><h2>Good. Two roads left.</h2><p>One final choice. Point to the suit you would rather <b>leave on the table</b>.</p><div class="choice">'+live.map(i=>'<button onclick="last('+i+')">'+suits[i][0]+' '+suits[i][1]+'</button>').join('')+'</div></div>';
 }
