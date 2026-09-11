@@ -1,0 +1,87 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+import demand from '../../data/demand.json';
+import seoOpportunities from '../../data/seo-opportunities.json';
+
+export function getStaticPaths() {
+  return seoOpportunities.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+const { item } = Astro.props;
+const related = demand.opportunities.filter((tool) => tool.route !== item.toolRoute).slice(0, 3);
+const canonical = `https://paradox.engineer/use-cases/${item.slug}/`;
+const faq = [
+  [`What is ${item.title}?`, `It is a focused landing page for a real PARADOX Makers generator. The generator itself runs in the browser and does not require an account.`],
+  ['Can I print the result?', 'Yes. The linked generator is designed to produce a printable result and can also be saved as PDF through the browser print dialog.'],
+  ['Is this page based on private search history?', 'No. The demand signal is aggregate public data. PARADOX does not receive or expose an individual person’s search history.']
+];
+---
+<MakerLayout title={`${item.title} — PARADOX Makers`} description={item.description} canonical={canonical}>
+  <main class="maker-main">
+    <section class="maker-hero compact-hero">
+      <div>
+        <div class="maker-kicker">DEMAND-DRIVEN USE CASE</div>
+        <h1>{item.title}</h1>
+        <p>{item.description}</p>
+        <div class="maker-actions">
+          <a class="maker-primary" href={item.toolRoute}>Open the generator →</a>
+          <a class="maker-secondary" href="/">All free tools</a>
+        </div>
+      </div>
+      <div class="maker-proof">
+        <div class="proof-tile"><strong>NO ACCOUNT</strong><span>Start directly in the browser.</span></div>
+        <div class="proof-tile"><strong>REAL TOOL</strong><span>{item.toolLabel} is the underlying utility.</span></div>
+        <div class="proof-tile"><strong>PRINT READY</strong><span>Finish, print or save as PDF.</span></div>
+      </div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head">
+        <div><div class="maker-label">WHY THIS EXISTS</div><h2>A real job, not a keyword page.</h2></div>
+        <p>PARADOX only publishes a demand page when a detected public topic has a corresponding working tool. The page is kept intentionally focused.</p>
+      </div>
+      <article class="maker-why">
+        <h2>Make {item.query} useful.</h2>
+        <p>Start with the <strong>{item.toolLabel}</strong>, add your own names, words or choices, generate the result, and then print or save it. Your source content stays in the browser for the core tool flow.</p>
+        <p>The topic signal for this page came from aggregate public trend data. It is evidence of attention, not a promise that this exact phrase will rank or drive traffic.</p>
+      </article>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head">
+        <div><div class="maker-label">HOW TO USE IT</div><h2>Three quick moves.</h2></div>
+      </div>
+      <div class="maker-guide-grid">
+        <div class="maker-guide"><strong>01 · Enter your content</strong><br/>Use the people, teams, words or choices that belong in your activity.</div>
+        <div class="maker-guide"><strong>02 · Generate the result</strong><br/>Adjust the options in the generator until the output looks right.</div>
+        <div class="maker-guide"><strong>03 · Print or save</strong><br/>Use your browser’s print dialog to print the result or choose Save as PDF.</div>
+      </div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head">
+        <div><div class="maker-label">COMMON QUESTIONS</div><h2>Before you start.</h2></div>
+      </div>
+      <div class="maker-guide-grid">
+        {faq.map(([question, answer]) => <article class="maker-guide"><strong>{question}</strong><br/>{answer}</article>)}
+      </div>
+    </section>
+
+    <section class="maker-section">
+      <div class="maker-section-head"><div><div class="maker-label">MORE TOOLS</div><h2>Keep going.</h2></div></div>
+      <div class="maker-tools">
+        {related.map((tool) => <a class="maker-card" href={tool.route}><div><div class="maker-card-top"><div class="maker-icon">↗</div></div><h2>{tool.label}</h2><p>Open the focused generator.</p></div><div class="maker-open">Use this tool →</div></a>)}
+      </div>
+    </section>
+  </main>
+</MakerLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context':'https://schema.org',
+  '@type':'WebPage',
+  name:item.title,
+  description:item.description,
+  url:canonical,
+  isPartOf:{'@type':'WebSite',name:'PARADOX Makers',url:'https://paradox.engineer/'},
+  about:{'@type':'SoftwareApplication',name:item.toolLabel,applicationCategory:'UtilitiesApplication',operatingSystem:'Web',url:`https://paradox.engineer${item.toolRoute}`,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}}
+})} />
