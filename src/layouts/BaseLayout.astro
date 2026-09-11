@@ -2,6 +2,7 @@
 import '../styles/global.css';
 const { title, description, canonical = 'https://paradox.engineer/' } = Astro.props;
 const year = new Date().getFullYear();
+const jsonLd = { '@context':'https://schema.org', '@type':'WebApplication', name:title.split(' — ')[0], url:canonical, description, applicationCategory:'UtilitiesApplication', operatingSystem:'Web Browser', offers:{'@type':'Offer', price:'0', priceCurrency:'INR'} };
 ---
 <!doctype html>
 <html lang="en">
@@ -11,12 +12,17 @@ const year = new Date().getFullYear();
     <meta name="theme-color" content="#f7f5ef" />
     <meta name="description" content={description} />
     <meta name="google-adsense-account" content="ca-pub-4630615697632107" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.85em' font-size='86'>✳</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <title>{title}</title>
   </head>
   <body>
