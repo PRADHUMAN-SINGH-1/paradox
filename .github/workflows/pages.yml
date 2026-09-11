@@ -20,22 +20,59 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install dependencies
         run: npm install
+
+      - name: Restore SEO memory
+        uses: actions/cache@v4
+        with:
+          path: .seo-state
+          key: seo-state-v1-${{ github.run_id }}
+          restore-keys: |
+            seo-state-v1-
+
+      - name: Ingest first-party search performance
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        env:
+          GSC_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON_B64 }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
+        run: node scripts/fetch-performance.mjs
+
       - name: Refresh global demand intelligence
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: node scripts/update-demand.mjs
-      - name: Build SEO sitemap from demand opportunities
+
+      - name: Run closed-loop SEO brain
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: node scripts/seo-brain.mjs
+
+      - name: Build SEO sitemap from current plan
         run: node scripts/build-sitemap.mjs
+
       - name: Build Astro
         run: npm run build
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+
+      - name: Preserve runtime SEO plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-runtime
+          path: |
+            src/data/seo-opportunities.json
+            src/data/seo-plan.json
+            public/sitemap.xml
+          retention-days: 7
 
   deploy:
     needs: build
@@ -50,3 +87,25 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  index:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download current SEO plan
+        uses: actions/download-artifact@v4
+        with:
+          name: seo-runtime
+      - name: Submit sitemap and URLs to search engines
+        env:
+          GSC_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON_B64 }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
+        run: node scripts/submit-indexing.mjs
