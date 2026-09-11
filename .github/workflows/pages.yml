@@ -1,4 +1,4 @@
-name: Deploy PARADOX Tools
+name: Deploy PARADOX Makers
 on:
   push:
     branches: ["main"]
@@ -9,7 +9,7 @@ permissions:
   id-token: write
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
