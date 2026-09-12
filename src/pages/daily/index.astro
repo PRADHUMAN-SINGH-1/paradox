@@ -1,0 +1,46 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+---
+<MakerLayout title="Daily Challenge — PARADOX" description="A fresh five-second challenge every day. Solve it, share it, come back tomorrow.">
+<main class="daily">
+  <section class="daily-hero">
+    <div class="eyebrow">PARADOX DAILY · NO ACCOUNT</div>
+    <h1>One tiny challenge.<br><em>Every day.</em></h1>
+    <p>Five seconds. One answer. Your browser remembers your streak — nothing is uploaded.</p>
+    <div class="streak" id="streak">🔥 0 day streak</div>
+  </section>
+  <section class="challenge" id="challenge">
+    <div class="challenge-top"><span id="challengeNumber">TODAY</span><span id="timer">00:05</span></div>
+    <h2 id="question">Loading today's challenge…</h2>
+    <div id="answers" class="answers"></div>
+    <div id="result" class="result" hidden></div>
+    <button id="next" class="next" hidden>Next challenge →</button>
+  </section>
+  <section class="share-row">
+    <button id="share">Share today's score</button>
+    <a href="/utilities/">Need a real tool? →</a>
+  </section>
+</main>
+<style>
+.daily{max-width:980px;margin:0 auto;padding:90px 24px 120px}.daily-hero{text-align:center;padding-bottom:48px}.eyebrow{font:600 12px/1 monospace;letter-spacing:.14em;opacity:.6}.daily h1{font-size:clamp(48px,8vw,88px);line-height:.95;margin:18px 0}.daily h1 em{font-family:Georgia,serif;font-weight:400}.daily-hero p{max-width:620px;margin:20px auto;color:#777;line-height:1.7}.streak{display:inline-block;border:1px solid #ddd;border-radius:999px;padding:10px 16px;margin-top:10px}.challenge{max-width:720px;margin:auto;border:1px solid #ddd;border-radius:24px;padding:28px;background:#fff;box-shadow:0 20px 60px #0000000a}.challenge-top{display:flex;justify-content:space-between;font:600 12px monospace;opacity:.55}.challenge h2{font-size:clamp(28px,5vw,48px);margin:60px 0 30px;line-height:1.05}.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.answers button,.next,.share-row button{padding:16px;border:1px solid #ddd;border-radius:12px;background:#fafafa;font:600 15px inherit;cursor:pointer}.answers button:hover,.next:hover,.share-row button:hover{background:#111;color:#fff}.result{margin-top:20px;padding:16px;border-radius:12px;background:#f3f3f3}.next{margin-top:14px}.share-row{display:flex;justify-content:center;gap:18px;align-items:center;padding:28px}.share-row a{color:inherit}.result.good{background:#eaf8ed}.result.bad{background:#fff0f0}@media(max-width:600px){.answers{grid-template-columns:1fr}.daily{padding-top:55px}}
+</style>
+<script is:inline>
+(() => {
+ const bank=[
+  {q:'What is 15% of 200?',a:['20','30','35','40'],correct:1},
+  {q:'Which is larger?',a:['0.75','3/4','Both are equal','Neither'],correct:2},
+  {q:'How many days are in a leap year?',a:['364','365','366','367'],correct:2},
+  {q:'What comes next: 2, 4, 8, 16, ?',a:['20','24','30','32'],correct:3},
+  {q:'50% of 80 + 10 = ?',a:['40','45','50','60'],correct:2},
+  {q:'Which number is prime?',a:['21','27','29','33'],correct:2}
+ ];
+ const day=Math.floor(Date.now()/86400000), item=bank[day%bank.length];
+ const key='paradox-daily-v1', state=JSON.parse(localStorage.getItem(key)||'{"last":-1,"streak":0,"score":0}');
+ const streak=document.querySelector('#streak'), q=document.querySelector('#question'), answers=document.querySelector('#answers'), result=document.querySelector('#result'), next=document.querySelector('#next');
+ streak.textContent='🔥 '+state.streak+' day streak'; q.textContent=item.q;
+ item.a.forEach((x,i)=>{const b=document.createElement('button');b.textContent=x;b.onclick=()=>{if(answers.dataset.done)return;answers.dataset.done='1';const good=i===item.correct;result.hidden=false;result.className='result '+(good?'good':'bad');result.textContent=good?'✓ Correct. '+(state.streak?'Keep the streak alive.':'You started a streak!'):'Not quite — the answer is '+item.a[item.correct]+'.';if(day>state.last){state.streak=state.last===day-1?state.streak+1:1;state.last=day;state.score+=good?1:0;localStorage.setItem(key,JSON.stringify(state));streak.textContent='🔥 '+state.streak+' day streak';}next.hidden=false;};answers.appendChild(b);});
+ next.onclick=()=>location.reload();
+ document.querySelector('#share').onclick=async()=>{const text='I scored '+state.score+' on PARADOX Daily. Try today’s challenge: https://paradox.engineer/daily/';if(navigator.share)await navigator.share({title:'PARADOX Daily',text});else await navigator.clipboard.writeText(text);document.querySelector('#share').textContent='Copied ✓';};
+})();
+</script>
+</MakerLayout>
