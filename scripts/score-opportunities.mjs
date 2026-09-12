@@ -61,12 +61,13 @@ function normalizeSignals(raw){
 const raw=await fs.readFile(RAW,'utf8').then(JSON.parse).catch(()=>({}));
 const signals=normalizeSignals(raw),history=Array.isArray(raw.history)?raw.history:[];
 const candidates=[];
+const rejected=[];
 for(const signal of signals){
  const match=matchTool(signal.query);if(!match)continue;
  const demandVelocity=velocity(signal,signals,history);
  const utility=utilityIntent(signal.query),sat=saturation(signal.query);
  const score=Number(((demandVelocity*utility)/sat).toFixed(2));
- if(score<=80)continue;
+ if(score<=80){ rejected.push({query:signal.query,geo:signal.geo,score,metrics:{demandVelocity,utilityIntent:utility,competitionSaturation:sat,feasibilityMultiplier:match?1:0},evidence:{source:signal.source,trafficProxy:signal.traffic,signalType:signal.signalType}}); continue; }
  candidates.push({
   slug:`${text(signal.query).replace(/[^a-z0-9]+/g,'-')}-${match.tool.mode}-generator`,
   title:`${match.tool.terms[0].replace(/\b\w/g,c=>c.toUpperCase())} for ${signal.query}`,
@@ -81,7 +82,7 @@ const deduped=new Map();
 for(const item of candidates){const key=item.slug;const old=deduped.get(key);if(!old||item.score>old.score)deduped.set(key,item);}
 const verified=[...deduped.values()].sort((a,b)=>b.score-a.score).slice(0,50);
 await fs.mkdir('src/data',{recursive:true});
-await fs.writeFile(OUT,JSON.stringify({
+rejected.sort((a,b)=>b.score-a.score);\nawait fs.writeFile('src/data/rejected_signals.json',JSON.stringify({version:1,generatedAt:new Date().toISOString(),window:'score 50-79',signals:rejected.filter(x=>x.score>=50).slice(0,10)},null,2)+'\\n');\nawait fs.writeFile(OUT,JSON.stringify({
  version:3,generatedAt:new Date().toISOString(),
  formula:'((Demand Velocity × Utility Intent) / Competition Saturation) × Feasibility Multiplier',
  thresholds:{minScore:80,maxTargets:50},signalCount:signals.length,
