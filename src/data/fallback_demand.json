@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "signals": [
+    {
+      "query": "percentage calculator",
+      "traffic": 90000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "age calculator",
+      "traffic": 85000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "random team generator",
+      "traffic": 70000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "decision wheel",
+      "traffic": 68000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "tournament bracket generator",
+      "traffic": 62000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "word search generator",
+      "traffic": 58000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "bingo card generator",
+      "traffic": 55000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "raffle ticket generator",
+      "traffic": 42000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "seating chart generator",
+      "traffic": 40000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "certificate maker",
+      "traffic": 38000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "random draw",
+      "traffic": 36000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "classroom bingo",
+      "traffic": 34000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "team generator for classroom",
+      "traffic": 30000,
+      "geo": "Global",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    },
+    {
+      "query": "cricket tournament bracket",
+      "traffic": 28000,
+      "geo": "IN",
+      "source": "Evergreen fallback",
+      "signalType": "utility"
+    }
+  ]
+}
