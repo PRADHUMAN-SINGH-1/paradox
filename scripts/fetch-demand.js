@@ -1,0 +1,64 @@
+import fs from 'node:fs/promises';
+
+const OUT='src/data/raw_demand.json';
+const UA='PARADOX-Makers/1.0 (+https://paradox.engineer)';
+const safeFetch=async(url,kind='json')=>{
+  try{
+    const r=await fetch(url,{headers:{'user-agent':UA,accept:'application/json,text/xml;q=0.9,*/*;q=0.8'},signal:AbortSignal.timeout(12000)});
+    if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    return kind==='text'?await r.text():await r.json();
+  }catch(error){
+    console.warn(`[demand] skipped ${url}: ${error.message}`);
+    return null;
+  }
+};
+const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
+const rows=[];
+const failures=[];
+
+// Hacker News: real public demand/attention signal.
+const ids=await safeFetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+if(Array.isArray(ids)){
+  const stories=await Promise.all(ids.slice(0,40).map(id=>safeFetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)));
+  for(const item of stories.filter(Boolean)){
+    const query=clean(item.title);
+    if(query) rows.push({query,traffic:Number(item.score)||0,geo:'Global',source:'Hacker News',signalType:'attention',observedAt:new Date().toISOString()});
+  }
+}else failures.push('Hacker News');
+
+// Google Trends RSS is best-effort because feeds can rate-limit.
+const geos=['US','IN','GB','CA','AU','DE','FR','JP','SG'];
+for(const geo of geos){
+  const xml=await safeFetch(`https://trends.google.com/trending/rss?geo=${geo}`,'text');
+  if(!xml){failures.push(`Google Trends:${geo}`);continue;}
+  for(const block of xml.match(/<item>[\s\S]*?<\/item>/gi)||[]){
+    const title=(block.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||'').replace(/<!\[CDATA\[|\]\]>/g,'').replace(/&amp;/g,'&').trim();
+    const trafficRaw=(block.match(/<ht:approx_traffic[^>]*>([\s\S]*?)<\/ht:approx_traffic>/i)?.[1]||'').replace(/,/g,'');
+    const n=Number((trafficRaw.match(/[0-9.]+/)||['0'])[0])||0;
+    if(title) rows.push({query:title,traffic:n,trafficLabel:trafficRaw,geo,source:'Google Trends RSS',signalType:'trend',observedAt:new Date().toISOString()});
+  }
+}
+
+// Wikimedia Pageviews: broad public knowledge-interest signal.
+const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+const [year,month,day]=yesterday.split('-');
+const wiki=await safeFetch(`https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/${year}/${month}/${day}/all-days`);
+if(wiki?.items?.[0]?.articles){
+  for(const article of wiki.items[0].articles.slice(0,100)){
+    const query=clean(article.article).replace(/_/g,' ');
+    if(query) rows.push({query,traffic:Number(article.views)||0,geo:'Global',source:'Wikimedia Pageviews',signalType:'knowledge',observedAt:new Date().toISOString()});
+  }
+}else failures.push('Wikimedia');
+
+// Keep the schema stable even when every external service is unavailable.
+const output={
+  version:1,
+  generatedAt:new Date().toISOString(),
+  signals:rows,
+  history:[],
+  failures,
+  sources:{hackerNews:true,googleTrendsRss:true,wikimediaPageviews:true}
+};
+await fs.mkdir('src/data',{recursive:true});
+await fs.writeFile(OUT,JSON.stringify(output,null,2)+'\n');
+console.log(`Demand radar: ${rows.length} signals collected; ${failures.length} source failures skipped.`);
