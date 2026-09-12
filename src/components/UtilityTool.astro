@@ -1,5 +1,5 @@
 ---
-const { mode, title, intro } = Astro.props;
+const { mode, title, intro, aValue: propAValue, bValue: propBValue } = Astro.props;
 const configs = {
   percentage:{a:'Percentage',b:'Of number',aType:'number',bType:'number',aValue:'15',bValue:'200'},
   age:{a:'Date of birth',b:'Calculate as of',aType:'date',bType:'date'},
@@ -17,8 +17,8 @@ const c=configs[mode]??configs.percentage;
   <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL CALCULATION</span><h1>{title}</h1><p>{intro}</p><div class="generator-subline">No upload · No paid API · Works in your browser</div></header>
   <div class="generator-layout">
     <section class="generator-panel" aria-label="Utility controls"><div class="generator-panel-head"><h2>01 / Inputs</h2><span>Instant</span></div><div class="generator-fields">
-      <div class="field"><label for="utilityA">{c.a}</label>{c.aType==='textarea'?<textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea>:<input id="utilityA" data-field="a" type={c.aType} value={c.aValue} />}</div>
-      {c.b?<div class="field"><label for="utilityB">{c.b}</label><input id="utilityB" data-field="b" type={c.bType} value={c.bValue||''} /></div>:null}
+      <div class="field"><label for="utilityA">{c.a}</label>{c.aType==='textarea'?<textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea>:<input id="utilityA" data-field="a" type={c.aType} value={propAValue ?? c.aValue} />}</div>
+      {c.b?<div class="field"><label for="utilityB">{c.b}</label><input id="utilityB" data-field="b" type={c.bType} value={propBValue ?? c.bValue || ''} /></div>:null}
       {mode==='random'?<div class="field"><label for="count">How many results?</label><input id="count" data-field="count" type="number" min="1" max="100" value="1" /></div>:null}
       {mode==='timezone'?<div class="field"><label for="zone">Convert to time zone</label><input id="zone" data-field="zone" value="Asia/Kolkata" placeholder="e.g. America/New_York" /></div>:null}
       <div class="generator-actions"><button type="button" class="gen-btn" id="calculate">Calculate</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="share">Copy share link</button></div><div id="status" aria-live="polite"></div>
