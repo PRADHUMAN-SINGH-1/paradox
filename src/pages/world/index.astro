@@ -1,0 +1,29 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+---
+<MakerLayout title="World Desk — Live Weather, Currency & Country Data" description="Free live world tools using public data: weather, currency rates and country facts. No account required.">
+<main class="world">
+  <section class="world-hero"><div class="eyebrow">LIVE WORLD DESK</div><h1>The world,<br><em>right now.</em></h1><p>Useful live data from free public sources. Pick a city or country and get an answer instantly.</p></section>
+  <section class="world-grid">
+    <article class="world-card"><span class="label">WEATHER</span><h2 id="weatherTitle">Delhi</h2><div class="big" id="weather">Loading…</div><div class="muted" id="weatherMeta">Open-Meteo · live request</div><div class="city-buttons"><button data-city="Delhi" data-lat="28.6139" data-lon="77.2090">Delhi</button><button data-city="London" data-lat="51.5072" data-lon="-0.1276">London</button><button data-city="New York" data-lat="40.7128" data-lon="-74.006">New York</button><button data-city="Tokyo" data-lat="35.6762" data-lon="139.6503">Tokyo</button></div></article>
+    <article class="world-card"><span class="label">CURRENCY</span><h2>Convert EUR → USD</h2><div class="currency"><input id="amount" type="number" value="100" min="0"><button id="convert">Convert</button></div><div class="big" id="fx">Loading…</div><div class="muted">Frankfurter public exchange-rate data</div></article>
+    <article class="world-card"><span class="label">COUNTRY FACTS</span><h2>Explore a country</h2><select id="country"></select><div id="facts" class="facts">Loading…</div></article>
+  </section>
+  <section class="world-note"><strong>No account. No API key.</strong><span>Data is fetched in your browser from public services. If a service is unavailable, the rest of the page still works.</span></section>
+</main>
+<style>
+.world{max-width:1120px;margin:auto;padding:90px 24px 120px}.world-hero{text-align:center;padding-bottom:55px}.world h1{font-size:clamp(52px,8vw,96px);line-height:.92;margin:18px 0}.world h1 em{font-family:Georgia,serif;font-weight:400}.world-hero p{max-width:650px;margin:auto;color:#777;line-height:1.7}.world-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.world-card{border:1px solid #ddd;border-radius:22px;padding:24px;min-height:320px;background:#fff}.label{font:600 11px monospace;letter-spacing:.14em;color:#777}.world-card h2{font-size:25px;margin:18px 0 28px}.big{font:600 clamp(34px,5vw,52px)/1 monospace}.muted{color:#888;font-size:13px;margin-top:12px}.city-buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:25px}.city-buttons button,.currency button{border:1px solid #ddd;background:#fafafa;border-radius:9px;padding:8px 10px;cursor:pointer}.currency{display:flex;gap:8px}.currency input,.world-card select{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;background:#fff}.currency button{background:#111;color:#fff}.facts{margin-top:20px;line-height:1.8}.world-note{margin-top:18px;padding:18px;border:1px solid #ddd;border-radius:16px;display:flex;gap:15px}.world-note span{color:#777}@media(max-width:850px){.world-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.world-grid{grid-template-columns:1fr}.world-note{display:block}}
+</style>
+<script is:inline>
+(() => {
+ const $=s=>document.querySelector(s);
+ async function weather(name,lat,lon){$('#weatherTitle').textContent=name;$('#weather').textContent='Loading…';try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto');const d=await r.json();$('#weather').textContent=Math.round(d.current.temperature_2m)+'°C';$('#weatherMeta').textContent='Humidity '+d.current.relative_humidity_2m+'% · Wind '+Math.round(d.current.wind_speed_10m)+' km/h';}catch{$('#weather').textContent='Unavailable';}}
+ document.querySelectorAll('[data-city]').forEach(b=>b.onclick=()=>weather(b.dataset.city,b.dataset.lat,b.dataset.lon));
+ async function fx(){try{const r=await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');const d=await r.json();$('#fx').textContent=(Number($('#amount').value||0)*d.rates.USD).toFixed(2)+' USD';}catch{$('#fx').textContent='Unavailable';}}
+ $('#convert').onclick=fx;$('#amount').oninput=fx;fx();weather('Delhi',28.6139,77.2090);
+ async function countries(){try{const r=await fetch('https://restcountries.com/v3.1/all?fields=name,capital,population,region,flags');const d=(await r.json()).sort((a,b)=>a.name.common.localeCompare(b.name.common));const s=$('#country');d.forEach(x=>{const o=document.createElement('option');o.value=x.name.common;o.textContent=x.name.common;o.dataset.json=JSON.stringify(x);s.appendChild(o)});show();}catch{$('#facts').textContent='Country data unavailable right now.'}}
+ function show(){const x=JSON.parse($('#country').selectedOptions[0].dataset.json);$('#facts').innerHTML='<strong>'+x.name.common+'</strong><br>Capital: '+(x.capital?.[0]||'—')+'<br>Region: '+x.region+'<br>Population: '+Number(x.population).toLocaleString();}
+ $('#country').onchange=show;countries();
+})();
+</script>
+</MakerLayout>
