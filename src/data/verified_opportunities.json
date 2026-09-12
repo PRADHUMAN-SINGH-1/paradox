@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "generatedAt": null,
+  "formula": "((Demand Velocity × Utility Intent) / Competition Saturation) × Feasibility Multiplier",
+  "thresholds": { "minScore": 80, "maxTargets": 50 },
+  "signalCount": 0,
+  "opportunities": []
+}
