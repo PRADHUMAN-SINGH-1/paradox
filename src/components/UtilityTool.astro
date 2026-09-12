@@ -19,7 +19,8 @@ const configs = {
   json:{a:'JSON',b:'',aType:'textarea',bType:'text'},
   base64:{a:'Text',b:'Mode',aType:'textarea',bType:'text',bValue:'encode'},
   characters:{a:'Text',b:'',aType:'textarea',bType:'text'},
-  qr:{a:'Text or URL',b:'Size',aType:'text',bType:'number',aValue:'https://paradox.engineer/',bValue:'240'}
+  qr:{a:'Text or URL',b:'Size',aType:'text',bType:'number',aValue:'https://paradox.engineer/',bValue:'240'},
+  imagecompressor:{a:'Choose an image',b:'Quality %',aType:'file',bType:'number',aValue:'80',bValue:'80'}
 };
 const c=configs[mode]??configs.percentage;
 ---
@@ -65,8 +66,9 @@ const c=configs[mode]??configs.percentage;
   function json(){try{const parsed=JSON.parse(a.value);show('<h2 class="result-title">Valid JSON</h2><pre class="utility-pre">'+esc(JSON.stringify(parsed,null,2))+'</pre>','Valid')}catch(e){msg('Invalid JSON: '+e.message)}}
   function base64(){try{const out=(b.value||'encode').toLowerCase()==='decode'?decodeURIComponent(escape(atob(a.value))):btoa(unescape(encodeURIComponent(a.value)));show('<h2 class="result-title">Base64 result</h2><pre class="utility-pre">'+esc(out)+'</pre>')}catch{msg('Could not process this Base64 value.')}}
   function characters(){const t=a.value||'';show('<h2 class="result-title">Character count</h2><div class="utility-big">'+t.length.toLocaleString()+'</div><p>Without spaces: '+t.replace(/\\s/g,'').length.toLocaleString()+' · Words: '+(t.trim()?t.trim().split(/\\s+/).length:0).toLocaleString()+'</p>')}
+  async function imagecompressor(){const file=a?.files?.[0];const quality=Math.max(.1,Math.min(1,Number(b.value||80)/100));if(!file)return msg('Choose a JPG, PNG or WebP image.');if(file.size>50*1024*1024)return msg('Please choose an image under 50 MB.');const bitmap=await createImageBitmap(file);const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;canvas.getContext('2d').drawImage(bitmap,0,0);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));if(!blob)return msg('This image could not be compressed.');const before=file.size,after=blob.size,percent=Math.max(0,Math.round((1-after/before)*100)),url=URL.createObjectURL(blob);show('<h2 class="result-title">Compressed image</h2><div class="utility-big">'+(after/1024).toFixed(0)+' KB</div><p>'+percent+'% smaller · '+(before/1024).toFixed(0)+' KB → '+(after/1024).toFixed(0)+' KB</p><a class="gen-btn" href="'+url+'" download="paradox-compressed.jpg">Download JPG</a>','Done')}
   function qr(){const text=a.value||'';if(!text)return msg('Enter a URL or text.');const size=Math.max(120,Math.min(800,Number(b.value)||240));show('<h2 class="result-title">QR code</h2><div id="qrMount" style="text-align:center"></div><p>QR generated for the text above.</p>');const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';s.onload=()=>window.QRCode.toCanvas(document.querySelector('#qrMount'),text,{width:size,margin:2},()=>{});document.head.appendChild(s)}
-  const fn={percentage,age,timezone,units,countdown,random:randomNumber,text:textStats,datediff:dateDiff,password,bmi,emi,gst,sip,discount,tip,json,base64,characters,qr}[mode];
+  const fn={percentage,age,timezone,units,countdown,random:randomNumber,text:textStats,datediff:dateDiff,password,bmi,emi,gst,sip,discount,tip,json,base64,characters,qr,imagecompressor}[mode];
   root.querySelector('#calculate')?.addEventListener('click',()=>{msg('');if(typeof fn==='function')fn()});
   root.querySelector('#clear')?.addEventListener('click',()=>{if(root._timer)clearInterval(root._timer);root.querySelectorAll('input,textarea').forEach(el=>el.value='');output.hidden=true;empty.hidden=false;label.textContent='Ready';msg('Cleared.','success')});
   root.querySelector('#share')?.addEventListener('click',async()=>{const q=new URLSearchParams({a:a?.value||'',b:b?.value||'',count:count?.value||'',zone:zone?.value||''}),url=`${location.origin}${location.pathname}?${q}`;try{await navigator.clipboard.writeText(url);msg('Share link copied.','success')}catch{msg(url,'success')}});
