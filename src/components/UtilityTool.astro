@@ -48,6 +48,6 @@ const c=configs[mode]??configs.percentage;
   root.querySelector('#calculate')?.addEventListener('click',()=>{msg('');if(typeof fn==='function')fn()});
   root.querySelector('#clear')?.addEventListener('click',()=>{if(root._timer)clearInterval(root._timer);root.querySelectorAll('input,textarea').forEach(el=>el.value='');output.hidden=true;empty.hidden=false;label.textContent='Ready';msg('Cleared.','success')});
   root.querySelector('#share')?.addEventListener('click',async()=>{const q=new URLSearchParams({a:a?.value||'',b:b?.value||'',count:count?.value||'',zone:zone?.value||''}),url=`${location.origin}${location.pathname}?${q}`;try{await navigator.clipboard.writeText(url);msg('Share link copied.','success')}catch{msg(url,'success')}});
-  const q=new URLSearchParams(location.search);if(q.has('a')&&a)a.value=q.get('a')||'';if(q.has('b')&&b)b.value=q.get('b')||'';if(q.has('count')&&count)count.value=q.get('count')||'1';if(q.has('zone')&&zone)zone.value=q.get('zone')||'Asia/Kolkata';
+  const q=new URLSearchParams(location.search);if(q.has('a')&&a)a.value=q.get('a')||'';if(q.has('b')&&b)b.value=q.get('b')||'';if(q.has('count')&&count)count.value=q.get('count')||'1';if(q.has('zone')&&zone)zone.value=q.get('zone')||'Asia/Kolkata';if(q.has('a')&&typeof fn==='function')fn();
 })();
 </script>
