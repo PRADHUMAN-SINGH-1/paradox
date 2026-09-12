@@ -3,119 +3,73 @@ const { mode, title, intro } = Astro.props;
 ---
 <main class="generator-page ai-page" data-ai-tool={mode}>
   <div class="generator-breadcrumb"><a href="/">PARADOX MAKERS</a> / <a href="/ai/">AI TOOLKIT</a> / <span>{title}</span></div>
-  <header class="generator-head">
-    <span class="maker-kicker">FREE · NO ACCOUNT · RUNS IN YOUR BROWSER</span>
-    <h1>{title}</h1>
-    <p>{intro}</p>
-    <div class="generator-subline">No API key · No upload · No paid model required</div>
-  </header>
+  <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL PROCESSING</span><h1>{title}</h1><p>{intro}</p><div class="generator-subline">No API key · No upload · No paid model required</div></header>
   <div class="generator-layout">
-    <section class="generator-panel"><div class="generator-panel-head"><h2>1. Input</h2><span>Instant</span></div><div class="generator-fields" id="fields"></div></section>
-    <aside class="generator-preview"><div class="generator-preview-head"><h2>2. Result</h2><span>Local</span></div><div class="preview-empty" id="empty"><div><strong>Your result appears here.</strong><span>Enter data and run the tool.</span></div></div><div class="gen-output" id="output" hidden></div></aside>
+    <section class="generator-panel"><div class="generator-panel-head"><h2>01 / Input</h2><span>Browser</span></div><div class="generator-fields" id="fields"></div></section>
+    <aside class="generator-preview"><div class="generator-preview-head"><h2>02 / Result</h2><span>Instant</span></div><div class="preview-empty" id="empty"><div><strong>Build something useful.</strong><span>Enter data and run the tool.</span></div></div><div class="gen-output" id="output" hidden></div></aside>
   </div>
   <div class="ad-slot">ADVERTISEMENT</div>
-  <aside class="generator-info"><h2>Privacy first</h2><p>Core transformations happen in your browser. PARADOX does not need your pasted text or an account.</p></aside>
+  <aside class="generator-info"><h2>Built to be useful</h2><p>Transformations run in this browser. Nothing is sent to a PARADOX server.</p></aside>
 </main>
 <script is:inline>
 (() => {
- const r=document.querySelector('[data-ai-tool]'); if(!r)return;
- const mode=r.dataset.aiTool, f=r.querySelector('#fields'), out=r.querySelector('#output'), empty=r.querySelector('#empty');
- const esc=s=>String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const ta=(l,id,p='Paste or type here...')=>`<div class="field"><label for="${id}">${l}</label><textarea id="${id}" placeholder="${esc(p)}"></textarea></div>`;
- const inp=(l,id,v='')=>`<div class="field"><label for="${id}">${l}</label><input id="${id}" value="${esc(v)}"></div>`;
- const btns='<div class="generator-actions"><button type="button" class="gen-btn" id="run">Run</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy</button></div><div id="status" aria-live="polite"></div>';
- if(mode==='prompt-generator')f.innerHTML=inp('Goal','goal','Write a launch announcement')+inp('Audience','audience','software developers')+inp('Tone','tone','clear and friendly')+inp('Output','format','headline + bullets + CTA')+btns;
- if(mode==='prompt-formatter')f.innerHTML=ta('Messy prompt','text')+btns;
- if(mode==='token-counter')f.innerHTML=ta('Prompt / text','text')+inp('Context window tokens','ctx','128000')+btns;
- if(mode==='cost-calculator')f.innerHTML=inp('Requests / month','req','10000')+inp('Input tokens / request','in','1000')+inp('Output tokens / request','out','500')+inp('Input $ / 1M tokens','ip','2.5')+inp('Output $ / 1M tokens','op','10')+btns;
- if(mode==='context-calculator')f.innerHTML=ta('Prompt / document','text')+inp('Context window tokens','ctx','128000')+btns;
- if(mode==='json-formatter')f.innerHTML=ta('JSON','text','Paste JSON here...')+btns;
- if(mode==='json-to-prompt')f.innerHTML=ta('JSON','text','{"role":"analyst","task":"summarize","format":"bullets"}')+btns;
- if(mode==='system-builder')f.innerHTML=inp('Role','role','Helpful technical assistant')+ta('Goals','goals','Answer accurately and explain the reasoning briefly.')+ta('Rules','rules','Do not invent facts. State uncertainty.')+inp('Output format','fmt','Markdown with headings')+btns;
- if(mode==='prompt-diff')f.innerHTML=ta('Original prompt','a')+ta('New prompt','b')+btns;
- if(mode==='regex')f.innerHTML=inp('Regex','pattern','\\b[A-Z][a-z]+\\b')+inp('Flags','flags','g')+ta('Test text','text')+btns;
- if(mode==='markdown-cleaner')f.innerHTML=ta('Markdown / AI output','text')+btns;
- if(mode==='uuid')f.innerHTML=inp('Count','count','10')+btns;
- if(mode==='base64')f.innerHTML=ta('Text / Base64','text')+`<div class="generator-actions"><button type="button" class="gen-btn" id="encode">Encode Base64</button><button type="button" class="gen-btn alt" id="decode">Decode Base64</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy</button></div><div id="status" aria-live="polite"></div>`;
- if(mode==='jwt')f.innerHTML=ta('JWT','text','Paste a JWT here...')+btns;
- if(mode==='case')f.innerHTML=ta('Text','text')+btns;
- if(mode==='llms-txt')f.innerHTML=inp('Site name','site','PARADOX Makers')+ta('URLs, one per line','urls','https://paradox.engineer/\nhttps://paradox.engineer/ai/')+btns;
- const v=id=>r.querySelector('#'+id)?.value||'';
- const message=t=>{const s=r.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-error">${esc(t)}</div>`:''};
- const success=t=>{const s=r.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-success">${esc(t)}</div>`:''};
- const show=h=>{empty.hidden=true;out.hidden=false;out.innerHTML=`<div class="sheet utility-result">${h}</div>`;out.scrollIntoView({behavior:'smooth',block:'nearest'});};
- const tokens=s=>Math.ceil((s||'').length/4);
- const utf8ToBase64=s=>{const bytes=new TextEncoder().encode(s);let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(binary)};
- const base64ToUtf8=s=>{const normalized=s.replace(/\s/g,'').replace(/-/g,'+').replace(/_/g,'/');const binary=atob(normalized);const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)};
- const base64urlJson=s=>{let x=s.replace(/-/g,'+').replace(/_/g,'/');while(x.length%4)x+='=';return JSON.parse(base64ToUtf8(x));};
- function run(){
-  message('');
-  if(mode==='prompt-generator')return show(`<h2 class="result-title">Generated prompt</h2><pre class="code-block">${esc(`Role\nYou are an expert assistant.\n\nGoal\n${v('goal')}\n\nAudience\n${v('audience')}\n\nTone\n${v('tone')}\n\nRules\nBe accurate. State assumptions. Do not invent facts.\n\nOutput\n${v('format')}`)}</pre>`);
-  if(mode==='prompt-formatter'){
-   const x=v('text').trim().replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n');
-   if(!x)return message('Paste a prompt first.');
-   return show(`<h2 class="result-title">Clean prompt</h2><pre class="code-block">${esc(`Role\nYou are a helpful assistant.\n\nContext / instruction\n${x}\n\nTask\nFollow the instruction precisely.\n\nOutput\nReturn a clear useful answer.`)}</pre>`);
+  const root=document.querySelector('[data-ai-tool]'); if(!root)return;
+  const mode=root.dataset.aiTool, fields=root.querySelector('#fields'), out=root.querySelector('#output'), empty=root.querySelector('#empty');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const inp=(label,id,value='',type='text',extra='')=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value)}" ${extra}></div>`;
+  const ta=(label,id,value='',placeholder='Paste or type here...')=>`<div class="field"><label for="${id}">${label}</label><textarea id="${id}" placeholder="${esc(placeholder)}">${esc(value)}</textarea></div>`;
+  const buttons='<div class="generator-actions"><button type="button" class="gen-btn" id="run">Run tool</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy result</button></div><div id="status" aria-live="polite"></div>';
+  const configs={
+    'prompt-generator':()=>inp('Goal','goal','Write a launch announcement')+inp('Audience','audience','software developers')+inp('Tone','tone','clear and confident')+inp('Constraints','rules','No hype; stay factual')+inp('Output format','format','headline + bullets + CTA')+buttons,
+    'prompt-formatter':()=>ta('Prompt','text','','Paste a rough prompt...')+buttons,
+    'token-counter':()=>ta('Text','text')+inp('Context window','ctx','128000','number','min="1"')+buttons,
+    'cost-calculator':()=>inp('Requests / month','req','10000','number','min="0"')+inp('Input tokens / request','in','1000','number','min="0"')+inp('Output tokens / request','out','500','number','min="0"')+inp('Input $ / 1M tokens','ip','2.50','number','min="0" step="0.01"')+inp('Output $ / 1M tokens','op','10','number','min="0" step="0.01"')+buttons,
+    'context-calculator':()=>ta('Text / prompt','text')+inp('Context window','ctx','128000','number','min="1"')+buttons,
+    'json-formatter':()=>ta('JSON','text','','Paste JSON here...')+buttons,
+    'json-to-prompt':()=>ta('JSON','text','{"role":"analyst","task":"summarize","format":"bullets"}','Paste an object or array...')+buttons,
+    'system-prompt-builder':()=>inp('Role','role','Senior technical assistant')+ta('Goals','goals','Be useful, accurate and concise.')+ta('Rules','rules','Do not invent facts. State assumptions.')+inp('Output format','format','Markdown with headings')+buttons,
+    'prompt-diff':()=>ta('Original','a')+ta('New','b')+buttons,
+    'regex-tester':()=>inp('Pattern','pattern','\\b[A-Z][a-z]+\\b')+inp('Flags','flags','g')+ta('Test text','text')+buttons,
+    'markdown-cleaner':()=>ta('Markdown / AI output','text')+buttons,
+    'uuid-generator':()=>inp('Count','count','10','number','min="1" max="500"')+buttons,
+    'base64-encoder-decoder':()=>ta('Value','text','','Enter text or Base64...')+'<div class="generator-actions"><button type="button" class="gen-btn" id="encode">Encode</button><button type="button" class="gen-btn" id="decode">Decode</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy result</button></div><div id="status" aria-live="polite"></div>',
+    'jwt-decoder':()=>ta('JWT','text','','Paste a JWT here...')+buttons,
+    'text-case-converter':()=>ta('Text','text')+buttons,
+    'llms-txt-generator':()=>inp('Site name','site','PARADOX Makers')+ta('Description','desc','Free browser-first tools.')+ta('URLs, one per line','urls','https://paradox.engineer/\nhttps://paradox.engineer/ai/')+buttons
+  };
+  fields.innerHTML=(configs[mode]||configs['prompt-formatter'])();
+  const v=id=>root.querySelector('#'+id)?.value??'';
+  const status=t=>{const s=root.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-error">${esc(t)}</div>`:''};
+  const success=t=>{const s=root.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-success">${esc(t)}</div>`:''};
+  const show=(html)=>{empty.hidden=true;out.hidden=false;out.innerHTML=`<div class="sheet utility-result">${html}</div>`;out.scrollIntoView({behavior:'smooth',block:'nearest'});};
+  const tokens=s=>Math.ceil(String(s||'').length/4);
+  const encode64=s=>{const bytes=new TextEncoder().encode(s);let bin='';for(let i=0;i<bytes.length;i+=32768)bin+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(bin)};
+  const decode64=s=>{const clean=s.replace(/\s/g,'').replace(/-/g,'+').replace(/_/g,'/');let x=clean;while(x.length%4)x+='=';const bin=atob(x);return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))};
+  const decodeJwtPart=s=>JSON.parse(decode64(s));
+  function run(){
+    status('');
+    if(mode==='prompt-generator')return show(`<h2 class="result-title">Generated prompt</h2><pre class="code-block">${esc(`ROLE\nYou are an expert assistant.\n\nGOAL\n${v('goal')}\n\nAUDIENCE\n${v('audience')}\n\nTONE\n${v('tone')}\n\nCONSTRAINTS\n${v('rules')}\n\nOUTPUT\n${v('format')}`)}</pre>`);
+    if(mode==='prompt-formatter'){const x=v('text').trim().replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n');if(!x)return status('Paste a prompt first.');return show(`<h2 class="result-title">Structured prompt</h2><pre class="code-block">${esc(`CONTEXT\n${x}\n\nTASK\nFollow the instruction precisely.\n\nCONSTRAINTS\nKeep factual claims supportable.\n\nOUTPUT\nReturn a clear useful answer.`)}</pre>`)}
+    if(mode==='token-counter'){const text=v('text'),t=tokens(text),c=Number(v('ctx'))||128000;if(c<=0)return status('Context window must be greater than zero.');return show(`<h2 class="result-title">Estimated tokens</h2><div class="utility-big">${t.toLocaleString()}</div><p>${(t/c*100).toFixed(2)}% of ${c.toLocaleString()} tokens.</p><p>${text.length.toLocaleString()} characters · ${text.split(/\s+/).filter(Boolean).length.toLocaleString()} words.</p><p>Heuristic estimate; exact tokenization varies by model.</p>`)}
+    if(mode==='cost-calculator'){const r=Number(v('req')),it=Number(v('in')),ot=Number(v('out')),ip=Number(v('ip')),op=Number(v('op'));if([r,it,ot,ip,op].some(x=>!Number.isFinite(x)||x<0))return status('Use valid non-negative values.');const ic=r*it*ip/1e6,oc=r*ot*op/1e6,total=ic+oc;return show(`<h2 class="result-title">Estimated API cost</h2><div class="utility-big">$${total.toFixed(2)}</div><p>Input $${ic.toFixed(2)} · Output $${oc.toFixed(2)} · Yearly $${(total*12).toFixed(2)}</p>`)}
+    if(mode==='context-calculator'){const t=tokens(v('text')),c=Number(v('ctx'))||128000;if(c<=0)return status('Context window must be greater than zero.');const pct=t/c*100;return show(`<h2 class="result-title">Context usage</h2><div class="utility-big">${pct.toFixed(2)}%</div><p>${t.toLocaleString()} estimated tokens · ${Math.max(0,c-t).toLocaleString()} remaining.</p>${pct>100?'<p class="status-error">Input exceeds the selected context window.</p>':''}`)}
+    if(mode==='json-formatter'){try{const o=JSON.parse(v('text'));return show(`<h2 class="result-title">Valid JSON</h2><pre class="code-block">${esc(JSON.stringify(o,null,2))}</pre>`)}catch(e){return status('Invalid JSON: '+e.message)}}
+    if(mode==='json-to-prompt'){try{const o=JSON.parse(v('text')),lines=[];const walk=(x,path='')=>{if(x&&typeof x==='object'){Object.entries(x).forEach(([k,val])=>walk(val,path?path+'.'+k:k))}else lines.push(`${path}: ${String(x)}`)};walk(o);return show(`<h2 class="result-title">Prompt-ready data</h2><pre class="code-block">${esc(lines.join('\n'))}</pre>`)}catch(e){return status('Invalid JSON: '+e.message)}}
+    if(mode==='system-prompt-builder')return show(`<h2 class="result-title">System prompt</h2><pre class="code-block">${esc(`ROLE\n${v('role')}\n\nGOALS\n${v('goals')}\n\nRULES\n${v('rules')}\n\nOUTPUT FORMAT\n${v('format')}`)}</pre>`);
+    if(mode==='prompt-diff'){const a=v('a').split(/\r?\n/),b=v('b').split(/\r?\n/),n=Math.max(a.length,b.length);let d='';for(let i=0;i<n;i++){if(a[i]===b[i])d+='  '+(a[i]||'')+'\n';else{if(a[i]!==undefined&&a[i]!=='')d+='- '+a[i]+'\n';if(b[i]!==undefined&&b[i]!=='')d+='+ '+b[i]+'\n';}}return show(`<h2 class="result-title">Line diff</h2><pre class="code-block">${esc(d||'No differences.')}</pre>`)}
+    if(mode==='regex-tester'){try{const pattern=v('pattern'),flags=v('flags').replace(/[^dgimsuvy]/g,'');const rx=new RegExp(pattern,flags);const matches=[];if(flags.includes('g'))for(const m of v('text').matchAll(rx))matches.push({value:m[0],index:m.index});else{const m=v('text').match(rx);if(m)matches.push({value:m[0],index:m.index})}return show(`<h2 class="result-title">${matches.length} matches</h2><pre class="code-block">${esc(matches.map(m=>`@${m.index}: ${m.value}`).join('\n')||'No matches')}</pre>`)}catch(e){return status('Invalid regex or flags: '+e.message)}}
+    if(mode==='markdown-cleaner'){const x=v('text').replace(/```[\s\S]*?```/g,'').replace(/^\s{0,3}#{1,6}\s*/gm,'').replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/\*\*|__|`|~~/g,'').replace(/^\s*[-*+]\s+/gm,'').replace(/^\s*>\s?/gm,'').replace(/\n{3,}/g,'\n\n').trim();if(!x)return status('Paste Markdown or AI output first.');return show(`<h2 class="result-title">Plain text</h2><pre class="code-block">${esc(x)}</pre>`)}
+    if(mode==='uuid-generator'){const n=Math.max(1,Math.min(500,Number(v('count'))||1));return show(`<h2 class="result-title">UUID v4</h2><pre class="code-block">${esc(Array.from({length:n},()=>crypto.randomUUID()).join('\n'))}</pre>`)}
+    if(mode==='base64-encoder-decoder')return status('Choose Encode or Decode.');
+    if(mode==='jwt-decoder'){const p=v('text').trim().split('.');if(p.length!==3)return status('A JWT should contain header.payload.signature.');try{return show(`<h2 class="result-title">Decoded JWT</h2><pre class="code-block">HEADER\n${esc(JSON.stringify(decodeJwtPart(p[0]),null,2))}\n\nPAYLOAD\n${esc(JSON.stringify(decodeJwtPart(p[1]),null,2))}</pre><p>Signature is not verified. Treat decoded claims as untrusted input.</p>`)}catch{return status('Could not decode the JWT header or payload.')}}
+    if(mode==='text-case-converter'){const t=v('text').trim();if(!t)return status('Enter text first.');const words=t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean),camel=words.map((x,i)=>i?x[0].toUpperCase()+x.slice(1):x).join('');return show(`<h2 class="result-title">Text cases</h2><pre class="code-block">camelCase: ${esc(camel)}\nsnake_case: ${esc(words.join('_'))}\nkebab-case: ${esc(words.join('-'))}\nTitle Case: ${esc(words.map(x=>x[0].toUpperCase()+x.slice(1)).join(' '))}\nUPPER CASE: ${esc(t.toUpperCase())}\nlower case: ${esc(t.toLowerCase())}</pre>`)}
+    if(mode==='llms-txt-generator'){const site=v('site').trim()||'Website',desc=v('desc').trim(),urls=v('urls').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!urls.length)return status('Add at least one URL.');return show(`<h2 class="result-title">llms.txt</h2><pre class="code-block">${esc(`# ${site}\n\n> ${desc||'A concise map of useful pages for AI systems.'}\n\n## Resources\n${urls.map(x=>'- '+x).join('\n')}`)}</pre>`)}
   }
-  if(mode==='token-counter'){
-   const text=v('text'), t=tokens(text), c=Number(v('ctx'))||128000;
-   return show(`<h2 class="result-title">Estimated tokens</h2><div class="utility-big">${t.toLocaleString()}</div><p>${(t/c*100).toFixed(2)}% of ${c.toLocaleString()} tokens.</p><p>${text.length.toLocaleString()} characters · ${text.split(/\s+/).filter(Boolean).length.toLocaleString()} words.</p><p>Heuristic estimate; exact tokenization varies by model.</p>`);
-  }
-  if(mode==='cost-calculator'){
-   const req=Number(v('req')), it=Number(v('in')), ot=Number(v('out')), ip=Number(v('ip')), op=Number(v('op'));
-   if([req,it,ot,ip,op].some(x=>!Number.isFinite(x)||x<0))return message('Use valid non-negative numbers for every pricing field.');
-   const inputCost=req*it*ip/1e6, outputCost=req*ot*op/1e6, total=inputCost+outputCost;
-   return show(`<h2 class="result-title">Estimated API cost</h2><div class="utility-big">$${total.toFixed(2)}</div><p>Input: $${inputCost.toFixed(2)} · Output: $${outputCost.toFixed(2)}</p><p>Yearly estimate: $${(total*12).toFixed(2)}</p><p>Replace the token prices with the model/provider pricing you are using.</p>`);
-  }
-  if(mode==='context-calculator'){
-   const text=v('text'), t=tokens(text), c=Number(v('ctx'))||128000;
-   if(!Number.isFinite(c)||c<=0)return message('Context window must be greater than zero.');
-   const pct=t/c*100;
-   return show(`<h2 class="result-title">Context usage</h2><div class="utility-big">${pct.toFixed(2)}%</div><p>${t.toLocaleString()} estimated tokens · ${Math.max(0,c-t).toLocaleString()} remaining.</p>${pct>100?'<p class="status-error">This input is larger than the selected context window.</p>':''}`);
-  }
-  if(mode==='json-formatter'||mode==='json-to-prompt'){
-   try{
-    const o=JSON.parse(v('text')); if(o===null)return message('JSON is valid, but it contains only null.');
-    const text=mode==='json-formatter'?JSON.stringify(o,null,2):Object.entries(o).map(([k,x])=>`${k}: ${typeof x==='string'?x:JSON.stringify(x)}`).join('\n');
-    return show(`<h2 class="result-title">${mode==='json-formatter'?'Valid JSON':'Prompt-ready text'}</h2><pre class="code-block">${esc(text)}</pre>`);
-   }catch(e){return message('Invalid JSON: '+e.message)}
-  }
-  if(mode==='system-builder')return show(`<h2 class="result-title">System prompt</h2><pre class="code-block">${esc(`ROLE\n${v('role')}\n\nGOALS\n${v('goals')}\n\nRULES\n${v('rules')}\n\nOUTPUT\n${v('fmt')}`)}</pre>`);
-  if(mode==='prompt-diff'){
-   const a=v('a').split(/\r?\n/),b=v('b').split(/\r?\n/),n=Math.max(a.length,b.length);let d='';
-   for(let i=0;i<n;i++){if(a[i]===b[i])d+='  '+(a[i]||'')+'\n';else{if(a[i])d+='- '+a[i]+'\n';if(b[i])d+='+ '+b[i]+'\n';}}
-   return show(`<h2 class="result-title">Diff</h2><pre class="code-block">${esc(d||'No differences')}</pre>`);
-  }
-  if(mode==='regex'){
-   try{const flags=v('flags').replace(/[^dgimsuvy]/g,'');const rx=new RegExp(v('pattern'),flags);const matches=[];if(flags.includes('g'))for(const m of v('text').matchAll(rx))matches.push(m[0]);else{const m=v('text').match(rx);if(m)matches.push(m[0]);}return show(`<h2 class="result-title">Matches</h2><div class="utility-big">${matches.length}</div><pre class="code-block">${esc(matches.join('\n')||'No matches')}</pre>`)}catch(e){return message('Invalid regex or flags: '+e.message)}
-  }
-  if(mode==='markdown-cleaner'){
-   const x=v('text').replace(/```[\s\S]*?```/g,'').replace(/^\s{0,3}#{1,6}\s*/gm,'').replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/\*\*|__|`|~~/g,'').replace(/^\s*[-*+]\s+/gm,'').replace(/^\s*>\s?/gm,'').trim();
-   if(!x)return message('Paste Markdown or AI output first.');
-   return show(`<h2 class="result-title">Plain text</h2><pre class="code-block">${esc(x)}</pre>`);
-  }
-  if(mode==='uuid'){
-   const n=Math.max(1,Math.min(500,Number(v('count'))||1));const a=Array.from({length:n},()=>crypto.randomUUID());return show(`<h2 class="result-title">UUID v4</h2><pre class="code-block">${esc(a.join('\n'))}</pre>`);
-  }
-  if(mode==='base64')return message('Choose Encode Base64 or Decode Base64.');
-  if(mode==='jwt'){
-   const p=v('text').trim().split('.');if(p.length!==3)return message('A JWT should contain header.payload.signature.');
-   try{return show(`<h2 class="result-title">Decoded JWT</h2><pre class="code-block">HEADER\n${esc(JSON.stringify(base64urlJson(p[0]),null,2))}\n\nPAYLOAD\n${esc(JSON.stringify(base64urlJson(p[1]),null,2))}</pre><p>Signature is not verified and this tool never validates authenticity.</p>`)}catch{return message('Could not decode the JWT header/payload.')}
-  }
-  if(mode==='case'){
-   const t=v('text').trim();if(!t)return message('Enter text first.');const w=t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean);
-   return show(`<h2 class="result-title">Cases</h2><pre class="code-block">camelCase: ${esc(w.map((x,i)=>i?x[0].toUpperCase()+x.slice(1):x).join(''))}\nsnake_case: ${esc(w.join('_'))}\nkebab-case: ${esc(w.join('-'))}\nTitle Case: ${esc(w.map(x=>x[0].toUpperCase()+x.slice(1)).join(' '))}\nUPPER CASE: ${esc(t.toUpperCase())}\nlower case: ${esc(t.toLowerCase())}</pre>`);
-  }
-  if(mode==='llms-txt'){
-   const site=v('site').trim()||'Website',u=v('urls').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-   if(!u.length)return message('Add at least one URL.');
-   return show(`<h2 class="result-title">llms.txt</h2><pre class="code-block">${esc(`# ${site}\n\n> A concise map of useful pages for AI systems.\n\n${u.map(x=>'- '+x).join('\n')}`)}</pre>`);
-  }
- }
- const doCopy=async()=>{try{await navigator.clipboard.writeText(out.innerText||'');success('Result copied.')}catch{message('Clipboard access is blocked. Select and copy the result manually.')}};
- r.querySelector('#run')?.addEventListener('click',run);
- r.querySelector('#encode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Base64 encoded</h2><pre class="code-block">${esc(utf8ToBase64(v('text')))}</pre>`)}catch(e){message('Could not encode this value.')}});
- r.querySelector('#decode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Decoded text</h2><pre class="code-block">${esc(base64ToUtf8(v('text')))}</pre>`)}catch(e){message('Invalid Base64 data.')}});
- r.querySelector('#clear')?.addEventListener('click',()=>{r.querySelectorAll('input,textarea').forEach(el=>{if(el.id!=='ctx')el.value=''});out.hidden=true;empty.hidden=false;message('')});
- r.querySelector('#copy')?.addEventListener('click',doCopy);
+  const copy=async()=>{try{await navigator.clipboard.writeText(out.innerText||'');success('Result copied.')}catch{status('Clipboard access is blocked; select the result and copy it manually.')}};
+  root.querySelector('#run')?.addEventListener('click',run);
+  root.querySelector('#encode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Base64</h2><pre class="code-block">${esc(encode64(v('text')))}</pre>`)}catch{status('Could not encode this text.')}});
+  root.querySelector('#decode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Decoded text</h2><pre class="code-block">${esc(decode64(v('text')))}</pre>`)}catch{status('Invalid Base64 data.')}});
+  root.querySelector('#clear')?.addEventListener('click',()=>{root.querySelectorAll('input,textarea').forEach(el=>{if(el.id==='ctx')return;el.value=''});out.hidden=true;empty.hidden=false;status('')});
+  root.querySelector('#copy')?.addEventListener('click',copy);
 })();
 </script>
