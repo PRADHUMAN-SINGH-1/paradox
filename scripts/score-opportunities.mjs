@@ -14,7 +14,7 @@ const TOOL_MAP=[
 {id:'certificates',mode:'certificate',route:'/certificate-maker/',terms:['certificate','award','graduation','appreciation','recognition','diploma']}
 ];
 
-const UTILITY_WORDS=['calculator','converter','generator','maker','planner','picker','counter','timer','chart','bracket','template','tool'];
+const UTILITY_WORDS=['calculator','converter','generator','maker','planner','picker','counter','timer','chart','bracket','template','tool','split','convert','conversion','brackets','rates','draw','randomize','print','schedule'];
 const INFO_WORDS=['what is','meaning','definition','history','who is','why does','news','latest','biography'];
 const GENERIC_WORDS=new Set(['the','a','an','for','and','or','of','to','in','on','with','near','best','online','free','tool']);
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
@@ -34,9 +34,12 @@ function utilityIntent(query){
 }
 function saturation(query){
  const tokens=text(query).split(' ').filter(Boolean);
- const unique=tokens.filter(t=>!GENERIC_WORDS.has(t));
- const genericRatio=tokens.length?(tokens.length-unique.length)/tokens.length:1;
- return Number(clamp(9.5-Math.min(5.5,Math.max(0,tokens.length-1)*1.35)+genericRatio*1.2,1,10).toFixed(2));
+ const meaningful=tokens.filter(t=>!GENERIC_WORDS.has(t));
+ const longTail=meaningful.length;
+ let score=longTail<=1?8.5:longTail===2?3.5:longTail===3?2.0:1.25;
+ if(tokens.length>=5)score=1.05;
+ if(['calculator','generator','maker','converter','bracket','wheel','tickets','chart'].some(w=>text(query).includes(w)))score-=0.25;
+ return Number(clamp(score,1,10).toFixed(2));
 }
 function velocity(signal,signals,history){
  const q=text(signal.query);
