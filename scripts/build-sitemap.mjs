@@ -2,36 +2,13 @@ import fs from 'node:fs/promises';
 import demand from '../src/data/demand.json' with { type: 'json' };
 import seoOpportunities from '../src/data/seo-opportunities.json' with { type: 'json' };
 import utilityOpportunities from '../src/data/utility-opportunities.json' with { type: 'json' };
+import verified from '../src/data/verified_opportunities.json' with { type: 'json' };
 
-const base = 'https://paradox.engineer';
-const urls = new Set([
-  '/',
-  '/trending/',
-  '/use-cases/',
-  '/utilities/',
-  '/bingo-card-generator/',
-  '/word-search-generator/',
-  '/random-team-generator/',
-  '/decision-wheel/',
-  '/tournament-bracket-generator/',
-  '/raffle-ticket-generator/',
-  '/seating-chart-generator/',
-  '/certificate-maker/',
-  '/guides/bingo-cards/',
-  '/guides/word-searches/',
-  '/guides/random-teams/',
-  '/guides/printables/',
-  '/about/',
-  '/privacy/',
-  '/contact/'
-]);
-
-for (const item of seoOpportunities) urls.add(`/use-cases/${item.slug}/`);
-for (const item of utilityOpportunities) urls.add(`/utilities/${item.slug}/`);
-
-const lastmod = demand.refreshedAt || new Date().toISOString().slice(0, 10);
-const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...urls].map(path => `  <url><loc>${base}${path}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`;
-
-await fs.mkdir('public', { recursive: true });
-await fs.writeFile('public/sitemap.xml', xml);
-console.log(`Sitemap contains ${urls.size} URLs.`);
+const base='https://paradox.engineer';
+const urls=new Set(['/','/daily/','/world/','/trending/','/use-cases/','/utilities/','/bingo-card-generator/','/word-search-generator/','/random-team-generator/','/decision-wheel/','/tournament-bracket-generator/','/raffle-ticket-generator/','/seating-chart-generator/','/certificate-maker/','/guides/bingo-cards/','/guides/word-searches/','/guides/random-teams/','/guides/printables/','/about/','/privacy/','/contact/']);
+for(const item of seoOpportunities) urls.add(`/use-cases/${item.slug}/`);
+for(const item of utilityOpportunities) urls.add(`/utilities/${item.slug}/`);
+for(const item of (verified.opportunities||[])) urls.add(`/tools/${item.slug}/`);
+const lastmod=new Date().toISOString().slice(0,10);
+const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...urls].map(path=>`  <url><loc>${base}${path}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`;
+await fs.mkdir('public',{recursive:true});await fs.writeFile('public/sitemap.xml',xml);console.log(`Sitemap contains ${urls.size} URLs.`);
