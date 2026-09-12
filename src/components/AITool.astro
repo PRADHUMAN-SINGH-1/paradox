@@ -18,11 +18,12 @@ const { mode, title, intro } = Astro.props;
 </main>
 <script is:inline>
 (() => {
- const r=document.querySelector('[data-ai-tool]'); if(!r)return; const mode=r.dataset.aiTool, f=r.querySelector('#fields'), out=r.querySelector('#output'), empty=r.querySelector('#empty');
- const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const ta=(l,id,p='Paste or type here...')=>`<div class="field"><label>${l}</label><textarea id="${id}" placeholder="${p}"></textarea></div>`;
- const inp=(l,id,v='')=>`<div class="field"><label>${l}</label><input id="${id}" value="${esc(v)}"></div>`;
- const btns='<div class="generator-actions"><button class="gen-btn" id="run">Run</button><button class="gen-btn alt" id="clear">Clear</button><button class="gen-btn alt" id="copy">Copy</button></div><div id="status"></div>';
+ const r=document.querySelector('[data-ai-tool]'); if(!r)return;
+ const mode=r.dataset.aiTool, f=r.querySelector('#fields'), out=r.querySelector('#output'), empty=r.querySelector('#empty');
+ const esc=s=>String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const ta=(l,id,p='Paste or type here...')=>`<div class="field"><label for="${id}">${l}</label><textarea id="${id}" placeholder="${esc(p)}"></textarea></div>`;
+ const inp=(l,id,v='')=>`<div class="field"><label for="${id}">${l}</label><input id="${id}" value="${esc(v)}"></div>`;
+ const btns='<div class="generator-actions"><button type="button" class="gen-btn" id="run">Run</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy</button></div><div id="status" aria-live="polite"></div>';
  if(mode==='prompt-generator')f.innerHTML=inp('Goal','goal','Write a launch announcement')+inp('Audience','audience','software developers')+inp('Tone','tone','clear and friendly')+inp('Output','format','headline + bullets + CTA')+btns;
  if(mode==='prompt-formatter')f.innerHTML=ta('Messy prompt','text')+btns;
  if(mode==='token-counter')f.innerHTML=ta('Prompt / text','text')+inp('Context window tokens','ctx','128000')+btns;
@@ -30,35 +31,91 @@ const { mode, title, intro } = Astro.props;
  if(mode==='context-calculator')f.innerHTML=ta('Prompt / document','text')+inp('Context window tokens','ctx','128000')+btns;
  if(mode==='json-formatter')f.innerHTML=ta('JSON','text','Paste JSON here...')+btns;
  if(mode==='json-to-prompt')f.innerHTML=ta('JSON','text','{"role":"analyst","task":"summarize","format":"bullets"}')+btns;
- if(mode==='system-builder')f.innerHTML=inp('Role','role','Helpful technical assistant')+ta('Goals','goals')+ta('Rules','rules')+inp('Output format','fmt','Markdown with headings')+btns;
+ if(mode==='system-builder')f.innerHTML=inp('Role','role','Helpful technical assistant')+ta('Goals','goals','Answer accurately and explain the reasoning briefly.')+ta('Rules','rules','Do not invent facts. State uncertainty.')+inp('Output format','fmt','Markdown with headings')+btns;
  if(mode==='prompt-diff')f.innerHTML=ta('Original prompt','a')+ta('New prompt','b')+btns;
- if(mode==='regex')f.innerHTML=inp('Regex','pattern','\\b[A-Z][a-z]+\\b')+ta('Test text','text')+btns;
+ if(mode==='regex')f.innerHTML=inp('Regex','pattern','\\b[A-Z][a-z]+\\b')+inp('Flags','flags','g')+ta('Test text','text')+btns;
  if(mode==='markdown-cleaner')f.innerHTML=ta('Markdown / AI output','text')+btns;
  if(mode==='uuid')f.innerHTML=inp('Count','count','10')+btns;
- if(mode==='base64')f.innerHTML=ta('Text / Base64','text')+btns;
+ if(mode==='base64')f.innerHTML=ta('Text / Base64','text')+`<div class="generator-actions"><button type="button" class="gen-btn" id="encode">Encode Base64</button><button type="button" class="gen-btn alt" id="decode">Decode Base64</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy</button></div><div id="status" aria-live="polite"></div>`;
  if(mode==='jwt')f.innerHTML=ta('JWT','text','Paste a JWT here...')+btns;
  if(mode==='case')f.innerHTML=ta('Text','text')+btns;
  if(mode==='llms-txt')f.innerHTML=inp('Site name','site','PARADOX Makers')+ta('URLs, one per line','urls','https://paradox.engineer/\nhttps://paradox.engineer/ai/')+btns;
- const v=id=>r.querySelector('#'+id)?.value||''; const message=t=>{const s=r.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-error">${esc(t)}</div>`:''};
- const show=h=>{empty.hidden=true;out.hidden=false;out.innerHTML=`<div class="sheet utility-result">${h}</div>`};
+ const v=id=>r.querySelector('#'+id)?.value||'';
+ const message=t=>{const s=r.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-error">${esc(t)}</div>`:''};
+ const success=t=>{const s=r.querySelector('#status');if(s)s.innerHTML=t?`<div class="status-success">${esc(t)}</div>`:''};
+ const show=h=>{empty.hidden=true;out.hidden=false;out.innerHTML=`<div class="sheet utility-result">${h}</div>`;out.scrollIntoView({behavior:'smooth',block:'nearest'});};
  const tokens=s=>Math.ceil((s||'').length/4);
- function run(){ message('');
+ const utf8ToBase64=s=>{const bytes=new TextEncoder().encode(s);let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(binary)};
+ const base64ToUtf8=s=>{const normalized=s.replace(/\s/g,'').replace(/-/g,'+').replace(/_/g,'/');const binary=atob(normalized);const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)};
+ const base64urlJson=s=>{let x=s.replace(/-/g,'+').replace(/_/g,'/');while(x.length%4)x+='=';return JSON.parse(base64ToUtf8(x));};
+ function run(){
+  message('');
   if(mode==='prompt-generator')return show(`<h2 class="result-title">Generated prompt</h2><pre class="code-block">${esc(`Role\nYou are an expert assistant.\n\nGoal\n${v('goal')}\n\nAudience\n${v('audience')}\n\nTone\n${v('tone')}\n\nRules\nBe accurate. State assumptions. Do not invent facts.\n\nOutput\n${v('format')}`)}</pre>`);
-  if(mode==='prompt-formatter'){const x=v('text').trim().replace(/\s+/g,' ');return show(`<h2 class="result-title">Clean prompt</h2><pre class="code-block">${esc(`Role\nYou are a helpful assistant.\n\nContext\n${x}\n\nTask\nFollow the instruction precisely.\n\nOutput\nReturn a clear useful answer.`)}</pre>`)}
-  if(mode==='token-counter'){const t=tokens(v('text')),c=Number(v('ctx'))||128000;return show(`<h2 class="result-title">Estimated tokens</h2><div class="utility-big">${t.toLocaleString()}</div><p>${(t/c*100).toFixed(2)}% of ${c.toLocaleString()} tokens.</p><p>Heuristic estimate; exact tokenization varies by model.</p>`)}
-  if(mode==='cost-calculator'){const cost=(Number(v('req'))||0)*(((Number(v('in'))||0)*(Number(v('ip'))||0)+(Number(v('out'))||0)*(Number(v('op'))||0))/1e6);return show(`<h2 class="result-title">Estimated monthly cost</h2><div class="utility-big">$${cost.toFixed(2)}</div><p>Yearly estimate: $${(cost*12).toFixed(2)}</p>`)}
-  if(mode==='context-calculator'){const t=tokens(v('text')),c=Number(v('ctx'))||128000;return show(`<h2 class="result-title">Context usage</h2><div class="utility-big">${(t/c*100).toFixed(2)}%</div><p>${t.toLocaleString()} estimated tokens · ${(Math.max(0,c-t)).toLocaleString()} remaining.</p>`)}
-  if(mode==='json-formatter'||mode==='json-to-prompt'){try{const o=JSON.parse(v('text'));const text=mode==='json-formatter'?JSON.stringify(o,null,2):Object.entries(o).map(([k,x])=>`${k}: ${typeof x==='string'?x:JSON.stringify(x)}`).join('\n');return show(`<h2 class="result-title">${mode==='json-formatter'?'Valid JSON':'Prompt-ready text'}</h2><pre class="code-block">${esc(text)}</pre>`)}catch(e){return message('Invalid JSON: '+e.message)}}
+  if(mode==='prompt-formatter'){
+   const x=v('text').trim().replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n');
+   if(!x)return message('Paste a prompt first.');
+   return show(`<h2 class="result-title">Clean prompt</h2><pre class="code-block">${esc(`Role\nYou are a helpful assistant.\n\nContext / instruction\n${x}\n\nTask\nFollow the instruction precisely.\n\nOutput\nReturn a clear useful answer.`)}</pre>`);
+  }
+  if(mode==='token-counter'){
+   const text=v('text'), t=tokens(text), c=Number(v('ctx'))||128000;
+   return show(`<h2 class="result-title">Estimated tokens</h2><div class="utility-big">${t.toLocaleString()}</div><p>${(t/c*100).toFixed(2)}% of ${c.toLocaleString()} tokens.</p><p>${text.length.toLocaleString()} characters · ${text.split(/\s+/).filter(Boolean).length.toLocaleString()} words.</p><p>Heuristic estimate; exact tokenization varies by model.</p>`);
+  }
+  if(mode==='cost-calculator'){
+   const req=Number(v('req')), it=Number(v('in')), ot=Number(v('out')), ip=Number(v('ip')), op=Number(v('op'));
+   if([req,it,ot,ip,op].some(x=>!Number.isFinite(x)||x<0))return message('Use valid non-negative numbers for every pricing field.');
+   const inputCost=req*it*ip/1e6, outputCost=req*ot*op/1e6, total=inputCost+outputCost;
+   return show(`<h2 class="result-title">Estimated API cost</h2><div class="utility-big">$${total.toFixed(2)}</div><p>Input: $${inputCost.toFixed(2)} · Output: $${outputCost.toFixed(2)}</p><p>Yearly estimate: $${(total*12).toFixed(2)}</p><p>Replace the token prices with the model/provider pricing you are using.</p>`);
+  }
+  if(mode==='context-calculator'){
+   const text=v('text'), t=tokens(text), c=Number(v('ctx'))||128000;
+   if(!Number.isFinite(c)||c<=0)return message('Context window must be greater than zero.');
+   const pct=t/c*100;
+   return show(`<h2 class="result-title">Context usage</h2><div class="utility-big">${pct.toFixed(2)}%</div><p>${t.toLocaleString()} estimated tokens · ${Math.max(0,c-t).toLocaleString()} remaining.</p>${pct>100?'<p class="status-error">This input is larger than the selected context window.</p>':''}`);
+  }
+  if(mode==='json-formatter'||mode==='json-to-prompt'){
+   try{
+    const o=JSON.parse(v('text')); if(o===null)return message('JSON is valid, but it contains only null.');
+    const text=mode==='json-formatter'?JSON.stringify(o,null,2):Object.entries(o).map(([k,x])=>`${k}: ${typeof x==='string'?x:JSON.stringify(x)}`).join('\n');
+    return show(`<h2 class="result-title">${mode==='json-formatter'?'Valid JSON':'Prompt-ready text'}</h2><pre class="code-block">${esc(text)}</pre>`);
+   }catch(e){return message('Invalid JSON: '+e.message)}
+  }
   if(mode==='system-builder')return show(`<h2 class="result-title">System prompt</h2><pre class="code-block">${esc(`ROLE\n${v('role')}\n\nGOALS\n${v('goals')}\n\nRULES\n${v('rules')}\n\nOUTPUT\n${v('fmt')}`)}</pre>`);
-  if(mode==='prompt-diff'){const a=v('a').split('\n'),b=v('b').split('\n'),n=Math.max(a.length,b.length);let d='';for(let i=0;i<n;i++){if(a[i]===b[i])d+='  '+(a[i]||'')+'\n';else{if(a[i])d+='- '+a[i]+'\n';if(b[i])d+='+ '+b[i]+'\n'}}return show(`<h2 class="result-title">Diff</h2><pre class="code-block">${esc(d)}</pre>`)}
-  if(mode==='regex'){try{const m=[...v('text').matchAll(new RegExp(v('pattern'),'g'))].map(x=>x[0]);return show(`<h2 class="result-title">Matches</h2><div class="utility-big">${m.length}</div><pre class="code-block">${esc(m.join('\n')||'No matches')}</pre>`)}catch(e){return message('Invalid regex: '+e.message)}}
-  if(mode==='markdown-cleaner'){const x=v('text').replace(/```[\s\S]*?```/g,'').replace(/^#{1,6}\s*/gm,'').replace(/\*\*|__|`|~~/g,'').replace(/^\s*[-*+]\s+/gm,'').trim();return show(`<h2 class="result-title">Plain text</h2><pre class="code-block">${esc(x)}</pre>`)}
-  if(mode==='uuid'){const n=Math.max(1,Math.min(100,Number(v('count'))||1)),a=Array.from({length:n},()=>crypto.randomUUID());return show(`<h2 class="result-title">UUID v4</h2><pre class="code-block">${esc(a.join('\n'))}</pre>`)}
-  if(mode==='base64'){const x=v('text');try{let s='';try{s=atob(x)}catch{s=btoa(unescape(encodeURIComponent(x)))}return show(`<h2 class="result-title">Base64 result</h2><pre class="code-block">${esc(s)}</pre><p>For decoding, paste Base64 text and use a decoder-capable browser tool.</p>`)}catch(e){return message('Could not process this value.')}}
-  if(mode==='jwt'){const p=v('text').split('.');if(p.length<2)return message('JWT needs header.payload at minimum.');try{const dec=s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))));return show(`<h2 class="result-title">Decoded JWT</h2><pre class="code-block">HEADER\n${esc(JSON.stringify(dec(p[0]),null,2))}\n\nPAYLOAD\n${esc(JSON.stringify(dec(p[1]),null,2))}</pre><p>Signature is not verified.</p>`)}catch{return message('Could not decode this JWT.')}}
-  if(mode==='case'){const t=v('text').trim(),w=t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean);return show(`<h2 class="result-title">Cases</h2><pre class="code-block">camelCase: ${esc(w.map((x,i)=>i?x[0].toUpperCase()+x.slice(1):x).join(''))}\nsnake_case: ${esc(w.join('_'))}\nkebab-case: ${esc(w.join('-'))}\nTitle Case: ${esc(w.map(x=>x[0].toUpperCase()+x.slice(1)).join(' '))}\nUPPER CASE: ${esc(t.toUpperCase())}</pre>`)}
-  if(mode==='llms-txt'){const u=v('urls').split('\n').map(x=>x.trim()).filter(Boolean);return show(`<h2 class="result-title">llms.txt</h2><pre class="code-block">${esc(`# ${v('site')}\n\n> A concise map of useful pages for AI systems.\n\n${u.map(x=>'- '+x).join('\n')}`)}</pre>`)}
+  if(mode==='prompt-diff'){
+   const a=v('a').split(/\r?\n/),b=v('b').split(/\r?\n/),n=Math.max(a.length,b.length);let d='';
+   for(let i=0;i<n;i++){if(a[i]===b[i])d+='  '+(a[i]||'')+'\n';else{if(a[i])d+='- '+a[i]+'\n';if(b[i])d+='+ '+b[i]+'\n';}}
+   return show(`<h2 class="result-title">Diff</h2><pre class="code-block">${esc(d||'No differences')}</pre>`);
+  }
+  if(mode==='regex'){
+   try{const flags=v('flags').replace(/[^dgimsuvy]/g,'');const rx=new RegExp(v('pattern'),flags);const matches=[];if(flags.includes('g'))for(const m of v('text').matchAll(rx))matches.push(m[0]);else{const m=v('text').match(rx);if(m)matches.push(m[0]);}return show(`<h2 class="result-title">Matches</h2><div class="utility-big">${matches.length}</div><pre class="code-block">${esc(matches.join('\n')||'No matches')}</pre>`)}catch(e){return message('Invalid regex or flags: '+e.message)}
+  }
+  if(mode==='markdown-cleaner'){
+   const x=v('text').replace(/```[\s\S]*?```/g,'').replace(/^\s{0,3}#{1,6}\s*/gm,'').replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/\*\*|__|`|~~/g,'').replace(/^\s*[-*+]\s+/gm,'').replace(/^\s*>\s?/gm,'').trim();
+   if(!x)return message('Paste Markdown or AI output first.');
+   return show(`<h2 class="result-title">Plain text</h2><pre class="code-block">${esc(x)}</pre>`);
+  }
+  if(mode==='uuid'){
+   const n=Math.max(1,Math.min(500,Number(v('count'))||1));const a=Array.from({length:n},()=>crypto.randomUUID());return show(`<h2 class="result-title">UUID v4</h2><pre class="code-block">${esc(a.join('\n'))}</pre>`);
+  }
+  if(mode==='base64')return message('Choose Encode Base64 or Decode Base64.');
+  if(mode==='jwt'){
+   const p=v('text').trim().split('.');if(p.length!==3)return message('A JWT should contain header.payload.signature.');
+   try{return show(`<h2 class="result-title">Decoded JWT</h2><pre class="code-block">HEADER\n${esc(JSON.stringify(base64urlJson(p[0]),null,2))}\n\nPAYLOAD\n${esc(JSON.stringify(base64urlJson(p[1]),null,2))}</pre><p>Signature is not verified and this tool never validates authenticity.</p>`)}catch{return message('Could not decode the JWT header/payload.')}
+  }
+  if(mode==='case'){
+   const t=v('text').trim();if(!t)return message('Enter text first.');const w=t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean);
+   return show(`<h2 class="result-title">Cases</h2><pre class="code-block">camelCase: ${esc(w.map((x,i)=>i?x[0].toUpperCase()+x.slice(1):x).join(''))}\nsnake_case: ${esc(w.join('_'))}\nkebab-case: ${esc(w.join('-'))}\nTitle Case: ${esc(w.map(x=>x[0].toUpperCase()+x.slice(1)).join(' '))}\nUPPER CASE: ${esc(t.toUpperCase())}\nlower case: ${esc(t.toLowerCase())}</pre>`);
+  }
+  if(mode==='llms-txt'){
+   const site=v('site').trim()||'Website',u=v('urls').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+   if(!u.length)return message('Add at least one URL.');
+   return show(`<h2 class="result-title">llms.txt</h2><pre class="code-block">${esc(`# ${site}\n\n> A concise map of useful pages for AI systems.\n\n${u.map(x=>'- '+x).join('\n')}`)}</pre>`);
+  }
  }
- r.querySelector('#run')?.addEventListener('click',run); r.querySelector('#clear')?.addEventListener('click',()=>location.reload()); r.querySelector('#copy')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.innerText||'');message('Result copied.')}catch{message('Clipboard access blocked.')}});
+ const doCopy=async()=>{try{await navigator.clipboard.writeText(out.innerText||'');success('Result copied.')}catch{message('Clipboard access is blocked. Select and copy the result manually.')}};
+ r.querySelector('#run')?.addEventListener('click',run);
+ r.querySelector('#encode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Base64 encoded</h2><pre class="code-block">${esc(utf8ToBase64(v('text')))}</pre>`)}catch(e){message('Could not encode this value.')}});
+ r.querySelector('#decode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Decoded text</h2><pre class="code-block">${esc(base64ToUtf8(v('text')))}</pre>`)}catch(e){message('Invalid Base64 data.')}});
+ r.querySelector('#clear')?.addEventListener('click',()=>{r.querySelectorAll('input,textarea').forEach(el=>{if(el.id!=='ctx')el.value=''});out.hidden=true;empty.hidden=false;message('')});
+ r.querySelector('#copy')?.addEventListener('click',doCopy);
 })();
 </script>
