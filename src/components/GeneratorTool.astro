@@ -22,14 +22,7 @@ const quick = {
   certificate: ['Alex Morgan']
 }[mode] ?? [];
 const previewCopy = {
-  bingo: 'Your 5×5 card will appear here.',
-  words: 'Your word-search puzzle will appear here.',
-  teams: 'Your randomized teams will appear here.',
-  wheel: 'The winning choice will appear here.',
-  bracket: 'Your first-round matchups will appear here.',
-  raffle: 'Your numbered tickets will appear here.',
-  seating: 'Your seating chart will appear here.',
-  certificate: 'Your certificate will appear here.'
+  bingo: 'Your 5×5 card will appear here.', words: 'Your word-search puzzle will appear here.', teams: 'Your randomized teams will appear here.', wheel: 'A real spinning wheel will appear here.', bracket: 'Pick winners to advance the bracket.', raffle: 'Your numbered tickets and draw button will appear here.', seating: 'Your seating chart will appear here.', certificate: 'Your certificate will appear here.'
 }[mode] ?? 'Your result will appear here.';
 ---
 <main class="generator-page" data-mode={mode}>
@@ -40,7 +33,6 @@ const previewCopy = {
     <p>{intro}</p>
     <div class="generator-subline">No upload · No paid API · Print or save as PDF</div>
   </header>
-
   <div class="generator-layout">
     <section class="generator-panel" aria-label="Generator controls">
       <div class="generator-panel-head"><h2>1. Add your content</h2><span>Required</span></div>
@@ -54,7 +46,7 @@ const previewCopy = {
         ) : mode === 'raffle' ? (
           <div class="field-grid">
             <div class="field"><label for="ticketTitle">Ticket title</label><input data-field="ticketTitle" id="ticketTitle" value="Spring Raffle" /></div>
-            <div class="field"><label for="qty">Number of tickets</label><input data-field="qty" id="qty" type="number" min="4" max="200" value="24" /></div>
+            <div class="field"><label for="qty">Number of tickets</label><input data-field="qty" id="qty" type="number" min="4" max="500" value="24" /></div>
           </div>
         ) : (
           <div class="field">
@@ -63,30 +55,27 @@ const previewCopy = {
             <small>One item per line. You can paste a comma-separated list too.</small>
           </div>
         )}
-        {mode === 'teams' ? <div class="field"><label for="count">Number of teams</label><input data-field="count" id="count" type="number" min="2" max="12" value="3" /></div> : null}
-        {mode === 'seating' ? <div class="field"><label for="cols">Columns</label><input data-field="cols" id="cols" type="number" min="1" max="10" value="4" /></div> : null}
+        {mode === 'teams' ? <div class="field"><label for="count">Number of teams</label><input data-field="count" id="count" type="number" min="2" max="20" value="3" /></div> : null}
+        {mode === 'seating' ? <div class="field"><label for="cols">Columns</label><input data-field="cols" id="cols" type="number" min="1" max="12" value="4" /></div> : null}
         <div>
           <div class="maker-kicker" style="margin-bottom:8px">Quick preset</div>
-          <div class="preset-list"><button class="preset-btn" id="preset">Use {c.preset}</button><button class="preset-btn" id="clear">Clear</button></div>
+          <div class="preset-list"><button type="button" class="preset-btn" id="preset">Use {c.preset}</button><button type="button" class="preset-btn" id="clear">Clear</button></div>
         </div>
         <div class="generator-actions">
-          <button class="gen-btn" id="generate">Generate</button>
-          <button class="gen-btn alt" id="print">Print / Save PDF</button>
-          <button class="gen-btn alt" id="share">Copy share link</button>
+          <button type="button" class="gen-btn" id="generate">Generate</button>
+          <button type="button" class="gen-btn alt" id="print">Print / Save PDF</button>
+          <button type="button" class="gen-btn alt" id="share">Copy share link</button>
         </div>
         <div id="status" aria-live="polite"></div>
       </div>
     </section>
-
     <aside class="generator-preview" aria-label="Generated result">
       <div class="generator-preview-head"><h2>2. Your result</h2><span>Live preview</span></div>
       <div class="preview-empty" id="emptyPreview"><div><strong>{previewCopy}</strong><span>Fill the inputs, then press Generate.</span></div></div>
       <div class="gen-output" id="output" hidden></div>
     </aside>
   </div>
-
   <div class="ad-slot">ADVERTISEMENT</div>
-
   <aside class="generator-info">
     <h2>How it works</h2>
     <ol>{steps.map(step => <li>{step}</li>)}</ol>
@@ -95,129 +84,42 @@ const previewCopy = {
     <h3>Print-friendly</h3>
     <p>Generate your result, then use Print / Save PDF. The print view removes the surrounding interface.</p>
   </aside>
-
   {faq.length ? <section class="generator-faq"><h2>Common questions</h2>{faq.map(([q,a]) => <div><h3>{q}</h3><p>{a}</p></div>)}</section> : null}
 </main>
-
 <script is:inline>
 (() => {
-  const root = document.querySelector('.generator-page');
-  if (!root) return;
-  const mode = root.dataset.mode;
-  const output = root.querySelector('#output');
-  const empty = root.querySelector('#emptyPreview');
-  const status = root.querySelector('#status');
-  const fields = [...root.querySelectorAll('[data-field]')];
-  const input = root.querySelector('#items');
-  const preset = root.querySelector('#preset');
-  const clear = root.querySelector('#clear');
-  const enc = (s) => btoa(unescape(encodeURIComponent(s)));
-  const dec = (s) => { try { return decodeURIComponent(escape(atob(s))); } catch { return null; } };
-  const cleanLines = () => [...(input?.value || '').split(/[\n,]+/)].map(v => v.trim()).filter(Boolean);
-  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const shuffle = (arr) => {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const bytes = new Uint32Array(1);
-      crypto.getRandomValues(bytes);
-      const j = bytes[0] % (i + 1);
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  };
-  const message = (text, type = 'error') => { status.innerHTML = text ? `<div class="status-${type}">${escapeHtml(text)}</div>` : ''; };
-  const state = () => Object.fromEntries(fields.map(f => [f.dataset.field, f.value]));
-  const applyState = (data) => fields.forEach(f => { if (data && data[f.dataset.field] != null) f.value = data[f.dataset.field]; });
-  const show = (html) => { empty.hidden = true; output.hidden = false; output.innerHTML = `<div class="sheet">${html}</div>`; output.scrollIntoView({behavior:'smooth',block:'nearest'}); };
+  const root=document.querySelector('.generator-page'); if(!root)return;
+  const mode=root.dataset.mode,output=root.querySelector('#output'),empty=root.querySelector('#emptyPreview'),status=root.querySelector('#status'),fields=[...root.querySelectorAll('[data-field]')],input=root.querySelector('#items'),preset=root.querySelector('#preset'),clear=root.querySelector('#clear');
+  const enc=s=>btoa(unescape(encodeURIComponent(s))),dec=s=>{try{return decodeURIComponent(escape(atob(s)));}catch{return null;}};
+  const cleanLines=()=>[...(input?.value||'').split(/[\n,]+/)].map(v=>v.trim()).filter(Boolean);
+  const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const b=new Uint32Array(1);crypto.getRandomValues(b);const j=b[0]%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+  const message=(text,type='error')=>{status.innerHTML=text?`<div class="status-${type}">${escapeHtml(text)}</div>`:'';};
+  const state=()=>Object.fromEntries(fields.map(f=>[f.dataset.field,f.value]));
+  const applyState=data=>fields.forEach(f=>{if(data&&data[f.dataset.field]!=null)f.value=data[f.dataset.field];});
+  const show=html=>{empty.hidden=true;output.hidden=false;output.innerHTML=`<div class="sheet">${html}</div>`;output.scrollIntoView({behavior:'smooth',block:'nearest'});};
 
-  function generateBingo() {
-    const items = cleanLines();
-    if (items.length < 24) return message(`Bingo needs 24 entries for a full 5×5 card. You have ${items.length}. Use the quick preset or add more.`);
-    const cells = shuffle(items.slice(0,24)); cells.splice(12,0,'FREE');
-    show(`<h2 class="result-title">Bingo card</h2><table><tbody>${Array.from({length:5},(_,r)=>`<tr>${Array.from({length:5},(_,c)=>`<td>${escapeHtml(cells[r*5+c])}</td>`).join('')}</tr>`).join('')}</tbody></table>`);
-  }
-  function generateWords() {
-    const words = [...new Set(cleanLines().map(v => v.toUpperCase().replace(/[^A-Z]/g,'')))].filter(v => v.length > 1).slice(0,12);
-    if (words.length < 3) return message('Add at least 3 words for a useful puzzle.');
-    const n = 12; const grid = Array.from({length:n},()=>Array(n).fill(''));
-    const dirs = [[1,0],[0,1],[1,1],[-1,1],[1,-1]];
-    for (const word of words) {
-      let placed = false;
-      for (let tries = 0; tries < 250 && !placed; tries++) {
-        const [dx,dy] = dirs[Math.floor(Math.random()*dirs.length)];
-        const r = Math.floor(Math.random()*n); const c = Math.floor(Math.random()*n);
-        const endR = r + dy*(word.length-1); const endC = c + dx*(word.length-1);
-        if (endR < 0 || endR >= n || endC < 0 || endC >= n) continue;
-        let ok = true;
-        for (let i=0;i<word.length;i++){ const ch=grid[r+dy*i][c+dx*i]; if(ch && ch!==word[i]){ok=false;break;} }
-        if(!ok) continue;
-        for(let i=0;i<word.length;i++) grid[r+dy*i][c+dx*i]=word[i];
-        placed=true;
-      }
-    }
-    for (let r=0;r<n;r++) for(let c=0;c<n;c++) if(!grid[r][c]) grid[r][c]=String.fromCharCode(65+Math.floor(Math.random()*26));
-    show(`<h2 class="result-title">Word search</h2><table><tbody>${grid.map(row=>`<tr>${row.map(ch=>`<td>${ch}</td>`).join('')}</tr>`).join('')}</tbody></table><p><strong>Find:</strong> ${words.join(', ')}</p>`);
-  }
-  function generateTeams() {
-    const names = cleanLines(); const count = Math.max(2, Math.min(12, Number(root.querySelector('#count')?.value || 3)));
-    if(names.length < count) return message(`Add at least ${count} people for ${count} teams.`);
-    const groups = Array.from({length:count},()=>[]); shuffle(names).forEach((name,i)=>groups[i%count].push(name));
-    show(`<h2 class="result-title">Random teams</h2><div class="print-grid">${groups.map((group,i)=>`<div class="ticket"><strong>TEAM ${i+1}</strong><p>${group.map(escapeHtml).join('<br>')}</p></div>`).join('')}</div>`);
-  }
-  function generateWheel() {
-    const choices = cleanLines(); if(choices.length<2) return message('Add at least 2 choices.');
-    const winner = choices[Math.floor(Math.random()*choices.length)];
-    show(`<div class="wheel-result"><h2 class="result-title">The result</h2><div class="wheel-choice">${escapeHtml(winner)}</div><p>${choices.map(escapeHtml).join(' · ')}</p></div>`);
-  }
-  function generateBracket() {
-    const participants = shuffle(cleanLines()); if(participants.length<2) return message('Add at least 2 teams or participants.');
-    if(participants.length%2) participants.push('BYE');
-    const pairs=[]; for(let i=0;i<participants.length;i+=2) pairs.push([participants[i],participants[i+1]]);
-    show(`<h2 class="result-title">Round 1</h2><div class="print-grid">${pairs.map((pair,i)=>`<div class="ticket"><strong>MATCH ${i+1}</strong><p>${escapeHtml(pair[0])}<br><span>vs</span><br>${escapeHtml(pair[1])}</p></div>`).join('')}</div>`);
-  }
-  function generateRaffle() {
-    const qty = Math.max(4, Math.min(200, Number(root.querySelector('#qty')?.value || 24))); const title = root.querySelector('#ticketTitle')?.value?.trim() || 'Raffle';
-    show(`<h2 class="result-title">${escapeHtml(title)}</h2><div class="print-grid">${Array.from({length:qty},(_,i)=>`<div class="ticket"><strong>TICKET #${String(i+1).padStart(3,'0')}</strong><p>${escapeHtml(title)}</p></div>`).join('')}</div>`);
-  }
-  function generateSeating() {
-    const names=shuffle(cleanLines()); const cols=Math.max(1,Math.min(10,Number(root.querySelector('#cols')?.value||4)));
-    if(!names.length) return message('Add at least 1 name.');
-    const rows=Math.ceil(names.length/cols);
-    show(`<h2 class="result-title">Seating chart</h2><table><tbody>${Array.from({length:rows},(_,r)=>`<tr>${Array.from({length:cols},(_,c)=>`<td>${escapeHtml(names[r*cols+c]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`);
-  }
-  function generateCertificate() {
-    const recipient=root.querySelector('#recipient')?.value?.trim(); const award=root.querySelector('#award')?.value?.trim() || 'Certificate of Appreciation'; const issuer=root.querySelector('#issuer')?.value?.trim() || 'PARADOX MAKERS';
-    if(!recipient) return message('Add the recipient name first.');
-    show(`<div class="certificate-result"><div><div class="mini">Certificate</div><h2>${escapeHtml(award)}</h2><p>This certificate is proudly presented to</p><div class="recipient">${escapeHtml(recipient)}</div><p>Presented by ${escapeHtml(issuer)}</p></div></div>`);
-  }
-  const generateMap = {bingo:generateBingo,words:generateWords,teams:generateTeams,wheel:generateWheel,bracket:generateBracket,raffle:generateRaffle,seating:generateSeating,certificate:generateCertificate};
-  const generate = generateMap[mode];
-  const presetData = {
-    bingo: ['Alice','Bob','Charlie','Dana','Eli','Fiona','George','Hana','Ivy','Jack','Kiran','Leo','Mia','Noah','Olivia','Priya','Quinn','Ravi','Sara','Theo','Uma','Victor','Wren','Zara'],
-    words: ['planet','rocket','moon','comet','orbit','astronaut','galaxy','star','mars','saturn'],
-    teams: ['Aisha','Ben','Carlos','Dana','Eli','Fiona','George','Hana'],
-    wheel: ['Pizza','Sushi','Tacos','Pasta'],
-    bracket: ['Team A','Team B','Team C','Team D','Team E','Team F','Team G','Team H'],
-    raffle: ['Fundraiser'],
-    seating: ['Aisha','Ben','Carlos','Dana','Eli','Fiona','George','Hana'],
-    certificate: ['Alex Morgan']
-  };
-  const putPreset = () => {
-    if (mode === 'certificate') { applyState({recipient:'Alex Morgan',award:'Certificate of Appreciation',issuer:'PARADOX MAKERS'}); }
-    else if (mode === 'raffle') { applyState({ticketTitle:'Spring Fundraiser',qty:'24'}); }
-    else { const values=presetData[mode]||[]; applyState({items:values.join('\n'),count: mode==='teams'?'3':undefined,cols:mode==='seating'?'4':undefined}); }
-    message('Preset loaded. Press Generate.','success');
-  };
-  const clearAll = () => { fields.forEach(f=>{ if(f.tagName==='TEXTAREA') f.value=''; else if(f.type==='number') f.value=f.id==='count'?'3':f.id==='cols'?'4':f.id==='qty'?'24':f.value; else if(f.id==='award') f.value='Certificate of Appreciation'; else if(f.id==='issuer') f.value='PARADOX MAKERS'; else f.value=''; }); message('Cleared.','success'); };
-  root.querySelector('#generate')?.addEventListener('click',()=>{ message(''); if(typeof generate==='function') generate(); });
-  root.querySelector('#print')?.addEventListener('click',()=>window.print());
-  preset?.addEventListener('click',putPreset); clear?.addEventListener('click',clearAll);
-  root.querySelector('#share')?.addEventListener('click',async()=>{
-    const data=enc(JSON.stringify(state())); const url=`${location.origin}${location.pathname}?share=${encodeURIComponent(data)}`;
-    try { await navigator.clipboard.writeText(url); message('Share link copied to your clipboard.','success'); }
-    catch { message(url,'success'); }
+  function generateBingo(){const items=[...new Set(cleanLines())];if(items.length<24)return message(`Bingo needs 24 unique entries. You have ${items.length}.`);const cells=shuffle(items).slice(0,24);cells.splice(12,0,'FREE');show(`<h2 class="result-title">Bingo card</h2><table><tbody>${Array.from({length:5},(_,r)=>`<tr>${Array.from({length:5},(_,c)=>`<td>${escapeHtml(cells[r*5+c])}</td>`).join('')}</tr>`).join('')}</tbody></table>`);}
+  function generateWords(){const words=[...new Set(cleanLines().map(v=>v.toUpperCase().replace(/[^A-Z]/g,'')))].filter(v=>v.length>1).sort((a,b)=>b.length-a.length).slice(0,15);if(words.length<3)return message('Add at least 3 words. Use letters only for best results.');const n=Math.max(12,Math.min(18,words.reduce((m,w)=>Math.max(m,w.length+2),12)));const grid=Array.from({length:n},()=>Array(n).fill(''));const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];const placed=[];for(const word of words){let okPlace=false;for(let tries=0;tries<1000&&!okPlace;tries++){const [dx,dy]=dirs[Math.floor(Math.random()*dirs.length)],r=Math.floor(Math.random()*n),c=Math.floor(Math.random()*n),er=r+dy*(word.length-1),ec=c+dx*(word.length-1);if(er<0||er>=n||ec<0||ec>=n)continue;let ok=true;for(let i=0;i<word.length;i++){const ch=grid[r+dy*i][c+dx*i];if(ch&&ch!==word[i]){ok=false;break;}}if(!ok)continue;for(let i=0;i<word.length;i++)grid[r+dy*i][c+dx*i]=word[i];okPlace=true;placed.push(word);}}for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(!grid[r][c])grid[r][c]=String.fromCharCode(65+Math.floor(Math.random()*26));show(`<h2 class="result-title">Word search</h2><table><tbody>${grid.map(row=>`<tr>${row.map(ch=>`<td>${ch}</td>`).join('')}</tr>`).join('')}</tbody></table><p><strong>Find:</strong> ${placed.join(', ')}</p>${placed.length<words.length?`<p class="status-error">${words.length-placed.length} word(s) could not fit and were omitted.</p>`:''}`);}
+  function generateTeams(){const names=[...new Set(cleanLines())],count=Math.max(2,Math.min(20,Number(root.querySelector('#count')?.value||3)));if(names.length<count)return message(`Add at least ${count} people for ${count} teams.`);const groups=Array.from({length:count},()=>[]);shuffle(names).forEach((name,i)=>groups[i%count].push(name));show(`<h2 class="result-title">Random teams</h2><div class="print-grid">${groups.map((group,i)=>`<div class="ticket"><strong>TEAM ${i+1}</strong><p>${group.map(escapeHtml).join('<br>')}</p></div>`).join('')}</div>`);}
+  function generateWheel(){const choices=[...new Set(cleanLines())];if(choices.length<2)return message('Add at least 2 choices.');const n=choices.length,step=360/n,stops=choices.map((_,i)=>`${i*step}deg ${(i+1)*step}deg`).join(', '),colors=choices.map((_,i)=>i%2?'#ececec':'#d9d9d9').map((_,i)=>`${i%2?'#eeeeee':'#d7d7d7'} ${i*step}deg ${(i+1)*step}deg`).join(', ');show(`<h2 class="result-title">Decision wheel</h2><div class="wheel-wrap"><div class="wheel-pointer">▼</div><div id="wheelVisual" class="wheel-visual" style="background:conic-gradient(${colors});"><div class="wheel-labels">${choices.map((x,i)=>`<span style="--i:${i};--n:${n}">${escapeHtml(x)}</span>`).join('')}</div></div><button type="button" class="gen-btn" id="spinWheel">Spin the wheel</button></div><p id="wheelStatus">Choose Spin to pick a random option.</p>`);}
+  function generateBracket(){let participants=shuffle([...new Set(cleanLines())]);if(participants.length<2)return message('Add at least 2 teams or participants.');if(participants.length>32)return message('Use 2–32 participants for a clean bracket.');let next=Math.min(32,2**Math.ceil(Math.log2(participants.length)));while(participants.length<next)participants.push('BYE');showBracket(participants);}
+  function showBracket(participants){const size=participants.length;const rows=Array.from({length:size/2},(_,i)=>[participants[i*2],participants[i*2+1]]);root._bracket={participants,winners:Array(rows.length).fill(null),round:1};show(`<h2 class="result-title">Bracket · Round 1</h2><div class="bracket-grid">${rows.map((pair,i)=>`<div class="ticket bracket-match"><strong>MATCH ${i+1}</strong><button type="button" class="bracket-pick" data-match="${i}" data-pick="0">${escapeHtml(pair[0])}</button><span>vs</span><button type="button" class="bracket-pick" data-match="${i}" data-pick="1">${escapeHtml(pair[1])}</button></div>`).join('')}</div><p id="bracketHint">Pick a winner in every match to advance.</p>`);}
+  function renderBracketRound(){const st=root._bracket,w=st.winners;if(w.some(x=>!x))return;const next=shuffle?Array.from({length:Math.ceil(w.length/2)},(_,i)=>[w[i*2],w[i*2+1]||'BYE']):[];if(next.length===1){show(`<h2 class="result-title">🏆 Champion</h2><div class="utility-big">${escapeHtml(next[0][0])}</div><p>Bracket complete.</p>`);return;}st.round++;st.participants=next.flat();st.winners=Array(next.length).fill(null);show(`<h2 class="result-title">Bracket · Round ${st.round}</h2><div class="bracket-grid">${next.map((pair,i)=>`<div class="ticket bracket-match"><strong>MATCH ${i+1}</strong><button type="button" class="bracket-pick" data-match="${i}" data-pick="0">${escapeHtml(pair[0])}</button><span>vs</span><button type="button" class="bracket-pick" data-match="${i}" data-pick="1">${escapeHtml(pair[1])}</button></div>`).join('')}</div><p>Pick a winner in every match to advance.</p>`);}
+  function generateRaffle(){const qty=Math.max(4,Math.min(500,Number(root.querySelector('#qty')?.value||24))),title=root.querySelector('#ticketTitle')?.value?.trim()||'Raffle';show(`<h2 class="result-title">${escapeHtml(title)}</h2><div class="print-grid">${Array.from({length:qty},(_,i)=>`<div class="ticket"><strong>TICKET #${String(i+1).padStart(3,'0')}</strong><p>${escapeHtml(title)}</p></div>`).join('')}</div><button type="button" class="gen-btn" id="drawWinner">Draw a winner</button><p id="raffleResult"></p>`);root._raffleQty=qty;}
+  function generateSeating(){const names=shuffle(cleanLines()),cols=Math.max(1,Math.min(12,Number(root.querySelector('#cols')?.value||4)));if(!names.length)return message('Add at least 1 name.');const rows=Math.ceil(names.length/cols);show(`<h2 class="result-title">Seating chart</h2><table><tbody>${Array.from({length:rows},(_,r)=>`<tr>${Array.from({length:cols},(_,c)=>`<td>${escapeHtml(names[r*cols+c]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`);}
+  function generateCertificate(){const recipient=root.querySelector('#recipient')?.value?.trim(),award=root.querySelector('#award')?.value?.trim()||'Certificate of Appreciation',issuer=root.querySelector('#issuer')?.value?.trim()||'PARADOX MAKERS';if(!recipient)return message('Add the recipient name first.');show(`<div class="certificate-result"><div><div class="mini">CERTIFICATE</div><h2>${escapeHtml(award)}</h2><p>This certificate is proudly presented to</p><div class="recipient">${escapeHtml(recipient)}</div><p>Presented by ${escapeHtml(issuer)}</p><div class="certificate-date">${new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}</div></div></div>`);}
+  const generateMap={bingo:generateBingo,words:generateWords,teams:generateTeams,wheel:generateWheel,bracket:generateBracket,raffle:generateRaffle,seating:generateSeating,certificate:generateCertificate};
+  const presetData={bingo:quick,words:quick,teams:quick,wheel:quick,bracket:quick,raffle:quick,seating:quick,certificate:['Alex Morgan']};
+  const putPreset=()=>{if(mode==='certificate')applyState({recipient:'Alex Morgan',award:'Certificate of Appreciation',issuer:'PARADOX MAKERS'});else if(mode==='raffle')applyState({ticketTitle:'Spring Fundraiser',qty:'24'});else applyState({items:(presetData[mode]||[]).join('\n'),count:mode==='teams'?'3':undefined,cols:mode==='seating'?'4':undefined});message('Preset loaded. Press Generate.','success');};
+  const clearAll=()=>{fields.forEach(f=>{if(f.tagName==='TEXTAREA')f.value='';else if(f.type==='number'){f.value=f.id==='count'?'3':f.id==='cols'?'4':f.id==='qty'?'24':'';}else if(f.id==='award')f.value='Certificate of Appreciation';else if(f.id==='issuer')f.value='PARADOX MAKERS';else f.value='';});empty.hidden=false;output.hidden=true;message('Cleared.','success');};
+  root.querySelector('#generate')?.addEventListener('click',()=>{message('');generateMap[mode]?.();}); root.querySelector('#print')?.addEventListener('click',()=>window.print()); preset?.addEventListener('click',putPreset); clear?.addEventListener('click',clearAll);
+  root.querySelector('#share')?.addEventListener('click',async()=>{const data=enc(JSON.stringify(state())),url=`${location.origin}${location.pathname}?share=${encodeURIComponent(data)}`;try{await navigator.clipboard.writeText(url);message('Share link copied to your clipboard.','success');}catch{message(url,'success');}});
+  root.addEventListener('click',e=>{
+    const spin=e.target.closest('#spinWheel'); if(spin){const choices=cleanLines(),wheel=root.querySelector('#wheelVisual'),n=choices.length;const winner=Math.floor(Math.random()*n),segment=360/n,target=360*5+(360-(winner*segment+segment/2));wheel.style.transform=`rotate(${target}deg)`;spin.disabled=true;setTimeout(()=>{const s=root.querySelector('#wheelStatus');if(s)s.textContent=`Winner: ${choices[winner]}`;spin.disabled=false;},3900);return;}
+    const pick=e.target.closest('.bracket-pick'); if(pick){const st=root._bracket;if(!st)return;const match=Number(pick.dataset.match),pickIndex=Number(pick.dataset.pick);st.winners[match]=st.participants[match*2+pickIndex];root.querySelectorAll(`[data-match="${match}"]`).forEach(b=>b.classList.remove('selected'));pick.classList.add('selected');if(st.winners.every(Boolean))renderBracketRound();return;}
+    const draw=e.target.closest('#drawWinner'); if(draw){const result=root.querySelector('#raffleResult');if(result)result.textContent=`Winner: Ticket #${String(Math.floor(Math.random()*root._raffleQty)+1).padStart(3,'0')}`;}
   });
-  const shared = new URLSearchParams(location.search).get('share');
-  if(shared){ const data=dec(shared); if(data){ try { applyState(JSON.parse(data)); message('Shared setup loaded. Press Generate.','success'); } catch {} } }
+  const shared=new URLSearchParams(location.search).get('share');if(shared){const data=dec(shared);if(data){try{applyState(JSON.parse(data));message('Shared setup loaded. Press Generate.','success');}catch{message('This share link is invalid.');}}}
 })();
 </script>
