@@ -108,9 +108,22 @@ const preview = {
   function wheel() {
     const choices = unique(lines()); if (choices.length < 2) return message('Add at least 2 choices.');
     let parts = ''; choices.forEach((choice,i) => { parts += '<span style="--i:' + i + ';--n:' + choices.length + '">' + escapeHtml(choice) + '</span>'; });
-    show('<h2 class="result-title">Decision wheel</h2><div class="wheel-wrap"><div class="wheel-pointer">▼</div><div class="wheel-visual" id="wheelVisual"><div class="wheel-labels">' + parts + '</div></div><button type="button" class="gen-btn" id="spinWheel">SPIN THE WHEEL</button><p id="wheelStatus">' + choices.length + ' choices ready.</p></div>');
+    show('<h2 class="result-title">Decision wheel</h2><div class="wheel-wrap"><div class="wheel-pointer">▼</div><div class="wheel-visual" id="wheelVisual" aria-label="Decision wheel">' + parts + '</div><button type="button" class="gen-btn" id="spinWheel">SPIN THE WHEEL</button><p id="wheelStatus">' + choices.length + ' choices ready.</p><div class="wheel-choice-list">' + choices.map((choice,i) => '<span><b>' + (i + 1) + '</b>' + escapeHtml(choice) + '</span>').join('') + '</div></div>');
+    const visual = root.querySelector('#wheelVisual');
+    if (visual) {
+      const segment = 360 / choices.length;
+      const colors = choices.map((_, i) => i % 2 ? '#f2f0e9' : '#ffcf55');
+      visual.style.background = 'conic-gradient(' + colors.map((color,i) => color + ' ' + (i * segment) + 'deg ' + ((i + 1) * segment) + 'deg').join(',') + ')';
+      visual.style.setProperty('--wheel-count', choices.length);
+    }
     const spin = root.querySelector('#spinWheel');
-    if (spin) spin.addEventListener('click', () => { const index = Math.floor(Math.random() * choices.length); const angle = 1800 + (360 - ((index + 0.5) * 360 / choices.length)); const visual = root.querySelector('#wheelVisual'); visual.style.transform = 'rotate(' + angle + 'deg)'; setTimeout(() => { root.querySelector('#wheelStatus').textContent = 'Winner: ' + choices[index]; }, 2900); });
+    if (spin) spin.addEventListener('click', () => {
+      const index = Math.floor(Math.random() * choices.length);
+      const angle = 1800 + (360 - ((index + 0.5) * 360 / choices.length));
+      spin.disabled = true;
+      if (visual) visual.style.transform = 'rotate(' + angle + 'deg)';
+      setTimeout(() => { root.querySelector('#wheelStatus').textContent = 'Winner: ' + choices[index]; spin.disabled = false; }, 2900);
+    });
   }
   function renderBracket(players) {
     const pairs = []; for (let i = 0; i < players.length; i += 2) pairs.push([players[i], players[i + 1]]);
@@ -136,6 +149,6 @@ const preview = {
   root.querySelector('#generate')?.addEventListener('click', () => { message(''); if (generators[mode]) generators[mode](); });
   root.querySelector('#print')?.addEventListener('click', () => window.print());
   root.querySelector('#share')?.addEventListener('click', async () => { const payload = btoa(unescape(encodeURIComponent(JSON.stringify(saveState())))); const url = location.origin + location.pathname + '?share=' + encodeURIComponent(payload); try { await navigator.clipboard.writeText(url); message('Share link copied.','success'); } catch { message(url,'success'); } });
-  const shared = new URLSearchParams(location.search).get('share'); if (shared) { try { const data = JSON.parse(decodeURIComponent(escape(atob(shared)))); applyState(data); message('Shared setup loaded. Press Generate.','success'); } catch {} }
+  const shared = new URLSearchParams(location.search).get('share'); if (shared) { try { const data = JSON.parse(decodeURIComponent(escape(atob(shared)))); applyState(data); message('Shared setup loaded.','success'); if (generators[mode]) generators[mode](); } catch { message('This share link is invalid or incomplete.'); } }
 })();
 </script>
