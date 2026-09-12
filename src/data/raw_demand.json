@@ -1,5 +1,12 @@
 {
   "version": 1,
   "generatedAt": null,
-  "signals": []
+  "signals": [],
+  "history": [],
+  "failures": [],
+  "sources": {
+    "hackerNews": false,
+    "googleTrendsRss": false,
+    "wikimediaPageviews": false
+  }
 }
