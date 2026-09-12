@@ -1,10 +1,294 @@
 [
-  {"slug":"percentage-calculator","mode":"percentage","label":"Percentage Calculator","title":"Percentage Calculator — Free Online Tool","description":"Calculate percentages, discounts, increases and decreases instantly in your browser with no account.","score":1,"matchedTrends":[]},
-  {"slug":"age-calculator","mode":"age","label":"Age Calculator","title":"Age Calculator — Free Online Tool","description":"Calculate an exact age between two dates directly in your browser.","score":1,"matchedTrends":[]},
-  {"slug":"time-zone-converter","mode":"timezone","label":"Time Zone Converter","title":"Time Zone Converter — Free Online Tool","description":"Convert a date and time between time zones without an account or upload.","score":1,"matchedTrends":[]},
-  {"slug":"unit-converter","mode":"units","label":"Unit Converter","title":"Unit Converter — Free Online Tool","description":"Convert common measurements such as kilometers, miles, kilograms, pounds, meters, feet and temperatures.","score":1,"matchedTrends":[]},
-  {"slug":"countdown-timer","mode":"countdown","label":"Countdown Timer","title":"Countdown Timer — Free Online Tool","description":"Count down to a date or deadline directly in your browser.","score":1,"matchedTrends":[]},
-  {"slug":"random-number-generator","mode":"random","label":"Random Number Generator","title":"Random Number Generator — Free Online Tool","description":"Generate one or more random numbers between any minimum and maximum instantly.","score":1,"matchedTrends":[]},
-  {"slug":"word-counter","mode":"text","label":"Word Counter","title":"Word Counter — Free Online Tool","description":"Count words, characters, lines and non-space characters in your text locally in the browser.","score":1,"matchedTrends":[]},
-  {"slug":"date-difference-calculator","mode":"datediff","label":"Date Difference Calculator","title":"Date Difference Calculator — Free Online Tool","description":"Calculate the number of days and weeks between two dates.","score":1,"matchedTrends":[]}
+  {
+    "slug": "percentage-calculator",
+    "mode": "percentage",
+    "label": "Percentage Calculator",
+    "title": "Percentage Calculator — Free Online Tool",
+    "description": "Calculate percentages, discounts, increases and decreases instantly in your browser with no account.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "age-calculator",
+    "mode": "age",
+    "label": "Age Calculator",
+    "title": "Age Calculator — Free Online Tool",
+    "description": "Calculate an exact age between two dates directly in your browser.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "time-zone-converter",
+    "mode": "timezone",
+    "label": "Time Zone Converter",
+    "title": "Time Zone Converter — Free Online Tool",
+    "description": "Convert a date and time between time zones without an account or upload.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "unit-converter",
+    "mode": "units",
+    "label": "Unit Converter",
+    "title": "Unit Converter — Free Online Tool",
+    "description": "Convert common measurements such as kilometers, miles, kilograms, pounds, meters, feet and temperatures.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "countdown-timer",
+    "mode": "countdown",
+    "label": "Countdown Timer",
+    "title": "Countdown Timer — Free Online Tool",
+    "description": "Count down to a date or deadline directly in your browser.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "random-number-generator",
+    "mode": "random",
+    "label": "Random Number Generator",
+    "title": "Random Number Generator — Free Online Tool",
+    "description": "Generate one or more random numbers between any minimum and maximum instantly.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "word-counter",
+    "mode": "text",
+    "label": "Word Counter",
+    "title": "Word Counter — Free Online Tool",
+    "description": "Count words, characters, lines and non-space characters in your text locally in the browser.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "date-difference-calculator",
+    "mode": "datediff",
+    "label": "Date Difference Calculator",
+    "title": "Date Difference Calculator — Free Online Tool",
+    "description": "Calculate the number of days and weeks between two dates.",
+    "score": 1,
+    "matchedTrends": []
+  },
+  {
+    "slug": "km-to-miles",
+    "mode": "units",
+    "label": "KM to Miles Converter",
+    "title": "KM to Miles Converter — Free Online Tool",
+    "description": "Convert kilometers to miles instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "km to miles"
+  },
+  {
+    "slug": "miles-to-km",
+    "mode": "units",
+    "label": "Miles to KM Converter",
+    "title": "Miles to KM Converter — Free Online Tool",
+    "description": "Convert miles to kilometers instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "miles to km"
+  },
+  {
+    "slug": "kg-to-pounds",
+    "mode": "units",
+    "label": "KG to Pounds Converter",
+    "title": "KG to Pounds Converter — Free Online Tool",
+    "description": "Convert kilograms to pounds instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "kg to pounds"
+  },
+  {
+    "slug": "pounds-to-kg",
+    "mode": "units",
+    "label": "Pounds to KG Converter",
+    "title": "Pounds to KG Converter — Free Online Tool",
+    "description": "Convert pounds to kilograms instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "pounds to kg"
+  },
+  {
+    "slug": "cm-to-inches",
+    "mode": "units",
+    "label": "CM to Inches Converter",
+    "title": "CM to Inches Converter — Free Online Tool",
+    "description": "Convert centimeters to inches instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "cm to inches"
+  },
+  {
+    "slug": "inches-to-cm",
+    "mode": "units",
+    "label": "Inches to CM Converter",
+    "title": "Inches to CM Converter — Free Online Tool",
+    "description": "Convert inches to centimeters instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "inches to cm"
+  },
+  {
+    "slug": "celsius-to-fahrenheit",
+    "mode": "units",
+    "label": "Celsius to Fahrenheit Converter",
+    "title": "Celsius to Fahrenheit Converter — Free Online Tool",
+    "description": "Convert Celsius to Fahrenheit instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "25",
+    "bValue": "celsius to fahrenheit"
+  },
+  {
+    "slug": "fahrenheit-to-celsius",
+    "mode": "units",
+    "label": "Fahrenheit to Celsius Converter",
+    "title": "Fahrenheit to Celsius Converter — Free Online Tool",
+    "description": "Convert Fahrenheit to Celsius instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "77",
+    "bValue": "fahrenheit to celsius"
+  },
+  {
+    "slug": "meters-to-feet",
+    "mode": "units",
+    "label": "Meters to Feet Converter",
+    "title": "Meters to Feet Converter — Free Online Tool",
+    "description": "Convert meters to feet instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "meters to feet"
+  },
+  {
+    "slug": "feet-to-meters",
+    "mode": "units",
+    "label": "Feet to Meters Converter",
+    "title": "Feet to Meters Converter — Free Online Tool",
+    "description": "Convert feet to meters instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "feet to meters"
+  },
+  {
+    "slug": "liters-to-gallons",
+    "mode": "units",
+    "label": "Liters to Gallons Converter",
+    "title": "Liters to Gallons Converter — Free Online Tool",
+    "description": "Convert liters to gallons instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "liters to gallons"
+  },
+  {
+    "slug": "gallons-to-liters",
+    "mode": "units",
+    "label": "Gallons to Liters Converter",
+    "title": "Gallons to Liters Converter — Free Online Tool",
+    "description": "Convert gallons to liters instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "gallons to liters"
+  },
+  {
+    "slug": "grams-to-ounces",
+    "mode": "units",
+    "label": "Grams to Ounces Converter",
+    "title": "Grams to Ounces Converter — Free Online Tool",
+    "description": "Convert grams to ounces instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "100",
+    "bValue": "grams to ounces"
+  },
+  {
+    "slug": "ounces-to-grams",
+    "mode": "units",
+    "label": "Ounces to Grams Converter",
+    "title": "Ounces to Grams Converter — Free Online Tool",
+    "description": "Convert ounces to grams instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "100",
+    "bValue": "ounces to grams"
+  },
+  {
+    "slug": "mm-to-inches",
+    "mode": "units",
+    "label": "MM to Inches Converter",
+    "title": "MM to Inches Converter — Free Online Tool",
+    "description": "Convert millimeters to inches instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "mm to inches"
+  },
+  {
+    "slug": "inches-to-mm",
+    "mode": "units",
+    "label": "Inches to MM Converter",
+    "title": "Inches to MM Converter — Free Online Tool",
+    "description": "Convert inches to millimeters instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "10",
+    "bValue": "inches to mm"
+  },
+  {
+    "slug": "kelvin-to-celsius",
+    "mode": "units",
+    "label": "Kelvin to Celsius Converter",
+    "title": "Kelvin to Celsius Converter — Free Online Tool",
+    "description": "Convert Kelvin to Celsius instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "300",
+    "bValue": "kelvin to celsius"
+  },
+  {
+    "slug": "celsius-to-kelvin",
+    "mode": "units",
+    "label": "Celsius to Kelvin Converter",
+    "title": "Celsius to Kelvin Converter — Free Online Tool",
+    "description": "Convert Celsius to Kelvin instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "25",
+    "bValue": "celsius to kelvin"
+  },
+  {
+    "slug": "meters-to-kilometers",
+    "mode": "units",
+    "label": "Meters to Kilometers Converter",
+    "title": "Meters to Kilometers Converter — Free Online Tool",
+    "description": "Convert meters to kilometers instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "1000",
+    "bValue": "meters to kilometers"
+  },
+  {
+    "slug": "kilometers-to-meters",
+    "mode": "units",
+    "label": "Kilometers to Meters Converter",
+    "title": "Kilometers to Meters Converter — Free Online Tool",
+    "description": "Convert kilometers to meters instantly in your browser.",
+    "score": 2,
+    "matchedTrends": [],
+    "aValue": "1",
+    "bValue": "kilometers to meters"
+  }
 ]
