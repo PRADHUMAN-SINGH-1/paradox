@@ -1,0 +1,34 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+---
+<MakerLayout title="Agent Atlas — 100+ open-source AI agents" description="Explore the live open-source AI agent ecosystem and run agent-inspired workflows inside PARADOX with your connected LLM.">
+<main class="atlas">
+  <section class="atlas-hero">
+    <div class="atlas-kicker"><span></span> OPEN-SOURCE AGENT ATLAS · LIVE REGISTRY</div>
+    <div class="atlas-hero-grid">
+      <div>
+        <h1>100+ agents.<br><em>One cockpit.</em></h1>
+        <p>PARADOX now maps the public agent ecosystem into one searchable workspace. Pick an agent pattern, inspect its source, then launch the job through your connected model.</p>
+        <div class="atlas-proof"><b id="count">Loading</b><span>source agent recipes</span><b>7</b><span>agent families</span></div>
+      </div>
+      <div class="atlas-orbit"><div class="orbit-core">PX</div><span>RESEARCH</span><span>CODING</span><span>VOICE</span><span>MCP</span><span>MULTI-AGENT</span></div>
+    </div>
+  </section>
+
+  <section class="atlas-work">
+    <div class="atlas-toolbar">
+      <div><span>AGENT DISCOVERY</span><small id="status">Loading GitHub registry…</small></div>
+      <input id="search" type="search" placeholder="Search agents, skills, research, finance, coding…" aria-label="Search agents">
+    </div>
+    <div class="atlas-filters" id="filters"></div>
+    <div class="agent-grid" id="agentGrid"></div>
+    <div class="atlas-note"><strong>How PARADOX connects them</strong><p>The source projects stay on GitHub. PARADOX turns each public agent into a runnable job recipe: the selected source pattern becomes context, your live LLM becomes the execution engine, and the original project remains one click away.</p><a href="https://github.com/Shubhamsaboo/awesome-llm-apps" target="_blank" rel="noreferrer">Open the source collection ↗</a></div>
+  </section>
+</main>
+<style>
+.atlas{--ink:#0b0c0c;--paper:#efede5;--acid:#d8ff39;--red:#ff5638;background:var(--paper);color:var(--ink);max-width:1440px;margin:auto}.atlas-hero{padding:22px clamp(18px,4vw,64px) 70px;min-height:82svh;background:radial-gradient(circle at 80% 20%,rgba(216,255,57,.32),transparent 27%),var(--paper);border-bottom:1px solid #aba89f}.atlas-kicker,.atlas-toolbar span,.atlas-filters button,.atlas-card .meta,.atlas-proof span,.atlas-proof b,.atlas-note strong{font:9px 'DM Mono';letter-spacing:.11em;text-transform:uppercase}.atlas-kicker span{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;margin-right:8px}.atlas-hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:6vw;align-items:center;min-height:65svh}.atlas h1{font:700 clamp(72px,11vw,165px)/.76 'DM Sans';letter-spacing:-.09em;margin:40px 0 28px}.atlas h1 em{font-family:'Instrument Serif';font-weight:400;letter-spacing:-.05em}.atlas-hero p{max-width:690px;font-size:18px;line-height:1.6;color:#585952}.atlas-proof{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:32px}.atlas-proof b{font-size:32px;letter-spacing:-.04em}.atlas-proof span{color:#71736c;margin-right:18px}.atlas-orbit{height:420px;position:relative;display:grid;place-items:center;border:1px solid #b8b6ae;border-radius:50%}.atlas-orbit:before,.atlas-orbit:after{content:'';position:absolute;border:1px solid #bbb8b0;border-radius:50%;inset:12%;transform:rotate(18deg)}.atlas-orbit:after{inset:24%;transform:rotate(-32deg)}.orbit-core{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--acid);font:700 44px 'DM Sans';position:relative;z-index:2;box-shadow:15px 15px 0 var(--red)}.atlas-orbit span{position:absolute;font:8px 'DM Mono';letter-spacing:.1em;background:var(--paper);border:1px solid #bab7ae;padding:8px 9px}.atlas-orbit span:nth-of-type(1){top:12%;left:10%}.atlas-orbit span:nth-of-type(2){top:23%;right:8%}.atlas-orbit span:nth-of-type(3){bottom:20%;left:6%}.atlas-orbit span:nth-of-type(4){bottom:9%;right:13%}.atlas-orbit span:nth-of-type(5){top:47%;left:2%}
+.atlas-work{padding:28px clamp(18px,4vw,64px) 70px}.atlas-toolbar{display:grid;grid-template-columns:1fr minmax(260px,450px);gap:20px;align-items:center;border-bottom:1px solid #b8b6ae;padding-bottom:15px}.atlas-toolbar div{display:flex;flex-direction:column;gap:7px}.atlas-toolbar small{color:#74756f;font:11px 'DM Sans'}.atlas-toolbar input{width:100%;background:#fff;border:1px solid #b5b2a8;padding:15px 16px;outline:0;font:14px 'DM Sans'}.atlas-toolbar input:focus{border-color:var(--ink)}.atlas-filters{display:flex;gap:8px;overflow:auto;padding:15px 0}.atlas-filters button{white-space:nowrap;border:1px solid #b7b4aa;background:transparent;padding:10px 12px;cursor:pointer}.atlas-filters button.active{background:var(--ink);color:#fff}.agent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.atlas-card{background:#fff;border:1px solid #c7c4bb;min-height:250px;padding:18px;display:flex;flex-direction:column;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.atlas-card:hover{transform:translateY(-4px);border-color:#8f8c84;box-shadow:0 18px 40px rgba(0,0,0,.08)}.atlas-card .meta{display:flex;justify-content:space-between;color:#7b7d76}.atlas-card h2{font:600 25px/1.05 'DM Sans';letter-spacing:-.04em;margin:24px 0 8px}.atlas-card p{color:#686a63;line-height:1.5;font-size:13px;margin:0 0 16px}.atlas-card .actions{display:flex;gap:8px;margin-top:auto}.atlas-card a{padding:10px 11px;border:1px solid #b7b4aa;font:9px 'DM Mono';text-decoration:none}.atlas-card a.run{background:var(--ink);color:#fff;border-color:var(--ink)}.atlas-card a:hover{border-color:var(--ink)}.atlas-note{margin-top:28px;padding:23px;border:1px solid #aaa79f;background:#111313;color:#eceae1}.atlas-note strong{color:var(--acid)}.atlas-note p{max-width:820px;line-height:1.6;color:#b8b9b2;margin:12px 0}.atlas-note a{color:#fff;font:9px 'DM Mono';text-decoration:none}.empty{grid-column:1/-1;border:1px dashed #b7b4aa;padding:50px;text-align:center;color:#777870}.empty strong{display:block;color:var(--ink);font:500 22px 'DM Sans';margin-bottom:8px}
+@media(max-width:900px){.atlas-hero-grid{grid-template-columns:1fr}.atlas-orbit{height:340px;max-width:520px;margin:0 auto}.agent-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.atlas-toolbar{grid-template-columns:1fr}}@media(max-width:580px){.agent-grid{grid-template-columns:1fr}.atlas h1{font-size:72px}.atlas-hero p{font-size:16px}.atlas-orbit{height:300px}.atlas-orbit span{display:none}}
+</style>
+<script type="module" src="../../scripts/agents.js"></script>
+</MakerLayout>
