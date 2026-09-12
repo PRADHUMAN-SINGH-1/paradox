@@ -4,61 +4,32 @@ import '../styles/design-system.css';
 const { title, description, canonical = 'https://paradox.engineer/' } = Astro.props;
 const year = new Date().getFullYear();
 const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebApplication',
-  name: title.split(' — ')[0],
-  url: canonical,
-  description,
-  applicationCategory: 'UtilitiesApplication',
-  operatingSystem: 'Web Browser',
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+  '@context': 'https://schema.org', '@type': 'WebApplication', name: title.split(' — ')[0], url: canonical, description,
+  applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web Browser', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-5V0LJN6HTS');
-    </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f7f4ec" />
-    <meta name="description" content={description} />
-    <meta name="google-adsense-account" content="ca-pub-4630615697632107" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:type" content="website" />
-    <link rel="canonical" href={canonical} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
-    <title>{title}</title>
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="PARADOX Makers home">PARADOX <span>MAKERS</span></a>
-      <nav class="site-nav" aria-label="Primary navigation">
-        <a href="/#tools">Tools</a>
-        <a href="/daily/">Daily</a>
-        <a href="/world/">World</a>
-        <a href="/#guides">Guides</a>
-        <a href="/about/">About</a>
-      </nav>
-      <a class="header-cta" href="/#tools">Start with a tool →</a>
-    </header>
-    <slot />
-    <footer class="site-footer">
-      <div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div>
-      <nav aria-label="Footer navigation"><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav>
-      <small>© {year}</small>
-    </footer>
-  </body>
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
+<script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#f7f4ec" />
+<meta name="description" content={description} /><meta name="google-adsense-account" content="ca-pub-4630615697632107" />
+<meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" />
+<link rel="canonical" href={canonical} /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script><title>{title}</title>
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="/" aria-label="PARADOX Makers home">PARADOX <span>MAKERS</span></a>
+<nav class="site-nav" aria-label="Primary navigation">
+<a href="/#tools">Tools</a><a href="/ai/">AI</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a>
+</nav>
+<a class="header-cta" href="/#tools">Start with a tool →</a>
+</header>
+<slot />
+<footer class="site-footer"><div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div><nav aria-label="Footer navigation"><a href="/ai/">AI tools</a><a href="/ai-radar/">AI Radar</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year}</small></footer>
+</body>
 </html>
