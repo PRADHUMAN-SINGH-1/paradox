@@ -34,7 +34,7 @@ const featuredAI=aiTools.slice(0,8);
 ---
 <MakerLayout title="PARADOX — Free tools that get the job done" description="Free browser tools for AI, calculators, teams, puzzles, brackets, raffles, charts and everyday jobs. No account required.">
 <main class="home">
-  <section class="home-hero">
+  <section class="home-hero" data-cursor="tools">
     <div class="hero-copy">
       <div class="eyebrow"><span class="live-dot"></span> FREE · NO ACCOUNT · NO UPLOADS</div>
       <h1>Need to get<br><em>something done?</em></h1>
@@ -42,28 +42,28 @@ const featuredAI=aiTools.slice(0,8);
       <div class="hero-search"><span>⌕</span><input id="toolSearch" type="search" placeholder="Search AI, JSON, tokens, percentage, teams, bracket…" aria-label="Search all tools" autocomplete="off"><kbd>/</kbd></div>
       <div class="hero-links"><a class="button button-dark" href="#ai-tools">Explore AI tools</a><a class="text-link" href="#tools">Browse everything →</a></div>
     </div>
-    <div class="hero-feature"><div class="feature-label">POPULAR RIGHT NOW</div><div class="feature-emoji">↗</div><div class="feature-body"><span>Fast answers for common tasks</span><div class="popular-list">{popular.map((item,index)=><a href={item.route}><b>{String(index+1).padStart(2,'0')}</b><span>{item.label}</span><small>Use it →</small></a>)}</div></div></div>
+    <div class="hero-feature" data-tilt><div class="feature-label">POPULAR RIGHT NOW</div><div class="feature-emoji">↗</div><div class="feature-body"><span>Fast answers for common tasks</span><div class="popular-list">{popular.map((item,index)=><a href={item.route}><b>{String(index+1).padStart(2,'0')}</b><span>{item.label}</span><small>Use it →</small></a>)}</div></div></div>
   </section>
   <section class="trust-strip"><span>Works in your browser</span><span>No signup</span><span>Mobile friendly</span><span>Private by default</span><span>Free to use</span></section>
 
-  <section class="section ai-spotlight" id="ai-tools">
+  <section class="section ai-spotlight" id="ai-tools" data-section="dark">
     <div class="ai-spotlight-head"><div><span class="eyebrow">NEW · AI TOOLKIT</span><h2>AI work,<br><em>without the friction.</em></h2><p>Prompts, tokens, JSON, API costs and developer tasks. No API key. No account. Transformations run locally in your browser.</p></div><a class="button button-dark" href="/ai/">Open all 16 AI tools →</a></div>
     <div class="ai-feature-grid">{featuredAI.map((tool,index)=><a class="ai-feature-card" href={`/ai/${tool.slug}/`} data-search={tool.label+' '+tool.title+' '+tool.description+' '+tool.keywords.join(' ')}><span class="ai-index">{String(index+1).padStart(2,'0')}</span><span class="ai-symbol">{['✦','⌁','▦','₿','□','{}','⇄','◈'][index]}</span><div><h3>{tool.label}</h3><p>{tool.description}</p></div><span class="tool-arrow">Open →</span></a>)}</div>
     <div class="ai-bottom-row"><a href="/ai-radar/"><span class="live-dot"></span><strong>AI Radar</strong><small>Live public model + developer signals</small><b>See what's moving →</b></a><a href="/ai/ai-token-counter/"><strong>Token counter</strong><small>Estimate prompt size</small><b>Try it →</b></a><a href="/ai/json-formatter/"><strong>JSON formatter</strong><small>Validate AI output</small><b>Try it →</b></a><a href="/ai/llm-cost-calculator/"><strong>LLM cost calculator</strong><small>Estimate API spend</small><b>Try it →</b></a></div>
   </section>
 
-  <section class="section tools-section" id="tools">
+  <section class="section tools-section" id="tools"><div class="section-rule"><span>01</span><span>THE EVERYDAY TOOLBOX</span><span>08 TOOLS</span></div>
     <div class="section-intro"><div><span class="eyebrow">THE TOOLBOX</span><h2>Everything else.<br><em>Still useful.</em></h2></div><p>Make, pick, split, print, calculate. Built around simple jobs people finish quickly.</p></div>
     <div class="tool-grid" id="toolGrid">{tools.map((tool,index)=><a class="tool-card" data-search={tool.name+' '+tool.desc+' '+tool.tags} href={tool.href}><div class="tool-icon">{tool.icon}</div><div class="tool-number">{String(index+1).padStart(2,'0')}</div><h3>{tool.name}</h3><p>{tool.desc}</p><span class="tool-arrow">Use it →</span></a>)}</div>
     <div id="noResults" class="no-results" hidden>No exact match. Try <a href="/ai/">AI tools</a> or <a href="/utilities/">the utility library →</a></div>
   </section>
 
-  <section class="section quick-section">
+  <section class="section quick-section"><div class="section-rule"><span>02</span><span>QUICK UTILITY INDEX</span><span>FAST / LOCAL / FREE</span></div>
     <div class="section-intro"><div><span class="eyebrow">QUICK TOOLS</span><h2>One tiny task.<br><em>One tiny tool.</em></h2></div><p>Calculations, dates, conversions and text utilities for “I just need this done” moments.</p></div>
     <div class="quick-grid">{utilities.map(item=><a data-search={(item.label||item.slug)+' calculator utility converter timer text'} href={'/utilities/'+item.slug+'/'}><span>{item.label}</span><small>Open →</small></a>)}</div>
   </section>
 
-  <section class="section live-section"><div class="live-intro"><div><span class="eyebrow">COME BACK</span><h2>Useful once.<br><em>Useful again.</em></h2><p>Three spaces that change over time: a tiny daily challenge, a live world desk and a public AI signal board.</p></div><div class="live-actions"><a class="live-card" href="/daily/"><span>🔥</span><div><b>PARADOX Daily</b><small>5-second challenge · streak · share</small></div><strong>→</strong></a><a class="live-card" href="/world/"><span>🌍</span><div><b>World Desk</b><small>Live weather · currency · country facts</small></div><strong>→</strong></a><a class="live-card" href="/ai-radar/"><span>✦</span><div><b>AI Radar</b><small>Live public AI model and developer signals</small></div><strong>→</strong></a></div></div></section>
+  <section class="section live-section"><div class="section-rule"><span>03</span><span>THE PARADOX NETWORK</span><span>LIVE / DAILY / SIGNALS</span></div><div class="live-intro"><div><span class="eyebrow">COME BACK</span><h2>Useful once.<br><em>Useful again.</em></h2><p>Three spaces that change over time: a tiny daily challenge, a live world desk and a public AI signal board.</p></div><div class="live-actions"><a class="live-card" href="/daily/"><span>🔥</span><div><b>PARADOX Daily</b><small>5-second challenge · streak · share</small></div><strong>→</strong></a><a class="live-card" href="/world/"><span>🌍</span><div><b>World Desk</b><small>Live weather · currency · country facts</small></div><strong>→</strong></a><a class="live-card" href="/ai-radar/"><span>✦</span><div><b>AI Radar</b><small>Live public AI model and developer signals</small></div><strong>→</strong></a></div></div></section>
 
   <section class="section final-cta" id="guides"><div class="final-cta-inner"><span class="eyebrow">NO HUNTING AROUND</span><h2>Search once. Find the tool.</h2><p>PARADOX now covers AI workflows, developer utilities, calculators and practical generators in one place.</p><a class="button button-dark" href="/utilities/">Open the full utility library →</a></div></section>
 </main>
@@ -76,5 +76,39 @@ const featuredAI=aiTools.slice(0,8);
 </script>
 <style>
 .ai-spotlight{background:#171717;color:#fff;border-radius:28px;padding:clamp(1.25rem,3vw,3rem);margin:0 auto 5rem;max-width:1200px}.ai-spotlight-head{display:flex;justify-content:space-between;gap:2rem;align-items:end;margin-bottom:2rem}.ai-spotlight h2{font-size:clamp(2.5rem,5vw,4.5rem);line-height:.93;margin:.5rem 0 1rem;letter-spacing:-.04em}.ai-spotlight h2 em{font-family:Georgia,serif;font-weight:400}.ai-spotlight p{max-width:650px;color:#bdbdbd;line-height:1.6}.ai-feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#383838;border:1px solid #383838;overflow:hidden;border-radius:18px}.ai-feature-card{background:#202020;color:#fff;padding:1.2rem;min-height:190px;display:flex;flex-direction:column;gap:.8rem;transition:background .18s,transform .18s}.ai-feature-card:hover{background:#282828;transform:translateY(-2px)}.ai-index{font-family:monospace;font-size:.72rem;color:#858585}.ai-symbol{font-size:1.35rem;color:#fff}.ai-feature-card h3{font-size:1rem;margin:0 0 .35rem}.ai-feature-card p{font-size:.84rem!important;margin:0!important;color:#aaa!important;line-height:1.45!important}.ai-feature-card .tool-arrow{margin-top:auto;color:#fff}.ai-bottom-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1px;margin-top:1rem;background:#383838;border-radius:14px;overflow:hidden}.ai-bottom-row a{background:#202020;color:#fff;padding:1rem;display:flex;flex-direction:column;gap:.25rem}.ai-bottom-row a:hover{background:#282828}.ai-bottom-row strong{font-size:.92rem}.ai-bottom-row small{color:#999}.ai-bottom-row b{font-size:.75rem;margin-top:.55rem;color:#ddd}.ai-bottom-row .live-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:#7ee787;margin-bottom:.4rem}.ai-feature-card[hidden],.tool-card[hidden],.quick-grid a[hidden]{display:none}@media(max-width:900px){.ai-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ai-bottom-row{grid-template-columns:1fr 1fr}.ai-spotlight-head{align-items:start;flex-direction:column}}@media(max-width:560px){.ai-feature-grid,.ai-bottom-row{grid-template-columns:1fr}.ai-spotlight{border-radius:18px}}
+
+/* Awwwards-inspired art direction: original PARADOX treatment */
+.home-hero{isolation:isolate}
+.home-hero:after{content:'01';position:absolute;left:-12px;bottom:32px;font:700 10px 'DM Mono',monospace;color:var(--muted);writing-mode:vertical-rl;letter-spacing:.18em}
+.hero-copy h1{max-width:900px}
+.hero-copy h1 em{position:relative;display:inline-block}
+.hero-copy h1 em:after{content:'';position:absolute;left:0;right:-5%;bottom:-8px;height:2px;background:var(--accent);transform:rotate(-1.5deg)}
+.hero-feature{transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.feature-emoji{transform:translateZ(35px);transition:transform .35s}
+.popular-list{margin-top:20px;border-top:1px solid #343731}
+.popular-list a{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid #343731;font:11px 'DM Mono',monospace}
+.popular-list a:hover{color:var(--yellow);padding-left:5px}
+.popular-list b{color:#777}
+.popular-list small{color:#777;font-size:8px;text-transform:uppercase}
+.section-rule{display:flex;justify-content:space-between;gap:15px;margin:-65px 0 42px;padding-bottom:10px;border-bottom:1px solid var(--line);font:8px 'DM Mono',monospace;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.section-rule span:first-child{color:var(--accent)}
+.ai-spotlight{position:relative;overflow:hidden}
+.ai-spotlight:before{content:'AI';position:absolute;right:-30px;top:-75px;font:700 220px/.8 'DM Mono',monospace;color:rgba(255,255,255,.025);pointer-events:none}
+.ai-feature-card{position:relative;overflow:hidden}
+.ai-feature-card:after{content:'↗';position:absolute;right:16px;top:14px;font:16px 'DM Mono',monospace;color:#555;transition:.2s}
+.ai-feature-card:hover:after{color:var(--yellow);transform:translate(2px,-2px)}
+.tool-card{overflow:hidden}
+.tool-card:after{content:'';position:absolute;width:110px;height:110px;border-radius:50%;right:-60px;bottom:-60px;background:var(--yellow);opacity:0;transition:.3s}
+.tool-card:hover:after{opacity:.7}
+.quick-grid a{position:relative;overflow:hidden}
+.quick-grid a:before{content:'→';position:absolute;right:18px;top:8px;font:18px 'DM Mono',monospace;color:var(--line);transition:.2s}
+.quick-grid a:hover:before{color:var(--accent);transform:translate(3px,-3px)}
+.live-section{position:relative}
+.live-card{position:relative;overflow:hidden}
+.live-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transform-origin:bottom;transition:.25s}
+.live-card:hover:before{transform:scaleY(1)}
+@media(max-width:900px){.section-rule{margin:-40px 0 30px}.home-hero:after{display:none}}
+@media(max-width:560px){.section-rule{font-size:7px}.section-rule span:nth-child(2){display:none}.hero-copy h1 em:after{bottom:-4px}}
+@media(prefers-reduced-motion:reduce){.hero-feature,.tool-card,.ai-feature-card,.live-card{transition:none!important}.hero-copy h1 em:after{transform:none}}
 </style>
 </MakerLayout>
