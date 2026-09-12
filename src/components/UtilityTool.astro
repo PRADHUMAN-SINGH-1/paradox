@@ -29,7 +29,7 @@ const c = configs[mode] ?? configs.percentage;
           {c.aType === 'textarea' ? <textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea> : <input id="utilityA" data-field="a" type={c.aType} value={c.aValue} />}
         </div>
         {c.b ? <div class="field"><label for="utilityB">{c.b}</label><input id="utilityB" data-field="b" type={c.bType} value={c.bValue} /></div> : null}
-        {mode === 'random' ? <div class="field"><label for="count">How many results?</label><input id="count" data-field="count" type="number" min="1" max="20" value="1" /></div> : null}
+        {mode === 'random' ? <div class="field"><label for="count">How many results?</label><input id="count" data-field="count" type="number" min="1" max="50" value="1" /></div> : null}
         {mode === 'timezone' ? <div class="field"><label for="zone">Convert to time zone</label><input id="zone" data-field="zone" value="Asia/Kolkata" placeholder="e.g. America/New_York" /></div> : null}
         <div class="generator-actions"><button class="gen-btn" id="calculate">Calculate</button><button class="gen-btn alt" id="clear">Clear</button><button class="gen-btn alt" id="share">Copy share link</button></div>
         <div id="status" aria-live="polite"></div>
@@ -49,85 +49,45 @@ const c = configs[mode] ?? configs.percentage;
 </main>
 <script is:inline>
 (() => {
-  const root = document.querySelector('.utility-page');
-  if (!root) return;
-  const mode = root.dataset.utility;
-  const output = root.querySelector('#output');
-  const empty = root.querySelector('#emptyPreview');
-  const status = root.querySelector('#status');
-  const a = root.querySelector('[data-field="a"]');
-  const b = root.querySelector('[data-field="b"]');
-  const count = root.querySelector('[data-field="count"]');
-  const zone = root.querySelector('[data-field="zone"]');
-  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const msg = text => { status.innerHTML = text ? `<div class="status-error">${escapeHtml(text)}</div>` : ''; };
-  const show = html => { empty.hidden = true; output.hidden = false; output.innerHTML = `<div class="sheet utility-result">${html}</div>`; };
+  const root = document.querySelector('.utility-page'); if (!root) return;
+  const mode = root.dataset.utility, output = root.querySelector('#output'), empty = root.querySelector('#emptyPreview'), status = root.querySelector('#status');
+  const a = root.querySelector('[data-field="a"]'), b = root.querySelector('[data-field="b"]'), count = root.querySelector('[data-field="count"]'), zone = root.querySelector('[data-field="zone"]');
+  let countdownTimer = null;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const msg = (text,type='error') => { status.innerHTML = text ? `<div class="status-${type}">${escapeHtml(text)}</div>` : ''; };
+  const show = html => { empty.hidden = true; output.hidden = false; output.innerHTML = `<div class="sheet utility-result">${html}</div>`; output.scrollIntoView({behavior:'smooth',block:'nearest'}); };
   const dateValue = value => { const d = new Date(value); return Number.isNaN(d.getTime()) ? null : d; };
-
-  function calcPercentage() {
-    const p = Number(a.value), n = Number(b.value); if (!Number.isFinite(p) || !Number.isFinite(n)) return msg('Enter valid numbers.');
-    show(`<h2 class="result-title">${p}% of ${n} =</h2><div class="utility-big">${(p/100*n).toLocaleString()}</div><p>${p}% means ${p/100} of the whole.</p>`);
-  }
-  function calcAge() {
-    const birth = dateValue(a.value), asOf = dateValue(b.value); if (!birth || !asOf || asOf < birth) return msg('Choose valid dates.');
-    let years = asOf.getFullYear() - birth.getFullYear();
-    let months = asOf.getMonth() - birth.getMonth();
-    let days = asOf.getDate() - birth.getDate();
-    if (days < 0) { months--; const prev = new Date(asOf.getFullYear(), asOf.getMonth(), 0); days += prev.getDate(); }
-    if (months < 0) { years--; months += 12; }
-    show(`<h2 class="result-title">Age</h2><div class="utility-big">${years} years ${months} months ${days} days</div>`);
-  }
-  function calcTimezone() {
-    const d = dateValue(a.value); if (!d) return msg('Choose a valid date and time.');
-    const from = b.value?.trim() || 'UTC'; const to = zone?.value?.trim() || 'Asia/Kolkata';
-    try {
-      const formatted = new Intl.DateTimeFormat(undefined, { timeZone: to, dateStyle:'full', timeStyle:'long' }).format(d);
-      show(`<h2 class="result-title">${escapeHtml(to)}</h2><div class="utility-big utility-time">${escapeHtml(formatted)}</div><p>Interpreted from ${escapeHtml(from)}.</p>`);
-    } catch { msg('Use a valid IANA time zone such as Europe/London or Asia/Kolkata.'); }
-  }
-  function calcUnits() {
-    const value = Number(a.value); const spec = (b.value || '').toLowerCase().trim();
-    const pairs = {
-      'km to miles': value * 0.621371, 'miles to km': value / 0.621371, 'kg to pounds': value * 2.2046226218,
-      'pounds to kg': value / 2.2046226218, 'meters to feet': value * 3.280839895, 'feet to meters': value / 3.280839895,
-      'cm to inches': value / 2.54, 'inches to cm': value * 2.54, 'celsius to fahrenheit': value * 9/5 + 32,
-      'fahrenheit to celsius': (value - 32) * 5/9
+  const parts = (d, timeZone) => { const arr = new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(d); return Object.fromEntries(arr.filter(x=>x.type!=='literal').map(x=>[x.type,x.value])); };
+  const utcFromZoneWall = (wall,timeZone) => {
+    const m = wall.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/); if(!m) return null;
+    const target=Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),Number(m[6]||0));
+    let guess=new Date(target);
+    for(let i=0;i<3;i++){ const p=parts(guess,timeZone); const rendered=Date.UTC(Number(p.year),Number(p.month)-1,Number(p.day),Number(p.hour),Number(p.minute),Number(p.second)); guess=new Date(target-(rendered-target)); }
+    return guess;
+  };
+  function calcPercentage(){ const p=Number(a.value),n=Number(b.value); if(!Number.isFinite(p)||!Number.isFinite(n)) return msg('Enter valid numbers.'); show(`<h2 class="result-title">${p}% of ${n} =</h2><div class="utility-big">${(p/100*n).toLocaleString()}</div><p>${p}% means ${p/100} of the whole.</p>`); }
+  function calcAge(){ const birth=dateValue(a.value),asOf=dateValue(b.value); if(!birth||!asOf||asOf<birth)return msg('Choose valid dates.'); let years=asOf.getFullYear()-birth.getFullYear(),months=asOf.getMonth()-birth.getMonth(),days=asOf.getDate()-birth.getDate(); if(days<0){months--;days+=new Date(asOf.getFullYear(),asOf.getMonth(),0).getDate();} if(months<0){years--;months+=12;} show(`<h2 class="result-title">Age</h2><div class="utility-big">${years} years ${months} months ${days} days</div>`); }
+  function calcTimezone(){ const from=(b?.value||'UTC').trim()||'UTC',to=(zone?.value||'Asia/Kolkata').trim()||'Asia/Kolkata', d=utcFromZoneWall(a.value,from); if(!d)return msg('Enter a valid date and time.'); try{ const formatted=new Intl.DateTimeFormat(undefined,{timeZone:to,dateStyle:'full',timeStyle:'long'}).format(d); show(`<h2 class="result-title">${escapeHtml(to)}</h2><div class="utility-big utility-time">${escapeHtml(formatted)}</div><p>Converted from ${escapeHtml(from)}.</p>`);}catch{msg('Use valid IANA zones such as UTC, Europe/London or Asia/Kolkata.');} }
+  function calcUnits(){ const value=Number(a.value),spec=(b.value||'').toLowerCase().trim(); if(!Number.isFinite(value))return msg('Enter a valid number.');
+    const pairs={
+      'km to miles':value*0.621371,'miles to km':value/0.621371,'kilometers to miles':value*0.621371,'miles to kilometers':value/0.621371,
+      'kg to pounds':value*2.2046226218,'pounds to kg':value/2.2046226218,'kilograms to pounds':value*2.2046226218,'pounds to kilograms':value/2.2046226218,
+      'meters to feet':value*3.280839895,'feet to meters':value/3.280839895,'m to ft':value*3.280839895,'ft to m':value/3.280839895,
+      'cm to inches':value/2.54,'inches to cm':value*2.54,'centimeters to inches':value/2.54,'inches to centimeters':value*2.54,
+      'celsius to fahrenheit':value*9/5+32,'fahrenheit to celsius':(value-32)*5/9,'c to f':value*9/5+32,'f to c':(value-32)*5/9,
+      'liters to gallons':value*0.2641720524,'gallons to liters':value/0.2641720524,'litres to gallons':value*0.2641720524,'gallons to litres':value/0.2641720524,
+      'meters to yards':value*1.0936132983,'yards to meters':value/1.0936132983,'feet to inches':value*12,'inches to feet':value/12,
+      'bytes to kilobytes':value/1000,'kilobytes to bytes':value*1000,'megabytes to gigabytes':value/1000,'gigabytes to megabytes':value*1000
     };
-    if (!Object.prototype.hasOwnProperty.call(pairs, spec)) return msg('Try: km to miles, miles to km, kg to pounds, celsius to fahrenheit, or similar supported pairs.');
-    show(`<h2 class="result-title">Conversion</h2><div class="utility-big">${pairs[spec].toLocaleString(undefined,{maximumFractionDigits:6})}</div><p>${value} ${escapeHtml(spec)}</p>`);
+    if(!Object.prototype.hasOwnProperty.call(pairs,spec))return msg('Try a supported pair like km to miles, kg to pounds, celsius to fahrenheit, or liters to gallons.'); show(`<h2 class="result-title">Conversion</h2><div class="utility-big">${pairs[spec].toLocaleString(undefined,{maximumFractionDigits:8})}</div><p>${value} ${escapeHtml(spec)}</p>`);
   }
-  function calcCountdown() {
-    const target = dateValue(a.value); if (!target) return msg('Choose a target date and time.');
-    const diff = target.getTime() - Date.now(); const abs = Math.abs(diff);
-    const days = Math.floor(abs / 86400000); const hours = Math.floor(abs % 86400000 / 3600000); const mins = Math.floor(abs % 3600000 / 60000); const secs = Math.floor(abs % 60000 / 1000);
-    show(`<h2 class="result-title">${diff >= 0 ? 'Time remaining' : 'Time elapsed'}</h2><div class="utility-big">${days}d ${hours}h ${mins}m ${secs}s</div><p>${escapeHtml(target.toLocaleString())}</p>`);
-  }
-  function calcRandom() {
-    let min = Math.ceil(Number(a.value)), max = Math.floor(Number(b.value)); if (!Number.isFinite(min) || !Number.isFinite(max) || max < min) return msg('Enter a valid minimum and maximum.');
-    const n = Math.max(1, Math.min(20, Number(count?.value || 1))); const values = Array.from({length:n},()=>Math.floor(Math.random()*(max-min+1))+min);
-    show(`<h2 class="result-title">Random result${n>1?'s':''}</h2><div class="utility-big">${values.map(v=>`<span class="number-pill">${v}</span>`).join(' ')}</div>`);
-  }
-  function calcText() {
-    const text = a.value || ''; const words = text.trim() ? text.trim().split(/\s+/).length : 0; const chars = text.length; const noSpaces = text.replace(/\s/g,'').length; const lines = text ? text.split(/\n/).length : 0;
-    show(`<h2 class="result-title">Text statistics</h2><div class="print-grid"><div class="ticket"><strong>WORDS</strong><p>${words.toLocaleString()}</p></div><div class="ticket"><strong>CHARACTERS</strong><p>${chars.toLocaleString()}</p></div><div class="ticket"><strong>NO SPACES</strong><p>${noSpaces.toLocaleString()}</p></div><div class="ticket"><strong>LINES</strong><p>${lines.toLocaleString()}</p></div></div>`);
-  }
-  function calcDateDiff() {
-    const start = dateValue(a.value), end = dateValue(b.value); if (!start || !end) return msg('Choose both dates.');
-    const diff = Math.abs(end - start); const days = Math.round(diff/86400000); const weeks = Math.floor(days/7); const rem = days % 7;
-    show(`<h2 class="result-title">Date difference</h2><div class="utility-big">${days.toLocaleString()} days</div><p>That is ${weeks} weeks${rem ? ` and ${rem} days` : ''}.</p>`);
-  }
-  const fn = {percentage:calcPercentage,age:calcAge,timezone:calcTimezone,units:calcUnits,countdown:calcCountdown,random:calcRandom,text:calcText,datediff:calcDateDiff}[mode];
-  root.querySelector('#calculate')?.addEventListener('click',()=>{ msg(''); fn?.(); });
-  root.querySelector('#clear')?.addEventListener('click',()=> location.reload());
-  root.querySelector('#share')?.addEventListener('click',async()=>{
-    const params = new URLSearchParams({a:a?.value||'', b:b?.value||'', count:count?.value||'', zone:zone?.value||''});
-    const url = `${location.origin}${location.pathname}?${params}`;
-    try { await navigator.clipboard.writeText(url); msg('Share link copied.','success'); } catch { msg('Copy failed; your browser may block clipboard access.'); }
-  });
-  const params = new URLSearchParams(location.search);
-  if (params.has('a') && a) a.value=params.get('a')||'';
-  if (params.has('b') && b) b.value=params.get('b')||'';
-  if (params.has('count') && count) count.value=params.get('count')||'1';
-  if (params.has('zone') && zone) zone.value=params.get('zone')||'Asia/Kolkata';
+  function calcCountdown(){ clearInterval(countdownTimer); const target=dateValue(a.value); if(!target)return msg('Choose a target date and time.'); const render=()=>{const diff=target.getTime()-Date.now(),abs=Math.abs(diff),days=Math.floor(abs/86400000),hours=Math.floor(abs%86400000/3600000),mins=Math.floor(abs%3600000/60000),secs=Math.floor(abs%60000/1000); output.hidden=false;empty.hidden=true;output.innerHTML=`<div class="sheet utility-result"><h2 class="result-title">${diff>=0?'Time remaining':'Time elapsed'}</h2><div class="utility-big">${days}d ${hours}h ${mins}m ${secs}s</div><p>${escapeHtml(target.toLocaleString())}</p></div>`;}; render(); countdownTimer=setInterval(render,1000); }
+  function calcRandom(){ const min=Math.ceil(Number(a.value)),max=Math.floor(Number(b.value)); if(!Number.isFinite(min)||!Number.isFinite(max)||max<min)return msg('Enter a valid minimum and maximum.'); const n=Math.max(1,Math.min(50,Number(count?.value||1))),values=Array.from({length:n},()=>Math.floor(Math.random()*(max-min+1))+min); show(`<h2 class="result-title">Random result${n>1?'s':''}</h2><div class="utility-big">${values.map(v=>`<span class="number-pill">${v}</span>`).join(' ')}</div>`); }
+  function calcText(){ const text=a.value||'',words=text.trim()?text.trim().split(/\s+/).length:0,chars=text.length,noSpaces=text.replace(/\s/g,'').length,lines=text?text.split(/\n/).length:0; show(`<h2 class="result-title">Text statistics</h2><div class="print-grid"><div class="ticket"><strong>WORDS</strong><p>${words.toLocaleString()}</p></div><div class="ticket"><strong>CHARACTERS</strong><p>${chars.toLocaleString()}</p></div><div class="ticket"><strong>NO SPACES</strong><p>${noSpaces.toLocaleString()}</p></div><div class="ticket"><strong>LINES</strong><p>${lines.toLocaleString()}</p></div></div>`); }
+  function calcDateDiff(){ const start=dateValue(a.value),end=dateValue(b.value);if(!start||!end)return msg('Choose both dates.');const days=Math.round(Math.abs(end-start)/86400000),weeks=Math.floor(days/7),rem=days%7;show(`<h2 class="result-title">Date difference</h2><div class="utility-big">${days.toLocaleString()} days</div><p>${weeks} weeks${rem?' and '+rem+' days':''}.</p>`); }
+  const fn={percentage:calcPercentage,age:calcAge,timezone:calcTimezone,units:calcUnits,countdown:calcCountdown,random:calcRandom,text:calcText,datediff:calcDateDiff}[mode];
+  root.querySelector('#calculate')?.addEventListener('click',()=>{msg('');fn?.();}); root.querySelector('#clear')?.addEventListener('click',()=>{clearInterval(countdownTimer);location.reload();});
+  root.querySelector('#share')?.addEventListener('click',async()=>{ const params=new URLSearchParams({a:a?.value||'',b:b?.value||'',count:count?.value||'',zone:zone?.value||''});const url=`${location.origin}${location.pathname}?${params}`;try{await navigator.clipboard.writeText(url);msg('Share link copied.','success');}catch{msg(url,'success');} });
+  const params=new URLSearchParams(location.search); if(params.has('a')&&a)a.value=params.get('a')||''; if(params.has('b')&&b)b.value=params.get('b')||''; if(params.has('count')&&count)count.value=params.get('count')||'1'; if(params.has('zone')&&zone)zone.value=params.get('zone')||'Asia/Kolkata';
 })();
 </script>
