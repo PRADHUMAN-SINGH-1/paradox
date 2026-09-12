@@ -10,28 +10,14 @@
   const OWNER = 'https://github.com/Shubhamsaboo/awesome-llm-apps';
   const API = 'https://api.github.com/repos/Shubhamsaboo/awesome-llm-apps/git/trees/main?recursive=1';
   const families = [
-    ['all','ALL'],
-    ['agent_skills','AGENT SKILLS'],
-    ['starter_ai_agents','STARTER'],
-    ['advanced_ai_agents','ADVANCED'],
-    ['always_on_agents','ALWAYS-ON'],
-    ['mcp_ai_agents','MCP'],
-    ['generative_ui_agents','GENERATIVE UI'],
-    ['voice_ai_agents','VOICE']
+    ['all','ALL'],['agent_skills','AGENT SKILLS'],['starter_ai_agents','STARTER'],['advanced_ai_agents','ADVANCED'],['always_on_agents','ALWAYS-ON'],['mcp_ai_agents','MCP'],['generative_ui_agents','GENERATIVE UI'],['voice_ai_agents','VOICE']
   ];
   const excluded = ['README.md','LICENSE','requirements.txt'];
   const state = {family:'all', query:'', agents:[]};
   const humanize = (slug) => slug.split('/').filter(Boolean).pop().replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
   const familyFor = (path) => families.find(([slug]) => slug !== 'all' && path.startsWith(slug + '/'))?.[0] || '';
   const depth = (path) => path.split('/').length;
-  const isAgentReadme = (path) => {
-    if (!path.endsWith('/README.md')) return false;
-    if (excluded.includes(path)) return false;
-    const family = familyFor(path);
-    if (!family || depth(path) < 3) return false;
-    if (path.includes('/docs/') || path.includes('/ai_agent_framework_crash_course/') || path.includes('/rag_tutorials/')) return false;
-    return true;
-  };
+  const isAgentReadme = (path) => path.endsWith('/README.md') && !excluded.includes(path) && !!familyFor(path) && depth(path) >= 3 && !path.includes('/docs/') && !path.includes('/ai_agent_framework_crash_course/') && !path.includes('/rag_tutorials/');
   const slugFromPath = (path) => path.slice(0,-'/README.md'.length);
   const labelForFamily = (f) => families.find(([slug]) => slug === f)?.[1] || f;
   const purposeFor = (name, family) => {
@@ -50,59 +36,27 @@
     if (family === 'agent_skills') return 'Apply a focused capability to a coding, writing or reasoning workflow.';
     return 'Agent-inspired workflow adapted to the PARADOX execution engine.';
   };
-  const promptFor = (name, family) => `You are running the PARADOX adaptation of the open-source agent pattern “${name}” from the ${labelForFamily(family)} family in Shubhamsaboo/awesome-llm-apps. Execute the user's outcome using the strongest available reasoning path, live public research when useful, and clear deliverables. Preserve the spirit of the agent pattern but do not claim to run the original repository code. User outcome: `;
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const promptFor = (name, family) => `You are running the PARADOX adaptation of the open-source agent pattern “${name}” from the ${labelForFamily(family)} family in Shubhamsaboo/awesome-llm-apps. Execute a complete, realistic demonstration of this agent pattern for the user's context. Preserve the spirit of the pattern but do not claim to run the original repository code. Start by choosing a concrete example outcome that showcases the agent's purpose, then deliver the result end-to-end. Cite public evidence when relevant.`;
+  const esc = (value) => String(value ?? '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
 
   function renderFilters() {
     filters.innerHTML = families.map(([slug,label]) => `<button type="button" data-family="${slug}" class="${state.family===slug?'active':''}">${label}</button>`).join('');
-    filters.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
-      state.family = btn.dataset.family;
-      renderFilters();
-      render();
-    }));
+    filters.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => { state.family=btn.dataset.family; renderFilters(); render(); }));
   }
-
   function render() {
-    const q = state.query.toLowerCase().trim();
-    const visible = state.agents.filter(a => {
-      const familyOK = state.family === 'all' || a.family === state.family;
-      const queryOK = !q || `${a.name} ${a.path} ${a.family}`.toLowerCase().includes(q);
-      return familyOK && queryOK;
-    });
-    count.textContent = visible.length.toLocaleString();
-    status.textContent = `${visible.length.toLocaleString()} runnable recipes mapped from the public registry.`;
-    if (!visible.length) {
-      grid.innerHTML = '<div class="empty"><strong>No agent matched.</strong>Try another search or family.</div>';
-      return;
-    }
-    grid.innerHTML = visible.map((a, i) => {
-      const prompt = promptFor(a.name, a.family);
-      const runUrl = `/studio/?agent=${encodeURIComponent(a.name)}&mission=${encodeURIComponent(prompt)}`;
-      const source = `${OWNER}/tree/main/${a.path}`;
-      return `<article class="atlas-card"><div class="meta"><span>${String(i+1).padStart(3,'0')}</span><span>${esc(labelForFamily(a.family))}</span></div><h2>${esc(a.name)}</h2><p>${esc(purposeFor(a.name,a.family))}</p><div class="actions"><a class="run" href="${runUrl}">RUN IN PARADOX ↗</a><a href="${source}" target="_blank" rel="noreferrer">SOURCE ↗</a></div></article>`;
-    }).join('');
+    const q=state.query.toLowerCase().trim();
+    const visible=state.agents.filter(a=>(state.family==='all'||a.family===state.family)&&(!q||`${a.name} ${a.path} ${a.family}`.toLowerCase().includes(q)));
+    count.textContent=visible.length.toLocaleString();
+    status.textContent=`${visible.length.toLocaleString()} runnable recipes mapped from the public registry.`;
+    if(!visible.length){grid.innerHTML='<div class="empty"><strong>No agent matched.</strong>Try another search or family.</div>';return;}
+    grid.innerHTML=visible.map((a,i)=>{const prompt=promptFor(a.name,a.family);const runUrl=`/studio/?agent=${encodeURIComponent(a.name)}&mission=${encodeURIComponent(prompt)}`;const source=`${OWNER}/tree/main/${a.path}`;return `<article class="atlas-card"><div class="meta"><span>${String(i+1).padStart(3,'0')}</span><span>${esc(labelForFamily(a.family))}</span></div><h2>${esc(a.name)}</h2><p>${esc(purposeFor(a.name,a.family))}</p><div class="actions"><a class="run" href="${runUrl}">RUN DEMO ↗</a><a href="${source}" target="_blank" rel="noreferrer">SOURCE ↗</a></div></article>`;}).join('');
   }
-
-  search?.addEventListener('input', () => { state.query = search.value; render(); });
+  search?.addEventListener('input',()=>{state.query=search.value;render();});
   renderFilters();
-  grid.innerHTML = '<div class="empty"><strong>Loading live agent registry…</strong>Reading the public repository tree.</div>';
-  fetch(API, {headers:{Accept:'application/vnd.github+json'}})
-    .then(r => r.ok ? r.json() : Promise.reject(new Error(`GitHub registry returned ${r.status}`)))
-    .then(data => {
-      const files = Array.isArray(data.tree) ? data.tree.map(x => x.path) : [];
-      const seen = new Set();
-      state.agents = files.filter(isAgentReadme).map(path => {
-        const family = familyFor(path);
-        const key = `${family}:${slugFromPath(path)}`;
-        if (seen.has(key)) return null;
-        seen.add(key);
-        return {path:slugFromPath(path), family, name:humanize(path)};
-      }).filter(Boolean).sort((a,b) => a.name.localeCompare(b.name));
-      status.textContent = `${state.agents.length.toLocaleString()} recipes discovered from the live GitHub tree.`;
-      render();
-    })
-    .catch(err => {
-      status.textContent = 'Live GitHub registry unavailable.';
-      grid.innerHTML = `<div class="empty"><strong>Registry unavailable</strong><span>${esc(err.message)}</span></div>`;
-    });
+  grid.innerHTML='<div class="empty"><strong>Loading live agent registry…</strong><span>Reading the public repository tree.</span></div>';
+  fetch(API,{headers:{Accept:'application/vnd.github+json'}}).then(r=>r.ok?r.json():Promise.reject(new Error(`GitHub registry returned ${r.status}`))).then(data=>{
+    const files=Array.isArray(data.tree)?data.tree.map(x=>x.path):[];const seen=new Set();
+    state.agents=files.filter(isAgentReadme).map(path=>{const family=familyFor(path);const key=`${family}:${slugFromPath(path)}`;if(seen.has(key))return null;seen.add(key);return{path:slugFromPath(path),family,name:humanize(path)};}).filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name));
+    status.textContent=`${state.agents.length.toLocaleString()} recipes discovered from the live GitHub tree.`;render();
+  }).catch(err=>{status.textContent='Live GitHub registry unavailable.';grid.innerHTML=`<div class="empty"><strong>Registry unavailable</strong><span>${esc(err.message)}</span><a href="${OWNER}" target="_blank" rel="noreferrer">Open source registry ↗</a></div>`;});
 })();
