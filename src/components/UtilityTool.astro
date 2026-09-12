@@ -1,93 +1,53 @@
 ---
 const { mode, title, intro } = Astro.props;
 const configs = {
-  percentage: { a:'Percentage', b:'Of number', aType:'number', bType:'number', aValue:'15', bValue:'200' },
-  age: { a:'Date of birth', b:'Calculate as of', aType:'date', bType:'date' },
-  timezone: { a:'Date & time', b:'From time zone', aType:'datetime-local', bType:'text', aValue:'2026-09-12T12:00', bValue:'UTC' },
-  units: { a:'Value', b:'Conversion', aType:'number', bType:'text', aValue:'10', bValue:'km to miles' },
-  countdown: { a:'Target date & time', b:'', aType:'datetime-local', bType:'text' },
-  random: { a:'Minimum', b:'Maximum', aType:'number', bType:'number', aValue:'1', bValue:'100' },
-  text: { a:'Text', b:'', aType:'textarea', bType:'text' },
-  datediff: { a:'Start date', b:'End date', aType:'date', bType:'date' }
+  percentage:{a:'Percentage',b:'Of number',aType:'number',bType:'number',aValue:'15',bValue:'200'},
+  age:{a:'Date of birth',b:'Calculate as of',aType:'date',bType:'date'},
+  timezone:{a:'Date & time',b:'Source time zone',aType:'datetime-local',bType:'text',aValue:'2026-09-12T12:00',bValue:'UTC'},
+  units:{a:'Value',b:'Conversion',aType:'number',bType:'text',aValue:'10',bValue:'km to miles'},
+  countdown:{a:'Target date & time',b:'',aType:'datetime-local',bType:'text'},
+  random:{a:'Minimum',b:'Maximum',aType:'number',bType:'number',aValue:'1',bValue:'100'},
+  text:{a:'Text',b:'',aType:'textarea',bType:'text'},
+  datediff:{a:'Start date',b:'End date',aType:'date',bType:'date'}
 };
-const c = configs[mode] ?? configs.percentage;
+const c=configs[mode]??configs.percentage;
 ---
 <main class="generator-page utility-page" data-utility={mode}>
   <div class="generator-breadcrumb"><a href="/">PARADOX MAKERS</a> / <span>{title}</span></div>
-  <header class="generator-head">
-    <span class="maker-kicker">FREE · NO ACCOUNT · BROWSER TOOL</span>
-    <h1>{title}</h1>
-    <p>{intro}</p>
-    <div class="generator-subline">No upload · No paid API · Works in the browser</div>
-  </header>
+  <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL CALCULATION</span><h1>{title}</h1><p>{intro}</p><div class="generator-subline">No upload · No paid API · Works in your browser</div></header>
   <div class="generator-layout">
-    <section class="generator-panel" aria-label="Utility controls">
-      <div class="generator-panel-head"><h2>1. Enter your values</h2><span>Instant result</span></div>
-      <div class="generator-fields">
-        <div class="field">
-          <label for="utilityA">{c.a}</label>
-          {c.aType === 'textarea' ? <textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea> : <input id="utilityA" data-field="a" type={c.aType} value={c.aValue} />}
-        </div>
-        {c.b ? <div class="field"><label for="utilityB">{c.b}</label><input id="utilityB" data-field="b" type={c.bType} value={c.bValue} /></div> : null}
-        {mode === 'random' ? <div class="field"><label for="count">How many results?</label><input id="count" data-field="count" type="number" min="1" max="50" value="1" /></div> : null}
-        {mode === 'timezone' ? <div class="field"><label for="zone">Convert to time zone</label><input id="zone" data-field="zone" value="Asia/Kolkata" placeholder="e.g. America/New_York" /></div> : null}
-        <div class="generator-actions"><button class="gen-btn" id="calculate">Calculate</button><button class="gen-btn alt" id="clear">Clear</button><button class="gen-btn alt" id="share">Copy share link</button></div>
-        <div id="status" aria-live="polite"></div>
-      </div>
-    </section>
-    <aside class="generator-preview" aria-label="Result">
-      <div class="generator-preview-head"><h2>2. Result</h2><span>Live</span></div>
-      <div class="preview-empty" id="emptyPreview"><div><strong>Your answer will appear here.</strong><span>Enter values, then press Calculate.</span></div></div>
-      <div class="gen-output" id="output" hidden></div>
-    </aside>
+    <section class="generator-panel" aria-label="Utility controls"><div class="generator-panel-head"><h2>01 / Inputs</h2><span>Instant</span></div><div class="generator-fields">
+      <div class="field"><label for="utilityA">{c.a}</label>{c.aType==='textarea'?<textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea>:<input id="utilityA" data-field="a" type={c.aType} value={c.aValue} />}</div>
+      {c.b?<div class="field"><label for="utilityB">{c.b}</label><input id="utilityB" data-field="b" type={c.bType} value={c.bValue||''} /></div>:null}
+      {mode==='random'?<div class="field"><label for="count">How many results?</label><input id="count" data-field="count" type="number" min="1" max="100" value="1" /></div>:null}
+      {mode==='timezone'?<div class="field"><label for="zone">Convert to time zone</label><input id="zone" data-field="zone" value="Asia/Kolkata" placeholder="e.g. America/New_York" /></div>:null}
+      <div class="generator-actions"><button type="button" class="gen-btn" id="calculate">Calculate</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="share">Copy share link</button></div><div id="status" aria-live="polite"></div>
+    </div></section>
+    <aside class="generator-preview" aria-label="Result"><div class="generator-preview-head"><h2>02 / Result</h2><span id="resultLabel">Ready</span></div><div class="preview-empty" id="emptyPreview"><div><strong>Your answer appears here.</strong><span>Enter values and press Calculate.</span></div></div><div class="gen-output" id="output" hidden></div></aside>
   </div>
   <div class="ad-slot">ADVERTISEMENT</div>
-  <aside class="generator-info">
-    <h2>Privacy and speed</h2>
-    <p>Your values stay in this browser for the calculation. PARADOX does not need an account or server upload for this utility.</p>
-  </aside>
+  <aside class="generator-info"><h2>Privacy and speed</h2><p>Your values stay in this browser for the calculation. PARADOX does not need an account or server upload.</p></aside>
 </main>
 <script is:inline>
 (() => {
-  const root = document.querySelector('.utility-page'); if (!root) return;
-  const mode = root.dataset.utility, output = root.querySelector('#output'), empty = root.querySelector('#emptyPreview'), status = root.querySelector('#status');
-  const a = root.querySelector('[data-field="a"]'), b = root.querySelector('[data-field="b"]'), count = root.querySelector('[data-field="count"]'), zone = root.querySelector('[data-field="zone"]');
-  let countdownTimer = null;
-  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const msg = (text,type='error') => { status.innerHTML = text ? `<div class="status-${type}">${escapeHtml(text)}</div>` : ''; };
-  const show = html => { empty.hidden = true; output.hidden = false; output.innerHTML = `<div class="sheet utility-result">${html}</div>`; output.scrollIntoView({behavior:'smooth',block:'nearest'}); };
-  const dateValue = value => { const d = new Date(value); return Number.isNaN(d.getTime()) ? null : d; };
-  const parts = (d, timeZone) => { const arr = new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(d); return Object.fromEntries(arr.filter(x=>x.type!=='literal').map(x=>[x.type,x.value])); };
-  const utcFromZoneWall = (wall,timeZone) => {
-    const m = wall.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/); if(!m) return null;
-    const target=Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),Number(m[6]||0));
-    let guess=new Date(target);
-    for(let i=0;i<3;i++){ const p=parts(guess,timeZone); const rendered=Date.UTC(Number(p.year),Number(p.month)-1,Number(p.day),Number(p.hour),Number(p.minute),Number(p.second)); guess=new Date(target-(rendered-target)); }
-    return guess;
-  };
-  function calcPercentage(){ const p=Number(a.value),n=Number(b.value); if(!Number.isFinite(p)||!Number.isFinite(n)) return msg('Enter valid numbers.'); show(`<h2 class="result-title">${p}% of ${n} =</h2><div class="utility-big">${(p/100*n).toLocaleString()}</div><p>${p}% means ${p/100} of the whole.</p>`); }
-  function calcAge(){ const birth=dateValue(a.value),asOf=dateValue(b.value); if(!birth||!asOf||asOf<birth)return msg('Choose valid dates.'); let years=asOf.getFullYear()-birth.getFullYear(),months=asOf.getMonth()-birth.getMonth(),days=asOf.getDate()-birth.getDate(); if(days<0){months--;days+=new Date(asOf.getFullYear(),asOf.getMonth(),0).getDate();} if(months<0){years--;months+=12;} show(`<h2 class="result-title">Age</h2><div class="utility-big">${years} years ${months} months ${days} days</div>`); }
-  function calcTimezone(){ const from=(b?.value||'UTC').trim()||'UTC',to=(zone?.value||'Asia/Kolkata').trim()||'Asia/Kolkata', d=utcFromZoneWall(a.value,from); if(!d)return msg('Enter a valid date and time.'); try{ const formatted=new Intl.DateTimeFormat(undefined,{timeZone:to,dateStyle:'full',timeStyle:'long'}).format(d); show(`<h2 class="result-title">${escapeHtml(to)}</h2><div class="utility-big utility-time">${escapeHtml(formatted)}</div><p>Converted from ${escapeHtml(from)}.</p>`);}catch{msg('Use valid IANA zones such as UTC, Europe/London or Asia/Kolkata.');} }
-  function calcUnits(){ const value=Number(a.value),spec=(b.value||'').toLowerCase().trim(); if(!Number.isFinite(value))return msg('Enter a valid number.');
-    const pairs={
-      'km to miles':value*0.621371,'miles to km':value/0.621371,'kilometers to miles':value*0.621371,'miles to kilometers':value/0.621371,
-      'kg to pounds':value*2.2046226218,'pounds to kg':value/2.2046226218,'kilograms to pounds':value*2.2046226218,'pounds to kilograms':value/2.2046226218,
-      'meters to feet':value*3.280839895,'feet to meters':value/3.280839895,'m to ft':value*3.280839895,'ft to m':value/3.280839895,
-      'cm to inches':value/2.54,'inches to cm':value*2.54,'centimeters to inches':value/2.54,'inches to centimeters':value*2.54,
-      'celsius to fahrenheit':value*9/5+32,'fahrenheit to celsius':(value-32)*5/9,'c to f':value*9/5+32,'f to c':(value-32)*5/9,
-      'liters to gallons':value*0.2641720524,'gallons to liters':value/0.2641720524,'litres to gallons':value*0.2641720524,'gallons to litres':value/0.2641720524,
-      'meters to yards':value*1.0936132983,'yards to meters':value/1.0936132983,'feet to inches':value*12,'inches to feet':value/12,
-      'bytes to kilobytes':value/1000,'kilobytes to bytes':value*1000,'megabytes to gigabytes':value/1000,'gigabytes to megabytes':value*1000
-    };
-    if(!Object.prototype.hasOwnProperty.call(pairs,spec))return msg('Try a supported pair like km to miles, kg to pounds, celsius to fahrenheit, or liters to gallons.'); show(`<h2 class="result-title">Conversion</h2><div class="utility-big">${pairs[spec].toLocaleString(undefined,{maximumFractionDigits:8})}</div><p>${value} ${escapeHtml(spec)}</p>`);
-  }
-  function calcCountdown(){ clearInterval(countdownTimer); const target=dateValue(a.value); if(!target)return msg('Choose a target date and time.'); const render=()=>{const diff=target.getTime()-Date.now(),abs=Math.abs(diff),days=Math.floor(abs/86400000),hours=Math.floor(abs%86400000/3600000),mins=Math.floor(abs%3600000/60000),secs=Math.floor(abs%60000/1000); output.hidden=false;empty.hidden=true;output.innerHTML=`<div class="sheet utility-result"><h2 class="result-title">${diff>=0?'Time remaining':'Time elapsed'}</h2><div class="utility-big">${days}d ${hours}h ${mins}m ${secs}s</div><p>${escapeHtml(target.toLocaleString())}</p></div>`;}; render(); countdownTimer=setInterval(render,1000); }
-  function calcRandom(){ const min=Math.ceil(Number(a.value)),max=Math.floor(Number(b.value)); if(!Number.isFinite(min)||!Number.isFinite(max)||max<min)return msg('Enter a valid minimum and maximum.'); const n=Math.max(1,Math.min(50,Number(count?.value||1))),values=Array.from({length:n},()=>Math.floor(Math.random()*(max-min+1))+min); show(`<h2 class="result-title">Random result${n>1?'s':''}</h2><div class="utility-big">${values.map(v=>`<span class="number-pill">${v}</span>`).join(' ')}</div>`); }
-  function calcText(){ const text=a.value||'',words=text.trim()?text.trim().split(/\s+/).length:0,chars=text.length,noSpaces=text.replace(/\s/g,'').length,lines=text?text.split(/\n/).length:0; show(`<h2 class="result-title">Text statistics</h2><div class="print-grid"><div class="ticket"><strong>WORDS</strong><p>${words.toLocaleString()}</p></div><div class="ticket"><strong>CHARACTERS</strong><p>${chars.toLocaleString()}</p></div><div class="ticket"><strong>NO SPACES</strong><p>${noSpaces.toLocaleString()}</p></div><div class="ticket"><strong>LINES</strong><p>${lines.toLocaleString()}</p></div></div>`); }
-  function calcDateDiff(){ const start=dateValue(a.value),end=dateValue(b.value);if(!start||!end)return msg('Choose both dates.');const days=Math.round(Math.abs(end-start)/86400000),weeks=Math.floor(days/7),rem=days%7;show(`<h2 class="result-title">Date difference</h2><div class="utility-big">${days.toLocaleString()} days</div><p>${weeks} weeks${rem?' and '+rem+' days':''}.</p>`); }
-  const fn={percentage:calcPercentage,age:calcAge,timezone:calcTimezone,units:calcUnits,countdown:calcCountdown,random:calcRandom,text:calcText,datediff:calcDateDiff}[mode];
-  root.querySelector('#calculate')?.addEventListener('click',()=>{msg('');fn?.();}); root.querySelector('#clear')?.addEventListener('click',()=>{clearInterval(countdownTimer);location.reload();});
-  root.querySelector('#share')?.addEventListener('click',async()=>{ const params=new URLSearchParams({a:a?.value||'',b:b?.value||'',count:count?.value||'',zone:zone?.value||''});const url=`${location.origin}${location.pathname}?${params}`;try{await navigator.clipboard.writeText(url);msg('Share link copied.','success');}catch{msg(url,'success');} });
-  const params=new URLSearchParams(location.search); if(params.has('a')&&a)a.value=params.get('a')||''; if(params.has('b')&&b)b.value=params.get('b')||''; if(params.has('count')&&count)count.value=params.get('count')||'1'; if(params.has('zone')&&zone)zone.value=params.get('zone')||'Asia/Kolkata';
+  const root=document.querySelector('.utility-page');if(!root)return;const mode=root.dataset.utility,output=root.querySelector('#output'),empty=root.querySelector('#emptyPreview'),status=root.querySelector('#status'),label=root.querySelector('#resultLabel'),a=root.querySelector('[data-field="a"]'),b=root.querySelector('[data-field="b"]'),count=root.querySelector('[data-field="count"]'),zone=root.querySelector('[data-field="zone"]');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const msg=(text,type='error')=>status.innerHTML=text?`<div class="status-${type}">${esc(text)}</div>`:'';
+  const show=(html,name='Calculated')=>{empty.hidden=true;output.hidden=false;output.innerHTML=`<div class="sheet utility-result">${html}</div>`;label.textContent=name;output.scrollIntoView({behavior:'smooth',block:'nearest'})};
+  const dateValue=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?null:d};
+  function percentage(){const p=Number(a.value),n=Number(b.value);if(!Number.isFinite(p)||!Number.isFinite(n))return msg('Enter valid numbers.');show(`<h2 class="result-title">${p}% of ${n}</h2><div class="utility-big">${(p*n/100).toLocaleString()}</div><p>${p}% = ${p/100} of the whole.</p>`)}
+  function age(){const birth=dateValue(a.value),asOf=dateValue(b.value);if(!birth||!asOf||asOf<birth)return msg('Choose valid dates.');let y=asOf.getFullYear()-birth.getFullYear(),m=asOf.getMonth()-birth.getMonth(),d=asOf.getDate()-birth.getDate();if(d<0){m--;d+=new Date(asOf.getFullYear(),asOf.getMonth(),0).getDate()}if(m<0){y--;m+=12}show(`<h2 class="result-title">Exact age</h2><div class="utility-big">${y}y ${m}m ${d}d</div>`)}
+  function timezone(){const raw=a.value;if(!raw)return msg('Choose a date and time.');const from=(b.value||'UTC').trim(),to=(zone?.value||'Asia/Kolkata').trim();try{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:from,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(raw));const get=t=>parts.find(x=>x.type===t)?.value;const fakeUtc=Date.UTC(+get('year'),+get('month')-1,+get('day'),+get('hour'),+get('minute'),+get('second'));const formatted=new Intl.DateTimeFormat(undefined,{timeZone:to,dateStyle:'full',timeStyle:'long'}).format(new Date(fakeUtc));show(`<h2 class="result-title">${esc(to)}</h2><div class="utility-big utility-time">${esc(formatted)}</div><p>${esc(raw)} interpreted in ${esc(from)}.</p>`)}catch{return msg('Use valid IANA zones like UTC, Europe/London or Asia/Kolkata.')}}
+  function units(){const value=Number(a.value),spec=(b.value||'').toLowerCase().trim();if(!Number.isFinite(value))return msg('Enter a valid numeric value.');const pairs={
+    'km to miles':value*0.621371,'miles to km':value/0.621371,'meters to feet':value*3.280839895,'feet to meters':value/3.280839895,'cm to inches':value/2.54,'inches to cm':value*2.54,'mm to inches':value/25.4,'inches to mm':value*25.4,'kg to pounds':value*2.2046226218,'pounds to kg':value/2.2046226218,'grams to ounces':value/28.349523125,'ounces to grams':value*28.349523125,'liters to gallons':value*0.2641720524,'gallons to liters':value/0.2641720524,'celsius to fahrenheit':value*9/5+32,'fahrenheit to celsius':(value-32)*5/9,'celsius to kelvin':value+273.15,'kelvin to celsius':value-273.15,'meters to kilometers':value/1000,'kilometers to meters':value*1000};if(!(spec in pairs))return msg('Unsupported pair. Examples: km to miles, kg to pounds, celsius to fahrenheit.');show(`<h2 class="result-title">Conversion</h2><div class="utility-big">${pairs[spec].toLocaleString(undefined,{maximumFractionDigits:8})}</div><p>${value} ${esc(spec)}</p>`)}
+  function countdown(){const target=dateValue(a.value);if(!target)return msg('Choose a target date and time.');const render=()=>{const diff=target.getTime()-Date.now(),abs=Math.abs(diff),days=Math.floor(abs/86400000),hours=Math.floor(abs%86400000/3600000),mins=Math.floor(abs%3600000/60000),secs=Math.floor(abs%60000/1000);show(`<h2 class="result-title">${diff>=0?'Time remaining':'Time elapsed'}</h2><div class="utility-big" id="liveCountdown">${days}d ${hours}h ${mins}m ${secs}s</div><p>${esc(target.toLocaleString())}</p>`,'Live');};render();if(root._timer)clearInterval(root._timer);root._timer=setInterval(render,1000)}
+  function randomNumber(){const min=Math.ceil(Number(a.value)),max=Math.floor(Number(b.value));if(!Number.isFinite(min)||!Number.isFinite(max)||max<min)return msg('Enter a valid minimum and maximum.');const n=Math.max(1,Math.min(100,Number(count?.value||1)));const cryptoRandom=()=>{const arr=new Uint32Array(1);crypto.getRandomValues(arr);return Math.floor((arr[0]/4294967296)*(max-min+1))+min};show(`<h2 class="result-title">Random result${n>1?'s':''}</h2><div class="utility-big">${Array.from({length:n},cryptoRandom).map(x=>`<span class="number-pill">${x}</span>`).join('')}</div>`)}
+  function textStats(){const text=a.value||'',words=text.trim()?text.trim().split(/\s+/).length:0,chars=text.length,noSpaces=text.replace(/\s/g,'').length,lines=text?text.split(/\n/).length:0;show(`<h2 class="result-title">Text statistics</h2><div class="print-grid"><div class="ticket"><strong>WORDS</strong><p>${words.toLocaleString()}</p></div><div class="ticket"><strong>CHARACTERS</strong><p>${chars.toLocaleString()}</p></div><div class="ticket"><strong>NO SPACES</strong><p>${noSpaces.toLocaleString()}</p></div><div class="ticket"><strong>LINES</strong><p>${lines.toLocaleString()}</p></div></div>`)}
+  function dateDiff(){const start=dateValue(a.value),end=dateValue(b.value);if(!start||!end)return msg('Choose both dates.');const days=Math.round(Math.abs(end-start)/86400000),weeks=Math.floor(days/7),rem=days%7;show(`<h2 class="result-title">Date difference</h2><div class="utility-big">${days.toLocaleString()} days</div><p>${weeks} weeks${rem?` and ${rem} days`:''}.</p>`)}
+  const fn={percentage,age,timezone,units,countdown,random:randomNumber,text:textStats,datediff:dateDiff}[mode];
+  root.querySelector('#calculate')?.addEventListener('click',()=>{msg('');if(typeof fn==='function')fn()});
+  root.querySelector('#clear')?.addEventListener('click',()=>{if(root._timer)clearInterval(root._timer);root.querySelectorAll('input,textarea').forEach(el=>el.value='');output.hidden=true;empty.hidden=false;label.textContent='Ready';msg('Cleared.','success')});
+  root.querySelector('#share')?.addEventListener('click',async()=>{const q=new URLSearchParams({a:a?.value||'',b:b?.value||'',count:count?.value||'',zone:zone?.value||''}),url=`${location.origin}${location.pathname}?${q}`;try{await navigator.clipboard.writeText(url);msg('Share link copied.','success')}catch{msg(url,'success')}});
+  const q=new URLSearchParams(location.search);if(q.has('a')&&a)a.value=q.get('a')||'';if(q.has('b')&&b)b.value=q.get('b')||'';if(q.has('count')&&count)count.value=q.get('count')||'1';if(q.has('zone')&&zone)zone.value=q.get('zone')||'Asia/Kolkata';
 })();
 </script>
