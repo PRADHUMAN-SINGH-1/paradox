@@ -24,15 +24,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-
       - name: Restore SEO memory
         uses: actions/cache@v4
         with:
@@ -40,7 +37,6 @@ jobs:
           key: seo-state-v1-${{ github.run_id }}
           restore-keys: |
             seo-state-v1-
-
       - name: Ingest first-party search performance
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
@@ -49,55 +45,49 @@ jobs:
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
           BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
         run: node scripts/fetch-performance.mjs
-
       - name: Fetch fail-safe public demand signals
         continue-on-error: true
         run: node scripts/fetch-demand.js
-
       - name: Refresh global demand intelligence
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: node scripts/update-demand.mjs
-
       - name: Score verified opportunities
         continue-on-error: true
         run: node scripts/score-opportunities.mjs
-
+      - name: Report opportunity yield
+        run: |
+          node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('src/data/verified_opportunities.json','utf8'));const r=JSON.parse(fs.readFileSync('src/data/raw_demand.json','utf8'));console.log('Demand signals:',r.signals?.length||0,'| Verified opportunities:',x.opportunities?.length||0);if((x.opportunities?.length||0)===0)console.warn('WARNING: zero verified opportunities; build continues using existing evergreen pages.');"
       - name: Run closed-loop SEO brain
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: node scripts/seo-brain.mjs
-
       - name: Prune weak SEO routes
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: node scripts/prune-routes.mjs
-
       - name: Generate demand-driven utility catalog
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: node scripts/build-utility-opportunities.mjs
-
       - name: Build SEO sitemap from current plan
         continue-on-error: true
         run: node scripts/build-sitemap.mjs
-
       - name: Validate source files
         run: node --check scripts/fetch-demand.js && node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs
-
       - name: Build Astro
         run: npm run build
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
-
-      - name: Preserve runtime SEO plan
+      - name: Preserve runtime SEO and demand evidence
         uses: actions/upload-artifact@v4
         with:
           name: seo-runtime
           path: |
+            src/data/raw_demand.json
+            src/data/rejected_signals.json
             src/data/seo-opportunities.json
             src/data/seo-plan.json
             src/data/utility-opportunities.json
@@ -106,7 +96,6 @@ jobs:
             public/sitemap.xml
           if-no-files-found: warn
           retention-days: 7
-
   deploy:
     needs: build
     environment:
@@ -120,7 +109,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
   index:
     needs: deploy
     runs-on: ubuntu-latest
