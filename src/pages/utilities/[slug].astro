@@ -11,7 +11,7 @@ const { item } = Astro.props;
 const canonical = `https://paradox.engineer/utilities/${item.slug}/`;
 ---
 <MakerLayout title={item.title} description={item.description} canonical={canonical}>
-  <UtilityTool mode={item.mode} title={item.label} intro={item.description} />
+  <UtilityTool mode={item.mode} title={item.label} intro={item.description} aValue={item.aValue} bValue={item.bValue} />
   <section class="maker-section utility-seo-copy">
     <div class="maker-section-head">
       <div><div class="maker-label">USEFUL, NOT DECORATIVE</div><h2>{item.label} for everyday work.</h2></div>
