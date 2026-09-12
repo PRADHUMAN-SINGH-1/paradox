@@ -1,0 +1,60 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+---
+<MakerLayout title="PARADOX Studio — AI agents for real work" description="A browser-first AI agent workspace for research, writing, coding, studying and decision support. Bring a Gemini or OpenRouter key and let the agent execute multi-step work.">
+<main class="studio-shell">
+  <section class="studio-hero">
+    <div class="studio-topline"><span>PARADOX / STUDIO</span><span>AGENT OS · 01</span><button id="connectBtn" class="ghost">CONNECT MODEL</button></div>
+    <div class="studio-hero-grid">
+      <div>
+        <p class="micro"><i></i> ONE AGENT · MANY JOBS · LIVE TOOLS</p>
+        <h1>Don't search.<br/><em>Delegate.</em></h1>
+        <p class="hero-copy">Give PARADOX an outcome. The agent can break the work into steps, pull live public context, reason over it, and return something you can actually use.</p>
+        <div class="hero-actions"><a class="primary" href="#agent">Launch agent ↘</a><button class="secondary" id="demoBtn">Run a live demo</button></div>
+      </div>
+      <aside class="agent-card">
+        <div class="agent-card-head"><span>AGENT STATUS</span><b id="agentStatus">IDLE</b></div>
+        <div class="agent-scan"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="agent-readout"><small>CAPABILITIES</small><strong>RESEARCH / REASON / SYNTHESIZE / DRAFT</strong></div>
+        <div class="agent-readout"><small>LIVE CONNECTORS</small><strong>WIKIPEDIA · GITHUB · HUGGING FACE · HN</strong></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="studio-work" id="agent">
+    <div class="work-rail"><span>02</span><strong>THE WORKBENCH</strong><small>Describe the outcome. The agent decides the path.</small>
+      <button class="preset" data-prompt="Research the best open-source LLMs for coding in 2026. Compare capability, licensing, context window and practical tradeoffs, then give me a recommendation for a CS student.">RESEARCH</button>
+      <button class="preset" data-prompt="Turn this rough idea into a high-quality product spec with user stories, architecture, MVP scope, risks and launch metrics: build a website that helps students choose the right AI model for a task.">BUILD</button>
+      <button class="preset" data-prompt="Act as an interview coach. Create a realistic 30-minute software engineering mock interview, ask one question at a time, adapt to my answers, and finish with a scorecard and improvement plan.">COACH</button>
+      <button class="preset" data-prompt="Turn my notes into an active-recall study pack: concise explanation, flashcards, tricky questions, common mistakes and a 7-day revision sequence.">STUDY</button>
+    </div>
+    <div class="work-main">
+      <div class="composer-wrap">
+        <div class="composer-head"><span>MISSION</span><span id="modelBadge">MODEL NOT CONNECTED</span></div>
+        <textarea id="mission" placeholder="What do you want finished?\n\nExample: Research the latest open LLMs for coding, compare them using live sources, and tell me what I should use for my project."></textarea>
+        <div class="composer-foot"><span>Agent can call public research connectors.</span><button id="runAgent" class="run">RUN AGENT ↗</button></div>
+      </div>
+      <div class="context-row"><div><small>OUTPUT STYLE</small><select id="style"><option>Actionable report</option><option>Deep research</option><option>Product spec</option><option>Study pack</option><option>Interview coach</option></select></div><div><small>MODEL</small><select id="provider"><option value="openrouter">OpenRouter · free router</option><option value="gemini">Gemini Developer API</option><option value="huggingface">Hugging Face</option></select></div></div>
+      <article id="result" class="result"><div class="result-empty"><span>PX</span><p>Your agent output will appear here.</p><small>Connect a model, describe the outcome, then run.</small></div></article>
+    </div>
+  </section>
+
+  <section class="studio-grid">
+    <article><span>03 / LIVE RESEARCH</span><h2>It can look outside the prompt.</h2><p>Research tasks can retrieve public context from Wikipedia, GitHub, Hugging Face and Hacker News before synthesis.</p></article>
+    <article><span>04 / AGENT MEMORY</span><h2>Keep the useful part.</h2><p>Session state stays in your browser. Nothing is uploaded to PARADOX itself.</p></article>
+    <article><span>05 / OUTPUT</span><h2>Ship something.</h2><p>Reports, specs, study packs and coaching sessions are formatted for copying, sharing and continuing.</p></article>
+  </section>
+</main>
+<script type="module" src="../../scripts/studio.js"></script>
+<style>
+.studio-shell{--ink:#0c0d0d;--paper:#f2efe7;--acid:#d8ff39;--red:#ff5335;max-width:1440px;margin:auto;background:var(--paper);color:var(--ink)}
+.studio-hero{min-height:88svh;padding:20px clamp(18px,4vw,64px) 50px;border-bottom:1px solid #a9a79f;background:radial-gradient(circle at 78% 28%,rgba(216,255,57,.34),transparent 28%),var(--paper)}
+.studio-topline{display:flex;justify-content:space-between;gap:15px;align-items:center;font:9px 'DM Mono';letter-spacing:.14em;border-bottom:1px solid #a9a79f;padding-bottom:14px}.ghost{border:1px solid var(--ink);background:transparent;padding:10px 12px;font:9px 'DM Mono'}.ghost:hover{background:var(--ink);color:white}
+.studio-hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:6vw;align-items:center;min-height:70svh}.micro{font:10px 'DM Mono';letter-spacing:.14em}.micro i{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;margin-right:8px}.studio-hero h1{font:700 clamp(76px,11vw,170px)/.74 'DM Sans';letter-spacing:-.09em;margin:28px 0}.studio-hero h1 em{font-family:'Instrument Serif';font-weight:400;letter-spacing:-.06em}.hero-copy{max-width:650px;font-size:18px;color:#55564f;line-height:1.55}.hero-actions{display:flex;gap:10px;margin-top:28px}.primary,.secondary{padding:13px 16px;font:9px 'DM Mono';border:1px solid var(--ink)}.primary{background:var(--ink);color:white}.secondary{background:transparent}.secondary:hover{background:var(--acid)}
+.agent-card{background:var(--ink);color:white;padding:28px;min-height:390px;box-shadow:20px 20px 0 var(--red);display:flex;flex-direction:column;justify-content:space-between}.agent-card-head{display:flex;justify-content:space-between;font:9px 'DM Mono';letter-spacing:.15em}.agent-card-head b{color:var(--acid)}.agent-scan{display:flex;gap:8px;height:95px;align-items:end}.agent-scan span{display:block;flex:1;background:var(--acid);animation:pulse 1.4s infinite ease-in-out}.agent-scan span:nth-child(2){height:65%;animation-delay:.12s}.agent-scan span:nth-child(3){height:90%;animation-delay:.25s}.agent-scan span:nth-child(4){height:42%;animation-delay:.37s}.agent-scan span:nth-child(5){height:74%;animation-delay:.5s}@keyframes pulse{50%{opacity:.3;transform:scaleY(.5)}}.agent-readout{border-top:1px solid #343734;padding-top:14px}.agent-readout small{display:block;font:8px 'DM Mono';color:#70736e;margin-bottom:8px}.agent-readout strong{font:11px 'DM Mono';line-height:1.45}
+.studio-work{display:grid;grid-template-columns:260px 1fr;min-height:860px}.work-rail{border-right:1px solid #b7b4aa;padding:28px;display:flex;flex-direction:column;gap:10px}.work-rail>span{font:10px 'DM Mono';color:var(--red)}.work-rail>strong{font:11px 'DM Mono';letter-spacing:.1em}.work-rail>small{color:#6f716b;line-height:1.5;margin-bottom:20px}.preset{border:1px solid #bbb8ae;background:transparent;text-align:left;padding:12px;font:9px 'DM Mono';letter-spacing:.04em}.preset:hover{background:white;transform:translateX(4px)}.work-main{padding:28px;display:grid;grid-template-rows:auto auto 1fr;gap:16px}.composer-wrap{background:white;border:1px solid #b7b4aa}.composer-head,.composer-foot{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;font:9px 'DM Mono';border-bottom:1px solid #dedbd2}.composer-foot{border-top:1px solid #dedbd2;border-bottom:0;color:#797a74}.composer-head span:last-child{color:#777970}.composer-wrap textarea{width:100%;min-height:270px;border:0;resize:vertical;padding:20px;font:16px/1.6 'DM Sans';outline:0;background:#fff}.run{background:var(--ink);color:white;border:0;padding:12px 15px;font:9px 'DM Mono'}.run:hover{background:var(--red)}.context-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.context-row>div{background:#eae7df;padding:12px}.context-row small{display:block;font:8px 'DM Mono';color:#777970;margin-bottom:6px}.context-row select{width:100%;background:transparent;border:0;font:12px 'DM Sans';outline:0}.result{min-height:390px;background:#111313;color:#efeee8;padding:25px;overflow:auto}.result-empty{min-height:340px;display:grid;place-items:center;text-align:center}.result-empty span{font:700 70px 'DM Sans';color:var(--acid);letter-spacing:-.1em}.result h2{font:600 28px 'DM Sans';margin:0 0 16px}.result pre{white-space:pre-wrap;word-break:break-word;font:12px/1.7 'DM Mono'}.result .source{color:#a8aaa3;margin:10px 0;font:9px 'DM Mono'}
+.studio-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #a9a79f}.studio-grid article{padding:35px;border-right:1px solid #a9a79f}.studio-grid article:last-child{border-right:0}.studio-grid span{font:9px 'DM Mono';color:var(--red)}.studio-grid h2{font:clamp(30px,4vw,52px)/.9 'Instrument Serif';font-weight:400;margin:25px 0}.studio-grid p{color:#64655f;line-height:1.6}
+@media(max-width:900px){.studio-hero-grid,.studio-work{grid-template-columns:1fr}.work-rail{border-right:0;border-bottom:1px solid #b7b4aa}.studio-grid{grid-template-columns:1fr}.studio-grid article{border-right:0;border-bottom:1px solid #a9a79f}.agent-card{min-height:320px}.studio-hero{min-height:auto}.studio-hero-grid{min-height:auto;padding-top:60px}}
+@media(max-width:560px){.studio-topline span:nth-child(2){display:none}.studio-hero h1{font-size:76px}.hero-copy{font-size:16px}.hero-actions{flex-direction:column}.work-main{padding:18px}.context-row{grid-template-columns:1fr}.studio-work{min-height:auto}}
+</style>
+</MakerLayout>
