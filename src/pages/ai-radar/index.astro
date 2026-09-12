@@ -1,0 +1,63 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+---
+<MakerLayout title="AI Radar — Live AI projects, models and stories" description="A free live AI radar for trending AI projects, models and developer stories. No account required.">
+<main class="home">
+  <section class="home-hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="live-dot"></span> LIVE · FREE · NO ACCOUNT</div>
+      <h1>AI is moving.<br><em>See what matters.</em></h1>
+      <p class="hero-lead">A live browser-first radar pulling public AI signals from open model, developer and news APIs.</p>
+      <div class="hero-links"><a class="button button-dark" href="/ai/">Open AI toolkit →</a><a class="text-link" href="/">Back to PARADOX →</a></div>
+    </div>
+    <div class="hero-feature">
+      <div class="feature-label">LIVE RADAR</div>
+      <div class="feature-emoji">◎</div>
+      <div class="feature-body"><span>Public data · refresh anytime</span><h2>Models. Code. Stories.</h2><p>Updated in your browser from free public endpoints.</p></div>
+      <div class="feature-meta"><span id="updated">Waiting for data…</span><span id="status">3 sources</span></div>
+    </div>
+  </section>
+
+  <section class="section tools-section">
+    <div class="section-intro"><div><span class="eyebrow">TRENDING MODELS</span><h2>What people are<br><em>building with.</em></h2></div><p>Public model metadata from Hugging Face.</p></div>
+    <div class="tool-grid" id="models"><div class="tool-card"><h3>Loading models…</h3><p>Fetching live public data.</p></div></div>
+  </section>
+
+  <section class="section quick-section">
+    <div class="section-intro"><div><span class="eyebrow">DEVELOPER SIGNALS</span><h2>What is getting<br><em>attention.</em></h2></div><p>Public GitHub and Hacker News activity.</p></div>
+    <div class="quick-grid" id="github"></div>
+    <div class="quick-grid" id="news"></div>
+  </section>
+
+  <section class="section signal-section">
+    <div class="signal-card">
+      <div class="signal-main"><span class="eyebrow">KEEP THE LOOP GOING</span><h2>Use a live signal.<br><em>Then build something.</em></h2><p>Jump from discovery into a useful browser tool. The AI toolkit includes prompt, token, JSON, regex, UUID, JWT and developer utilities.</p><a class="button button-light" href="/ai/">Browse AI tools →</a></div>
+      <div class="signal-list"><a href="/ai/ai-prompt-generator/"><span>01</span><strong>AI Prompt Generator</strong><small>Build a structured prompt</small></a><a href="/ai/ai-token-counter/"><span>02</span><strong>AI Token Counter</strong><small>Estimate context usage</small></a><a href="/ai/llm-cost-calculator/"><span>03</span><strong>LLM Cost Calculator</strong><small>Estimate API spend</small></a><a href="/ai/json-formatter/"><span>04</span><strong>JSON Formatter</strong><small>Clean AI output</small></a></div>
+    </div>
+  </section>
+</main>
+<script is:inline>
+(() => {
+  const modelBox=document.querySelector('#models'), githubBox=document.querySelector('#github'), newsBox=document.querySelector('#news');
+  const updated=document.querySelector('#updated'), status=document.querySelector('#status');
+  const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const time=()=>new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  async function load(){
+    const results=await Promise.allSettled([
+      fetch('https://huggingface.co/api/models?sort=trending&direction=-1&limit=8').then(r=>r.ok?r.json():Promise.reject()),
+      fetch('https://api.github.com/search/repositories?q=AI+OR+LLM&sort=stars&order=desc&per_page=8').then(r=>r.ok?r.json():Promise.reject()),
+      fetch('https://hn.algolia.com/api/v1/search?query=AI%20LLM&tags=story&hitsPerPage=8').then(r=>r.ok?r.json():Promise.reject())
+    ]);
+    let ok=0;
+    const models=results[0].status==='fulfilled'?results[0].value:[];
+    const repos=results[1].status==='fulfilled'?results[1].value.items||[]:[];
+    const stories=results[2].status==='fulfilled'?results[2].value.hits||[]:[];
+    if(models.length){ok++;modelBox.innerHTML=models.slice(0,8).map((m,i)=>`<a class="tool-card" href="https://huggingface.co/${esc(m.id)}" target="_blank" rel="noreferrer"><div class="tool-number">${String(i+1).padStart(2,'0')}</div><h3>${esc(m.id)}</h3><p>${Number(m.downloads||0).toLocaleString()} downloads · ${Number(m.likes||0).toLocaleString()} likes</p><span class="tool-arrow">View model ↗</span></a>`).join('')}else modelBox.innerHTML='<div class="tool-card"><h3>Model feed unavailable</h3><p>The public endpoint is rate-limited right now. Refresh later.</p></div>';
+    if(repos.length){ok++;githubBox.innerHTML=repos.slice(0,8).map(r=>`<a href="${esc(r.html_url)}" target="_blank" rel="noreferrer"><span>${esc(r.name)}</span><small>★ ${Number(r.stargazers_count||0).toLocaleString()}</small></a>`).join('')}else githubBox.innerHTML='<div class="tool-card"><h3>GitHub feed unavailable</h3><p>Try refreshing the page.</p></div>';
+    if(stories.length){ok++;newsBox.innerHTML=stories.slice(0,8).map(s=>`<a href="${esc(s.url||'https://news.ycombinator.com/') }" target="_blank" rel="noreferrer"><span>${esc(s.title||'AI story')}</span><small>${Number(s.points||0)} points · ${Number(s.num_comments||0)} comments</small></a>`).join('')}else newsBox.innerHTML='<div class="tool-card"><h3>News feed unavailable</h3><p>Try refreshing the page.</p></div>';
+    updated.textContent=`Updated ${time()}`; status.textContent=`${ok}/3 sources live`;
+  }
+  load();
+})();
+</script>
+</MakerLayout>
