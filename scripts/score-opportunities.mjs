@@ -82,7 +82,9 @@ const deduped=new Map();
 for(const item of candidates){const key=item.slug;const old=deduped.get(key);if(!old||item.score>old.score)deduped.set(key,item);}
 const verified=[...deduped.values()].sort((a,b)=>b.score-a.score).slice(0,50);
 await fs.mkdir('src/data',{recursive:true});
-rejected.sort((a,b)=>b.score-a.score);\nawait fs.writeFile('src/data/rejected_signals.json',JSON.stringify({version:1,generatedAt:new Date().toISOString(),window:'score 50-79',signals:rejected.filter(x=>x.score>=50).slice(0,10)},null,2)+'\\n');\nawait fs.writeFile(OUT,JSON.stringify({
+rejected.sort((a,b)=>b.score-a.score);
+await fs.writeFile('src/data/rejected_signals.json',JSON.stringify({version:1,generatedAt:new Date().toISOString(),window:'score 50-79',signals:rejected.filter(x=>x.score>=50).slice(0,10)},null,2)+'\n');
+await fs.writeFile(OUT,JSON.stringify({
  version:3,generatedAt:new Date().toISOString(),
  formula:'((Demand Velocity × Utility Intent) / Competition Saturation) × Feasibility Multiplier',
  thresholds:{minScore:80,maxTargets:50},signalCount:signals.length,
