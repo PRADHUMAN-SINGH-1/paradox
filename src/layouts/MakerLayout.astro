@@ -13,7 +13,7 @@ const jsonLd = {
 <head>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
 <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#f7f4ec" />
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#f5f2eb" />
 <meta name="description" content={description} /><meta name="google-adsense-account" content="ca-pub-4630615697632107" />
 <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" />
 <link rel="canonical" href={canonical} /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,9 +27,22 @@ const jsonLd = {
 <nav class="site-nav" aria-label="Primary navigation">
 <a href="/#tools">Tools</a><a href="/ai/">AI</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a>
 </nav>
-<a class="header-cta" href="/#tools">Start with a tool →</a>
+<div class="header-actions"><a class="header-cta" href="/#tools">Start with a tool →</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div>
+<div class="mobile-nav" id="mobileNav">
+<a href="/#tools">Tools</a><a href="/ai/">AI toolkit</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a><a href="/utilities/">All utilities</a>
+</div>
 </header>
 <slot />
-<footer class="site-footer"><div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div><nav aria-label="Footer navigation"><a href="/ai/">AI tools</a><a href="/ai-radar/">AI Radar</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year}</small></footer>
+<footer class="site-footer"><div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div><nav aria-label="Footer navigation"><a href="/ai/">AI tools</a><a href="/ai-radar/">AI Radar</a><a href="/utilities/">Utilities</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year}</small></footer>
+<script is:inline>
+(() => {
+  const menu=document.querySelector('#mobileNav');
+  const toggle=document.querySelector('.menu-toggle');
+  if(!menu||!toggle)return;
+  const close=()=>{menu.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.textContent='☰';};
+  toggle.addEventListener('click',()=>{const open=!menu.classList.contains('open');menu.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'×':'☰';});
+  menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));
+})();
+</script>
 </body>
 </html>
