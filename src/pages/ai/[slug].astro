@@ -1,0 +1,13 @@
+---
+import MakerLayout from '../../layouts/MakerLayout.astro';
+import AITool from '../../components/AITool.astro';
+import tools from '../../data/ai-tools.json';
+export function getStaticPaths(){return tools.map(item=>({params:{slug:item.slug},props:{item}}));}
+const {item}=Astro.props;
+const canonical=`https://paradox.engineer/ai/${item.slug}/`;
+---
+<MakerLayout title={item.title} description={item.description} canonical={canonical}>
+  <AITool mode={item.mode} title={item.title} intro={item.description} />
+  <section class="maker-section utility-seo-copy"><div class="maker-section-head"><div><div class="maker-label">AI TOOLKIT</div><h2>{item.label} without the friction.</h2></div><p>Browser-first AI and developer utility. No account, API key or upload required.</p></div><article class="maker-why"><p>PARADOX keeps common prompt, token, context, JSON and developer tasks fast and local.</p></article></section>
+</MakerLayout>
+<script type="application/ld+json" set:html={JSON.stringify({'@context':'https://schema.org','@type':'SoftwareApplication',name:item.title,description:item.description,url:canonical,applicationCategory:'DeveloperApplication',operatingSystem:'Web Browser',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}})} />
