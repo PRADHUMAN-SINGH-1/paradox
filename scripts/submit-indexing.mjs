@@ -3,8 +3,12 @@ import crypto from 'node:crypto';
 
 const SITE = 'https://paradox.engineer';
 const GSC_SITE = process.env.GSC_SITE_URL || 'sc-domain:paradox.engineer';
-const pages = JSON.parse(await fs.readFile('src/data/seo-opportunities.json', 'utf8'));
-const urls = pages.map(item => `${SITE}/use-cases/${item.slug}/`);
+const INDEXNOW_KEY = '7b6f4a2d9e314c5f8a1d0b3e6f2c9a47';
+
+const sitemapText = await fs.readFile('public/sitemap.xml', 'utf8').catch(() => '');
+const sitemapUrls = [...sitemapText.matchAll(/<loc>(.*?)<\/loc>/g)].map(match => match[1].trim());
+const fallbackUrls = [`${SITE}/`, `${SITE}/daily/`, `${SITE}/world/`, `${SITE}/trending/`, `${SITE}/utilities/`];
+const urls = [...new Set([...sitemapUrls, ...fallbackUrls])];
 
 function b64url(value) { return Buffer.from(value).toString('base64url'); }
 
@@ -47,10 +51,28 @@ async function submitBing() {
     body: JSON.stringify({ siteUrl: SITE, urlList: urls.slice(0, 500) })
   });
   if (!response.ok) throw new Error(`Bing indexing ${response.status}: ${await response.text()}`);
-  return { enabled: true, submitted: urls.length };
+  return { enabled: true, submitted: Math.min(urls.length, 500) };
+}
+
+async function submitIndexNow() {
+  const endpoint = 'https://api.indexnow.org/indexnow';
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({
+      host: 'paradox.engineer',
+      key: INDEXNOW_KEY,
+      keyLocation: `${SITE}/${INDEXNOW_KEY}.txt`,
+      urlList: urls.slice(0, 10000),
+    }),
+  });
+  const text = await response.text();
+  if (!response.ok && response.status !== 202) throw new Error(`IndexNow ${response.status}: ${text}`);
+  return { enabled: true, status: response.status, submitted: Math.min(urls.length, 10000) };
 }
 
 const results = {};
 try { results.google = await submitGoogleSitemap(); } catch (error) { results.google = { enabled: false, error: error.message }; }
 try { results.bing = await submitBing(); } catch (error) { results.bing = { enabled: false, error: error.message }; }
-console.log(JSON.stringify({ generatedAt: new Date().toISOString(), ...results }, null, 2));
+try { results.indexNow = await submitIndexNow(); } catch (error) { results.indexNow = { enabled: false, error: error.message }; }
+console.log(JSON.stringify({ generatedAt: new Date().toISOString(), urlCount: urls.length, ...results }, null, 2));
