@@ -50,6 +50,10 @@ jobs:
           BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
         run: node scripts/fetch-performance.mjs
 
+      - name: Fetch fail-safe public demand signals
+        continue-on-error: true
+        run: node scripts/fetch-demand.js
+
       - name: Refresh global demand intelligence
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
@@ -79,7 +83,7 @@ jobs:
         run: node scripts/build-sitemap.mjs
 
       - name: Validate source files
-        run: node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs
+        run: node --check scripts/fetch-demand.js && node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs
 
       - name: Build Astro
         run: npm run build
