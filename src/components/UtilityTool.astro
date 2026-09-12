@@ -29,7 +29,7 @@ const c=configs[mode]??configs.percentage;
   <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL CALCULATION</span><h1>{title}</h1><p>{intro}</p><div class="generator-subline">No upload · No paid API · Works in your browser</div></header>
   <div class="generator-layout">
     <section class="generator-panel" aria-label="Utility controls"><div class="generator-panel-head"><h2>01 / Inputs</h2><span>Instant</span></div><div class="generator-fields">
-      <div class="field"><label for="utilityA">{c.a}</label>{c.aType==='textarea'?<textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea>:<input id="utilityA" data-field="a" type={c.aType} value={propAValue ?? c.aValue} />}</div>
+      <div class="field"><label for="utilityA">{c.a}</label>{c.aType==='textarea'?<textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea>:c.aType==='file'?<input id="utilityA" data-field="a" type="file" accept="image/jpeg,image/png,image/webp" />:<input id="utilityA" data-field="a" type={c.aType} value={propAValue ?? c.aValue} />}</div>
       {c.b?<div class="field"><label for="utilityB">{c.b}</label><input id="utilityB" data-field="b" type={c.bType} value={propBValue ?? c.bValue || ''} /></div>:null}
       {mode==='random'?<div class="field"><label for="count">How many results?</label><input id="count" data-field="count" type="number" min="1" max="100" value="1" /></div>:null}
       {mode==='timezone'?<div class="field"><label for="zone">Convert to time zone</label><input id="zone" data-field="zone" value="Asia/Kolkata" placeholder="e.g. America/New_York" /></div>:null}
