@@ -51,6 +51,24 @@ if(wiki?.items?.[0]?.articles){
   }
 }else failures.push('Wikimedia');
 
+// Fail-safe baseline: never publish an empty demand feed when public APIs are unavailable.
+if(rows.length===0){
+  console.warn('[demand] all live sources returned no usable signals; loading fallback_demand.json');
+  try{
+    const fallback=JSON.parse(await fs.readFile('src/data/fallback_demand.json','utf8'));
+    if(Array.isArray(fallback.signals)){
+      rows.push(...fallback.signals.map(s=>({
+        query:clean(s.query),traffic:Number(s.traffic)||0,geo:s.geo||'Global',
+        source:s.source||'Evergreen fallback',signalType:s.signalType||'utility',
+        observedAt:new Date().toISOString()
+      })).filter(s=>s.query));
+    }
+  }catch(error){
+    console.error('[demand] fallback_demand.json unavailable:',error.message);
+    failures.push('Evergreen fallback');
+  }
+}
+
 // Keep the schema stable even when every external service is unavailable.
 const priorHistory=Array.isArray(previous.history)?previous.history:[];
 const priorSignals=Array.isArray(previous.signals)?previous.signals:[];
@@ -61,7 +79,7 @@ const output={
   signals:rows,
   history,
   failures,
-  sources:{hackerNews:true,googleTrendsRss:true,wikimediaPageviews:true}
+  sources:{hackerNews:!failures.includes('Hacker News'),googleTrendsRss:!failures.some(x=>x.startsWith('Google Trends:')),wikimediaPageviews:!failures.includes('Wikimedia')}
 };
 await fs.mkdir('src/data',{recursive:true});
 await fs.writeFile(OUT,JSON.stringify(output,null,2)+'\n');
