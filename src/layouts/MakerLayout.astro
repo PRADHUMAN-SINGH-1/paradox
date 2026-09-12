@@ -15,6 +15,14 @@ const jsonLd = {'@context':'https://schema.org','@type':'WebApplication',name:ti
 </head><body>
 <header class="site-header"><a class="brand" href="/" aria-label="PARADOX Makers home">PARADOX <span>MAKERS</span></a><nav class="site-nav" aria-label="Primary navigation"><a href="/#tools">Tools</a><a href="/ai/">AI</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a></nav><div class="header-actions"><a class="header-cta" href="/#tools">Start with a tool →</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div><div class="mobile-nav" id="mobileNav"><a href="/#tools">Tools</a><a href="/ai/">AI toolkit</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a><a href="/utilities/">All utilities</a></div></header>
 <slot/>
-<footer class="site-footer"><div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div><nav aria-label="Footer navigation"><a href="/ai/">AI tools</a><a href="/ai-radar/">AI Radar</a><a href="/utilities/">Utilities</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year}</small></footer>
+<footer class="site-footer"><div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div><nav aria-label="Footer navigation"><a href="/ai/">AI tools</a><a href="/ai-radar/">AI Radar</a><a href="/utilities/">Utilities</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year} · Built for useful work</small></footer>
+<script is:inline>
+(() => {
+ const btn=document.querySelector('.menu-toggle'), nav=document.querySelector('#mobileNav');
+ if(!btn||!nav)return;
+ btn.addEventListener('click',()=>{const open=nav.classList.toggle('open');btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',open?'Close navigation':'Open navigation');});
+ nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Open navigation');}));
+})();
+</script>
 <script src="../scripts/experience.js"></script>
 </body></html>
