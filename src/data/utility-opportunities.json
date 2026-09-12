@@ -290,5 +290,112 @@
     "matchedTrends": [],
     "aValue": "1",
     "bValue": "kilometers to meters"
+  },
+  {
+    "slug": "image-compressor",
+    "mode": "imagecompressor",
+    "label": "Image Compressor",
+    "title": "Image Compressor — Free Online JPG PNG WebP Tool",
+    "description": "Compress images online for free. Reduce JPG, PNG and WebP file size directly in your browser.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "qr-code-generator",
+    "mode": "qr",
+    "label": "QR Code Generator",
+    "title": "QR Code Generator — Free Online QR Maker",
+    "description": "Create a QR code for a URL, text, phone number or message. Free and instant.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "password-generator",
+    "mode": "password",
+    "label": "Password Generator",
+    "title": "Password Generator — Free Strong Random Passwords",
+    "description": "Generate strong random passwords locally with adjustable length and character sets.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "bmi-calculator",
+    "mode": "bmi",
+    "label": "BMI Calculator",
+    "title": "BMI Calculator — Free Online Calculator",
+    "description": "Calculate BMI from height and weight and see the standard BMI screening range.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "emi-calculator",
+    "mode": "emi",
+    "label": "EMI Calculator",
+    "title": "EMI Calculator — Free Home Loan & Personal Loan Calculator",
+    "description": "Calculate monthly EMI, total payment and interest for a loan.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "gst-calculator",
+    "mode": "gst",
+    "label": "GST Calculator",
+    "title": "GST Calculator — Free India GST Calculator",
+    "description": "Calculate GST amount and total price for common GST rates in India.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "sip-calculator",
+    "mode": "sip",
+    "label": "SIP Calculator",
+    "title": "SIP Calculator — Free Mutual Fund SIP Calculator",
+    "description": "Estimate the future value of monthly SIP investments using an expected annual return.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "discount-calculator",
+    "mode": "discount",
+    "label": "Discount Calculator",
+    "title": "Discount Calculator — Free Online Price Calculator",
+    "description": "Calculate sale price and savings from any discount percentage.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "tip-calculator",
+    "mode": "tip",
+    "label": "Tip Calculator",
+    "title": "Tip Calculator — Free Online Tip & Bill Calculator",
+    "description": "Calculate a tip and total bill instantly.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "json-formatter",
+    "mode": "json",
+    "label": "JSON Formatter",
+    "title": "JSON Formatter & Validator — Free Online Tool",
+    "description": "Format and validate JSON instantly with syntax-friendly output.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "base64-encoder-decoder",
+    "mode": "base64",
+    "label": "Base64 Encoder Decoder",
+    "title": "Base64 Encoder & Decoder — Free Online Tool",
+    "description": "Encode text to Base64 or decode Base64 directly in your browser.",
+    "score": 10,
+    "matchedTrends": []
+  },
+  {
+    "slug": "character-counter",
+    "mode": "characters",
+    "label": "Character Counter — Free Online Tool",
+    "title": "Count characters, spaces and words instantly in your browser.",
+    "score": 10,
+    "matchedTrends": []
   }
 ]
