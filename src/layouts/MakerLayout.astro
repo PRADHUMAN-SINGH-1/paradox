@@ -4,113 +4,17 @@ import '../styles/design-system.css';
 import '../styles/awwwards.css';
 const { title, description, canonical = 'https://paradox.engineer/' } = Astro.props;
 const year = new Date().getFullYear();
-const jsonLd = {
-  '@context': 'https://schema.org', '@type': 'WebApplication', name: title.split(' — ')[0], url: canonical, description,
-  applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web Browser', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
-};
+const jsonLd = {'@context':'https://schema.org','@type':'WebApplication',name:title.split(' — ')[0],url:canonical,description,applicationCategory:'UtilitiesApplication',operatingSystem:'Web Browser',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}};
 ---
-<!doctype html>
-<html lang="en">
-<head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
-<script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#f4f1e9" />
-<meta name="description" content={description} /><meta name="google-adsense-account" content="ca-pub-4630615697632107" />
-<meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" />
-<link rel="canonical" href={canonical} /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script><title>{title}</title>
-</head>
-<body>
-<header class="site-header">
-<a class="brand" href="/" aria-label="PARADOX Makers home">PARADOX <span>MAKERS</span></a>
-<nav class="site-nav" aria-label="Primary navigation">
-<a href="/#tools">Tools</a><a href="/ai/">AI</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a>
-</nav>
-<div class="header-actions"><a class="header-cta" href="/#tools">Start with a tool →</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div>
-<div class="mobile-nav" id="mobileNav">
-<a href="/#tools">Tools</a><a href="/ai/">AI toolkit</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a><a href="/utilities/">All utilities</a>
-</div>
-</header>
-<slot />
+<!doctype html><html lang="en"><head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script><script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="theme-color" content="#f4f1e9"/><meta name="description" content={description}/><meta name="google-adsense-account" content="ca-pub-4630615697632107"/>
+<meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:type" content="website"/><link rel="canonical" href={canonical}/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script><script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script><title>{title}</title>
+</head><body>
+<header class="site-header"><a class="brand" href="/" aria-label="PARADOX Makers home">PARADOX <span>MAKERS</span></a><nav class="site-nav" aria-label="Primary navigation"><a href="/#tools">Tools</a><a href="/ai/">AI</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a></nav><div class="header-actions"><a class="header-cta" href="/#tools">Start with a tool →</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div><div class="mobile-nav" id="mobileNav"><a href="/#tools">Tools</a><a href="/ai/">AI toolkit</a><a href="/ai-radar/">AI Radar</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/#guides">Guides</a><a href="/about/">About</a><a href="/utilities/">All utilities</a></div></header>
+<slot/>
 <footer class="site-footer"><div><strong>PARADOX MAKERS</strong><span>Free, browser-first utilities. No account required.</span></div><nav aria-label="Footer navigation"><a href="/ai/">AI tools</a><a href="/ai-radar/">AI Radar</a><a href="/utilities/">Utilities</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year}</small></footer>
-<script is:inline>
-(() => {
-  const menu=document.querySelector('#mobileNav'); const toggle=document.querySelector('.menu-toggle');
-  if(menu&&toggle){
-    const close=()=>{menu.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.textContent='☰'};
-    toggle.addEventListener('click',()=>{const open=!menu.classList.contains('open');menu.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'×':'☰'});
-    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));
-  }
-  const revealTargets=document.querySelectorAll('.section,.tool-card,.quick-grid>a,.live-card,.generator-panel,.generator-preview');
-  if('IntersectionObserver' in window){const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.dataset.reveal='';requestAnimationFrame(()=>e.target.classList.add('is-visible'));io.unobserve(e.target)}}),{threshold:.08});revealTargets.forEach(el=>io.observe(el));}else revealTargets.forEach(el=>el.classList.add('is-visible'));
-
-  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const notice=(root,text,type='error')=>{const s=root.querySelector('#status');if(s)s.innerHTML=`<div class="status-${type}">${esc(text)}</div>`};
-  const show=(root,html)=>{const empty=root.querySelector('#emptyPreview')||root.querySelector('#empty'),out=root.querySelector('#output');if(empty)empty.hidden=true;if(out){out.hidden=false;out.innerHTML=`<div class="sheet utility-result">${html}</div>`;out.scrollIntoView({behavior:'smooth',block:'nearest'})}};
-
-  document.querySelectorAll('.ai-page[data-ai-tool]').forEach(root=>{
-    const mode=root.dataset.aiTool;
-    if(mode==='regex'){
-      const field=root.querySelector('#fields'); if(field&&!field.querySelector('#flags'))field.insertAdjacentHTML('beforeend','<div class="field"><label>Flags</label><input id="flags" value="g" placeholder="gim"></div>');
-    }
-    root.addEventListener('click',event=>{
-      const btn=event.target.closest('#run'); if(!btn)return; event.preventDefault(); event.stopImmediatePropagation();
-      const v=id=>root.querySelector('#'+id)?.value||'';
-      if(mode==='base64'){
-        const raw=v('text'); if(!raw)return notice(root,'Enter text or Base64 first.');
-        let decoded='';let canDecode=false;try{decoded=decodeURIComponent(escape(atob(raw.replace(/-/g,'+').replace(/_/g,'/'))));canDecode=true}catch{}
-        const encoded=btoa(unescape(encodeURIComponent(raw)));
-        show(root,`<h2 class="result-title">Base64</h2><p><strong>Encoded</strong></p><pre class="code-block">${esc(encoded)}</pre>${canDecode?`<p><strong>Decoded</strong></p><pre class="code-block">${esc(decoded)}</pre>`:'<p>Paste a Base64 value to decode it; plain text is encoded automatically.</p>'}`);return;
-      }
-      if(mode==='regex'){
-        try{const re=new RegExp(v('pattern'),v('flags')||'g');const text=v('text');const matches=[...text.matchAll(re)].map(m=>m[0]);show(root,`<h2 class="result-title">Regex result</h2><div class="utility-big">${matches.length}</div><pre class="code-block">${esc(matches.join('\n')||'No matches')}</pre>`)}catch(e){notice(root,'Invalid regex: '+e.message)}return;
-      }
-    },true);
-  });
-
-  document.querySelectorAll('.utility-page[data-utility]').forEach(root=>{
-    const mode=root.dataset.utility;
-    root.addEventListener('click',event=>{
-      const btn=event.target.closest('#calculate'); if(!btn)return; event.preventDefault(); event.stopImmediatePropagation();
-      const a=root.querySelector('[data-field="a"]')?.value||'',b=root.querySelector('[data-field="b"]')?.value||'',zone=root.querySelector('[data-field="zone"]')?.value?.trim()||'Asia/Kolkata';
-      if(mode==='timezone'){
-        const parts=a.split('T');if(!parts[0]||!parts[1])return notice(root,'Choose a valid date and time.');
-        const [Y,M,D]=parts[0].split('-').map(Number),[h,m]=parts[1].split(':').map(Number); if(!Y||!M||!D)return notice(root,'Choose a valid date and time.');
-        const source=b.trim()||'UTC';let guess=Date.UTC(Y,M-1,D,h,m);for(let i=0;i<3;i++){const d=new Date(guess);const p=new Intl.DateTimeFormat('en-US',{timeZone:source,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(d).reduce((o,x)=>(o[x.type]=x.value,o),{});const asUtc=Date.UTC(Number(p.year),Number(p.month)-1,Number(p.day),Number(p.hour)%24,Number(p.minute));guess+=Date.UTC(Y,M-1,D,h,m)-asUtc;}
-        try{const formatted=new Intl.DateTimeFormat(undefined,{timeZone:zone,dateStyle:'full',timeStyle:'long'}).format(new Date(guess));show(root,`<h2 class="result-title">${esc(zone)}</h2><div class="utility-big utility-time">${esc(formatted)}</div><p>${esc(source)} → ${esc(zone)}</p>`)}catch{notice(root,'Use valid IANA zones such as Europe/London or Asia/Kolkata.')}return;
-      }
-      if(mode==='countdown'){
-        const target=new Date(a);if(Number.isNaN(target.getTime()))return notice(root,'Choose a valid target date and time.');
-        const paint=()=>{const diff=target.getTime()-Date.now(),abs=Math.abs(diff),days=Math.floor(abs/86400000),hours=Math.floor(abs%86400000/3600000),mins=Math.floor(abs%3600000/60000),secs=Math.floor(abs%60000/1000);show(root,`<h2 class="result-title">${diff>=0?'Time remaining':'Time elapsed'}</h2><div class="utility-big">${days}d ${hours}h ${mins}m ${secs}s</div><p>${esc(target.toLocaleString())}</p>`)};paint();clearInterval(root._pxTimer);root._pxTimer=setInterval(paint,1000);return;
-      }
-    },true);
-  });
-
-  document.querySelectorAll('.generator-page[data-mode]').forEach(root=>{
-    const mode=root.dataset.mode;
-    root.addEventListener('click',event=>{
-      const btn=event.target.closest('#generate'); if(!btn)return;
-      if(!['wheel','bracket','raffle'].includes(mode))return;
-      event.preventDefault(); event.stopImmediatePropagation();
-      const input=root.querySelector('#items'); const lines=()=>[...(input?.value||'').split(/[\n,]+')].map(x=>x.trim()).filter(Boolean); const out=root.querySelector('#output');const empty=root.querySelector('#emptyPreview'); const status=root.querySelector('#status'); const message=t=>{if(status)status.innerHTML=`<div class="status-error">${esc(t)}</div>`}; const paint=h=>{if(empty)empty.hidden=true;out.hidden=false;out.innerHTML=`<div class="sheet">${h}</div>`}; const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-      if(mode==='wheel'){
-        const choices=lines();if(choices.length<2)return message('Add at least 2 choices.');const index=Math.floor(Math.random()*choices.length);const winner=choices[index];paint(`<h2 class="result-title">The wheel chose</h2><div class="wheel-result"><div class="wheel-choice" style="animation:pxSpin .65s cubic-bezier(.2,.8,.2,1)">${esc(winner)}</div></div><div class="generator-actions"><button class="gen-btn" data-wheel-again>Spin again</button></div><style>@keyframes pxSpin{from{transform:scale(.6) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}</style>`);return;
-      }
-      if(mode==='raffle'){
-        const qty=Math.max(4,Math.min(200,Number(root.querySelector('#qty')?.value||24)));const title=root.querySelector('#ticketTitle')?.value?.trim()||'Raffle';const nums=Array.from({length:qty},(_,i)=>String(i+1).padStart(3,'0'));paint(`<h2 class="result-title">${esc(title)}</h2><div class="print-grid">${nums.map(n=>`<div class="ticket"><strong>TICKET #${n}</strong><p>${esc(title)}</p></div>`).join('')}</div><div class="generator-actions"><button class="gen-btn" data-draw-winner>Draw random winner</button></div><div id="winnerBox"></div>`);return;
-      }
-      const participants=shuffle(lines());if(participants.length<2)return message('Add at least 2 teams or participants.');if(participants.length>64)return message('Use 64 or fewer teams for a clean interactive bracket.');if(participants.length%2)participants.push('BYE');const rounds=[participants];while(rounds[rounds.length-1].length>1)rounds.push(Array(Math.ceil(rounds[rounds.length-1].length/2)).fill(null));root._bracketRounds=rounds;root._bracketWinners=[];const render=()=>{const rds=root._bracketRounds,w=root._bracketWinners;paint(`<h2 class="result-title">Interactive bracket</h2><div class="bracket-board">${rds.slice(0,-1).map((r,ri)=>`<div class="bracket-round"><div class="maker-kicker">ROUND ${ri+1}</div>${r.map((team,ti)=>{const next=w[ri]?.[Math.floor(ti/2)];return `<button class="bracket-match" data-bracket-round="${ri}" data-bracket-index="${ti}" ${next?'disabled':''}><span>${esc(team||'TBD')}</span></button>`}).join('')}</div>`).join('')}</div><div class="bracket-status">Choose a winner in each match to advance.</div>`)};render();
-      root._renderBracket=render;
-    },true);
-    root.addEventListener('click',event=>{
-      const winner=event.target.closest('[data-wheel-again]');if(winner){event.preventDefault();root.querySelector('#generate')?.click();return;}
-      const draw=event.target.closest('[data-draw-winner]');if(draw){const tickets=[...root.querySelectorAll('.ticket strong')].map(x=>x.textContent).filter(x=>x.includes('#'));if(!tickets.length)return;const pick=tickets[Math.floor(Math.random()*tickets.length)];const box=root.querySelector('#winnerBox');if(box)box.innerHTML=`<div class="utility-big">${esc(pick)}</div>`;return;}
-      const match=event.target.closest('[data-bracket-round]');if(match&&root.dataset.mode==='bracket'){const ri=Number(match.dataset.bracketRound),ti=Number(match.dataset.bracketIndex),rounds=root._bracketRounds,w=root._bracketWinners;w[ri]??=[];const team=rounds[ri][ti];if(!team)return;if(ti%2===0){const other=rounds[ri][ti+1];if(!other)return;const choice=confirm(`Advance ${team}? Cancel advances ${other}.`);w[ri][Math.floor(ti/2)]=choice?team:other;}else{return}rounds[ri+1][Math.floor(ti/2)]=w[ri][Math.floor(ti/2)];if(rounds[ri+1].length===1&&rounds[ri+1][0]){root._bracketWinners= w;root._renderBracket();const box=root.querySelector('.bracket-status');if(box)box.textContent=`Current finalist: ${rounds[ri+1][0]}`;}else root._renderBracket();}
-    });
-  });
-})();
-</script>
-</body>
-</html>
+<script src="../scripts/experience.js"></script>
+</body></html>
