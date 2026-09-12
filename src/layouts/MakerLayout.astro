@@ -13,15 +13,22 @@ const jsonLd = {'@context':'https://schema.org','@type':'WebApplication',name:ti
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script><script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script><title>{title}</title>
 </head><body>
-<header class="site-header"><a class="brand" href="/" aria-label="PARADOX home">PARADOX <span>AGENT OS</span></a><nav class="site-nav" aria-label="Primary navigation"><a href="/studio/">Studio</a><a href="/ai-radar/">Signals</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/trending/">Trending</a></nav><div class="header-actions"><a class="header-cta" href="/studio/">Launch agent ↗</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div><div class="mobile-nav" id="mobileNav"><a href="/studio/">Studio</a><a href="/ai-radar/">Signals</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/trending/">Trending</a></div></header>
+<header class="site-header"><a class="brand" href="/" aria-label="PARADOX home">PARADOX <span>AGENT OS</span></a><nav class="site-nav" aria-label="Primary navigation"><a href="/agents/">Agent Atlas</a><a href="/studio/">Studio</a><a href="/ai-radar/">Signals</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/trending/">Trending</a></nav><div class="header-actions"><a class="header-cta" href="/agents/">Explore agents ↗</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div><div class="mobile-nav" id="mobileNav"><a href="/agents/">Agent Atlas</a><a href="/studio/">Studio</a><a href="/ai-radar/">Signals</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/trending/">Trending</a></div></header>
 <slot/>
-<footer class="site-footer"><div><strong>PARADOX AGENT OS</strong><span>AI workflows for research, coding, study, writing and product work.</span></div><nav aria-label="Footer navigation"><a href="/studio/">Studio</a><a href="/ai-radar/">Signals</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/trending/">Trending</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year} · PARADOX</small></footer>
+<footer class="site-footer"><div><strong>PARADOX AGENT OS</strong><span>AI workflows for research, coding, study, writing and product work.</span></div><nav aria-label="Footer navigation"><a href="/agents/">Agent Atlas</a><a href="/studio/">Studio</a><a href="/ai-radar/">Signals</a><a href="/daily/">Daily</a><a href="/world/">World</a><a href="/trending/">Trending</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav><small>© {year} · PARADOX</small></footer>
 <script is:inline>
 (() => {
  const btn=document.querySelector('.menu-toggle'), nav=document.querySelector('#mobileNav');
- if(!btn||!nav)return;
- btn.addEventListener('click',()=>{const open=nav.classList.toggle('open');btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',open?'Close navigation':'Open navigation');});
- nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Open navigation');}));
+ if(btn&&nav){
+   btn.addEventListener('click',()=>{const open=nav.classList.toggle('open');btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',open?'Close navigation':'Open navigation');});
+   nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Open navigation');}));
+ }
+ const params=new URLSearchParams(location.search);
+ const mission=params.get('mission');
+ if(location.pathname==='/studio/' && mission){
+   const apply=()=>{const field=document.querySelector('#mission');if(!field)return false;field.value=mission;field.dispatchEvent(new Event('input',{bubbles:true}));const agent=params.get('agent');const badge=document.querySelector('#modelBadge');if(agent&&badge)badge.textContent=`RECIPE · ${agent.toUpperCase()}`;field.scrollIntoView({block:'center',behavior:'smooth'});return true;};
+   if(!apply()) setTimeout(apply,200);
+ }
 })();
 </script>
 <script src="../scripts/experience.js"></script>
