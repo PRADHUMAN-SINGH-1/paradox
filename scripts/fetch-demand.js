@@ -15,6 +15,7 @@ const safeFetch=async(url,kind='json')=>{
 const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
 const rows=[];
 const failures=[];
+const previous=await fs.readFile(OUT,'utf8').then(JSON.parse).catch(()=>({signals:[],history:[]}));
 
 // Hacker News: real public demand/attention signal.
 const ids=await safeFetch('https://hacker-news.firebaseio.com/v0/topstories.json');
@@ -51,11 +52,14 @@ if(wiki?.items?.[0]?.articles){
 }else failures.push('Wikimedia');
 
 // Keep the schema stable even when every external service is unavailable.
+const priorHistory=Array.isArray(previous.history)?previous.history:[];
+const priorSignals=Array.isArray(previous.signals)?previous.signals:[];
+const history=[...priorHistory,...priorSignals].slice(-5000);
 const output={
   version:1,
   generatedAt:new Date().toISOString(),
   signals:rows,
-  history:[],
+  history,
   failures,
   sources:{hackerNews:true,googleTrendsRss:true,wikimediaPageviews:true}
 };
