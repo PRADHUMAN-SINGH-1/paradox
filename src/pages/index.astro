@@ -1,124 +1,94 @@
 ---
 import MakerLayout from '../layouts/MakerLayout.astro';
-import verified from '../data/verified_opportunities.json';
 import utilityOpportunities from '../data/utility-opportunities.json';
 import aiTools from '../data/ai-tools.json';
 
-const tools=[
-  {icon:'🎲',name:'Bingo cards',desc:'Make a custom printable card in seconds.',href:'/bingo-card-generator/',tags:'bingo classroom school party game'},
-  {icon:'🔎',name:'Word searches',desc:'Turn any word list into a printable puzzle.',href:'/word-search-generator/',tags:'word search spelling vocabulary puzzle'},
-  {icon:'👥',name:'Random teams',desc:'Split a group fairly without arguing.',href:'/random-team-generator/',tags:'random team picker classroom office sports'},
-  {icon:'🎡',name:'Decision wheel',desc:'Add choices and let the wheel pick.',href:'/decision-wheel/',tags:'decision random picker choice wheel'},
-  {icon:'🏆',name:'Tournament bracket',desc:'Build matchups for your next competition.',href:'/tournament-bracket-generator/',tags:'tournament bracket sports competition'},
-  {icon:'🎟️',name:'Raffle tickets',desc:'Create numbered tickets ready to print.',href:'/raffle-ticket-generator/',tags:'raffle tickets fundraiser giveaway'},
-  {icon:'🪑',name:'Seating chart',desc:'Arrange names into a clean seating plan.',href:'/seating-chart-generator/',tags:'seating chart wedding classroom dinner'},
-  {icon:'🏅',name:'Certificates',desc:'Make a clean certificate for any occasion.',href:'/certificate-maker/',tags:'certificate award graduation appreciation'}
+const hot = [
+  {icon:'⌘', title:'Image Compressor', desc:'Shrink JPG, PNG & WebP files in your browser.', href:'/utilities/image-compressor/', tag:'IMAGE'},
+  {icon:'▣', title:'QR Code Generator', desc:'Create a QR code for any link or text.', href:'/utilities/qr-code-generator/', tag:'QR'},
+  {icon:'{}', title:'JSON Formatter', desc:'Format, validate and copy JSON instantly.', href:'/utilities/json-formatter/', tag:'DEV'},
+  {icon:'●', title:'Password Generator', desc:'Generate strong random passwords locally.', href:'/utilities/password-generator/', tag:'SECURITY'},
+  {icon:'₹', title:'EMI Calculator', desc:'Calculate monthly loan payments and interest.', href:'/utilities/emi-calculator/', tag:'MONEY'},
+  {icon:'%', title:'GST Calculator', desc:'Add or remove GST from any amount.', href:'/utilities/gst-calculator/', tag:'INDIA'},
+  {icon:'↗', title:'SIP Calculator', desc:'Estimate returns on a monthly investment.', href:'/utilities/sip-calculator/', tag:'MONEY'},
+  {icon:'BMI', title:'BMI Calculator', desc:'Calculate BMI and understand your range.', href:'/utilities/bmi-calculator/', tag:'HEALTH'},
+  {icon:'T', title:'Word Counter', desc:'Words, characters, lines and reading time.', href:'/utilities/word-counter/', tag:'TEXT'},
+  {icon:'↔', title:'PDF & Image Tools', desc:'Fast browser utilities for everyday files.', href:'/utilities/', tag:'LIBRARY'}
 ];
 
-const utilities = utilityOpportunities.length ? utilityOpportunities.slice(0,8) : [
-  {slug:'percentage-calculator',label:'Percentage calculator'},
-  {slug:'age-calculator',label:'Age calculator'},
-  {slug:'time-zone-converter',label:'Time zone converter'},
-  {slug:'unit-converter',label:'Unit converter'},
-  {slug:'countdown-timer',label:'Countdown timer'},
-  {slug:'random-number-generator',label:'Random number generator'},
-  {slug:'word-counter',label:'Word counter'},
-  {slug:'date-difference-calculator',label:'Date difference calculator'}
+const categories=[
+ {n:'01',label:'IMAGE',desc:'Compress, resize, convert',href:'/utilities/',items:['Image Compressor','Image Resizer','JPG to PDF']},
+ {n:'02',label:'PDF',desc:'Work with documents',href:'/utilities/',items:['Compress PDF','Merge PDF','PDF to JPG']},
+ {n:'03',label:'MONEY',desc:'Calculate before you decide',href:'/utilities/',items:['EMI Calculator','SIP Calculator','GST Calculator']},
+ {n:'04',label:'AI + DEV',desc:'Build and clean faster',href:'/ai/',items:['JSON Formatter','Token Counter','Prompt Tools']}
 ];
-
-const opportunityList=Array.isArray(verified)?verified.filter(item=>item.route).slice(0,6):[];
-const popular=opportunityList.length?opportunityList:[
-  {label:'Percentage calculator',route:'/utilities/percentage-calculator/'},{label:'Age calculator',route:'/utilities/age-calculator/'},{label:'Random team generator',route:'/random-team-generator/'},{label:'Tournament bracket generator',route:'/tournament-bracket-generator/'},{label:'Word search generator',route:'/word-search-generator/'},{label:'Bingo card generator',route:'/bingo-card-generator/'}
-];
-const featuredAI=aiTools.slice(0,8);
 ---
-<MakerLayout title="PARADOX — Free tools that get the job done" description="Free browser tools for AI, calculators, teams, puzzles, brackets, raffles, charts and everyday jobs. No account required.">
-<main class="home">
-  <section class="home-hero" data-cursor="tools">
-    <div class="hero-copy">
-      <div class="eyebrow"><span class="live-dot"></span> FREE · NO ACCOUNT · NO UPLOADS</div>
-      <h1>Need to get<br><em>something done?</em></h1>
-      <p class="hero-lead">Skip the signup. Pick a tool. Get the result. PARADOX is a growing collection of practical browser tools for work, school, coding and everyday jobs.</p>
-      <div class="hero-search"><span>⌕</span><input id="toolSearch" type="search" placeholder="Search AI, JSON, tokens, percentage, teams, bracket…" aria-label="Search all tools" autocomplete="off"><kbd>/</kbd></div>
-      <div class="hero-links"><a class="button button-dark" href="#ai-tools">Explore AI tools</a><a class="text-link" href="#tools">Browse everything →</a></div>
+<MakerLayout title="PARADOX — Free tools for real work" description="Free online tools for images, PDF, money, AI, text and developer tasks. Fast, private and no signup.">
+<main class="v2-home">
+  <section class="v2-hero">
+    <div class="v2-meta"><span>PARADOX / 2026</span><span>FREE UTILITY INDEX</span><span>NO SIGNUP · LOCAL-FIRST</span></div>
+    <div class="v2-hero-grid">
+      <div>
+        <p class="v2-kicker"><i></i> THE INTERNET'S SMALL JOBS, IN ONE PLACE</p>
+        <h1>Do the<br/><em>thing.</em></h1>
+        <p class="v2-lead">Compress an image. Calculate a loan. Format JSON. Make a QR code. Generate a password. No accounts, no friction, no twenty-tab hunt.</p>
+        <div class="v2-search"><span>⌕</span><input id="v2Search" placeholder="What do you need to do?" aria-label="Search PARADOX tools"/><kbd>/</kbd></div>
+        <div class="v2-pills"><a href="#popular">Popular tools ↓</a><a href="/utilities/">Browse 100+ utilities ↗</a><a href="/ai/">AI toolkit ↗</a></div>
+      </div>
+      <div class="v2-orbit" aria-hidden="true">
+        <div class="orbit-ring ring-a"></div><div class="orbit-ring ring-b"></div>
+        <div class="orbit-core"><span>PX</span><small>TOOLS<br/>ENGINE</small></div>
+        <div class="orbit-label l1">IMAGE</div><div class="orbit-label l2">MONEY</div><div class="orbit-label l3">AI</div><div class="orbit-label l4">TEXT</div>
+      </div>
     </div>
-    <div class="hero-feature" data-tilt><div class="feature-label">POPULAR RIGHT NOW</div><div class="feature-emoji">↗</div><div class="feature-body"><span>Fast answers for common tasks</span><div class="popular-list">{popular.map((item,index)=><a href={item.route}><b>{String(index+1).padStart(2,'0')}</b><span>{item.label}</span><small>Use it →</small></a>)}</div></div></div>
-  </section>
-  <section class="trust-strip"><span>Works in your browser</span><span>No signup</span><span>Mobile friendly</span><span>Private by default</span><span>Free to use</span></section>
-
-  <section class="section ai-spotlight" id="ai-tools" data-section="dark">
-    <div class="ai-spotlight-head"><div><span class="eyebrow">NEW · AI TOOLKIT</span><h2>AI work,<br><em>without the friction.</em></h2><p>Prompts, tokens, JSON, API costs and developer tasks. No API key. No account. Transformations run locally in your browser.</p></div><a class="button button-dark" href="/ai/">Open all 16 AI tools →</a></div>
-    <div class="ai-feature-grid">{featuredAI.map((tool,index)=><a class="ai-feature-card" href={`/ai/${tool.slug}/`} data-search={tool.label+' '+tool.title+' '+tool.description+' '+tool.keywords.join(' ')}><span class="ai-index">{String(index+1).padStart(2,'0')}</span><span class="ai-symbol">{['✦','⌁','▦','₿','□','{}','⇄','◈'][index]}</span><div><h3>{tool.label}</h3><p>{tool.description}</p></div><span class="tool-arrow">Open →</span></a>)}</div>
-    <div class="ai-bottom-row"><a href="/ai-radar/"><span class="live-dot"></span><strong>AI Radar</strong><small>Live public model + developer signals</small><b>See what's moving →</b></a><a href="/ai/ai-token-counter/"><strong>Token counter</strong><small>Estimate prompt size</small><b>Try it →</b></a><a href="/ai/json-formatter/"><strong>JSON formatter</strong><small>Validate AI output</small><b>Try it →</b></a><a href="/ai/llm-cost-calculator/"><strong>LLM cost calculator</strong><small>Estimate API spend</small><b>Try it →</b></a></div>
+    <div class="v2-ticker"><span>01</span><strong>UTILITY INDEX</strong><span>BUILT FOR SPEED</span><span>FILES STAY LOCAL WHEN POSSIBLE</span><span>FREE FOREVER</span><span>02</span><strong>UTILITY INDEX</strong></div>
   </section>
 
-  <section class="section tools-section" id="tools"><div class="section-rule"><span>01</span><span>THE EVERYDAY TOOLBOX</span><span>08 TOOLS</span></div>
-    <div class="section-intro"><div><span class="eyebrow">THE TOOLBOX</span><h2>Everything else.<br><em>Still useful.</em></h2></div><p>Make, pick, split, print, calculate. Built around simple jobs people finish quickly.</p></div>
-    <div class="tool-grid" id="toolGrid">{tools.map((tool,index)=><a class="tool-card" data-search={tool.name+' '+tool.desc+' '+tool.tags} href={tool.href}><div class="tool-icon">{tool.icon}</div><div class="tool-number">{String(index+1).padStart(2,'0')}</div><h3>{tool.name}</h3><p>{tool.desc}</p><span class="tool-arrow">Use it →</span></a>)}</div>
-    <div id="noResults" class="no-results" hidden>No exact match. Try <a href="/ai/">AI tools</a> or <a href="/utilities/">the utility library →</a></div>
+  <section class="v2-section" id="popular">
+    <div class="v2-section-head"><div><span class="v2-number">01</span><h2>People need<br/><em>these.</em></h2></div><p>High-intent utilities are the front door. Every tool below is a real interaction, not a keyword page.</p></div>
+    <div class="v2-hot-grid">{hot.map((tool,i)=><a class="v2-hot" href={tool.href} data-v2-search={(tool.title+' '+tool.desc+' '+tool.tag).toLowerCase()}><span class="v2-hot-no">{String(i+1).padStart(2,'0')}</span><span class="v2-hot-icon">{tool.icon}</span><span class="v2-hot-tag">{tool.tag}</span><h3>{tool.title}</h3><p>{tool.desc}</p><b>Open tool <span>↗</span></b></a>)}</div>
+    <div id="v2Empty" hidden class="v2-empty">Nothing found. <a href="/utilities/">Open the full utility index →</a></div>
   </section>
 
-  <section class="section quick-section"><div class="section-rule"><span>02</span><span>QUICK UTILITY INDEX</span><span>FAST / LOCAL / FREE</span></div>
-    <div class="section-intro"><div><span class="eyebrow">QUICK TOOLS</span><h2>One tiny task.<br><em>One tiny tool.</em></h2></div><p>Calculations, dates, conversions and text utilities for “I just need this done” moments.</p></div>
-    <div class="quick-grid">{utilities.map(item=><a data-search={(item.label||item.slug)+' calculator utility converter timer text'} href={'/utilities/'+item.slug+'/'}><span>{item.label}</span><small>Open →</small></a>)}</div>
+  <section class="v2-marquee"><span>IMAGE</span><b>×</b><span>PDF</span><b>×</b><span>MONEY</span><b>×</b><span>AI</span><b>×</b><span>DEVELOPER</span><b>×</b><span>TEXT</span><b>×</b><span>IMAGE</span><b>×</b><span>PDF</span></section>
+
+  <section class="v2-section v2-categories">
+    <div class="v2-section-head"><div><span class="v2-number">02</span><h2>Pick a<br/><em>world.</em></h2></div><p>Four high-intent clusters. Enter the category, finish the job, leave.</p></div>
+    <div class="v2-category-grid">{categories.map(c=><a href={c.href} class="v2-category"><span>{c.n}</span><div><small>{c.label}</small><h3>{c.desc}</h3><p>{c.items.join(' · ')}</p></div><strong>↗</strong></a>)}</div>
   </section>
 
-  <section class="section live-section"><div class="section-rule"><span>03</span><span>THE PARADOX NETWORK</span><span>LIVE / DAILY / SIGNALS</span></div><div class="live-intro"><div><span class="eyebrow">COME BACK</span><h2>Useful once.<br><em>Useful again.</em></h2><p>Three spaces that change over time: a tiny daily challenge, a live world desk and a public AI signal board.</p></div><div class="live-actions"><a class="live-card" href="/daily/"><span>🔥</span><div><b>PARADOX Daily</b><small>5-second challenge · streak · share</small></div><strong>→</strong></a><a class="live-card" href="/world/"><span>🌍</span><div><b>World Desk</b><small>Live weather · currency · country facts</small></div><strong>→</strong></a><a class="live-card" href="/ai-radar/"><span>✦</span><div><b>AI Radar</b><small>Live public AI model and developer signals</small></div><strong>→</strong></a></div></div></section>
+  <section class="v2-ai">
+    <div class="v2-ai-copy"><span class="v2-number">03 / AI</span><h2>AI is useful<br/><em>when it ships.</em></h2><p>Prompt builders, token tools, JSON utilities, cost calculators and developer helpers that run without an API key.</p><a href="/ai/" class="v2-button">ENTER AI LAB ↗</a></div>
+    <div class="v2-ai-stack">{aiTools.slice(0,5).map((t,i)=><a href={'/ai/'+t.slug+'/'}><span>{String(i+1).padStart(2,'0')}</span><b>{t.label}</b><small>{t.description}</small><strong>↗</strong></a>)}</div>
+  </section>
 
-  <section class="section final-cta" id="guides"><div class="final-cta-inner"><span class="eyebrow">NO HUNTING AROUND</span><h2>Search once. Find the tool.</h2><p>PARADOX now covers AI workflows, developer utilities, calculators and practical generators in one place.</p><a class="button button-dark" href="/utilities/">Open the full utility library →</a></div></section>
+  <section class="v2-section v2-return">
+    <div class="v2-return-card"><span>THE PARADOX LOOP</span><h2>Find it.<br/><em>Use it.</em><br/>Come back.</h2><p>Daily challenges, live signals and a growing index give PARADOX a reason to be useful beyond one search.</p><div><a href="/daily/">Daily ↗</a><a href="/trending/">Trending ↗</a><a href="/world/">World ↗</a><a href="/ai-radar/">AI Radar ↗</a></div></div>
+  </section>
 </main>
 <script is:inline>
-(() => {
- const input=document.querySelector('#toolSearch'),cards=[...document.querySelectorAll('[data-search]')],empty=document.querySelector('#noResults');if(!input)return;
- input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let shown=0;cards.forEach(c=>{const ok=!q||c.dataset.search.toLowerCase().includes(q);c.hidden=!ok;if(ok)shown++});if(empty)empty.hidden=shown>0||!q;});
- window.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==input&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();input.focus()}});
-})();
-</script>
-<script is:inline>
-const hero=document.querySelector('[data-tilt]');
-if(hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-  hero.addEventListener('pointermove',e=>{
-    const r=hero.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-    hero.style.transform=`perspective(900px) rotateX(${y*-2.5}deg) rotateY(${x*3}deg) translateY(-2px)`;
-  });
-  hero.addEventListener('pointerleave',()=>hero.style.transform='');
-}
+(()=>{const i=document.querySelector('#v2Search'),cards=[...document.querySelectorAll('[data-v2-search]')],e=document.querySelector('#v2Empty');if(!i)return;const run=()=>{const q=i.value.trim().toLowerCase();let n=0;cards.forEach(c=>{const ok=!q||c.dataset.v2Search.includes(q);c.hidden=!ok;if(ok)n++});e.hidden=!!n||!q};i.addEventListener('input',run);addEventListener('keydown',x=>{if(x.key==='/'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){x.preventDefault();i.focus()}})})();
 </script>
 <style>
-.ai-spotlight{background:#171717;color:#fff;border-radius:28px;padding:clamp(1.25rem,3vw,3rem);margin:0 auto 5rem;max-width:1200px}.ai-spotlight-head{display:flex;justify-content:space-between;gap:2rem;align-items:end;margin-bottom:2rem}.ai-spotlight h2{font-size:clamp(2.5rem,5vw,4.5rem);line-height:.93;margin:.5rem 0 1rem;letter-spacing:-.04em}.ai-spotlight h2 em{font-family:Georgia,serif;font-weight:400}.ai-spotlight p{max-width:650px;color:#bdbdbd;line-height:1.6}.ai-feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#383838;border:1px solid #383838;overflow:hidden;border-radius:18px}.ai-feature-card{background:#202020;color:#fff;padding:1.2rem;min-height:190px;display:flex;flex-direction:column;gap:.8rem;transition:background .18s,transform .18s}.ai-feature-card:hover{background:#282828;transform:translateY(-2px)}.ai-index{font-family:monospace;font-size:.72rem;color:#858585}.ai-symbol{font-size:1.35rem;color:#fff}.ai-feature-card h3{font-size:1rem;margin:0 0 .35rem}.ai-feature-card p{font-size:.84rem!important;margin:0!important;color:#aaa!important;line-height:1.45!important}.ai-feature-card .tool-arrow{margin-top:auto;color:#fff}.ai-bottom-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1px;margin-top:1rem;background:#383838;border-radius:14px;overflow:hidden}.ai-bottom-row a{background:#202020;color:#fff;padding:1rem;display:flex;flex-direction:column;gap:.25rem}.ai-bottom-row a:hover{background:#282828}.ai-bottom-row strong{font-size:.92rem}.ai-bottom-row small{color:#999}.ai-bottom-row b{font-size:.75rem;margin-top:.55rem;color:#ddd}.ai-bottom-row .live-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:#7ee787;margin-bottom:.4rem}.ai-feature-card[hidden],.tool-card[hidden],.quick-grid a[hidden]{display:none}@media(max-width:900px){.ai-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ai-bottom-row{grid-template-columns:1fr 1fr}.ai-spotlight-head{align-items:start;flex-direction:column}}@media(max-width:560px){.ai-feature-grid,.ai-bottom-row{grid-template-columns:1fr}.ai-spotlight{border-radius:18px}}
-
-/* Awwwards-inspired art direction: original PARADOX treatment */
-.home-hero{isolation:isolate}
-.home-hero:after{content:'01';position:absolute;left:-12px;bottom:32px;font:700 10px 'DM Mono',monospace;color:var(--muted);writing-mode:vertical-rl;letter-spacing:.18em}
-.hero-copy h1{max-width:900px}
-.hero-copy h1 em{position:relative;display:inline-block}
-.hero-copy h1 em:after{content:'';position:absolute;left:0;right:-5%;bottom:-8px;height:2px;background:var(--accent);transform:rotate(-1.5deg)}
-.hero-feature{transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.feature-emoji{transform:translateZ(35px);transition:transform .35s}
-.popular-list{margin-top:20px;border-top:1px solid #343731}
-.popular-list a{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid #343731;font:11px 'DM Mono',monospace}
-.popular-list a:hover{color:var(--yellow);padding-left:5px}
-.popular-list b{color:#777}
-.popular-list small{color:#777;font-size:8px;text-transform:uppercase}
-.section-rule{display:flex;justify-content:space-between;gap:15px;margin:-65px 0 42px;padding-bottom:10px;border-bottom:1px solid var(--line);font:8px 'DM Mono',monospace;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-.section-rule span:first-child{color:var(--accent)}
-.ai-spotlight{position:relative;overflow:hidden}
-.ai-spotlight:before{content:'AI';position:absolute;right:-30px;top:-75px;font:700 220px/.8 'DM Mono',monospace;color:rgba(255,255,255,.025);pointer-events:none}
-.ai-feature-card{position:relative;overflow:hidden}
-.ai-feature-card:after{content:'↗';position:absolute;right:16px;top:14px;font:16px 'DM Mono',monospace;color:#555;transition:.2s}
-.ai-feature-card:hover:after{color:var(--yellow);transform:translate(2px,-2px)}
-.tool-card{overflow:hidden}
-.tool-card:after{content:'';position:absolute;width:110px;height:110px;border-radius:50%;right:-60px;bottom:-60px;background:var(--yellow);opacity:0;transition:.3s}
-.tool-card:hover:after{opacity:.7}
-.quick-grid a{position:relative;overflow:hidden}
-.quick-grid a:before{content:'→';position:absolute;right:18px;top:8px;font:18px 'DM Mono',monospace;color:var(--line);transition:.2s}
-.quick-grid a:hover:before{color:var(--accent);transform:translate(3px,-3px)}
-.live-section{position:relative}
-.live-card{position:relative;overflow:hidden}
-.live-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transform-origin:bottom;transition:.25s}
-.live-card:hover:before{transform:scaleY(1)}
-@media(max-width:900px){.section-rule{margin:-40px 0 30px}.home-hero:after{display:none}}
-@media(max-width:560px){.section-rule{font-size:7px}.section-rule span:nth-child(2){display:none}.hero-copy h1 em:after{bottom:-4px}}
-@media(prefers-reduced-motion:reduce){.hero-feature,.tool-card,.ai-feature-card,.live-card{transition:none!important}.hero-copy h1 em:after{transform:none}}
+.v2-home{--v2-black:#0b0d0d;--v2-paper:#f4f1e8;--v2-acid:#d9ff3f;--v2-red:#ff5638;--v2-grey:#777970;max-width:1440px;margin:auto;background:var(--v2-paper);color:var(--v2-black);overflow:hidden}
+.v2-hero{min-height:100svh;padding:22px clamp(18px,4vw,62px) 0;display:flex;flex-direction:column;background:var(--v2-paper)}
+.v2-meta{display:flex;justify-content:space-between;border-bottom:1px solid #aaa79e;padding-bottom:13px;font:9px 'DM Mono',monospace;letter-spacing:.13em}
+.v2-hero-grid{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;flex:1;gap:5vw;padding:6vh 0}
+.v2-kicker{font:10px 'DM Mono',monospace;letter-spacing:.16em;margin:0 0 25px}.v2-kicker i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--v2-red);margin-right:8px}
+.v2-hero h1{font:700 clamp(90px,14vw,210px)/.72 'DM Sans',sans-serif;letter-spacing:-.09em;margin:0 0 42px}.v2-hero h1 em,.v2-section h2 em,.v2-ai h2 em,.v2-return-card h2 em{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-.06em}
+.v2-lead{max-width:590px;font-size:clamp(15px,1.4vw,19px);line-height:1.5;color:#4f514c}
+.v2-search{display:flex;align-items:center;gap:12px;height:70px;max-width:690px;margin-top:30px;border:1px solid var(--v2-black);background:#fffdf7;padding:0 18px;box-shadow:9px 9px 0 var(--v2-black);transition:.2s}.v2-search:focus-within{transform:translate(-4px,-4px);box-shadow:13px 13px 0 var(--v2-acid)}.v2-search span{font-size:28px}.v2-search input{border:0;outline:0;background:transparent;width:100%;font-size:16px}.v2-search kbd{font:9px 'DM Mono';border:1px solid #bbb;padding:5px 8px}
+.v2-pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}.v2-pills a,.v2-button{font:9px 'DM Mono',monospace;letter-spacing:.1em;border:1px solid var(--v2-black);padding:10px 13px}.v2-pills a:hover{background:var(--v2-black);color:white}
+.v2-orbit{height:min(44vw,560px);min-height:350px;position:relative;display:grid;place-items:center}.orbit-ring{position:absolute;border:1px solid #b7b5ad;border-radius:50%;transform:rotate(-25deg)}.ring-a{width:86%;height:48%}.ring-b{width:68%;height:72%;transform:rotate(65deg)}.orbit-core{width:155px;height:155px;border-radius:50%;background:var(--v2-black);color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:15px 15px 0 var(--v2-red);z-index:2}.orbit-core span{font:700 45px 'DM Sans';letter-spacing:-.08em}.orbit-core small{font:8px 'DM Mono';line-height:1.2;letter-spacing:.14em;color:#aaa}.orbit-label{position:absolute;font:9px 'DM Mono';border:1px solid var(--v2-black);padding:8px;background:var(--v2-paper)}.l1{top:14%;left:12%}.l2{top:23%;right:6%}.l3{bottom:18%;left:7%}.l4{bottom:11%;right:15%}
+.v2-ticker{height:45px;margin:0 -62px;background:var(--v2-black);color:white;display:flex;align-items:center;gap:24px;white-space:nowrap;overflow:hidden;font:9px 'DM Mono';letter-spacing:.12em}.v2-ticker strong{color:var(--v2-acid)}.v2-ticker span,.v2-ticker b{padding-left:18px}
+.v2-section{padding:clamp(90px,11vw,170px) clamp(18px,4vw,62px)}.v2-section-head{display:grid;grid-template-columns:1fr .55fr;gap:5vw;align-items:end;margin-bottom:55px}.v2-number{font:9px 'DM Mono';letter-spacing:.15em;color:var(--v2-red)}.v2-section h2{font:700 clamp(62px,8vw,120px)/.8 'DM Sans';letter-spacing:-.075em;margin:18px 0 0}.v2-section-head p{max-width:420px;color:#60615b;line-height:1.6}
+.v2-hot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#bbb8ae;border:1px solid #bbb8ae}.v2-hot{min-height:310px;padding:22px;background:#faf8f1;display:flex;flex-direction:column;position:relative;transition:transform .25s,background .25s}.v2-hot:hover{background:white;transform:translateY(-7px);z-index:2}.v2-hot-no{font:9px 'DM Mono';color:#8c8d86}.v2-hot-icon{font:34px 'DM Mono';margin-top:55px}.v2-hot-tag{position:absolute;right:18px;top:20px;font:8px 'DM Mono';padding:5px 7px;border:1px solid #bbb8ae}.v2-hot h3{font-size:19px;margin:18px 0 5px;letter-spacing:-.03em}.v2-hot p{font-size:12px;line-height:1.45;color:#777970;margin:0}.v2-hot b{margin-top:auto;font:9px 'DM Mono';letter-spacing:.08em}.v2-hot b span{color:var(--v2-red);font-size:14px}
+.v2-marquee{background:var(--v2-acid);height:80px;display:flex;align-items:center;justify-content:space-around;overflow:hidden;white-space:nowrap;font:700 clamp(18px,3vw,38px) 'DM Sans';letter-spacing:-.06em}.v2-marquee b{font-weight:400}
+.v2-category-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid #aaa79e}.v2-category{display:grid;grid-template-columns:60px 1fr 40px;gap:15px;padding:25px 10px;border-bottom:1px solid #aaa79e;transition:.2s}.v2-category:hover{background:#fff}.v2-category>span{font:10px 'DM Mono';color:var(--v2-red)}.v2-category small{font:9px 'DM Mono';letter-spacing:.12em}.v2-category h3{font-size:24px;margin:8px 0}.v2-category p{font:11px 'DM Mono';color:#777970}.v2-category strong{font:22px 'DM Mono';align-self:center}
+.v2-ai{background:var(--v2-black);color:white;padding:clamp(70px,10vw,150px) clamp(18px,4vw,62px);display:grid;grid-template-columns:1fr 1fr;gap:7vw}.v2-ai h2{font:700 clamp(62px,7vw,110px)/.8 'DM Sans';letter-spacing:-.07em;margin:20px 0}.v2-ai-copy p{max-width:470px;color:#9da09a;line-height:1.6;margin-bottom:32px}.v2-button{display:inline-block;border-color:#666}.v2-button:hover{background:white;color:black}.v2-ai-stack{border-top:1px solid #383b38}.v2-ai-stack a{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;padding:19px 0;border-bottom:1px solid #383b38;color:white}.v2-ai-stack span{font:9px 'DM Mono';color:#666}.v2-ai-stack b{font-size:15px}.v2-ai-stack small{grid-column:2;font-size:11px;color:#858982}.v2-ai-stack strong{grid-column:3;grid-row:1/3}.v2-ai-stack a:hover{color:var(--v2-acid)}
+.v2-return{background:#e9e5da}.v2-return-card{border-top:2px solid var(--v2-black);padding-top:25px;max-width:1100px}.v2-return-card>span{font:9px 'DM Mono';letter-spacing:.12em}.v2-return-card h2{font:700 clamp(70px,10vw,145px)/.72 'DM Sans';letter-spacing:-.08em;margin:35px 0}.v2-return-card p{max-width:470px;color:#64665f}.v2-return-card>div{display:flex;flex-wrap:wrap;gap:1px;margin-top:40px}.v2-return-card a{padding:13px 18px;border:1px solid #aaa79e;font:9px 'DM Mono'}.v2-return-card a:hover{background:var(--v2-black);color:white}.v2-empty{padding:35px;border:1px dashed #aaa79e}.v2-empty a{text-decoration:underline}
+.v2-hot[hidden]{display:none}
+@media(max-width:900px){.v2-hero-grid,.v2-ai,.v2-section-head{grid-template-columns:1fr}.v2-orbit{height:420px}.v2-hot-grid{grid-template-columns:repeat(2,1fr)}.v2-ticker{margin:0 -18px}.v2-section-head{gap:25px}}
+@media(max-width:560px){.v2-meta span:nth-child(2){display:none}.v2-hero{padding-top:16px}.v2-hero h1{font-size:clamp(80px,24vw,120px)}.v2-orbit{min-height:290px;height:290px}.orbit-core{width:120px;height:120px}.orbit-core span{font-size:34px}.v2-hot-grid{grid-template-columns:1fr}.v2-hot{min-height:245px}.v2-hot-icon{margin-top:30px}.v2-category-grid{grid-template-columns:1fr}.v2-category h3{font-size:19px}.v2-ai-stack small{display:none}}
 </style>
 </MakerLayout>
