@@ -23,8 +23,11 @@ const jsonLd = {
   operatingSystem:'Web Browser',
   isAccessibleForFree:true,
   offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},
-  featureList:[item.toolLabel || item.targetComponent || item.toolId || 'Utility generator','No account required','Browser-based','Print-ready output']
+  featureList:[item.toolLabel || item.targetComponent || item.toolId || 'Utility generator','No account required','Browser-based','Print-ready output'],
+  creator:{'@type':'Organization',name:'PARADOX',url:'https://paradox.engineer/'},
+  potentialAction:{'@type':'UseAction',target:canonical}
 };
+const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 const mode = item.mode || ({
   'classroom-bingo':'bingo',
   'word-search-puzzles':'words',
@@ -87,5 +90,5 @@ const faq = [
       <div class="maker-guide-grid">{faq.map(([q,a]) => <article class="maker-guide"><strong>{q}</strong><br/>{a}</article>)}</div>
     </section>
   </main>
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  <script type="application/ld+json" set:html={jsonLdText}></script>
 </MakerLayout>
