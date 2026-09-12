@@ -69,7 +69,7 @@ for(const signal of signals){
  if(score<=80)continue;
  candidates.push({
   slug:`${text(signal.query).replace(/[^a-z0-9]+/g,'-')}-${match.tool.mode}-generator`,
-  title:`${match.tool.terms[0].replace(/\\b\\w/g,c=>c.toUpperCase())} for ${signal.query}`,
+  title:`${match.tool.terms[0].replace(/\b\w/g,c=>c.toUpperCase())} for ${signal.query}`,
   description:`Use a free browser tool for ${signal.query}. No account or upload required.`,
   query:signal.query,geo:signal.geo,toolId:match.tool.id,toolLabel:match.tool.id.replace(/-/g,' '),
   toolRoute:match.tool.route,topic:match.tool.mode,score,
@@ -86,5 +86,5 @@ await fs.writeFile(OUT,JSON.stringify({
  formula:'((Demand Velocity × Utility Intent) / Competition Saturation) × Feasibility Multiplier',
  thresholds:{minScore:80,maxTargets:50},signalCount:signals.length,
  opportunities:verified
-},null,2)+'\\n');
+},null,2)+'\n');
 console.log(`Scoring: ${verified.length} verified opportunities from ${signals.length} normalized signals.`);
