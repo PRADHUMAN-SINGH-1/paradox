@@ -2,6 +2,7 @@
 import MakerLayout from '../layouts/MakerLayout.astro';
 import verified from '../data/verified_opportunities.json';
 import utilityOpportunities from '../data/utility-opportunities.json';
+import aiTools from '../data/ai-tools.json';
 
 const tools=[
   {icon:'🎲',name:'Bingo cards',desc:'Make a custom printable card in seconds.',href:'/bingo-card-generator/',tags:'bingo classroom school party game'},
@@ -27,33 +28,35 @@ const utilities = utilityOpportunities.length ? utilityOpportunities.slice(0,8) 
 
 const opportunityList = Array.isArray(verified) ? verified.filter(item => item.route).slice(0,6) : [];
 const popular = opportunityList.length ? opportunityList : [
-  {label:'Percentage calculator',route:'/utilities/percentage-calculator/',score:0},
-  {label:'Age calculator',route:'/utilities/age-calculator/',score:0},
-  {label:'Random team generator',route:'/random-team-generator/',score:0},
-  {label:'Tournament bracket generator',route:'/tournament-bracket-generator/',score:0},
-  {label:'Word search generator',route:'/word-search-generator/',score:0},
-  {label:'Bingo card generator',route:'/bingo-card-generator/',score:0}
+  {label:'Percentage calculator',route:'/utilities/percentage-calculator/'},
+  {label:'Age calculator',route:'/utilities/age-calculator/'},
+  {label:'Random team generator',route:'/random-team-generator/'},
+  {label:'Tournament bracket generator',route:'/tournament-bracket-generator/'},
+  {label:'Word search generator',route:'/word-search-generator/'},
+  {label:'Bingo card generator',route:'/bingo-card-generator/'}
 ];
+
+const featuredAI = aiTools.slice(0,8);
 ---
-<MakerLayout title="PARADOX — Free tools that get the job done" description="Free browser tools for calculators, teams, puzzles, brackets, raffles, charts and everyday jobs. No account required.">
+<MakerLayout title="PARADOX — Free tools that get the job done" description="Free browser tools for AI, calculators, teams, puzzles, brackets, raffles, charts and everyday jobs. No account required.">
 <main class="home">
   <section class="home-hero">
     <div class="hero-copy">
       <div class="eyebrow"><span class="live-dot"></span> FREE · NO ACCOUNT · NO UPLOADS</div>
       <h1>Need to get<br><em>something done?</em></h1>
-      <p class="hero-lead">Skip the signup. Pick a tool. Get the result. PARADOX is a growing collection of small browser tools for real-world jobs.</p>
+      <p class="hero-lead">Skip the signup. Pick a tool. Get the result. PARADOX is a growing collection of practical browser tools for work, school, coding and everyday jobs.</p>
       <div class="hero-search">
         <span>⌕</span>
-        <input id="toolSearch" type="search" placeholder="Search: percentage, teams, bracket, bingo…" aria-label="Search tools" autocomplete="off">
+        <input id="toolSearch" type="search" placeholder="Search AI, JSON, tokens, percentage, teams, bracket…" aria-label="Search tools" autocomplete="off">
         <kbd>/</kbd>
       </div>
-      <div class="hero-links"><a class="button button-dark" href="#tools">Browse the toolbox</a><a class="text-link" href="/utilities/">Open calculators →</a></div>
+      <div class="hero-links"><a class="button button-dark" href="#ai-tools">Explore AI tools</a><a class="text-link" href="#tools">Browse everything →</a></div>
     </div>
     <div class="hero-feature">
       <div class="feature-label">POPULAR RIGHT NOW</div>
       <div class="feature-emoji">↗</div>
       <div class="feature-body">
-        <span>Useful searches surfaced from the demand pipeline</span>
+        <span>Fast answers for common tasks</span>
         <div class="popular-list">
           {popular.map((item,index)=><a href={item.route}><b>{String(index+1).padStart(2,'0')}</b><span>{item.label}</span><small>Use it →</small></a>)}
         </div>
@@ -61,14 +64,39 @@ const popular = opportunityList.length ? opportunityList : [
     </div>
   </section>
 
-  <section class="trust-strip"><span>Works in your browser</span><span>No signup</span><span>Mobile friendly</span><span>Private by default</span><span>Printable results</span></section>
+  <section class="trust-strip"><span>Works in your browser</span><span>No signup</span><span>Mobile friendly</span><span>Private by default</span><span>Free to use</span></section>
+
+  <section class="section ai-spotlight" id="ai-tools">
+    <div class="ai-spotlight-head">
+      <div>
+        <span class="eyebrow">NEW · AI TOOLKIT</span>
+        <h2>AI work,<br><em>without the friction.</em></h2>
+        <p>Prompts, tokens, JSON, API costs and developer tasks. No API key. No account. Most transformations run locally in your browser.</p>
+      </div>
+      <a class="button button-dark" href="/ai/">Open all 16 AI tools →</a>
+    </div>
+    <div class="ai-feature-grid">
+      {featuredAI.map((tool, index)=><a class="ai-feature-card" href={`/ai/${tool.slug}/`} data-search={tool.label+' '+tool.title+' '+tool.description+' '+tool.keywords.join(' ')}>
+        <span class="ai-index">{String(index+1).padStart(2,'0')}</span>
+        <span class="ai-symbol">{['✦','⌁','▦','₿','□','{}','⇄','◈'][index]}</span>
+        <div><h3>{tool.label}</h3><p>{tool.description}</p></div>
+        <span class="tool-arrow">Open →</span>
+      </a>)}
+    </div>
+    <div class="ai-bottom-row">
+      <a href="/ai-radar/"><span class="live-dot"></span><strong>AI Radar</strong><small>Live public model + developer signals</small><b>See what's moving →</b></a>
+      <a href="/ai/ai-token-counter/"><strong>Token counter</strong><small>Estimate prompt size</small><b>Try it →</b></a>
+      <a href="/ai/json-formatter/"><strong>JSON formatter</strong><small>Validate AI output</small><b>Try it →</b></a>
+      <a href="/ai/llm-cost-calculator/"><strong>LLM cost calculator</strong><small>Estimate API spend</small><b>Try it →</b></a>
+    </div>
+  </section>
 
   <section class="section tools-section" id="tools">
-    <div class="section-intro"><div><span class="eyebrow">THE TOOLBOX</span><h2>Pick a job.<br><em>Finish it.</em></h2></div><p>These are the things people actually use: make, pick, split, print, calculate.</p></div>
+    <div class="section-intro"><div><span class="eyebrow">THE TOOLBOX</span><h2>Everything else.<br><em>Still useful.</em></h2></div><p>Make, pick, split, print, calculate. Built around simple jobs people finish quickly.</p></div>
     <div class="tool-grid" id="toolGrid">
       {tools.map((tool,index)=><a class="tool-card" data-search={tool.name+' '+tool.desc+' '+tool.tags} href={tool.href}><div class="tool-icon">{tool.icon}</div><div class="tool-number">{String(index+1).padStart(2,'0')}</div><h3>{tool.name}</h3><p>{tool.desc}</p><span class="tool-arrow">Use it →</span></a>)}
     </div>
-    <div id="noResults" class="no-results" hidden>No exact match. Try <a href="/utilities/">the utility library →</a></div>
+    <div id="noResults" class="no-results" hidden>No exact match. Try <a href="/ai/">AI tools</a> or <a href="/utilities/">the utility library →</a></div>
   </section>
 
   <section class="section quick-section">
@@ -77,24 +105,39 @@ const popular = opportunityList.length ? opportunityList : [
   </section>
 
   <section class="section live-section">
-    <div class="live-intro"><div><span class="eyebrow">COME BACK</span><h2>Useful once.<br><em>Useful again.</em></h2><p>Two lightweight spaces that change over time: a tiny daily challenge and a live world desk.</p></div>
-    <div class="live-actions"><a class="live-card" href="/daily/"><span>🔥</span><div><b>PARADOX Daily</b><small>5-second challenge · streak · share</small></div><strong>→</strong></a><a class="live-card" href="/world/"><span>🌍</span><div><b>World Desk</b><small>Live weather · currency · country facts</small></div><strong>→</strong></a></div></div>
+    <div class="live-intro"><div><span class="eyebrow">COME BACK</span><h2>Useful once.<br><em>Useful again.</em></h2><p>Two spaces that change over time: a tiny daily challenge and a live world desk.</p></div>
+    <div class="live-actions"><a class="live-card" href="/daily/"><span>🔥</span><div><b>PARADOX Daily</b><small>5-second challenge · streak · share</small></div><strong>→</strong></a><a class="live-card" href="/world/"><span>🌍</span><div><b>World Desk</b><small>Live weather · currency · country facts</small></div><strong>→</strong></a><a class="live-card" href="/ai-radar/"><span>✦</span><div><b>AI Radar</b><small>Live public AI model and developer signals</small></div><strong>→</strong></a></div></div>
   </section>
 
-  <section class="section simple-section">
-    <div class="simple-grid"><div><span class="eyebrow">HOW IT WORKS</span><h2>Open.<br>Make.<br><em>Done.</em></h2></div>
-      <div class="simple-points"><article><b>01</b><div><h3>No account</h3><p>There is no registration wall between you and the tool.</p></div></article><article><b>02</b><div><h3>Browser-first</h3><p>Most tools run directly in your browser, so your inputs can stay on your device.</p></div></article><article><b>03</b><div><h3>Built for finishing</h3><p>Generate the thing you came for, then copy, print or share the result.</p></div></article></div>
-    </div>
-  </section>
-
-  <section class="section final-cta"><div class="final-cta-inner"><span class="eyebrow">NO HUNTING AROUND</span><h2>Tell PARADOX what you're trying to do.</h2><p>Use the search above, or start with the full collection.</p><a class="button button-dark" href="/utilities/">See all quick tools →</a></div></section>
+  <section class="section final-cta"><div class="final-cta-inner"><span class="eyebrow">NO HUNTING AROUND</span><h2>Search once. Find the tool.</h2><p>PARADOX now covers AI workflows, developer utilities, calculators and practical generators in one place.</p><a class="button button-dark" href="/ai/">Explore the AI toolkit →</a></div></section>
 </main>
 <script is:inline>
 (() => {
- const input=document.querySelector('#toolSearch'), cards=[...document.querySelectorAll('.tool-card')], empty=document.querySelector('#noResults');
+ const input=document.querySelector('#toolSearch');
+ const cards=[...document.querySelectorAll('.tool-card, .ai-feature-card')];
+ const aiSection=document.querySelector('#ai-tools');
  if(!input) return;
- input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let shown=0;cards.forEach(c=>{const ok=!q||c.dataset.search.toLowerCase().includes(q);c.hidden=!ok;if(ok)shown++});empty.hidden=shown>0});
+ input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let shown=0;cards.forEach(c=>{const ok=!q||c.dataset.search.toLowerCase().includes(q);c.hidden=!ok;if(ok)shown++});if(q&&!shown){location.href='/ai/?q='+encodeURIComponent(q)}});
  window.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==input&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();input.focus()}});
 })();
 </script>
+<style>
+.ai-spotlight{background:#171717;color:#fff;border-radius:28px;padding:clamp(1.25rem,3vw,3rem);margin:0 auto 5rem;max-width:1200px}
+.ai-spotlight-head{display:flex;justify-content:space-between;gap:2rem;align-items:end;margin-bottom:2rem}
+.ai-spotlight h2{font-size:clamp(2.5rem,5vw,4.5rem);line-height:.93;margin:.5rem 0 1rem;letter-spacing:-.04em}
+.ai-spotlight h2 em{font-family:Georgia,serif;font-weight:400}
+.ai-spotlight p{max-width:650px;color:#bdbdbd;line-height:1.6}
+.ai-feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#383838;border:1px solid #383838;overflow:hidden;border-radius:18px}
+.ai-feature-card{background:#202020;color:#fff;padding:1.2rem;min-height:190px;display:flex;flex-direction:column;gap:.8rem;transition:background .18s,transform .18s}
+.ai-feature-card:hover{background:#282828;transform:translateY(-2px)}
+.ai-index{font-family:monospace;font-size:.72rem;color:#858585}
+.ai-symbol{font-size:1.35rem;color:#fff}
+.ai-feature-card h3{font-size:1rem;margin:0 0 .35rem}
+.ai-feature-card p{font-size:.84rem!important;margin:0!important;color:#aaa!important;line-height:1.45!important}
+.ai-feature-card .tool-arrow{margin-top:auto;color:#fff}
+.ai-bottom-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1px;margin-top:1rem;background:#383838;border-radius:14px;overflow:hidden}
+.ai-bottom-row a{background:#202020;color:#fff;padding:1rem;display:flex;flex-direction:column;gap:.25rem}.ai-bottom-row a:hover{background:#282828}.ai-bottom-row strong{font-size:.92rem}.ai-bottom-row small{color:#999}.ai-bottom-row b{font-size:.75rem;margin-top:.55rem;color:#ddd}.ai-bottom-row .live-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:#7ee787;margin-bottom:.4rem}
+@media(max-width:900px){.ai-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ai-bottom-row{grid-template-columns:1fr 1fr}.ai-spotlight-head{align-items:start;flex-direction:column}}
+@media(max-width:560px){.ai-feature-grid,.ai-bottom-row{grid-template-columns:1fr}.ai-spotlight{border-radius:18px}}
+</style>
 </MakerLayout>
