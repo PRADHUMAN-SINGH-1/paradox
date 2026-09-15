@@ -17,10 +17,9 @@ const next = Astro.url.searchParams.get('next') || '/account/';
     <div id="message" class="message" role="status"></div>
   </div>
 </main>
-<script>
+<script define:vars={{ next }}>
   import { browserSupabase } from '../../lib/supabase';
   const supabase = browserSupabase();
-  const next = ${JSON.stringify(next)};
   let mode = 'login';
   const form = document.querySelector('#authForm');
   const message = document.querySelector('#message');
