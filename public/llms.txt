@@ -1,0 +1,11 @@
+# PARADOX
+
+PARADOX is a public AI-agent intelligence site for discovering, inspecting and comparing open AI agents, skills and developer workflows.
+
+Key public routes:
+- https://paradox.engineer/agents/ — discover public GitHub projects
+- https://paradox.engineer/verify/ — verify a public GitHub repository
+- https://paradox.engineer/compare/ — compare two public repositories
+- https://paradox.engineer/contact/ — product contact
+
+Automated analysis is based on public repository metadata and static indicators. It is not a security certification.

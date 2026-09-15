@@ -2,51 +2,36 @@
 import '../styles/global.css';
 const { title, description, canonical = 'https://paradox.engineer/' } = Astro.props;
 const year = new Date().getFullYear();
-const jsonLd = { '@context':'https://schema.org', '@type':'WebApplication', name:title.split(' — ')[0], url:canonical, description, applicationCategory:'UtilitiesApplication', operatingSystem:'Web Browser', offers:{'@type':'Offer', price:'0', priceCurrency:'INR'} };
+const jsonLd = { '@context':'https://schema.org', '@type':'WebSite', name:'PARADOX', url:'https://paradox.engineer/', description:'Discover, verify and compare public AI agents, skills and developer workflows.', potentialAction:{ '@type':'SearchAction', target:'https://paradox.engineer/agents/?q={search_term_string}', 'query-input':'required name=search_term_string' } };
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-5V0LJN6HTS');
-    </script>
-
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f7f5ef" />
-    <meta name="description" content={description} />
-    <meta name="google-adsense-account" content="ca-pub-4630615697632107" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:type" content="website" />
-    <link rel="canonical" href={canonical} />
+    <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090b0b" /><meta name="description" content={description} /><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" /><link rel="canonical" href={canonical} /><link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.85em' font-size='86'>✳</text></svg>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
-    <title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script><title>{title}</title>
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">PARADOX<span>/ ENGINE</span></a>
-      <nav class="site-nav">
-        <a href="/utilities/">Utilities</a><a href="/ai/">AI Lab</a><a href="/trending/">Trending</a><a href="/daily/">Daily</a>
-      </nav>
-      <div class="header-actions"><a class="header-search" href="/utilities/">⌕ <span>Find a tool</span></a><a class="header-cta" href="/utilities/">INDEX ↗</a></div>
+      <a class="brand" href="/">PARADOX<span>/ AGENT INTELLIGENCE</span></a>
+      <nav class="site-nav"><a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/about/">About</a></nav>
+      <div class="header-actions"><a class="header-search" href="/agents/">⌕ <span>Find agents</span></a><a class="header-cta" href="/auth/" data-auth-link>JOIN ↗</a></div>
     </header>
     <slot />
     <footer class="site-footer">
-      <div><strong>PARADOX TOOLS</strong><span>Free browser tools. No account. Your files stay on your device.</span></div>
-      <nav><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a></nav>
+      <div><strong>PARADOX</strong><span>Discover, inspect and compare public AI agents and skills.</span></div>
+      <nav><a href="/agents/">Discover</a><a href="/verify/">Verify an agent</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a></nav>
+      <div><a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn</a><a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a></div>
       <small>© {year} PARADOX ENGINEER</small>
     </footer>
+    <script type="module" src="/scripts/auth.js"></script>
   </body>
 </html>
