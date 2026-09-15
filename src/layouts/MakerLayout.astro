@@ -2,7 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import '../styles/design-system.css';
 import '../styles/awwwards.css';
-const props = Astro.props;
+const props = { ...Astro.props, robots: Astro.props.robots || 'noindex,nofollow' };
 ---
 <BaseLayout {...props}>
   <slot />
