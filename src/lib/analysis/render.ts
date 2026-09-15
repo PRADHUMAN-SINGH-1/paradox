@@ -1,7 +1,7 @@
 import type { Analysis } from './types.ts';
 
 export function escapeHtml(s: string): string {
-  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  return String(s).replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 }
 
 export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {}): string {
@@ -14,6 +14,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     : '<li>No static risk indicators matched the current rules.</li>';
   const reasons = x.verdictReasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('');
   const compare = opts.compareHref || `/compare/?left=${encodeURIComponent(x.meta.fullName)}`;
+  const liveProfile = `/agents/view/?repo=${encodeURIComponent(x.meta.fullName)}`;
   return `
   <div class="result-head">
     <div>
@@ -65,8 +66,8 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   </div>
   <div class="actions-row">
     <button class="save" type="button" data-save>Save this analysis</button>
-    <a href="${escapeHtml(x.meta.htmlUrl)}" rel="noopener noreferrer" data-github>Open GitHub</a>
+    <a href="${escapeHtml(x.meta.htmlUrl)}" target="_blank" rel="noopener noreferrer" data-github>Open GitHub</a>
     <a href="${compare}">Compare</a>
-    <a href="/agents/${escapeHtml(x.meta.owner)}/${escapeHtml(x.meta.name)}/">Agent page</a>
+    <a href="${liveProfile}">Agent page</a>
   </div>`;
 }
