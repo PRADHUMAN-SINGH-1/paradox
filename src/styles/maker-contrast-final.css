@@ -1,0 +1,101 @@
+/* Final contrast guard for Maker pages. Loaded after legacy editorial styles so no light-surface text can disappear. */
+.maker-main,
+.maker-section,
+.utility-seo-copy,
+.maker-why,
+.generator-info,
+.generator-faq {
+  color: #151816 !important;
+  background: #f4f1e9 !important;
+}
+
+.maker-section,
+.utility-seo-copy {
+  opacity: 1 !important;
+}
+
+.maker-section .maker-section-head,
+.utility-seo-copy .maker-section-head {
+  color: #151816 !important;
+}
+
+.maker-section .maker-label,
+.utility-seo-copy .maker-label {
+  color: #4a514c !important;
+  opacity: 1 !important;
+  font-family: 'DM Mono', monospace !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+}
+
+.maker-section h1,
+.maker-section h2,
+.maker-section h3,
+.utility-seo-copy h1,
+.utility-seo-copy h2,
+.utility-seo-copy h3 {
+  color: #111412 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.maker-section h2 em,
+.utility-seo-copy h2 em {
+  color: #e84e38 !important;
+}
+
+.maker-section p,
+.utility-seo-copy p,
+.maker-why p {
+  color: #515954 !important;
+  opacity: 1 !important;
+}
+
+.maker-section a,
+.utility-seo-copy a,
+.maker-why a {
+  color: #202622 !important;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.maker-section a:hover,
+.utility-seo-copy a:hover,
+.maker-why a:hover {
+  color: #e84e38 !important;
+}
+
+.generator-info {
+  border-color: #cbc7bd !important;
+}
+
+.generator-info h2,
+.generator-info h3 {
+  color: #151816 !important;
+  opacity: 1 !important;
+}
+
+.generator-info p,
+.generator-info li {
+  color: #555c56 !important;
+  opacity: 1 !important;
+}
+
+.generator-faq h2,
+.generator-faq h3 {
+  color: #151816 !important;
+  opacity: 1 !important;
+}
+
+.generator-faq p {
+  color: #555c56 !important;
+  opacity: 1 !important;
+}
+
+/* Prevent inherited dark-theme opacity/white text from leaking onto the paper surface. */
+.maker-section [class*='label'],
+.maker-section [class*='copy'],
+.maker-section [class*='lead'],
+.maker-section [class*='intro'] {
+  opacity: 1 !important;
+}
