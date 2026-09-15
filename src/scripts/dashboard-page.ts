@@ -8,15 +8,18 @@ function esc(s: string) {
 
 function localMode() {
   const email = document.querySelector('#accountEmail');
+  const profileEmail = document.querySelector('#profileEmail');
   const saved = document.querySelector('#savedAgents');
   const history = document.querySelector('#scanHistory');
   if (email) email.textContent = 'Local device mode — sign in to sync across devices.';
+  if (profileEmail) profileEmail.textContent = 'No authenticated session is active. Local results remain on this device until you sign in.';
   renderSaved(saved, getLocalSavedAgents().map((x) => ({ ...x, local: true })));
   renderHistory(history, getLocalScans().map((x) => ({ ...x, repository_url: `https://github.com/${x.repository}` })));
 }
 
 async function boot() {
   const email = document.querySelector('#accountEmail');
+  const profileEmail = document.querySelector('#profileEmail');
   const saved = document.querySelector('#savedAgents');
   const history = document.querySelector('#scanHistory');
   if (!supabase) {
@@ -28,7 +31,9 @@ async function boot() {
     localMode();
     return;
   }
-  if (email) email.textContent = user.email || user.id;
+  const identity = user.email || user.id;
+  if (email) email.textContent = identity;
+  if (profileEmail) profileEmail.textContent = `Signed in as ${identity}. This account is the owner of your saved agents and scan history.`;
   track('scan_history_opened');
   const s = await supabase.from('saved_agents').select('*').order('created_at', { ascending: false }).limit(50);
   const h = await supabase.from('scan_history').select('*').order('created_at', { ascending: false }).limit(50);
@@ -87,6 +92,7 @@ document.querySelector('#clearHistory')?.addEventListener('click', async () => {
     return;
   }
   await supabase.from('scan_history').delete().eq('user_id', user.id);
+  track('scan_history_cleared');
   boot();
 });
 
