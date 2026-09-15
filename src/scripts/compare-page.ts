@@ -2,16 +2,20 @@ import { fetchAnalysis } from '../lib/analysis/fetch.ts';
 import { track } from '../lib/analytics.ts';
 import { parseRepoRef } from '../lib/github-url.ts';
 
-function row(label: string, a: string, b: string): string {
-  return `<tr><th>${label}</th><td>${a}</td><td>${b}</td></tr>`;
+function escapeHtml(value: unknown): string {
+  return String(value ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+}
+
+function row(label: string, a: unknown, b: unknown): string {
+  return `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(a)}</td><td>${escapeHtml(b)}</td></tr>`;
 }
 
 function scoreBar(label: string, a: number, b: number): string {
-  return `<div><span>${label}</span><i style="--v:${Math.max(0, Math.min(100, a))}%"></i><b>${a}</b><small>${b}</small></div>`;
+  return `<div><span>${escapeHtml(label)}</span><i style="--v:${Math.max(0, Math.min(100, a))}%"></i><b>${escapeHtml(a)}</b><small>${escapeHtml(b)}</small></div>`;
 }
 
 function scoreCard(name: string, score: number, x: { health: number; freshness: number; documentation: number; activity: number; risk: number }, side: string): string {
-  return `<article class="pp-score-card"><span class="kicker">${side} / REPOSITORY</span><h3>${name}</h3><strong>${score}/100</strong><div class="pp-score-bars">
+  return `<article class="pp-score-card"><span class="kicker">${side} / REPOSITORY</span><h3>${escapeHtml(name)}</h3><strong>${escapeHtml(score)}/100</strong><div class="pp-score-bars">
     ${scoreBar('HEALTH', x.health, 0).replace(`<b>${x.health}</b><small>0</small>`, `<b>${x.health}</b><small></small>`)}
     ${scoreBar('FRESHNESS', x.freshness, 0).replace(`<b>${x.freshness}</b><small>0</small>`, `<b>${x.freshness}</b><small></small>`)}
     ${scoreBar('DOCS', x.documentation, 0).replace(`<b>${x.documentation}</b><small>0</small>`, `<b>${x.documentation}</b><small></small>`)}
@@ -47,30 +51,30 @@ export function bootCompare() {
         </div>
         <div class="table-wrap">
           <table class="compare-table">
-            <thead><tr><th>Signal</th><th>${x.meta.fullName}</th><th>${y.meta.fullName}</th></tr></thead>
+            <thead><tr><th>Signal</th><th>${escapeHtml(x.meta.fullName)}</th><th>${escapeHtml(y.meta.fullName)}</th></tr></thead>
             <tbody>
               ${row('Verdict', x.verdict, y.verdict)}
-              ${row('PARADOX SCORE', String(x.scores.paradox), String(y.scores.paradox))}
-              ${row('Health', String(x.scores.health), String(y.scores.health))}
-              ${row('Freshness', String(x.scores.freshness), String(y.scores.freshness))}
-              ${row('Documentation', String(x.scores.documentation), String(y.scores.documentation))}
-              ${row('Activity', String(x.scores.activity), String(y.scores.activity))}
-              ${row('Risk (higher = more indicators)', String(x.scores.risk), String(y.scores.risk))}
-              ${row('Stars', String(x.meta.stars), String(y.meta.stars))}
-              ${row('Forks', String(x.meta.forks), String(y.meta.forks))}
-              ${row('Open issues', String(x.meta.openIssues), String(y.meta.openIssues))}
+              ${row('PARADOX SCORE', x.scores.paradox, y.scores.paradox)}
+              ${row('Health', x.scores.health, y.scores.health)}
+              ${row('Freshness', x.scores.freshness, y.scores.freshness)}
+              ${row('Documentation', x.scores.documentation, y.scores.documentation)}
+              ${row('Activity', x.scores.activity, y.scores.activity)}
+              ${row('Risk (higher = more indicators)', x.scores.risk, y.scores.risk)}
+              ${row('Stars', x.meta.stars, y.meta.stars)}
+              ${row('Forks', x.meta.forks, y.meta.forks)}
+              ${row('Open issues', x.meta.openIssues, y.meta.openIssues)}
               ${row('License', cell(x.meta.license), cell(y.meta.license))}
               ${row('Language', cell(x.meta.language), cell(y.meta.language))}
               ${row('Last push', cell(x.meta.pushedAt), cell(y.meta.pushedAt))}
               ${row('Release', cell(x.latestRelease), cell(y.latestRelease))}
               ${row('Contributors (sample)', cell(x.contributors), cell(y.contributors))}
-              ${row('High-risk indicators', String(x.risks.filter(r=>r.severity==='HIGH').length), String(y.risks.filter(r=>r.severity==='HIGH').length))}
+              ${row('High-risk indicators', x.risks.filter(r=>r.severity==='HIGH').length, y.risks.filter(r=>r.severity==='HIGH').length)}
               ${row('Models/tools detected', x.detections.map(d=>d.name).join(', ') || 'Unknown', y.detections.map(d=>d.name).join(', ') || 'Unknown')}
             </tbody>
           </table>
         </div>
         <p class="method">Missing values are shown as Unknown. This is static analysis, not a ranking of safety.</p>
-        <p><a href="/verify/?url=${encodeURIComponent(x.meta.htmlUrl)}">Open ${x.meta.fullName}</a> · <a href="/verify/?url=${encodeURIComponent(y.meta.htmlUrl)}">Open ${y.meta.fullName}</a></p>`;
+        <p><a href="/verify/?url=${encodeURIComponent(x.meta.htmlUrl)}">Open ${escapeHtml(x.meta.fullName)}</a> · <a href="/verify/?url=${encodeURIComponent(y.meta.htmlUrl)}">Open ${escapeHtml(y.meta.fullName)}</a></p>`;
       out.hidden = false;
       status.textContent = 'Comparison complete.';
       history.replaceState(null, '', `/compare/?left=${encodeURIComponent(x.meta.fullName)}&right=${encodeURIComponent(y.meta.fullName)}`);
