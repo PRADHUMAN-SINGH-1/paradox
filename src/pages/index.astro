@@ -5,80 +5,65 @@ import { CATEGORIES } from '../lib/catalog.ts';
 const featured = catalog.slice(0, 8);
 const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug));
 ---
-<BaseLayout title="PARADOX — Discover, inspect and verify AI agents" description="Discover public AI agents, paste a GitHub URL, and inspect health, freshness, stack, and static risk indicators before you run anything.">
+<BaseLayout title="PARADOX — AI agent intelligence and trust signals" description="Discover, inspect, compare and evaluate public AI agents and GitHub projects using observable repository evidence before you depend on them.">
   <main>
     <section class="hero-home">
       <div class="hero-home-copy">
-        <p class="eyebrow">AI AGENT INTELLIGENCE / 01</p>
-        <h1>Discover AI agents you can actually <em>understand.</em></h1>
-        <p class="lead">Search public agents and GitHub projects, then inspect what they do, how fresh they are, what they require, and which static risk indicators show up in the repository.</p>
+        <p class="eyebrow">AI AGENT INTELLIGENCE / TRUST SIGNALS / 01</p>
+        <h1>Understand the agents you are about to <em>trust.</em></h1>
+        <p class="lead">Discover public AI agents and GitHub projects, then inspect observable evidence for activity, health, documentation, stack and static risk signals before you depend on them.</p>
         <form class="search-row" method="get" action="/agents/">
           <label class="visually-hidden" for="homeQuery">Search AI agents</label>
           <input id="homeQuery" name="q" type="search" placeholder="Search agents, skills, repositories, MCP…" />
-          <button type="submit"><span>Search</span></button>
+          <button type="submit"><span>Explore</span></button>
         </form>
-        <div class="sub-actions">
-          <a href="/verify/">Verify a GitHub agent →</a>
-          <a href="/compare/">Compare two repositories →</a>
-        </div>
-        <div class="cats" aria-label="Agent categories">
-          {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
-        </div>
+        <div class="sub-actions"><a href="/verify/">Inspect a GitHub repository →</a><a href="/compare/">Compare two agents →</a></div>
+        <div class="cats" aria-label="Agent categories">{cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}</div>
       </div>
-      <div class="pv-hero-visual" aria-label="PARADOX intelligence network visualization">
-        <div class="pv-orbit"></div>
-        <div class="pv-core"><strong>PX</strong></div>
-        <div class="pv-node n1"><b>REPOSITORY</b><span>indexed</span></div>
-        <div class="pv-node n2"><b>RISK ENGINE</b><span>scanning</span></div>
-        <div class="pv-node n3"><b>FRESHNESS</b><span>live signal</span></div>
-        <div class="pv-node n4"><b>STACK</b><span>detected</span></div>
-        <div class="pv-wave"></div>
-        <div class="pv-scan"><span>NETWORK STATUS <strong>ONLINE</strong></span><span>48 SIGNALS / MIN</span></div>
+      <div class="pv-hero-visual" aria-label="PARADOX agent intelligence network visualization">
+        <div class="pv-orbit"></div><div class="pv-core"><strong>PX</strong></div>
+        <div class="pv-node n1"><b>REPOSITORY</b><span>evidence indexed</span></div>
+        <div class="pv-node n2"><b>RISK SIGNAL</b><span>static scan</span></div>
+        <div class="pv-node n3"><b>FRESHNESS</b><span>activity signal</span></div>
+        <div class="pv-node n4"><b>STACK</b><span>dependencies</span></div>
+        <div class="pv-wave"></div><div class="pv-scan"><span>INTELLIGENCE STATUS <strong>ONLINE</strong></span><span>OBSERVABLE EVIDENCE</span></div>
       </div>
     </section>
-    <section class="pv-stats" aria-label="Platform signals">
-      <div class="pv-stat"><span>Indexed intelligence</span><strong>PUBLIC REPOS</strong><em>LIVE</em></div>
-      <div class="pv-stat"><span>Evidence model</span><strong>STATIC SIGNALS</strong><em>ON</em></div>
-      <div class="pv-stat"><span>Inspection mode</span><strong>NO EXECUTION</strong><em>SAFE</em></div>
-      <div class="pv-stat"><span>Decision layer</span><strong>COMPARE / VERIFY</strong><em>READY</em></div>
+
+    <section class="pv-stats" aria-label="Platform principles">
+      <div class="pv-stat"><span>Decision model</span><strong>EVIDENCE FIRST</strong><em>NO GUESSING</em></div>
+      <div class="pv-stat"><span>Inspection mode</span><strong>NO EXECUTION</strong><em>DATA ONLY</em></div>
+      <div class="pv-stat"><span>Core signals</span><strong>HEALTH / ACTIVITY</strong><em>LIVE CHECK</em></div>
+      <div class="pv-stat"><span>Decision layer</span><strong>VERIFY / COMPARE</strong><em>READY</em></div>
     </section>
+
     <section class="section">
-      <div class="pv-section-head">
-        <div><span class="pv-section-label">02 / CURATED SIGNALS</span><h2>Featured agents.</h2></div>
-        <p>Start with public systems already catalogued by PARADOX, then inspect the evidence behind each profile.</p>
-      </div>
-      <div class="grid-2">
-        {featured.map((e) => (
-          <article class="agent-card">
-            <div class="meta"><span>{e.owner}</span><span>{e.category}</span></div>
-            <h3>{e.repo}</h3>
-            <p>{e.summary}</p>
-            <div class="links">
-              <a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a>
-              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify</a>
-            </div>
-          </article>
-        ))}
+      <div class="si-trust-grid" aria-label="What PARADOX evaluates">
+        <article class="si-trust-card"><span>01 / MAINTENANCE</span><strong>Is it alive?</strong><p>Freshness, commits, releases and contributor activity help reveal whether a project is still maintained.</p></article>
+        <article class="si-trust-card"><span>02 / ENGINEERING</span><strong>What is inside?</strong><p>Stack files, languages, models and tools are surfaced from observable repository evidence.</p></article>
+        <article class="si-trust-card"><span>03 / RISK</span><strong>What stands out?</strong><p>Static risk indicators expose patterns worth investigating without executing the repository.</p></article>
+        <article class="si-trust-card"><span>04 / DECISION</span><strong>Which should I choose?</strong><p>Compare repositories using the same evidence model instead of relying on popularity alone.</p></article>
       </div>
     </section>
-    <section class="section" style="padding-top:0">
-      <div class="pv-section-head">
-        <div><span class="pv-section-label">03 / RECENT ACTIVITY</span><h2>Recently catalogued.</h2></div>
-        <p>New repositories enter the catalog as discoverable starting points. Live health signals are checked when you inspect them.</p>
-      </div>
-      <div class="grid-2">
-        {catalog.slice(8).map((e) => (
-          <article class="agent-card">
-            <div class="meta"><span>{e.owner}/{e.repo}</span></div>
-            <h3>{e.repo}</h3>
-            <p>{e.summary}</p>
-            <div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div>
-          </article>
-        ))}
+
+    <section class="section" style="padding-top:20px">
+      <div class="si-decision">
+        <div><span class="pv-section-label">02 / THE WORKFLOW</span><h2>From discovery to a defensible decision.</h2><p class="si-lead">PARADOX is designed to make an agent understandable before it becomes a dependency. Every step leads back to observable repository evidence.</p></div>
+        <div class="si-steps" aria-label="PARADOX workflow">
+          <div class="si-step"><b>01</b><strong>Discover</strong><span>find candidates</span><em>CATALOG + SEARCH</em></div>
+          <div class="si-step"><b>02</b><strong>Inspect</strong><span>read the evidence</span><em>HEALTH + STACK</em></div>
+          <div class="si-step"><b>03</b><strong>Compare</strong><span>normalize signals</span><em>SIDE BY SIDE</em></div>
+          <div class="si-step"><b>04</b><strong>Decide</strong><span>keep uncertainty visible</span><em>UNKNOWN ≠ SAFE</em></div>
+        </div>
       </div>
     </section>
+
+    <section class="section">
+      <div class="si-profile-band"><div><h3>Built for the agent ecosystem, not just one scanner.</h3><p>Security is one signal. PARADOX combines trust, maintenance, engineering and activity signals into one intelligence profile so builders can evaluate an agent before depending on it.</p></div><div class="si-pills"><span class="si-pill">Agent registry</span><span class="si-pill">Repository intelligence</span><span class="si-pill">Trust signals</span><span class="si-pill">Evidence graph</span></div></div>
+    </section>
+
+    <section class="section"><div class="pv-section-head"><div><span class="pv-section-label">03 / CURATED SIGNALS</span><h2>Featured agents.</h2></div><p>Start with public systems already catalogued by PARADOX, then inspect the evidence behind each profile.</p></div><div class="grid-2">{featured.map((e) => (<article class="agent-card"><div class="meta"><span>{e.owner}</span><span>{e.category}</span></div><h3>{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a><a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify</a></div></article>))}</div></section>
+    <section class="section" style="padding-top:0"><div class="pv-section-head"><div><span class="pv-section-label">04 / RECENT ACTIVITY</span><h2>Recently catalogued.</h2></div><p>New repositories enter the catalog as discoverable starting points. Live health signals are checked when you inspect them.</p></div><div class="grid-2">{catalog.slice(8).map((e) => (<article class="agent-card"><div class="meta"><span>{e.owner}/{e.repo}</span></div><h3>{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div></article>))}</div></section>
   </main>
 </BaseLayout>
-<style>
-.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
-</style>
+<style>.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
