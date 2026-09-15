@@ -7,8 +7,8 @@ import { parseRepoRef } from '../lib/github-url.ts';
 import { currentUser, supabase } from '../lib/supabase.ts';
 import { saveLocalAgent, saveLocalScan } from '../lib/local-state.ts';
 
-function statusEl() { return document.querySelector('#verifyStatus'); }
-function resultEl() { return document.querySelector('#result'); }
+function statusEl(): HTMLElement | null { return document.querySelector<HTMLElement>('#verifyStatus'); }
+function resultEl(): HTMLElement | null { return document.querySelector<HTMLElement>('#result'); }
 
 function setStatus(text: string) {
   const el = statusEl();
@@ -66,7 +66,7 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
 
 export async function runVerify(url: string) {
   const result = resultEl();
-  let parsed;
+  let parsed: ReturnType<typeof parseRepoRef>;
   try {
     parsed = parseRepoRef(url);
   } catch {
