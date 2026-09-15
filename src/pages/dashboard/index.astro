@@ -4,39 +4,41 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Your PARADOX dashboard" description="Saved agents and scan history." canonical="https://paradox.engineer/dashboard/" robots="noindex,nofollow">
   <main class="account-page professional-dashboard">
     <header class="account-head">
-      <div>
+      <div class="dash-heading">
         <span>DASHBOARD / PRIVATE WORKSPACE</span>
-        <h1>Your shortlist.</h1>
+        <h1>Your workspace.</h1>
         <p id="accountEmail">Loading account…</p>
       </div>
       <div class="account-actions">
+        <a class="dash-primary" href="/verify/">Verify repository ↗</a>
+        <a class="dash-secondary" href="/ai/">Open AI tools ↗</a>
         <button id="clearHistory" type="button">Clear history</button>
         <button id="signOut" type="button">Sign out</button>
       </div>
     </header>
 
-    <div class="dashboard-overview" aria-label="Workspace overview">
-      <article><span>SAVED AGENTS</span><strong>Private</strong><p>Keep the repositories you want to revisit.</p></article>
-      <article><span>SCAN HISTORY</span><strong>Private</strong><p>Your recent repository analysis stays tied to your account.</p></article>
-      <article><span>AUTHENTICATION</span><strong>Secure session</strong><p>Email, GitHub and Google sign-in are handled by Supabase Auth.</p></article>
-    </div>
-
-    <section class="dashboard-section">
-      <div class="section-head"><div><span>01 / COLLECTION</span><h2>Saved agents</h2></div><a href="/agents/">Discover more →</a></div>
-      <div id="savedAgents" class="grid-2"><p class="muted">Loading saved agents…</p></div>
+    <section class="workspace-bar" aria-label="Workspace overview">
+      <div><span>01</span><strong>Saved agents</strong><small>Repositories you chose to keep.</small></div>
+      <div><span>02</span><strong>Scan history</strong><small>Recent evidence from your account.</small></div>
+      <div><span>03</span><strong>Account</strong><small>Authenticated and private.</small></div>
     </section>
 
     <section class="dashboard-section">
-      <div class="section-head"><div><span>02 / ACTIVITY</span><h2>Scan history</h2></div><a href="/verify/">Run a new scan →</a></div>
-      <div id="scanHistory" class="grid-2"><p class="muted">Loading scan history…</p></div>
+      <div class="section-head"><div><span>01 / COLLECTION</span><h2>Saved agents</h2><p>Shortlisted repositories ready to reopen or remove.</p></div><a href="/agents/">Discover agents →</a></div>
+      <div id="savedAgents" class="dashboard-grid"><p class="muted">Loading saved agents…</p></div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-head"><div><span>02 / ACTIVITY</span><h2>Scan history</h2><p>Every completed repository analysis tied to this account.</p></div><a href="/verify/">Run a new scan →</a></div>
+      <div id="scanHistory" class="dashboard-grid"><p class="muted">Loading scan history…</p></div>
     </section>
 
     <section class="dashboard-section profile-section">
-      <div class="section-head"><div><span>03 / ACCOUNT</span><h2>Profile</h2></div></div>
+      <div class="section-head"><div><span>03 / ACCOUNT</span><h2>Account details</h2><p>How PARADOX stores and uses your private workspace data.</p></div></div>
       <div class="profile-grid">
-        <div><strong>Authenticated workspace</strong><p id="profileEmail">Your signed-in account is used for saved agents and scan history.</p></div>
-        <div><strong>Data ownership</strong><p>Your saved and historical entries are scoped to your authenticated account by the database access policies.</p></div>
-        <div><strong>Next step</strong><p>Verify a repository or explore AI tools, then return here when you want to keep your work organized.</p></div>
+        <article><span>SESSION</span><strong id="profileEmail">Loading…</strong><p>Your current authenticated identity.</p></article>
+        <article><span>DATA OWNERSHIP</span><strong>Private to you</strong><p>Saved agents and scan history are scoped by database access policies.</p></article>
+        <article><span>NEXT ACTION</span><strong>Keep building evidence</strong><p>Verify projects, compare candidates, and save the ones worth revisiting.</p></article>
       </div>
     </section>
   </main>
@@ -44,6 +46,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     import '../../scripts/dashboard-page.ts';
   </script>
   <style>
-    .professional-dashboard .account-actions{display:flex;gap:8px;flex-wrap:wrap}.professional-dashboard .dashboard-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}.professional-dashboard .dashboard-overview article{padding:18px;background:#0b100e;border:1px solid #26302b;border-radius:14px}.professional-dashboard .dashboard-overview span,.professional-dashboard .section-head>div>span{display:block;color:#7f8b84;font:800 9px 'DM Mono',monospace;letter-spacing:.1em}.professional-dashboard .dashboard-overview strong{display:block;color:#eef3ef;font:700 20px 'DM Sans',sans-serif;margin:8px 0 5px}.professional-dashboard .dashboard-overview p{margin:0;color:#93a097;font:500 12px/1.55 'DM Sans',sans-serif}.professional-dashboard .dashboard-section{margin-top:20px}.professional-dashboard .section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:15px}.professional-dashboard .section-head h2{margin:8px 0 0}.professional-dashboard .section-head>a{color:#bfc9c2;font:700 10px 'DM Mono',monospace;text-decoration:none}.professional-dashboard .section-head>a:hover{color:#d9ff3f}.professional-dashboard .profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.professional-dashboard .profile-grid>div{padding:18px;background:#0e1411;border:1px solid #26302b;border-radius:14px}.professional-dashboard .profile-grid strong{color:#eef3ef;font:700 13px 'DM Sans',sans-serif}.professional-dashboard .profile-grid p{color:#93a097;font:500 12px/1.65 'DM Sans',sans-serif;margin:8px 0 0}@media(max-width:800px){.professional-dashboard .dashboard-overview,.professional-dashboard .profile-grid{grid-template-columns:1fr}.professional-dashboard .section-head{align-items:flex-start;flex-direction:column}}
+    .professional-dashboard{max-width:1320px;margin:0 auto;padding:70px 52px 120px;color:#eef3ef}.professional-dashboard .account-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;padding:22px 0 34px;border-bottom:1px solid #23302a}.professional-dashboard .dash-heading>span{display:block;color:#d9ff3f;font:800 9px/1 'DM Mono',monospace;letter-spacing:.14em}.professional-dashboard .dash-heading h1{margin:12px 0 8px;color:#f5f8f5;font:400 clamp(58px,7vw,104px)/.86 'Instrument Serif',Georgia,serif;letter-spacing:-.04em}.professional-dashboard .dash-heading p{margin:0;color:#92a099;font:500 14px/1.5 'DM Sans',sans-serif}.professional-dashboard .account-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.professional-dashboard .account-actions a,.professional-dashboard .account-actions button{min-height:42px;padding:0 14px;border:1px solid #2a3530;border-radius:8px;background:#0c1210;color:#eaf0ec;text-decoration:none;font:700 10px 'DM Mono',monospace;letter-spacing:.03em}.professional-dashboard .account-actions .dash-primary{background:#d9ff3f;color:#081008;border-color:#d9ff3f}.professional-dashboard .account-actions .dash-secondary:hover,.professional-dashboard .account-actions button:hover{border-color:#d9ff3f;color:#d9ff3f}.professional-dashboard .workspace-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:20px;background:#26312b;border:1px solid #26312b}.professional-dashboard .workspace-bar>div{padding:18px 20px;background:#0c1210}.professional-dashboard .workspace-bar span,.professional-dashboard .section-head>div>span,.professional-dashboard .profile-grid>article>span{display:block;color:#7f8b84;font:800 9px 'DM Mono',monospace;letter-spacing:.1em}.professional-dashboard .workspace-bar strong{display:block;margin:7px 0 4px;color:#edf3ee;font:700 16px 'DM Sans',sans-serif}.professional-dashboard .workspace-bar small{color:#89968f;font:500 12px/1.45 'DM Sans',sans-serif}.professional-dashboard .dashboard-section{margin-top:54px;padding-top:8px}.professional-dashboard .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;margin-bottom:18px}.professional-dashboard .section-head h2{margin:7px 0 5px;color:#f4f8f5;font:400 clamp(42px,5vw,72px)/.9 'Instrument Serif',Georgia,serif;letter-spacing:-.035em}.professional-dashboard .section-head p{margin:0;color:#89968f;font:500 12px/1.5 'DM Sans',sans-serif}.professional-dashboard .section-head>a{color:#c2ccc5;font:700 10px 'DM Mono',monospace;text-decoration:none;white-space:nowrap}.professional-dashboard .section-head>a:hover{color:#d9ff3f}.professional-dashboard .dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.professional-dashboard .dashboard-grid>.muted{grid-column:1/-1;padding:24px;border:1px dashed #2b3630;background:#0a100e;color:#89968f;font:500 13px 'DM Sans',sans-serif}.professional-dashboard .card{padding:20px;background:linear-gradient(150deg,#0d1411,#0a100e);border:1px solid #27312c;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.14)}.professional-dashboard .card:hover{border-color:#46524a}.professional-dashboard .card h3{margin:0 0 8px;color:#f1f5f2;font:600 19px 'DM Sans',sans-serif;word-break:break-word}.professional-dashboard .card p{margin:0;color:#98a59e;font:500 12px/1.55 'DM Sans',sans-serif}.professional-dashboard .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.professional-dashboard .links a,.professional-dashboard .links button{padding:9px 11px;border:1px solid #303b35;border-radius:7px;background:#101713;color:#e7ede9;text-decoration:none;font:700 10px 'DM Mono',monospace}.professional-dashboard .links a:hover{border-color:#d9ff3f;color:#d9ff3f}.professional-dashboard .links button:hover{border-color:#ff6a52;color:#ff927e}.professional-dashboard .profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.professional-dashboard .profile-grid article{padding:20px;background:#0d1411;border:1px solid #27312c;border-radius:12px}.professional-dashboard .profile-grid strong{display:block;margin:10px 0 5px;color:#eef3ef;font:700 14px 'DM Sans',sans-serif}.professional-dashboard .profile-grid p{margin:0;color:#909d96;font:500 12px/1.6 'DM Sans',sans-serif}.professional-dashboard .profile-grid>article:first-child strong{color:#d9ff3f}@media(max-width:900px){.professional-dashboard{padding:48px 22px 90px}.professional-dashboard .account-head{align-items:flex-start;flex-direction:column}.professional-dashboard .account-actions{justify-content:flex-start}.professional-dashboard .workspace-bar,.professional-dashboard .dashboard-grid,.professional-dashboard .profile-grid{grid-template-columns:1fr}.professional-dashboard .section-head{align-items:flex-start;flex-direction:column}}
   </style>
 </BaseLayout>
