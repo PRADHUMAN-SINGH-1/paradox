@@ -1,0 +1,175 @@
+/* Final readability layer for AI + utility tools. Loaded after legacy visual layers. */
+.generator-page.ai-page,
+.generator-page.utility-page {
+  color: #141817 !important;
+}
+.generator-page.ai-page .generator-breadcrumb,
+.generator-page.ai-page .generator-breadcrumb a,
+.generator-page.ai-page .generator-subline,
+.generator-page.ai-page .generator-head p,
+.generator-page.utility-page .generator-breadcrumb,
+.generator-page.utility-page .generator-breadcrumb a,
+.generator-page.utility-page .generator-subline,
+.generator-page.utility-page .generator-head p {
+  color: #505752 !important;
+  opacity: 1 !important;
+}
+.generator-page.ai-page .generator-head h1,
+.generator-page.utility-page .generator-head h1,
+.generator-page.ai-page .generator-panel-head h2,
+.generator-page.utility-page .generator-panel-head h2,
+.generator-page.ai-page .generator-preview-head h2,
+.generator-page.utility-page .generator-preview-head h2 {
+  color: #111514 !important;
+}
+.generator-page.ai-page .generator-panel-head span,
+.generator-page.ai-page .generator-preview-head span,
+.generator-page.utility-page .generator-panel-head span,
+.generator-page.utility-page .generator-preview-head span {
+  color: #59615b !important;
+}
+.generator-page.ai-page .field label,
+.generator-page.utility-page .field label {
+  color: #28302b !important;
+  opacity: 1 !important;
+}
+.generator-page.ai-page .field input,
+.generator-page.ai-page .field textarea,
+.generator-page.utility-page .field input,
+.generator-page.utility-page .field textarea {
+  color: #f4f7f4 !important;
+  background: #0b100e !important;
+  border: 1px solid #3d4741 !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025) !important;
+  font-size: 16px !important;
+  line-height: 1.55 !important;
+}
+.generator-page.ai-page .field input::placeholder,
+.generator-page.ai-page .field textarea::placeholder,
+.generator-page.utility-page .field input::placeholder,
+.generator-page.utility-page .field textarea::placeholder {
+  color: #9aa49d !important;
+  opacity: 1 !important;
+}
+.generator-page.ai-page .field input.prefilled,
+.generator-page.ai-page .field textarea.prefilled,
+.generator-page.utility-page .field input.prefilled,
+.generator-page.utility-page .field textarea.prefilled {
+  background: #161d19 !important;
+  border-color: #a8c72a !important;
+  box-shadow: inset 4px 0 0 #d9ff3f, 0 0 0 1px rgba(217,255,63,.08) !important;
+}
+.generator-page.ai-page .field input:focus,
+.generator-page.ai-page .field textarea:focus,
+.generator-page.utility-page .field input:focus,
+.generator-page.utility-page .field textarea:focus {
+  outline: 2px solid rgba(217,255,63,.35) !important;
+  outline-offset: 1px !important;
+  border-color: #d9ff3f !important;
+  background: #080d0b !important;
+  color: #fff !important;
+}
+.generator-page.ai-page .generator-actions,
+.generator-page.utility-page .generator-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
+}
+.generator-page.ai-page .gen-btn,
+.generator-page.utility-page .gen-btn {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  min-height: 46px !important;
+  padding: 0 18px !important;
+  border: 1px solid #1c231f !important;
+  background: #111614 !important;
+  color: #f5f8f5 !important;
+}
+.generator-page.ai-page .gen-btn:hover,
+.generator-page.utility-page .gen-btn:hover {
+  background: #d9ff3f !important;
+  color: #101310 !important;
+}
+.generator-page.ai-page .gen-btn.alt,
+.generator-page.utility-page .gen-btn.alt {
+  background: #ece9df !important;
+  color: #161b18 !important;
+  border-color: #aaa79d !important;
+}
+.generator-page.ai-page .preview-empty,
+.generator-page.utility-page .preview-empty {
+  color: #1f2722 !important;
+  background: #e4e1d8 !important;
+}
+.generator-page.ai-page .preview-empty strong,
+.generator-page.utility-page .preview-empty strong {
+  color: #17201b !important;
+  font-size: clamp(24px, 2.3vw, 40px) !important;
+}
+.generator-page.ai-page .preview-empty span,
+.generator-page.utility-page .preview-empty span {
+  color: #5d655f !important;
+  font-size: 14px !important;
+}
+.generator-page.ai-page .gen-output,
+.generator-page.utility-page .gen-output {
+  color: #f0f4f0 !important;
+  background: #0b100e !important;
+  border: 1px solid #313b35 !important;
+}
+.generator-page.ai-page .utility-result,
+.generator-page.utility-page .utility-result {
+  color: #eef2ee !important;
+  background: #0b100e !important;
+}
+.generator-page.ai-page .code-block,
+.generator-page.utility-page .code-block {
+  color: #eef2ee !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+.generator-page.ai-page .result-title,
+.generator-page.utility-page .result-title {
+  color: #ffffff !important;
+  font-size: 24px !important;
+}
+.generator-page.ai-page #status,
+.generator-page.utility-page #status {
+  color: #39423c !important;
+  font-size: 13px !important;
+  min-height: 24px !important;
+}
+.generator-page.ai-page .status-error,
+.generator-page.utility-page .status-error {
+  color: #8d2417 !important;
+  background: #ffe8e3 !important;
+  border: 1px solid #ef9889 !important;
+  padding: 10px 12px !important;
+}
+.generator-page.ai-page .status-success,
+.generator-page.utility-page .status-success {
+  color: #17552a !important;
+  background: #e4f4e8 !important;
+  border: 1px solid #97caa4 !important;
+  padding: 10px 12px !important;
+}
+.ai-v2 .ai-lead,
+.ai-v2 .ai-section-head p,
+.ai-v2 .ai-radar-cta p,
+.ai-v2 .workflow-row small,
+.ai-v2 .ai-tool p {
+  opacity: 1 !important;
+}
+.ai-v2 .ai-top,
+.ai-v2 .ai-kicker,
+.ai-v2 .ai-section-head > div > span {
+  color: #303632 !important;
+}
+.ai-v2 .ai-marquee { color: #111412 !important; }
+@media (max-width: 700px) {
+  .generator-page.ai-page .field input,
+  .generator-page.ai-page .field textarea,
+  .generator-page.utility-page .field input,
+  .generator-page.utility-page .field textarea { font-size: 15px !important; }
+}
