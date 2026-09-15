@@ -1,20 +1,25 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="About PARADOX" description="What PARADOX is, how static analysis works, and what VERIFIED does and does not mean." canonical="https://paradox.engineer/about/">
+<BaseLayout title="About PARADOX" description="How PARADOX evaluates public GitHub evidence, what its scores mean, and what they do not mean." canonical="https://paradox.engineer/about/">
   <main class="legal">
-    <p class="label">ABOUT</p>
-    <h1>AI agent intelligence, not another chatbot.</h1>
+    <p class="label">ABOUT / METHODOLOGY</p>
+    <h1>Useful evidence, clearly labeled.</h1>
     <article>
-      <p>PARADOX helps developers and AI builders discover public AI agents, skills and GitHub projects, then inspect whether those projects look active, documented and potentially risky — before installing them.</p>
+      <p>PARADOX helps developers and AI builders discover public AI agents, skills and GitHub projects, then inspect observable repository evidence before they depend on them.</p>
       <h2>How analysis works</h2>
-      <p>The verifier reads public GitHub metadata and a limited set of files (README, manifests, Docker files, workflows). It runs <strong>deterministic static analysis</strong> in the browser or, when configured, in a Supabase Edge Function. Repository contents are treated as data. Instructions inside READMEs are never followed.</p>
-      <h2>What VERIFIED means</h2>
-      <p>VERIFIED means the repository is public, analyzable, has usable documentation, and did not cluster high static-risk patterns. It does <strong>not</strong> mean the software is secure, reviewed, or safe to run.</p>
-      <h2>Limitations</h2>
-      <p>We do not execute cloned code, Dockerfiles, or install scripts. We do not certify security. Evidence can be incomplete, stale the moment a commit lands, or miss obfuscated behavior. Unknown is shown when we lack evidence.</p>
+      <p>The verifier reads public GitHub metadata and a limited set of files, including README files, manifests, Docker files and workflows. It runs deterministic static analysis. Repository contents are treated as untrusted data; instructions inside repository text are never followed.</p>
+      <h2>What the evidence status means</h2>
+      <p><strong>Evidence-supported</strong> means the repository was public and analyzable at the time of the scan, the available evidence met PARADOX's current documentation/health criteria, and the current static rules did not identify enough high-risk indicators to place it in a higher-risk state.</p>
+      <p><strong>Needs review</strong> means the evidence is mixed or insufficient for the stronger status. <strong>Stale evidence</strong> means repository activity or freshness signals are old. <strong>High-risk signals</strong> means the current static rules found indicators that deserve investigation.</p>
+      <h2>What these labels do not mean</h2>
+      <p>None of these labels certify software. They are not security certifications, penetration-test results, formal code reviews, or guarantees that a project is safe to install or run. A repository can contain malicious, vulnerable or obfuscated behavior that the current rules do not detect.</p>
+      <h2>Scores and unknowns</h2>
+      <p>PARADOX scores summarize observable signals such as repository health, freshness, documentation, activity and static risk indicators. A missing detector match is treated as <strong>unknown</strong>, not proof that a model, tool, vulnerability or behavior is absent.</p>
+      <h2>Data freshness</h2>
+      <p>Repository evidence can change immediately after a scan. Stars, forks, issues, commits, releases, files and permissions can all change independently of PARADOX. Always open the source repository and review its current state before making a high-impact decision.</p>
       <h2>Source methodology</h2>
-      <p>Discovery uses a curated catalog plus GitHub Search. Trending uses recent GitHub activity and catalog inclusion reasons — never claimed Google search volume.</p>
+      <p>Discovery uses the curated catalog plus GitHub Search. Trending uses recent GitHub activity and explicit catalog signals. PARADOX does not claim search volume, endorsements or safety unless it has corresponding evidence.</p>
     </article>
   </main>
 </BaseLayout>
