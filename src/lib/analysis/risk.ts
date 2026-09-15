@@ -33,10 +33,10 @@ export function detectRisks(files: FileHit[]): RiskIndicator[] {
   for (const file of files) {
     const lower = file.path.toLowerCase();
     if (lower.includes('readme')) continue;
-    if (rule.category === 'Network access' && /package\.json|pyproject|go\.mod|cargo\.toml/.test(lower)) continue;
     for (const rule of RULES) {
       const key = `${rule.category}:${file.path}`;
       if (seen.has(key)) continue;
+      if (rule.category === 'Network access' && /package\.json|pyproject|go\.mod|cargo\.toml/.test(lower)) continue;
       if (rule.test.test(file.content)) {
         seen.add(key);
         out.push({
