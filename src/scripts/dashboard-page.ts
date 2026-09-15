@@ -92,7 +92,6 @@ document.querySelector('#clearHistory')?.addEventListener('click', async () => {
     return;
   }
   await supabase.from('scan_history').delete().eq('user_id', user.id);
-  track('scan_history_cleared');
   boot();
 });
 
