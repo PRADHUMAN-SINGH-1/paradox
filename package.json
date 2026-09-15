@@ -8,7 +8,7 @@
     "prebuild": "node scripts/build-sitemap.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --experimental-strip-types --test tests/analysis.test.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
     "validate": "node --check scripts/fetch-demand.js && node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs && npm test"
   },
   "dependencies": {
