@@ -6,6 +6,12 @@ function esc(s: string) {
   return String(s || '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 }
 
+function renderLoadError(el: Element | null, message: string, retry: () => void) {
+  if (!el) return;
+  el.innerHTML = `<div class="muted"><strong>Couldn’t load this section.</strong><br/>${esc(message)} <button type="button" data-retry>Retry</button></div>`;
+  el.querySelector<HTMLButtonElement>('[data-retry]')?.addEventListener('click', retry);
+}
+
 function localMode() {
   const email = document.querySelector('#accountEmail');
   const profileEmail = document.querySelector('#profileEmail');
@@ -35,10 +41,22 @@ async function boot() {
   if (email) email.textContent = identity;
   if (profileEmail) profileEmail.textContent = `Signed in as ${identity}. This account is the owner of your saved agents and scan history.`;
   track('scan_history_opened');
-  const s = await supabase.from('saved_agents').select('*').order('created_at', { ascending: false }).limit(50);
-  const h = await supabase.from('scan_history').select('*').order('created_at', { ascending: false }).limit(50);
-  renderSaved(saved, s.data || []);
-  renderHistory(history, h.data || []);
+
+  const [savedResult, historyResult] = await Promise.all([
+    supabase.from('saved_agents').select('*').order('created_at', { ascending: false }).limit(50),
+    supabase.from('scan_history').select('*').order('created_at', { ascending: false }).limit(50),
+  ]);
+
+  if (savedResult.error) {
+    renderLoadError(saved, savedResult.error.message, boot);
+  } else {
+    renderSaved(saved, savedResult.data || []);
+  }
+  if (historyResult.error) {
+    renderLoadError(history, historyResult.error.message, boot);
+  } else {
+    renderHistory(history, historyResult.data || []);
+  }
 }
 
 function renderSaved(el: Element | null, rows: Array<Record<string, unknown>>) {
@@ -57,7 +75,11 @@ function renderSaved(el: Element | null, rows: Array<Record<string, unknown>>) {
         boot();
         return;
       }
-      await supabase.from('saved_agents').delete().eq('id', btn.dataset.unsave);
+      const { error } = await supabase.from('saved_agents').delete().eq('id', btn.dataset.unsave);
+      if (error) {
+        btn.textContent = 'Retry remove';
+        return;
+      }
       track('unsave_agent');
       boot();
     });
@@ -91,8 +113,8 @@ document.querySelector('#clearHistory')?.addEventListener('click', async () => {
     boot();
     return;
   }
-  await supabase.from('scan_history').delete().eq('user_id', user.id);
-  boot();
+  const { error } = await supabase.from('scan_history').delete().eq('user_id', user.id);
+  if (!error) boot();
 });
 
 boot();
