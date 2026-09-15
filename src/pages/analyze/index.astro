@@ -1,43 +1,25 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 const signedIn = Boolean(Astro.locals.user);
+const initialUrl = Astro.url.searchParams.get('url') || '';
 ---
 <BaseLayout title="GitHub Agent Analyzer — PARADOX" description="Inspect a public GitHub agent repository for freshness, stack, permissions, release signals and static risk indicators." canonical="https://paradox.engineer/analyze/">
 <main class="analyze-page">
   <header class="analyze-head"><span class="eyebrow">PARADOX / VERIFIER</span><h1>Paste the repo.<br/><em>See what it really does.</em></h1><p>Static inspection of public GitHub repositories: activity, releases, manifests, likely permissions and risk indicators. PARADOX never executes untrusted code.</p></header>
-  <form id="analyzer"><input id="repoUrl" type="url" required placeholder="https://github.com/owner/agent-repository" aria-label="GitHub repository URL" /><button type="submit">VERIFY ↗</button></form>
-  <div id="error" class="error" hidden></div>
-  <section id="result" class="result" hidden></section>
+  <form id="analyzer"><input id="repoUrl" value={initialUrl} type="url" required placeholder="https://github.com/owner/agent-repository" aria-label="GitHub repository URL"/><button type="submit">VERIFY ↗</button></form>
+  <div id="error" class="error" hidden></div><section id="result" class="result" hidden></section>
 </main>
-<script define:vars={{ signedIn }}>
-  const form = document.querySelector('#analyzer'), result = document.querySelector('#result'), error = document.querySelector('#error');
-  form.addEventListener('submit', async event => {
-    event.preventDefault(); result.hidden=true; error.hidden=true; form.querySelector('button').disabled=true; form.querySelector('button').textContent='VERIFYING…';
-    try {
-      const response = await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:document.querySelector('#repoUrl').value})});
-      const data = await response.json(); if(!response.ok) throw new Error(data.error || 'Analysis failed.');
-      result.innerHTML = render(data); result.hidden=false;
-      result.querySelector('#save')?.addEventListener('click', async () => {
-        if(!signedIn){ location.assign('/auth/?next=/analyze/'); return; }
-        const save = result.querySelector('#save'); save.disabled=true; save.textContent='SAVING…';
-        const r=await fetch('/api/analyses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repo_full_name:data.repository.fullName,result:data})});
-        save.textContent = r.ok ? 'SAVED ✓' : 'SAVE FAILED';
-      });
-    } catch(e){ error.textContent=e.message; error.hidden=false; }
-    form.querySelector('button').disabled=false; form.querySelector('button').textContent='VERIFY ↗';
-  });
-  const render = data => `
-  <div class="result-top"><div><span class="label">VERDICT</span><strong class="verdict ${data.verdict.toLowerCase()}">${data.verdict}</strong><h2>${escapeHtml(data.repository.fullName)}</h2><p>${escapeHtml(data.repository.description||'No repository description.')}</p></div><div class="score">${data.score}<small>/100</small></div></div>
-  <div class="grid">
-    <article><span class="label">FRESHNESS</span><b>${data.freshness.daysSincePush === null ? 'Unknown' : data.freshness.daysSincePush+' days'}</b><p>Latest sampled commit: ${data.freshness.latestCommit ? new Date(data.freshness.latestCommit).toLocaleDateString() : 'not returned'}.</p></article>
-    <article><span class="label">STACK</span><b>${escapeHtml(data.stack.languages.join(' · ')||'Unknown')}</b><p>${escapeHtml(data.stack.manifests.join(' · ')||'No manifest detected')}</p></article>
-    <article><span class="label">REPOSITORY</span><b>★ ${data.repository.stars.toLocaleString()}</b><p>${data.repository.openIssues} open issues · ${escapeHtml(data.repository.license||'No SPDX license')}</p></article>
-  </div>
-  <div class="permissions"><span class="label">STATIC PERMISSION SIGNALS</span><div>${Object.entries(data.permissions).map(([key,value])=>`<span class="perm ${value?'on':'off'}">${key} ${value?'DETECTED':'not detected'}</span>`).join('')}</div></div>
-  <div class="checks"><span class="label">VERIFICATION CHECKS</span>${data.checks.map(x=>`<div><b class="${x.status}">${x.status.toUpperCase()}</b><strong>${escapeHtml(x.label)}</strong><span>${escapeHtml(x.detail)}</span></div>`).join('')}</div>
-  <div class="actions"><button id="save">${signedIn?'SAVE ANALYSIS':'SIGN IN TO SAVE'}</button><a href="${data.repository.url}" target="_blank" rel="noopener">OPEN GITHUB ↗</a></div>
-  <small class="limitations">${data.limitations.join(' ')}</small>`;
-  const escapeHtml = value => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+<script define:vars={{ signedIn, initialUrl }}>
+  const form=document.querySelector('#analyzer'), result=document.querySelector('#result'), error=document.querySelector('#error');
+  async function verify(){
+    result.hidden=true; error.hidden=true; form.querySelector('button').disabled=true; form.querySelector('button').textContent='VERIFYING…';
+    try{const response=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:document.querySelector('#repoUrl').value})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Analysis failed.');result.innerHTML=render(data);result.hidden=false;result.querySelector('#save')?.addEventListener('click',save(data));}
+    catch(e){error.textContent=e.message;error.hidden=false}finally{form.querySelector('button').disabled=false;form.querySelector('button').textContent='VERIFY ↗'}
+  }
+  const save=data=>async()=>{if(!signedIn){location.assign(`/auth/?next=${encodeURIComponent(location.pathname+location.search)}`);return;}const saveButton=document.querySelector('#save');saveButton.disabled=true;saveButton.textContent='SAVING…';const r=await fetch('/api/analyses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repo_full_name:data.repository.fullName,result:data})});saveButton.textContent=r.ok?'SAVED ✓':'SAVE FAILED';};
+  const render=data=>`<div class="result-top"><div><span class="label">VERDICT</span><strong class="verdict ${data.verdict.toLowerCase()}">${data.verdict}</strong><h2>${escapeHtml(data.repository.fullName)}</h2><p>${escapeHtml(data.repository.description||'No repository description.')}</p></div><div class="score">${data.score}<small>/100</small></div></div><div class="grid"><article><span class="label">FRESHNESS</span><b>${data.freshness.daysSincePush===null?'Unknown':data.freshness.daysSincePush+' days'}</b><p>Latest sampled commit: ${data.freshness.latestCommit?new Date(data.freshness.latestCommit).toLocaleDateString():'not returned'}.</p></article><article><span class="label">STACK</span><b>${escapeHtml(data.stack.languages.join(' · ')||'Unknown')}</b><p>${escapeHtml(data.stack.manifests.join(' · ')||'No manifest detected')}</p></article><article><span class="label">REPOSITORY</span><b>★ ${data.repository.stars.toLocaleString()}</b><p>${data.repository.openIssues} open issues · ${escapeHtml(data.repository.license||'No SPDX license')}</p></article></div><div class="permissions"><span class="label">STATIC PERMISSION SIGNALS</span><div>${Object.entries(data.permissions).map(([key,value])=>`<span class="perm ${value?'on':'off'}">${key} ${value?'DETECTED':'not detected'}</span>`).join('')}</div></div><div class="checks"><span class="label">VERIFICATION CHECKS</span>${data.checks.map(x=>`<div><b class="${x.status}">${x.status.toUpperCase()}</b><strong>${escapeHtml(x.label)}</strong><span>${escapeHtml(x.detail)}</span></div>`).join('')}</div><div class="actions"><button id="save">${signedIn?'SAVE ANALYSIS':'SIGN IN TO SAVE'}</button><a href="${data.repository.url}" target="_blank" rel="noopener">OPEN GITHUB ↗</a></div><small class="limitations">${data.limitations.join(' ')}</small>`;
+  const escapeHtml=value=>String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  form.addEventListener('submit',e=>{e.preventDefault();verify()}); if(initialUrl) verify();
 </script>
 <style>
 .analyze-page{max-width:1120px;margin:auto;padding:78px 24px 120px}.analyze-head{max-width:800px;border-bottom:1px solid var(--line);padding-bottom:34px}.eyebrow,.label{font:700 9px 'DM Mono';letter-spacing:.13em;color:var(--accent)}.analyze-head h1{font:400 clamp(70px,9vw,124px)/.78 'Instrument Serif';margin:20px 0}.analyze-head h1 em{color:var(--accent);font-style:italic}.analyze-head p{max-width:680px;color:var(--muted);line-height:1.8}.analyzer{display:flex;margin:25px 0 10px;border:1px solid var(--line);background:var(--paper)}.analyzer input{flex:1;border:0;background:transparent;padding:18px;font-size:15px;outline:none}.analyzer button,.actions button{border:0;background:var(--ink);color:white;padding:0 20px;font:700 9px 'DM Mono'}.error{margin:15px 0;padding:15px;border:1px solid #e5b3a6;background:#fff6f2;color:#7f321f;font:11px 'DM Mono'}.result{margin-top:28px;border:1px solid var(--line);background:var(--paper)}.result-top{display:grid;grid-template-columns:1fr auto;gap:30px;padding:28px;border-bottom:1px solid var(--line)}.result-top h2{font-size:30px;margin:12px 0 4px}.result-top p{color:var(--muted);max-width:700px}.verdict{display:inline-block;margin-left:10px;font:700 9px 'DM Mono'}.verdict.promising{color:#126144}.verdict.review{color:#a36800}.verdict.high-risk{color:#b5321a}.verdict.stale{color:#7b6460}.score{font:700 64px 'DM Sans'}.score small{font:10px 'DM Mono';color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}.grid article{padding:22px;border-right:1px solid var(--line)}.grid article:last-child{border-right:0}.grid b{display:block;margin:9px 0;font-size:17px}.grid p{color:var(--muted);font-size:12px}.permissions,.checks{padding:22px;border-bottom:1px solid var(--line)}.permissions>div{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.perm{padding:8px 10px;border:1px solid var(--line);font:9px 'DM Mono'}.perm.on{border-color:#e1a48f;color:#9a3d24}.perm.off{color:var(--muted)}.checks>div{display:grid;grid-template-columns:65px 190px 1fr;gap:15px;align-items:center;padding:12px 0;border-top:1px solid var(--line);margin-top:12px}.checks b{font:700 8px 'DM Mono'}.checks b.pass{color:#126144}.checks b.warn{color:#a36800}.checks span{color:var(--muted);font-size:12px}.actions{display:flex;gap:10px;padding:20px}.actions button{padding:13px 17px}.actions a{border:1px solid var(--line);padding:13px 17px;font:700 9px 'DM Mono'}.limitations{display:block;padding:0 20px 20px;color:var(--muted);font:9px/1.6 'DM Mono'}
