@@ -1,3 +1,4 @@
+import { supabase } from '../supabase.ts';
 import { parseRepoRef, type RepoRef } from '../github-url.ts';
 import { detectSignals } from './detect.ts';
 import { detectRisks } from './risk.ts';
@@ -7,10 +8,9 @@ import type { Analysis, FileHit, RepoMeta } from './types.ts';
 const API = 'https://api.github.com';
 const MAX_FILE = 80_000;
 const INTERESTING = [
-  'README.md', 'readme.md', 'README',
-  'package.json', 'requirements.txt', 'pyproject.toml', 'Cargo.toml', 'go.mod',
-  'pom.xml', 'build.gradle', 'Dockerfile', 'docker-compose.yml', 'docker-compose.yaml',
-  '.env.example', 'compose.yml',
+  'README.md', 'readme.md', 'README', 'package.json', 'requirements.txt', 'pyproject.toml',
+  'Cargo.toml', 'go.mod', 'pom.xml', 'build.gradle', 'Dockerfile', 'docker-compose.yml',
+  'docker-compose.yaml', '.env.example', 'compose.yml',
 ];
 
 export class GitHubHttpError extends Error {
@@ -23,35 +23,9 @@ export class GitHubHttpError extends Error {
 
 function userMessage(status: number): string {
   if (status === 404) return 'GitHub could not find this public repository.';
-  if (status === 403) return 'GitHub is temporarily rate limiting requests. Please try again shortly.';
+  if (status === 403 || status === 429) return 'GitHub is temporarily rate limiting requests. Please try again shortly.';
   if (status === 401) return 'GitHub rejected the request. Try again shortly.';
-  if (status >= 500) return "We couldn't complete this analysis. Try again.";
   return "We couldn't complete this analysis. Try again.";
-}
-
-export async function githubJson(path: string, token?: string): Promise<{ ok: true; status: number; data: unknown } | { ok: false; status: number }> {
-  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const r = await fetch(`${API}${path}`, { headers });
-  if (!r.ok) return { ok: false, status: r.status };
-  return { ok: true, status: r.status, data: await r.json() };
-}
-
-function decodeContent(encoded: string): string {
-  try {
-    const bin = atob(encoded.replace(/\n/g, ''));
-    return bin.slice(0, MAX_FILE);
-  } catch {
-    return '';
-  }
-}
-
-async function textFile(owner: string, repo: string, path: string, token?: string): Promise<string> {
-  const res = await githubJson(`/repos/${owner}/${repo}/contents/${encodeURIComponent(path).replaceAll('%2F', '/')}`, token);
-  if (!res.ok) return '';
-  const data = res.data as { content?: string; encoding?: string; type?: string };
-  if (data.type !== 'file' || !data.content) return '';
-  return decodeContent(data.content);
 }
 
 function mapMeta(raw: Record<string, unknown>): RepoMeta {
@@ -59,94 +33,112 @@ function mapMeta(raw: Record<string, unknown>): RepoMeta {
   const license = raw.license as { spdx_id?: string } | null;
   const spdx = license?.spdx_id && license.spdx_id !== 'NOASSERTION' ? license.spdx_id : null;
   return {
-    name: String(raw.name || ''),
-    fullName: String(raw.full_name || ''),
+    name: String(raw.name || ''), fullName: String(raw.full_name || ''),
     owner: owner?.login || String(raw.full_name || '').split('/')[0],
     description: raw.description ? String(raw.description) : null,
-    stars: Number(raw.stargazers_count || 0),
-    forks: Number(raw.forks_count || 0),
-    watchers: Number(raw.watchers_count || 0),
-    openIssues: Number(raw.open_issues_count || 0),
-    defaultBranch: String(raw.default_branch || 'main'),
-    license: spdx,
-    createdAt: String(raw.created_at || ''),
-    updatedAt: String(raw.updated_at || ''),
+    stars: Number(raw.stargazers_count || 0), forks: Number(raw.forks_count || 0),
+    watchers: Number(raw.watchers_count || 0), openIssues: Number(raw.open_issues_count || 0),
+    defaultBranch: String(raw.default_branch || 'main'), license: spdx,
+    createdAt: String(raw.created_at || ''), updatedAt: String(raw.updated_at || ''),
     pushedAt: String(raw.pushed_at || raw.updated_at || ''),
     topics: Array.isArray(raw.topics) ? raw.topics.map(String) : [],
-    archived: Boolean(raw.archived),
-    language: raw.language ? String(raw.language) : null,
-    htmlUrl: String(raw.html_url || ''),
-    homepage: raw.homepage ? String(raw.homepage) : null,
+    archived: Boolean(raw.archived), language: raw.language ? String(raw.language) : null,
+    htmlUrl: String(raw.html_url || ''), homepage: raw.homepage ? String(raw.homepage) : null,
   };
 }
 
-export async function fetchAnalysis(input: string, token?: string): Promise<Analysis> {
-  const ref: RepoRef = parseRepoRef(input);
-  const repoRes = await githubJson(`/repos/${ref.owner}/${ref.repo}`, token);
-  if (!repoRes.ok) throw new GitHubHttpError(repoRes.status, userMessage(repoRes.status));
-  const raw = repoRes.data as Record<string, unknown>;
-  if (raw.private === true) throw new GitHubHttpError(404, 'This repository is not publicly accessible.');
-  const meta = mapMeta(raw);
-
-  const [langsRes, rootRes, contribRes, relRes, commitRes] = await Promise.all([
-    githubJson(`/repos/${ref.owner}/${ref.repo}/languages`, token),
-    githubJson(`/repos/${ref.owner}/${ref.repo}/contents`, token),
-    githubJson(`/repos/${ref.owner}/${ref.repo}/contributors?per_page=1&anon=true`, token),
-    githubJson(`/repos/${ref.owner}/${ref.repo}/releases?per_page=1`, token),
-    githubJson(`/repos/${ref.owner}/${ref.repo}/commits?per_page=1`, token),
-  ]);
-
-  const languages = langsRes.ok ? (langsRes.data as Record<string, number>) : {};
-  const root = rootRes.ok && Array.isArray(rootRes.data) ? (rootRes.data as Array<{ name: string; type: string }>) : [];
-  const names = root.map((x) => x.name);
-
-  const wanted = INTERESTING.filter((n) => names.some((x) => x.toLowerCase() === n.toLowerCase()));
-  const workflowDir = names.includes('.github');
-  let workflowFiles: string[] = [];
-  if (workflowDir) {
-    const wf = await githubJson(`/repos/${ref.owner}/${ref.repo}/contents/.github/workflows`, token);
-    if (wf.ok && Array.isArray(wf.data)) {
-      workflowFiles = (wf.data as Array<{ name: string; type: string }>)
-        .filter((x) => x.type === 'file')
-        .map((x) => `.github/workflows/${x.name}`)
-        .slice(0, 6);
-    }
-  }
-
-  const filePaths = [...wanted, ...workflowFiles].slice(0, 16);
-  const contents = await Promise.all(filePaths.map(async (path) => ({ path, content: await textFile(ref.owner, ref.repo, path, token) })));
-  const files: FileHit[] = contents.filter((f) => f.content);
-
+function analyzeEvidence(data: {
+  repo: Record<string, unknown>;
+  languages: Record<string, number>;
+  root: Array<{ name?: string }>;
+  files: Array<{ path: string; content: string; size?: number; skipped?: boolean }>;
+  contributors: number | null;
+  latestRelease: string | null;
+  latestCommit: string | null;
+  analyzedAt?: string;
+}): Analysis {
+  const meta = mapMeta(data.repo);
+  const files: FileHit[] = data.files.filter(file => file.content).map(file => ({ path: file.path, content: file.content }));
+  const names = data.root.map(item => String(item.name || ''));
   const detections = detectSignals(files);
   const risks = detectRisks(files);
-  const readme = files.find((f) => /^readme/i.test(f.path))?.content || '';
-  const structure = files.map((f) => f.path);
+  const readme = files.find(file => /^readme/i.test(file.path))?.content || '';
+  const structure = files.map(file => file.path);
   const scores = computeScores({ meta, readmeLength: readme.length, structureCount: structure.length, risks });
   const { verdict, reasons } = decideVerdict({ meta, scores, risks, readmeLength: readme.length, detections: detections.length });
-
-  let contributors: number | null = null;
-  if (contribRes.ok) {
-    contributors = Array.isArray(contribRes.data) ? contribRes.data.length : null;
-  }
-
-  const releases = relRes.ok && Array.isArray(relRes.data) ? (relRes.data as Array<{ tag_name?: string }>) : [];
-  const commits = commitRes.ok && Array.isArray(commitRes.data) ? (commitRes.data as Array<{ commit?: { committer?: { date?: string } } }>) : [];
-
   return {
-    meta,
-    languages,
-    files: names,
-    detections,
-    risks,
-    scores,
-    verdict,
-    verdictReasons: reasons,
-    structure,
-    readmeExcerpt: readme.replace(/\s+/g, ' ').slice(0, 900),
-    contributors,
-    latestRelease: releases[0]?.tag_name || null,
-    latestCommit: commits[0]?.commit?.committer?.date || meta.pushedAt,
-    analyzedAt: new Date().toISOString(),
+    meta, languages: data.languages || {}, files: names, detections, risks, scores, verdict,
+    verdictReasons: reasons, structure, readmeExcerpt: readme.replace(/\s+/g, ' ').slice(0, 900),
+    contributors: data.contributors, latestRelease: data.latestRelease,
+    latestCommit: data.latestCommit || meta.pushedAt, analyzedAt: data.analyzedAt || new Date().toISOString(),
     method: 'static-analysis',
   };
+}
+
+async function fetchViaProxy(ref: RepoRef): Promise<Analysis> {
+  if (!supabase) throw new Error('proxy-unavailable');
+  const { data, error } = await supabase.functions.invoke('analyze-repo', { body: { mode: 'analyze', url: ref.url } });
+  if (error) throw error;
+  if (!data || data.error) throw new GitHubHttpError(400, String(data?.error || 'Analysis failed.'));
+  return analyzeEvidence(data);
+}
+
+async function githubJson(path: string): Promise<{ ok: true; status: number; data: any } | { ok: false; status: number }> {
+  const r = await fetch(`${API}${path}`, { headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } });
+  if (!r.ok) return { ok: false, status: r.status };
+  return { ok: true, status: r.status, data: await r.json() };
+}
+
+function decodeContent(encoded: string): string {
+  try {
+    return Uint8Array.from(atob(encoded.replace(/\s/g, '')), c => c.charCodeAt(0)).reduce((s, c) => s + String.fromCharCode(c), '');
+  } catch { return ''; }
+}
+
+async function textFile(owner: string, repo: string, path: string): Promise<{ path: string; content: string; size: number; skipped: boolean } | null> {
+  const res = await githubJson(`/repos/${owner}/${repo}/contents/${path.split('/').map(encodeURIComponent).join('/')}`);
+  if (!res.ok || res.data?.type !== 'file') return null;
+  const size = Number(res.data.size || 0);
+  if (size > MAX_FILE) return { path, content: '', size, skipped: true };
+  return { path, content: res.data.content ? decodeContent(res.data.content) : '', size, skipped: false };
+}
+
+async function fetchDirect(ref: RepoRef): Promise<Analysis> {
+  const repoRes = await githubJson(`/repos/${ref.owner}/${ref.repo}`);
+  if (!repoRes.ok) throw new GitHubHttpError(repoRes.status, userMessage(repoRes.status));
+  if (repoRes.data.private === true) throw new GitHubHttpError(404, 'This repository is not publicly accessible.');
+
+  const [langs, root, contributors, releases, commits] = await Promise.all([
+    githubJson(`/repos/${ref.owner}/${ref.repo}/languages`),
+    githubJson(`/repos/${ref.owner}/${ref.repo}/contents`),
+    githubJson(`/repos/${ref.owner}/${ref.repo}/contributors?per_page=1&anon=true`),
+    githubJson(`/repos/${ref.owner}/${ref.repo}/releases?per_page=1`),
+    githubJson(`/repos/${ref.owner}/${ref.repo}/commits?per_page=1`),
+  ]);
+  const rootItems = root.ok && Array.isArray(root.data) ? root.data : [];
+  const names = rootItems.map((item: { name?: string }) => String(item.name || ''));
+  const wanted = INTERESTING.filter(name => names.some((item: string) => item.toLowerCase() === name.toLowerCase()));
+  let workflowFiles: string[] = [];
+  if (names.includes('.github')) {
+    const workflows = await githubJson(`/repos/${ref.owner}/${ref.repo}/contents/.github/workflows`);
+    workflowFiles = workflows.ok && Array.isArray(workflows.data)
+      ? workflows.data.filter((item: any) => item.type === 'file').map((item: any) => `.github/workflows/${item.name}`).slice(0, 6) : [];
+  }
+  const filePaths = [...new Set([...wanted, ...workflowFiles])].slice(0, 16);
+  const files = (await Promise.all(filePaths.map(path => textFile(ref.owner, ref.repo, path)))).filter(Boolean) as Array<{ path: string; content: string; size: number; skipped: boolean }>;
+  return analyzeEvidence({
+    repo: repoRes.data,
+    languages: langs.ok ? langs.data : {},
+    root: rootItems,
+    files,
+    contributors: contributors.ok && Array.isArray(contributors.data) ? contributors.data.length : null,
+    latestRelease: releases.ok && Array.isArray(releases.data) ? releases.data[0]?.tag_name || null : null,
+    latestCommit: commits.ok && Array.isArray(commits.data) ? commits.data[0]?.commit?.committer?.date || null : null,
+  });
+}
+
+export async function fetchAnalysis(input: string): Promise<Analysis> {
+  const ref = parseRepoRef(input);
+  try { return await fetchViaProxy(ref); }
+  catch { return fetchDirect(ref); }
 }
