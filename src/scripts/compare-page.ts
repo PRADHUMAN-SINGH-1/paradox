@@ -10,8 +10,8 @@ export function bootCompare() {
   const form = document.querySelector<HTMLFormElement>('#compareForm');
   const left = document.querySelector<HTMLInputElement>('#repoA');
   const right = document.querySelector<HTMLInputElement>('#repoB');
-  const status = document.querySelector('#compareStatus');
-  const out = document.querySelector('#compareResult');
+  const status = document.querySelector<HTMLElement>('#compareStatus');
+  const out = document.querySelector<HTMLElement>('#compareResult');
   const params = new URLSearchParams(location.search);
   if (left && params.get('left')) left.value = params.get('left')!;
   if (right && params.get('right')) right.value = params.get('right')!;
