@@ -7,7 +7,6 @@ export default defineConfig({
   redirects: {
     '/account': '/dashboard',
     '/studio': '/verify',
-    '/ai-studio': '/about',
     '/ai-radar': '/trending',
   },
 });
