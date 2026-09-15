@@ -44,6 +44,7 @@ jobs:
 
       - name: Build Astro
         env:
+          # Public Supabase config is injected at build time from GitHub Actions secrets.
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build
