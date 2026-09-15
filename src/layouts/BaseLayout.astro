@@ -17,47 +17,45 @@ const { title, description, canonical='https://paradox.engineer/', robots='index
 const year = new Date().getFullYear();
 const pageUrl = new URL(canonical);
 const pagePath = pageUrl.pathname.replace(/\/+$/, '');
-const slugLabel = (slug) => slug.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+const slugLabel = (slug: string) => slug.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase());
 const breadcrumbPaths = pagePath ? pagePath.split('/').filter(Boolean) : [];
-const breadcrumb = breadcrumbPaths.length > 0 ? {
+const breadcrumb: Record<string, unknown> | null = breadcrumbPaths.length > 0 ? {
   '@type':'BreadcrumbList',
   itemListElement:[
     { '@type':'ListItem', position:1, name:'Home', item:'https://paradox.engineer/' },
     ...breadcrumbPaths.map((part, index) => ({ '@type':'ListItem', position:index + 2, name:slugLabel(part), item:`https://paradox.engineer/${breadcrumbPaths.slice(0, index + 1).join('/')}/` }))
   ]
 } : null;
-const websiteLd = {
-  '@context':'https://schema.org',
-  '@graph':[
-    {
-      '@type':'WebSite',
-      '@id':'https://paradox.engineer/#website',
-      name:'PARADOX',
-      url:'https://paradox.engineer/',
-      description:'Discover, inspect and verify public AI agents, GitHub projects and practical AI tools.',
-      inLanguage:'en-US',
-      publisher:{ '@id':'https://paradox.engineer/#organization' }
-    },
-    {
-      '@type':'Organization',
-      '@id':'https://paradox.engineer/#organization',
-      name:'PARADOX',
-      url:'https://paradox.engineer/',
-      sameAs:['https://www.linkedin.com/in/pradhuman--singh/']
-    },
-    {
-      '@type':'WebPage',
-      '@id':`${canonical}#webpage`,
-      url:canonical,
-      name:title,
-      description,
-      inLanguage:'en-US',
-      isPartOf:{ '@id':'https://paradox.engineer/#website' }
-    }
-  ]
-};
-if (breadcrumb) websiteLd['@graph'].push({ '@context':'https://schema.org', ...breadcrumb });
-if (jsonLd) websiteLd['@graph'].push(jsonLd);
+const graph: Record<string, unknown>[] = [
+  {
+    '@type':'WebSite',
+    '@id':'https://paradox.engineer/#website',
+    name:'PARADOX',
+    url:'https://paradox.engineer/',
+    description:'Discover, inspect and verify public AI agents, GitHub projects and practical AI tools.',
+    inLanguage:'en-US',
+    publisher:{ '@id':'https://paradox.engineer/#organization' }
+  },
+  {
+    '@type':'Organization',
+    '@id':'https://paradox.engineer/#organization',
+    name:'PARADOX',
+    url:'https://paradox.engineer/',
+    sameAs:['https://www.linkedin.com/in/pradhuman--singh/']
+  },
+  {
+    '@type':'WebPage',
+    '@id':`${canonical}#webpage`,
+    url:canonical,
+    name:title,
+    description,
+    inLanguage:'en-US',
+    isPartOf:{ '@id':'https://paradox.engineer/#website' }
+  }
+];
+if (breadcrumb) graph.push({ '@context':'https://schema.org', ...breadcrumb });
+if (jsonLd) graph.push(jsonLd as Record<string, unknown>);
+const websiteLd = { '@context':'https://schema.org', '@graph':graph };
 const websiteLdText = JSON.stringify(websiteLd).replace(/</g,'\\u003c');
 ---
 <!doctype html>
