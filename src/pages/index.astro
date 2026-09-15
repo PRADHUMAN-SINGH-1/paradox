@@ -4,48 +4,78 @@ import catalog from '../data/catalog.json';
 import { CATEGORIES } from '../lib/catalog.ts';
 const featured = catalog.slice(0, 8);
 const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug));
+const telemetry = [
+  { label: 'Catalogued agents', value: String(catalog.length) },
+  { label: 'Active categories', value: String(cats.length) },
+  { label: 'Live surfaces', value: 'Discover · Verify · Compare · Studio' },
+  { label: 'Execution mode', value: 'Static intelligence + live GitHub' },
+];
 ---
 <BaseLayout title="PARADOX — Discover, inspect and verify AI agents" description="Discover public AI agents, paste a GitHub URL, and inspect health, freshness, stack, and static risk indicators before you run anything.">
-  <main>
+  <main class="home-shell">
     <section class="hero-home">
-      <p class="eyebrow">AI AGENT INTELLIGENCE</p>
-      <h1>Discover AI agents you can actually <em>understand.</em></h1>
-      <p class="lead">Search public agents and GitHub projects, then inspect what they do, how fresh they are, what they require, and which static risk indicators show up in the repository.</p>
-      <form class="search-row" method="get" action="/agents/">
-        <label class="visually-hidden" for="homeQuery">Search AI agents</label>
-        <input id="homeQuery" name="q" type="search" placeholder="Search AI agents, skills, repositories..." />
-        <button type="submit">Search</button>
-      </form>
-      <div class="sub-actions">
-        <a href="/verify/">Verify a GitHub agent</a>
-        <a href="/compare/">Compare two repositories</a>
-      </div>
-      <div class="cats">
-        {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
+      <div class="hero-home-grid">
+        <div>
+          <p class="eyebrow">AI AGENT INTELLIGENCE / SYSTEM ONLINE</p>
+          <h1>Engineering-grade AI agent intelligence, not directory noise.</h1>
+          <p class="lead">Discover public agents and GitHub projects, inspect observable evidence, and compare repositories through an interface designed like a modern engineering product.</p>
+          <form class="search-row" method="get" action="/agents/">
+            <label class="visually-hidden" for="homeQuery">Search AI agents</label>
+            <input id="homeQuery" name="q" type="search" placeholder="Search agents, MCP skills, repositories, frameworks..." />
+            <button type="submit">Search intelligence</button>
+          </form>
+          <div class="sub-actions">
+            <a href="/verify/">Open Verify console</a>
+            <a href="/compare/">Launch Compare workspace</a>
+            <a href="/studio/">Run AI Studio</a>
+          </div>
+          <div class="cats">
+            {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
+          </div>
+        </div>
+        <aside class="hero-graph" aria-hidden="true">
+          <div class="graph-head"><span>LIVE SIGNAL MAP</span><b>Graph sync 99.4%</b></div>
+          <div class="graph-core">
+            <div class="node n1"></div><div class="node n2"></div><div class="node n3"></div><div class="node n4"></div><div class="node n5"></div>
+            <i class="path p1"></i><i class="path p2"></i><i class="path p3"></i><i class="path p4"></i>
+          </div>
+          <div class="telemetry-grid">
+            {telemetry.map((t) => <article><span>{t.label}</span><strong>{t.value}</strong></article>)}
+          </div>
+        </aside>
       </div>
     </section>
+
     <section class="section">
-      <h2>Featured agents</h2>
-      <div class="grid-2">
-        {featured.map((e) => (
+      <div class="section-head">
+        <h2>Featured repositories</h2>
+        <p>Data-rich cards with ownership, category, and next actions into profile, verify, and compare workflows.</p>
+      </div>
+      <div class="grid-2 agent-grid">
+        {featured.map((e, i) => (
           <article class="agent-card">
-            <div class="meta"><span>{e.owner}</span><span>{e.category}</span></div>
+            <div class="meta"><span>{e.owner}</span><span>{e.category}</span><span>Rank {String(i + 1).padStart(2, '0')}</span></div>
             <h3>{e.repo}</h3>
             <p>{e.summary}</p>
             <div class="links">
               <a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a>
               <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify</a>
+              <a href={`/compare/?left=${encodeURIComponent(`${e.owner}/${e.repo}`)}`}>Compare</a>
             </div>
           </article>
         ))}
       </div>
     </section>
-    <section class="section" style="padding-top:0">
-      <h2>Recently catalogued</h2>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Recently catalogued</h2>
+        <p>Progressive discovery feed for newly added public agents.</p>
+      </div>
       <div class="grid-2">
         {catalog.slice(8).map((e) => (
           <article class="agent-card">
-            <div class="meta"><span>{e.owner}/{e.repo}</span></div>
+            <div class="meta"><span>{e.owner}/{e.repo}</span><span>{e.category}</span></div>
             <h3>{e.repo}</h3>
             <p>{e.summary}</p>
             <div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div>

@@ -10,9 +10,11 @@ import { saveLocalAgent, saveLocalScan } from '../lib/local-state.ts';
 function statusEl(): HTMLElement | null { return document.querySelector<HTMLElement>('#verifyStatus'); }
 function resultEl(): HTMLElement | null { return document.querySelector<HTMLElement>('#result'); }
 
-function setStatus(text: string) {
+function setStatus(text: string, state: 'idle' | 'loading' | 'success' | 'error' = 'idle') {
   const el = statusEl();
-  if (el) el.textContent = text;
+  if (!el) return;
+  el.textContent = text;
+  el.dataset.state = state;
 }
 
 async function persist(analysis: Analysis) {
@@ -45,12 +47,12 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
   track('save_agent', { repository: fullName, verdict, score });
   if (!supabase) {
     saveLocalAgent({ repository: fullName, url, verdict, score, savedAt: new Date().toISOString() });
-    setStatus('Saved on this device. Create an account later to sync it across devices.');
+    setStatus('Saved on this device. Create an account later to sync it across devices.', 'success');
     return;
   }
   const user = await currentUser();
   if (!user) {
-    setStatus('Create a free account to save it.');
+    setStatus('Create a free account to save it.', 'error');
     location.href = `/auth/?next=${encodeURIComponent(location.pathname + location.search)}`;
     return;
   }
@@ -61,7 +63,7 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
     verdict,
     score,
   }, { onConflict: 'user_id,repository_full_name' });
-  setStatus(error ? "We couldn't save this agent. Try again." : 'Saved to your collection.');
+  setStatus(error ? "We couldn't save this agent. Try again." : 'Saved to your collection.', error ? 'error' : 'success');
 }
 
 export async function runVerify(url: string) {
@@ -70,17 +72,20 @@ export async function runVerify(url: string) {
   try {
     parsed = parseRepoRef(url);
   } catch {
-    setStatus('Enter a public GitHub repository URL.');
+    setStatus('Enter a public GitHub repository URL.', 'error');
     track('verify_failed', { repository: url });
     return;
   }
   if (!allowAnonymousVerify()) {
-    setStatus('Too many verification requests from this browser. Wait a few minutes or sign in.');
+    setStatus('Too many verification requests from this browser. Wait a few minutes or sign in.', 'error');
     return;
   }
   track('verify_started', { repository: url, source_page: location.pathname });
-  setStatus('Reading public GitHub evidence…');
-  if (result) result.hidden = true;
+  setStatus('Reading public GitHub evidence and building analysis graph…', 'loading');
+  if (result) {
+    result.hidden = false;
+    result.innerHTML = '<div class="loading-matrix" aria-hidden="true"></div>';
+  }
   try {
     const cached = readCache(parsed.fullName);
     const analysis = cached ?? await fetchAnalysis(parsed.url);
@@ -97,11 +102,15 @@ export async function runVerify(url: string) {
     }
     history.replaceState(null, '', `/verify/?url=${encodeURIComponent(analysis.meta.htmlUrl)}`);
     await persist(analysis);
-    setStatus('Static analysis complete. Save it if you want to come back later.');
+    setStatus('Static analysis complete. Review score rings, bars, and evidence panels below.', 'success');
     track('verify_completed', { repository: analysis.meta.fullName, verdict: analysis.verdict, score: analysis.scores.paradox });
   } catch (err) {
     const message = err instanceof GitHubHttpError ? err.message : "We couldn't complete this analysis. Try again.";
-    setStatus(message);
+    setStatus(message, 'error');
+    if (result) {
+      result.hidden = false;
+      result.innerHTML = '<p class="empty">Analysis failed before result rendering. Check repository visibility, URL, or rate limits and try again.</p>';
+    }
     track('verify_failed', { repository: url });
   }
 }

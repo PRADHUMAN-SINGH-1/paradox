@@ -5,6 +5,12 @@ import { track } from '../lib/analytics.ts';
 import { parseRepoRef } from '../lib/github-url.ts';
 import { currentUser, supabase } from '../lib/supabase.ts';
 
+function setStatus(status: Element | null, text: string, state: 'idle' | 'loading' | 'success' | 'error') {
+  if (!status) return;
+  status.textContent = text;
+  (status as HTMLElement).dataset.state = state;
+}
+
 export async function bootProfile(fullName: string) {
   const mount = document.querySelector('#liveAnalysis');
   const status = document.querySelector('#profileStatus');
@@ -13,7 +19,8 @@ export async function bootProfile(fullName: string) {
   try {
     const ref = parseRepoRef(fullName);
     const cached = readCache(ref.fullName);
-    if (status) status.textContent = cached ? 'Showing cached static analysis.' : 'Fetching live public GitHub evidence…';
+    setStatus(status, cached ? 'Showing cached static analysis.' : 'Fetching live public GitHub evidence…', 'loading');
+    mount.innerHTML = '<div class="loading-matrix" aria-hidden="true"></div>';
     const analysis = cached ?? await fetchAnalysis(ref.url);
     if (!cached) writeCache(analysis);
     mount.innerHTML = renderAnalysis(analysis, {
@@ -26,7 +33,7 @@ export async function bootProfile(fullName: string) {
         const saved = JSON.parse(localStorage.getItem(key) || '[]') as string[];
         if (!saved.includes(analysis.meta.fullName)) saved.push(analysis.meta.fullName);
         localStorage.setItem(key, JSON.stringify(saved));
-        if (status) status.textContent = 'Saved on this device. Create an account later to sync it across devices.';
+        setStatus(status, 'Saved on this device. Create an account later to sync it across devices.', 'success');
         return;
       }
       const user = await currentUser();
@@ -41,11 +48,11 @@ export async function bootProfile(fullName: string) {
         verdict: analysis.verdict,
         score: analysis.scores.paradox,
       }, { onConflict: 'user_id,repository_full_name' });
-      if (status) status.textContent = error ? "We couldn't save this agent. Try again." : 'Saved to your collection.';
+      setStatus(status, error ? "We couldn't save this agent. Try again." : 'Saved to your collection.', error ? 'error' : 'success');
     });
-    if (status) status.textContent = 'Live static analysis loaded.';
+    setStatus(status, 'Live static analysis loaded.', 'success');
   } catch (err) {
-    if (status) status.textContent = err instanceof Error ? err.message : "We couldn't complete this analysis. Try again.";
+    setStatus(status, err instanceof Error ? err.message : "We couldn't complete this analysis. Try again.", 'error');
   }
 }
 

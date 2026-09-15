@@ -3,19 +3,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Verify an AI agent — PARADOX" description="Paste a public GitHub repository URL. PARADOX runs static analysis for freshness, stack, dependencies and risk indicators." canonical="https://paradox.engineer/verify/">
   <main class="verify-page">
-    <header>
-      <span>STATIC ANALYSIS / PUBLIC GITHUB</span>
-      <h1>Verify an agent.<br /><em>See the evidence.</em></h1>
-      <p class="page-lead">Public repositories only. We fetch metadata and selected files, then score health, freshness, documentation, activity and static risk indicators. This is not a security audit.</p>
+    <header class="page-hero">
+      <div>
+        <span>STATIC ANALYSIS / PUBLIC GITHUB</span>
+        <h1>Verify as if you were auditing infra.</h1>
+        <p class="page-lead">We fetch repository metadata and selected files to score health, freshness, documentation, activity and static risk indicators. No execution of untrusted code.</p>
+      </div>
+      <aside class="hero-side-card" aria-hidden="true">
+        <b>Analysis console</b>
+        <p>Detections, risk indicators, score composition, and repository structure in one engineering surface.</p>
+      </aside>
     </header>
-    <form id="verifyForm">
-      <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>
-      <input id="repoUrl" type="url" name="url" autocomplete="url" placeholder="https://github.com/owner/repository" required />
-      <button type="submit">Analyze repository</button>
-    </form>
-    <div id="verifyStatus" class="status" role="status"></div>
-    <section id="result" class="result" hidden></section>
-    <p class="disclaimer"><b>Important:</b> repository contents are untrusted data. PARADOX never executes cloned code, Dockerfiles, or install scripts.</p>
+    <section class="tool-surface">
+      <form id="verifyForm" class="surface-form">
+        <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>
+        <input id="repoUrl" type="url" name="url" autocomplete="url" placeholder="https://github.com/owner/repository" required />
+        <button type="submit">Analyze repository</button>
+      </form>
+      <div id="verifyStatus" class="status" role="status" data-state="idle">Console idle. Submit a repository to begin analysis.</div>
+      <section id="result" class="result" hidden></section>
+      <p class="disclaimer"><b>Important:</b> repository contents are untrusted data. PARADOX never executes cloned code, Dockerfiles, or install scripts.</p>
+    </section>
   </main>
   <script>
     import '../../scripts/verify-page.ts';

@@ -3,18 +3,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Discover AI agents and skills — PARADOX" description="Search public GitHub AI agents, skills and developer workflows. Inspect freshness and open a profile before you run them." canonical="https://paradox.engineer/agents/">
   <main class="agents-page">
-    <header>
-      <span>DISCOVER / GITHUB SEARCH</span>
-      <h1>Find something<br /><em>worth inspecting.</em></h1>
-      <p class="page-lead">Search public repositories by name, topic or capability. Results come from GitHub Search. Live health scores appear after you open Verify or a catalogued profile.</p>
+    <header class="page-hero">
+      <div>
+        <span>DISCOVER / GITHUB SEARCH</span>
+        <h1>Search live repositories like an intelligence feed.</h1>
+        <p class="page-lead">Find public AI projects by capability, topic or stack. Filter instantly and inspect repositories with real analysis routes.</p>
+      </div>
+      <aside class="hero-side-card" aria-hidden="true">
+        <b>Signal channels</b>
+        <p>GitHub Search API + PARADOX profile graph</p>
+        <ul><li>Searchable</li><li>Filterable</li><li>Progressive cards</li></ul>
+      </aside>
     </header>
-    <form id="searchForm">
-      <label class="visually-hidden" for="query">Search query</label>
-      <input id="query" type="search" name="q" placeholder="coding agent, MCP, browser automation, Claude skill…" />
-      <button type="submit">Search</button>
-    </form>
-    <div id="searchStatus" class="status" role="status"></div>
-    <section id="results" class="grid-2 results"></section>
+    <section class="tool-surface">
+      <form id="searchForm" class="surface-form" autocomplete="off">
+        <label class="visually-hidden" for="query">Search query</label>
+        <input id="query" type="search" name="q" placeholder="coding agent, MCP, browser automation, benchmark harness..." />
+        <button type="submit">Search</button>
+      </form>
+      <div id="searchStatus" class="status" role="status" data-state="idle">Ready to search live public GitHub intelligence.</div>
+      <section id="results" class="grid-2 results"></section>
+    </section>
   </main>
   <script>
     import '../../scripts/search-page.ts';

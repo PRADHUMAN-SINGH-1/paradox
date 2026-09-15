@@ -3,20 +3,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Compare AI agent repositories — PARADOX" description="Compare two public AI agent repositories by freshness, health, documentation, stack and static risk indicators." canonical="https://paradox.engineer/compare/">
   <main class="compare-page">
-    <header>
-      <span>COMPARE / SIDE BY SIDE</span>
-      <h1>Two agents.<br /><em>Same evidence.</em></h1>
-      <p class="page-lead">Paste two public GitHub repositories. Missing fields stay Unknown. Nothing is invented.</p>
+    <header class="page-hero">
+      <div>
+        <span>COMPARE / SIDE BY SIDE</span>
+        <h1>Repository versus repository with visible evidence.</h1>
+        <p class="page-lead">Paste two public GitHub repositories and inspect the same static analysis signals in one tool surface.</p>
+      </div>
+      <aside class="hero-side-card" aria-hidden="true">
+        <b>Comparison workspace</b>
+        <p>Signal deltas, score bars, profile links and parity checks from the same analysis engine.</p>
+      </aside>
     </header>
-    <form id="compareForm">
-      <label class="visually-hidden" for="repoA">First repository</label>
-      <input id="repoA" type="text" placeholder="https://github.com/owner/repo" required />
-      <label class="visually-hidden" for="repoB">Second repository</label>
-      <input id="repoB" type="text" placeholder="https://github.com/owner/repo" required />
-      <button type="submit">Compare</button>
-    </form>
-    <div id="compareStatus" class="status" role="status"></div>
-    <section id="compareResult" hidden></section>
+    <section class="tool-surface">
+      <form id="compareForm" class="surface-form compare-form">
+        <label class="visually-hidden" for="repoA">First repository</label>
+        <input id="repoA" type="text" placeholder="https://github.com/owner/repo" required />
+        <label class="visually-hidden" for="repoB">Second repository</label>
+        <input id="repoB" type="text" placeholder="https://github.com/owner/repo" required />
+        <button type="submit">Compare</button>
+      </form>
+      <div id="compareStatus" class="status" role="status" data-state="idle">Workspace idle. Add repositories to compare.</div>
+      <section id="compareResult" hidden></section>
+    </section>
   </main>
   <script>
     import '../../scripts/compare-page.ts';
