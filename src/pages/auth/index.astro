@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const next = Astro.url.searchParams.get('next') || '/account/';
+---
+<BaseLayout title="Sign in — PARADOX" description="Create a PARADOX account to save GitHub agent analyses and build your verification workspace." canonical="https://paradox.engineer/auth/">
+<main class="auth-page">
+  <div class="auth-card">
+    <span class="eyebrow">PARADOX / ACCOUNT</span>
+    <h1>Keep your<br/><em>agent research.</em></h1>
+    <p>Sign up to save repository analyses, compare agents later and keep a personal verification history.</p>
+    <div class="tabs"><button class="active" data-mode="login">Sign in</button><button data-mode="signup">Create account</button></div>
+    <form id="authForm">
+      <label>Email<input id="email" type="email" autocomplete="email" required placeholder="you@example.com" /></label>
+      <label>Password<input id="password" type="password" autocomplete="current-password" required minlength="8" placeholder="At least 8 characters" /></label>
+      <button class="submit" type="submit"><span id="submitText">Sign in</span> ↗</button>
+    </form>
+    <div id="message" class="message" role="status"></div>
+  </div>
+</main>
+<script>
+  import { browserSupabase } from '../../lib/supabase';
+  const supabase = browserSupabase();
+  const next = ${JSON.stringify(next)};
+  let mode = 'login';
+  const form = document.querySelector('#authForm');
+  const message = document.querySelector('#message');
+  const submitText = document.querySelector('#submitText');
+  document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
+    mode = button.dataset.mode;
+    document.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('active', x === button));
+    submitText.textContent = mode === 'login' ? 'Sign in' : 'Create account';
+  }));
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    message.textContent = 'Working…';
+    const email = document.querySelector('#email').value.trim();
+    const password = document.querySelector('#password').value;
+    const result = mode === 'login'
+      ? await supabase.auth.signInWithPassword({ email, password })
+      : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/account/` } });
+    if (result.error) { message.textContent = result.error.message; return; }
+    message.textContent = mode === 'login' ? 'Signed in. Redirecting…' : 'Account created. Check your email if confirmation is enabled.';
+    if (mode === 'login' || result.data.session) location.assign(next);
+  });
+</script>
+<style>
+.auth-page{max-width:1200px;margin:auto;padding:90px 24px 120px}.auth-card{max-width:560px;margin:auto;border:1px solid var(--line);background:var(--paper);padding:40px}.eyebrow{font:700 9px 'DM Mono';letter-spacing:.14em;color:var(--accent)}.auth-card h1{font:400 clamp(58px,8vw,100px)/.82 'Instrument Serif';margin:18px 0}.auth-card h1 em{color:var(--accent);font-style:italic}.auth-card>p{color:var(--muted);line-height:1.7}.tabs{display:flex;border-bottom:1px solid var(--line);margin:30px 0 22px}.tabs button{border:0;background:transparent;padding:12px 0;margin-right:22px;color:var(--muted);font:700 9px 'DM Mono';cursor:pointer}.tabs button.active{color:var(--ink);border-bottom:2px solid var(--accent)}form{display:grid;gap:16px}label{display:grid;gap:7px;font:700 9px 'DM Mono';text-transform:uppercase;letter-spacing:.08em}input{border:1px solid var(--line);background:white;padding:14px;font:15px 'DM Sans';outline:none}.submit{border:0;background:var(--ink);color:#fff;padding:15px 18px;font:700 9px 'DM Mono';text-align:left}.message{min-height:22px;margin-top:14px;color:var(--muted);font:11px 'DM Mono'}
+</style>
+</BaseLayout>
