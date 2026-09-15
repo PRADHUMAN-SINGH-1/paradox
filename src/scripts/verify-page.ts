@@ -3,6 +3,7 @@ import { allowAnonymousVerify, readCache, writeCache } from '../lib/analysis/cac
 import { renderAnalysis } from '../lib/analysis/render.ts';
 import type { Analysis } from '../lib/analysis/types.ts';
 import { track } from '../lib/analytics.ts';
+import { parseRepoRef } from '../lib/github-url.ts';
 import { currentUser, supabase } from '../lib/supabase.ts';
 import { saveLocalAgent, saveLocalScan } from '../lib/local-state.ts';
 
@@ -40,7 +41,7 @@ function downloadAnalysis(analysis: Analysis) {
   window.setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
 
-function showSaveFeedback(message: string, analysis: Analysis, downloaded = false) {
+function showSaveFeedback(message: string, downloaded = false) {
   const status = statusEl();
   if (!status) return;
   status.textContent = message;
@@ -58,16 +59,11 @@ function showSaveFeedback(message: string, analysis: Analysis, downloaded = fals
 }
 
 async function persist(analysis: Analysis) {
-  saveLocalScan({
-    repository: analysis.meta.fullName,
-    verdict: analysis.verdict,
-    score: analysis.scores.paradox,
-    scannedAt: analysis.analyzedAt,
-  });
+  saveLocalScan({ repository: analysis.meta.fullName, verdict: analysis.verdict, score: analysis.scores.paradox, scannedAt: analysis.analyzedAt });
   if (!supabase) return;
   const user = await currentUser();
   if (!user) return;
-  const row = {
+  await supabase.from('scan_history').insert({
     user_id: user.id,
     repository_url: analysis.meta.htmlUrl,
     repository_full_name: analysis.meta.fullName,
@@ -79,8 +75,7 @@ async function persist(analysis: Analysis) {
       detections: analysis.detections,
       risks: analysis.risks.map((r) => ({ category: r.category, severity: r.severity, file: r.file })),
     },
-  };
-  await supabase.from('scan_history').insert(row);
+  });
 }
 
 async function save(fullName: string, url: string, verdict: string, score: number, analysis: Analysis) {
@@ -88,37 +83,28 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
   downloadAnalysis(analysis);
   if (!supabase) {
     saveLocalAgent({ repository: fullName, url, verdict, score, savedAt: new Date().toISOString() });
-    showSaveFeedback('Saved on this device and downloaded.', analysis, true);
+    showSaveFeedback('Saved on this device and downloaded.', true);
     return;
   }
   const user = await currentUser();
   if (!user) {
-    showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.', analysis, true);
-    window.setTimeout(() => {
-      location.href = `/auth/?next=${encodeURIComponent(location.pathname + location.search)}`;
-    }, 650);
+    showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.', true);
+    window.setTimeout(() => { location.href = `/auth/?next=${encodeURIComponent(location.pathname + location.search)}`; }, 650);
     return;
   }
-  const { error } = await supabase.from('saved_agents').upsert({
-    user_id: user.id,
-    repository_url: url,
-    repository_full_name: fullName,
-    verdict,
-    score,
-  }, { onConflict: 'user_id,repository_full_name' });
+  const { error } = await supabase.from('saved_agents').upsert({ user_id: user.id, repository_url: url, repository_full_name: fullName, verdict, score }, { onConflict: 'user_id,repository_full_name' });
   if (error) {
     setStatus('Local download complete, but dashboard save failed. Try again.');
     return;
   }
-  showSaveFeedback('Saved to your dashboard and downloaded.', analysis, true);
+  showSaveFeedback('Saved to your dashboard and downloaded.', true);
 }
 
 export async function runVerify(url: string) {
   const result = resultEl();
   let parsed: ReturnType<typeof parseRepoRef>;
-  try {
-    parsed = parseRepoRef(url);
-  } catch {
+  try { parsed = parseRepoRef(url); }
+  catch {
     setStatus('Enter a public GitHub repository URL.');
     track('verify_failed', { repository: url });
     return;
@@ -137,12 +123,8 @@ export async function runVerify(url: string) {
     if (result) {
       result.innerHTML = renderAnalysis(analysis);
       result.hidden = false;
-      result.querySelector('[data-save]')?.addEventListener('click', () => {
-        void save(analysis.meta.fullName, analysis.meta.htmlUrl, analysis.verdict, analysis.scores.paradox, analysis);
-      });
-      result.querySelector('[data-github]')?.addEventListener('click', () => {
-        track('github_clicked', { repository: analysis.meta.fullName });
-      });
+      result.querySelector('[data-save]')?.addEventListener('click', () => { void save(analysis.meta.fullName, analysis.meta.htmlUrl, analysis.verdict, analysis.scores.paradox, analysis); });
+      result.querySelector('[data-github]')?.addEventListener('click', () => { track('github_clicked', { repository: analysis.meta.fullName }); });
     }
     history.replaceState(null, '', `/verify/?url=${encodeURIComponent(analysis.meta.htmlUrl)}`);
     await persist(analysis);
@@ -158,15 +140,9 @@ export async function runVerify(url: string) {
 export function bootVerify() {
   const form = document.querySelector<HTMLFormElement>('#verifyForm');
   const input = document.querySelector<HTMLInputElement>('#repoUrl');
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (input) runVerify(input.value);
-  });
+  form?.addEventListener('submit', (e) => { e.preventDefault(); if (input) runVerify(input.value); });
   const q = new URLSearchParams(location.search).get('url');
-  if (q && input) {
-    input.value = q;
-    runVerify(q);
-  }
+  if (q && input) { input.value = q; runVerify(q); }
 }
 
 bootVerify();
