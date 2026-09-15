@@ -22,12 +22,16 @@ export async function bootProfile(fullName: string) {
     mount.querySelector('[data-save]')?.addEventListener('click', async () => {
       track('save_agent', { repository: analysis.meta.fullName });
       if (!supabase) {
-        if (status) status.textContent = 'Create a free account to save it. Authentication is not configured on this build.';
+        const key = 'paradox:saved-agents';
+        const saved = JSON.parse(localStorage.getItem(key) || '[]') as string[];
+        if (!saved.includes(analysis.meta.fullName)) saved.push(analysis.meta.fullName);
+        localStorage.setItem(key, JSON.stringify(saved));
+        if (status) status.textContent = 'Saved on this device. Create an account later to sync it across devices.';
         return;
       }
       const user = await currentUser();
       if (!user) {
-        location.href = `/auth/?next=${encodeURIComponent(location.pathname)}`;
+        location.href = `/auth/?next=${encodeURIComponent(location.href)}`;
         return;
       }
       const { error } = await supabase.from('saved_agents').upsert({
@@ -45,8 +49,10 @@ export async function bootProfile(fullName: string) {
   }
 }
 
+const pageRepo = new URLSearchParams(location.search).get('repo');
 const fromPage = document.body?.dataset.agent;
-if (fromPage) bootProfile(fromPage);
+if (pageRepo) bootProfile(pageRepo);
+else if (fromPage) bootProfile(fromPage);
 else {
   const m = location.pathname.match(/^\/agents\/([^/]+)\/([^/]+)\/?$/);
   if (m) bootProfile(`${m[1]}/${m[2]}`);
