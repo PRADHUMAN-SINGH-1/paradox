@@ -8,6 +8,7 @@
     "toolLabel":"Classroom bingo",
     "toolRoute":"/bingo-card-generator/",
     "topic":"school",
+    "geo":"Global",
     "score":1,
     "evidence":{"fallback":true}
   },
@@ -20,6 +21,7 @@
     "toolLabel":"Word-search puzzles",
     "toolRoute":"/word-search-generator/",
     "topic":"spelling",
+    "geo":"Global",
     "score":1,
     "evidence":{"fallback":true}
   },
@@ -32,6 +34,7 @@
     "toolLabel":"Tournament brackets",
     "toolRoute":"/tournament-bracket-generator/",
     "topic":"sports",
+    "geo":"Global",
     "score":1,
     "evidence":{"fallback":true}
   },
@@ -44,6 +47,7 @@
     "toolLabel":"Seating charts",
     "toolRoute":"/seating-chart-generator/",
     "topic":"events",
+    "geo":"Global",
     "score":1,
     "evidence":{"fallback":true}
   }
