@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /account/
+Disallow: /api/
 
-Sitemap: https://paradox.engineer/sitemap.xml
+Sitemap: https://paradox.engineer/sitemap-index.xml
