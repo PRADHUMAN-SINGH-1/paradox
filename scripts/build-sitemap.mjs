@@ -26,7 +26,7 @@ for (const tool of utilityOpportunities) {
 
 const blocked = new Set(blacklist.slugs || []);
 for (const item of seoOpportunities) {
-  if (!blocked.has(item.slug)) urls.add(`/use-cases/${item.slug}/`);
+  if (!blocked.has(item.slug) && item.evidence?.fallback !== true) urls.add(`/use-cases/${item.slug}/`);
 }
 
 const escapeXml = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
