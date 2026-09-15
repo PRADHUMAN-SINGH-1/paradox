@@ -11,29 +11,28 @@ function requiresAuth(form: HTMLFormElement) {
   return toolPaths.some((pattern) => pattern.test(location.pathname));
 }
 
-async function requireAuth(event?: Event) {
-  const user = await currentUser();
-  if (user) return true;
-  event?.preventDefault();
+function loginUrl() {
   const next = `${location.pathname}${location.search}${location.hash}`;
-  const url = `/auth/?next=${encodeURIComponent(next)}`;
-  location.href = url;
-  return false;
+  return `/auth/?next=${encodeURIComponent(next)}`;
 }
 
 for (const form of document.querySelectorAll<HTMLFormElement>('form')) {
   if (!requiresAuth(form)) continue;
   form.addEventListener('submit', (event) => {
-    void requireAuth(event);
+    event.preventDefault();
+    void currentUser().then((user) => {
+      if (user) form.requestSubmit();
+      else location.href = loginUrl();
+    });
   }, { capture: true });
 }
 
 for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth]')) {
-  button.addEventListener('click', async (event) => {
-    const ok = await currentUser();
-    if (ok) return;
+  button.addEventListener('click', (event) => {
     event.preventDefault();
-    const next = `${location.pathname}${location.search}${location.hash}`;
-    location.href = `/auth/?next=${encodeURIComponent(next)}`;
+    void currentUser().then((user) => {
+      if (user) return;
+      location.href = loginUrl();
+    });
   });
 }
