@@ -6,5 +6,5 @@
     "minImpressions": 100,
     "maxCtr": 0.005
   },
-  "slugs": []
+  "slugs": ["__none__"]
 }
