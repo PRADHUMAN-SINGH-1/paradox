@@ -36,10 +36,11 @@ function downloadAnalysis(analysis: Analysis) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  const href = link.href;
+  window.setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
 
-function showSaveFeedback(message: string, analysis: Analysis) {
+function showSaveFeedback(message: string, analysis: Analysis, downloaded = false) {
   const status = statusEl();
   if (!status) return;
   status.textContent = message;
@@ -48,11 +49,12 @@ function showSaveFeedback(message: string, analysis: Analysis) {
     panel = document.createElement('div');
     panel.id = 'verifySaveFeedback';
     panel.setAttribute('role', 'status');
-    panel.innerHTML = `<strong>Analysis saved.</strong><span>Keep a local evidence file and reopen the workspace later.</span><a href="/dashboard/">Open dashboard →</a>`;
+    panel.innerHTML = `<strong>Analysis saved.</strong><span>${downloaded ? 'A JSON evidence file was downloaded.' : 'Your analysis is now in your workspace.'}</span><a href="/dashboard/">Open dashboard →</a>`;
+    panel.style.cssText = 'display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;padding:14px 16px;border:1px solid #334038;border-radius:10px;background:#0d1411;color:#eaf0ec;font:500 12px/1.45 "DM Sans",sans-serif';
+    panel.querySelector('strong')?.setAttribute('style', 'color:#d9ff3f;font-weight:800');
+    panel.querySelector('a')?.setAttribute('style', 'margin-left:auto;color:#d9ff3f;font:700 10px "DM Mono",monospace;text-decoration:none');
     status.insertAdjacentElement('afterend', panel);
   }
-  panel.querySelector('a')?.setAttribute('href', '/dashboard/');
-  downloadAnalysis(analysis);
 }
 
 async function persist(analysis: Analysis) {
@@ -86,12 +88,12 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
   downloadAnalysis(analysis);
   if (!supabase) {
     saveLocalAgent({ repository: fullName, url, verdict, score, savedAt: new Date().toISOString() });
-    showSaveFeedback('Saved on this device and downloaded.', analysis);
+    showSaveFeedback('Saved on this device and downloaded.', analysis, true);
     return;
   }
   const user = await currentUser();
   if (!user) {
-    showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.', analysis);
+    showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.', analysis, true);
     window.setTimeout(() => {
       location.href = `/auth/?next=${encodeURIComponent(location.pathname + location.search)}`;
     }, 650);
@@ -105,10 +107,10 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
     score,
   }, { onConflict: 'user_id,repository_full_name' });
   if (error) {
-    setStatus("Local download complete, but dashboard save failed. Try again.");
+    setStatus('Local download complete, but dashboard save failed. Try again.');
     return;
   }
-  showSaveFeedback('Saved to your dashboard and downloaded.', analysis);
+  showSaveFeedback('Saved to your dashboard and downloaded.', analysis, true);
 }
 
 export async function runVerify(url: string) {
