@@ -35,7 +35,8 @@ import catalog from '../../data/catalog.json';
   </main>
   <script>
     const el = document.querySelector('#liveTrend');
-    const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+    const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>\"]/g, (c) => entities[c] ?? c);
     fetch('https://api.github.com/search/repositories?q=ai+agent&sort=updated&order=desc&per_page=8', { headers: { Accept: 'application/vnd.github+json' } })
       .then(async (r) => {
         if (!r.ok || !el) { if (el) el.innerHTML = '<p class="muted">Live GitHub activity is unavailable right now.</p>'; return; }
