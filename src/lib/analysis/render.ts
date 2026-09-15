@@ -4,6 +4,16 @@ export function escapeHtml(s: string): string {
   return String(s).replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 }
 
+function verdictLabel(verdict: Analysis['verdict']): string {
+  switch (verdict) {
+    case 'VERIFIED': return 'EVIDENCE-SUPPORTED';
+    case 'QUESTIONABLE': return 'NEEDS REVIEW';
+    case 'STALE': return 'STALE EVIDENCE';
+    case 'HIGH-RISK': return 'HIGH-RISK SIGNALS';
+    default: return 'UNKNOWN';
+  }
+}
+
 export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {}): string {
   const langs = Object.keys(x.languages).slice(0, 6).map(escapeHtml).join(', ') || 'Unknown';
   const dets = x.detections.length
@@ -25,9 +35,9 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
       <h2>${escapeHtml(x.meta.name)}</h2>
       <p>${escapeHtml(x.meta.description || 'No repository description provided.')}</p>
     </div>
-    <div class="verdict">${escapeHtml(x.verdict)}</div>
+    <div class="verdict" title="This label summarizes the evidence found by PARADOX; it is not a security certification.">${escapeHtml(verdictLabel(x.verdict))}</div>
   </div>
-  <p class="method">Method: static analysis of public GitHub evidence. Not a security certification.</p>
+  <p class="method"><strong>Evidence status:</strong> ${escapeHtml(verdictLabel(x.verdict))}. Based on the selected public GitHub evidence available at analysis time. This is not a security certification, safety guarantee, or code review.</p>
   <div class="metrics">
     <div class="metric" style="--score:${score(x.scores.paradox)}"><span>PARADOX SCORE</span><b>${x.scores.paradox}/100</b></div>
     <div class="metric" style="--score:${score(x.scores.health)}"><span>HEALTH</span><b>${x.scores.health}</b></div>
@@ -44,7 +54,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   </div>
   <div class="columns">
     <div class="panel">
-      <h3>WHY THIS VERDICT</h3>
+      <h3>WHY THIS EVIDENCE STATUS</h3>
       <ul>${reasons}</ul>
       <h3>REPOSITORY HEALTH</h3>
       <ul>
