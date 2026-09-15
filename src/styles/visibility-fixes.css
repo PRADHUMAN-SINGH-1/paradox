@@ -1,0 +1,32 @@
+/* PARADOX visibility + interaction pass — keep this stylesheet last */
+.paradox-home{background:#070909;color:#f1f5f0;min-height:100vh}
+.paradox-home .section{background:#090c0b!important;color:#eef3ee!important;border-bottom:1px solid rgba(255,255,255,.08)!important;padding-top:84px;padding-bottom:84px}
+.paradox-home .pv-section-head{position:relative;z-index:2}
+.paradox-home .pv-section-label{color:#98a39b!important;font-weight:700}
+.paradox-home .pv-section-head h2{color:#f4f7f2!important;font:500 clamp(48px,6vw,82px)/.9 'Instrument Serif',serif!important;letter-spacing:-.045em!important;margin:10px 0!important}
+.paradox-home .pv-section-head p{color:#aab4ad!important}
+.paradox-home .grid-2{gap:14px}
+.paradox-home .agent-card{background:linear-gradient(145deg,#111714,#0b100e)!important;color:#edf3ee!important;border:1px solid rgba(255,255,255,.11)!important;min-height:250px!important;padding:24px!important;box-shadow:0 18px 55px rgba(0,0,0,.16)!important;border-radius:10px!important;transform:translateZ(0);animation:paradox-card-in .65s both}
+.paradox-home .agent-card:nth-child(2){animation-delay:.06s}.paradox-home .agent-card:nth-child(3){animation-delay:.12s}.paradox-home .agent-card:nth-child(4){animation-delay:.18s}.paradox-home .agent-card:nth-child(5){animation-delay:.24s}.paradox-home .agent-card:nth-child(6){animation-delay:.30s}.paradox-home .agent-card:nth-child(7){animation-delay:.36s}.paradox-home .agent-card:nth-child(8){animation-delay:.42s}
+.paradox-home .agent-card::before{content:'';position:absolute;inset:0;background:linear-gradient(115deg,rgba(217,255,63,.07),transparent 30%,transparent 72%,rgba(104,229,209,.04));opacity:0;transition:opacity .28s ease;pointer-events:none}
+.paradox-home .agent-card::after{content:'↗';position:absolute;right:20px;bottom:17px;color:#647069!important;font:18px 'DM Mono',monospace;transition:color .2s ease,transform .2s ease}
+.paradox-home .agent-card:hover{transform:translateY(-5px)!important;border-color:rgba(217,255,63,.34)!important;box-shadow:0 28px 80px rgba(0,0,0,.28)!important}
+.paradox-home .agent-card:hover::before{opacity:1}.paradox-home .agent-card:hover::after{color:#d9ff3f!important;transform:translate(2px,-2px)}
+.paradox-home .agent-card .meta{color:#89958d!important;font:700 9px 'DM Mono',monospace;letter-spacing:.02em;text-transform:uppercase}
+.paradox-home .agent-card .meta span{color:#89958d!important}
+.paradox-home .agent-card h3{color:#f2f6f1!important;font:600 clamp(22px,2.2vw,28px)/1.05 'DM Sans',sans-serif!important;letter-spacing:-.025em!important;margin:28px 0 12px!important}
+.paradox-home .agent-card p{color:#9da8a0!important;line-height:1.65!important;font-size:13px!important;margin:0!important;max-width:590px}
+.paradox-home .agent-card .links{margin-top:auto!important;padding-top:22px;display:flex!important;gap:16px!important}
+.paradox-home .agent-card .links a{color:#d9ff3f!important;font:700 9px 'DM Mono',monospace!important;letter-spacing:.08em;text-transform:uppercase;text-decoration:none!important;position:relative;z-index:2}
+.paradox-home .agent-card .links a:hover{text-decoration:underline!important;text-underline-offset:4px}
+.paradox-home .section:nth-of-type(2){background:linear-gradient(180deg,#080b0a,#0b100e)!important}
+.paradox-home .section:nth-of-type(3){background:#080b0a!important}
+.paradox-home .section:nth-of-type(4){background:linear-gradient(180deg,#0a0e0c,#070909)!important}
+.paradox-home .section:nth-of-type(5){background:#070909!important}
+.paradox-home .si-trust-card,.paradox-home .si-step,.paradox-home .si-profile-band{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.paradox-home .si-trust-card:hover,.paradox-home .si-step:hover{transform:translateY(-2px);border-color:rgba(217,255,63,.22);box-shadow:0 18px 50px rgba(0,0,0,.2)}
+.paradox-home .si-profile-band{box-shadow:0 20px 70px rgba(0,0,0,.2)}
+.paradox-home .cats a{font-weight:600}
+@keyframes paradox-card-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:800px){.paradox-home .section{padding-top:60px;padding-bottom:60px}.paradox-home .pv-section-head h2{font-size:clamp(42px,12vw,64px)!important}.paradox-home .agent-card{min-height:225px!important}}
+@media(prefers-reduced-motion:reduce){.paradox-home .agent-card{animation:none!important;transition:none!important}.paradox-home .agent-card:hover,.paradox-home .si-trust-card:hover,.paradox-home .si-step:hover{transform:none!important}}
