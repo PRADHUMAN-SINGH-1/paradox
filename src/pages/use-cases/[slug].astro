@@ -28,7 +28,9 @@ const stepsByMode = {
 };
 export function getStaticPaths() {
   const blocked = new Set(blacklist.slugs || []);
-  return seoOpportunities.filter(item => !blocked.has(item.slug)).map(item => ({ params:{slug:item.slug}, props:{item} }));
+  return seoOpportunities
+    .filter(item => !blocked.has(item.slug) && item.evidence?.fallback !== true)
+    .map(item => ({ params:{slug:item.slug}, props:{item} }));
 }
 const { item } = Astro.props;
 const mode = modeById[item.toolId] || 'bingo';
