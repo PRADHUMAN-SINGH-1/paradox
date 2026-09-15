@@ -24,7 +24,7 @@ const websiteLd = jsonLd ?? {
   potentialAction: {
     '@type': 'SearchAction',
     target: 'https://paradox.engineer/agents/?q={search_term_string}',
-    'query-input': 'required name=search_term_string',
+    'query-input': 'required name=SearchAction',
   },
 };
 ---
@@ -32,7 +32,7 @@ const websiteLd = jsonLd ?? {
 <html lang="en">
   <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
-    <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(['js',new Date()]);gtag('config','G-5V0LJN6HTS');</script>
+    <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090b0b" />
