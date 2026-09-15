@@ -11,11 +11,12 @@ This is static analysis of public repositories. It is **not** a security certifi
 ## Architecture
 
 - Frontend: Astro static HTML on GitHub Pages
-- Auth / database: Supabase (optional until secrets are set)
-- Server-side GitHub (optional): Supabase Edge Function `analyze-repo`
-- Browser fallback: GitHub REST API for public repos (strict `github.com` URL parser)
+- Auth / database: Supabase
+- GitHub proxy: Supabase Edge Function `analyze-repo`
+- Deterministic analysis: TypeScript in `src/lib/analysis/`
+- Browser fallback: direct GitHub REST only when Supabase is unavailable, so local development and a minimally configured deployment remain usable
 
-No Express/Node server. The service-role key must never ship in frontend code.
+No Express/Node server. The Supabase service-role key and GitHub token must never ship to the browser.
 
 ## Local development
 
@@ -41,44 +42,48 @@ Frontend (safe to expose):
 - `PUBLIC_SUPABASE_URL`
 - `PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Set the same names as GitHub Actions repository secrets so production builds embed them.
-
 Server / Edge Function only:
 
-- `SUPABASE_SERVICE_ROLE_KEY` (Supabase dashboard, never commit)
-- `GITHUB_TOKEN` (optional; raises GitHub API rate limits for Edge Functions)
+- `GITHUB_TOKEN` (recommended; raises the GitHub API limit used by the proxy)
 
-The site **builds and most discovery UI works without these**. Auth, save, and history stay visibly unavailable until the public keys exist.
+Set the public Supabase values as GitHub Actions repository secrets. Set `GITHUB_TOKEN` as a Supabase Edge Function secret.
 
 ## Supabase setup
 
 1. Create a project.
-2. Run `supabase/migrations/20260915_agent_intelligence.sql` in the SQL editor.
-3. Enable email auth (confirmations on) and optional GitHub OAuth with redirect `https://paradox.engineer/dashboard/`.
-4. Copy the **project URL** and **anon/publishable** key into GitHub Actions secrets.
-5. Optional: `supabase functions deploy analyze-repo` and set `GITHUB_TOKEN`.
+2. Apply `supabase/migrations/20260915_agent_intelligence.sql`.
+3. Enable email/password auth and optional GitHub OAuth with redirect `https://paradox.engineer/dashboard/`.
+4. Add the project URL and publishable key to GitHub Actions secrets.
+5. Deploy the Edge Function and add `GITHUB_TOKEN` as its secret.
 
-Row Level Security: users can only read/write their own `profiles`, `saved_agents`, and `scan_history`. `analysis_cache` is public-read for summaries, written by the service role.
+The migration creates `profiles`, `saved_agents`, `scan_history`, and `analysis_cache` with Row Level Security. Users can access only their own account data; public analysis cache rows are read-only to the frontend.
 
 ## GitHub API behavior
 
 - Only `github.com` / `www.github.com` repository URLs are accepted.
-- Analysis fetches metadata plus a bounded set of files. No `npm install`, no Docker run, no shell of the target repo.
-- Browser calls are rate-limited by GitHub (60/hour unauthenticated) and a simple per-browser cooldown.
-- Cache TTL is 30 minutes in `localStorage`.
+- Production discovery and verification use the Supabase Edge Function, with short-lived in-memory caches and a server-side token when configured.
+- Analysis fetches metadata plus a bounded set of files. No `npm install`, Docker run, or shell execution of the target repository.
+- Files larger than the analysis limit are skipped before base64 decoding.
+- If Supabase is unavailable, the browser falls back to the public GitHub API so the core UI still works, but that degraded path is subject to GitHub's public rate limits.
 
 ## Deployment
 
-GitHub Actions on `main`: Node 22, `npm ci`, `npm run validate`, `astro build`, upload Pages artifact, deploy.
+GitHub Actions on `main`: Node 22, reproducible `npm ci`, full test suite, Astro build, Pages artifact, deploy.
 
-Do not enable `cache: npm` without a committed `package-lock.json`.
+If an older clone has no `package-lock.json`, the deployment workflow creates and commits one automatically before switching the build to `npm ci`.
 
 ## Security model
 
-See [SECURITY.md](SECURITY.md). README, source and issues are untrusted input and are never rendered as HTML without escaping.
+See [SECURITY.md](SECURITY.md). README, source and issues from third-party repositories are untrusted input. PARADOX never executes target repository code and escapes repository-derived text before rendering it.
+
+## SEO
+
+Only the focused agent-intelligence surface is included in the sitemap. Legacy Maker pages remain available where needed for compatibility but default to `noindex,nofollow` and are not part of the primary navigation.
+
+Public catalogued agent pages are prebuilt for SEO. Dynamic verification/search pages are intentionally non-indexed.
 
 ## Limitations
 
-- Catalogued `/agents/owner/repo/` pages are prebuilt. Arbitrary GitHub repos 404 on Pages; use `/verify/`.
-- Verdicts are heuristics.
-- Auth cannot be verified in CI without a live Supabase project.
+- Catalogued `/agents/owner/repo/` pages are prebuilt. Arbitrary GitHub repositories are analyzed through `/verify/` or `/agents/view/?repo=owner/repo`.
+- Verdicts and scores are heuristics derived from public evidence.
+- Supabase auth and Edge Functions require the production project secrets to be configured before they can be end-to-end tested.
