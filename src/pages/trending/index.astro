@@ -8,43 +8,10 @@ import catalog from '../../data/catalog.json';
       <span>TRENDING / DISCOVERY / LIVE SIGNAL</span>
       <h1>What is moving<br /><em>in public GitHub.</em></h1>
       <p class="page-lead">A curated discovery layer plus live GitHub activity for agent-related projects. PARADOX shows observable signals, not invented popularity scores.</p>
-      <div class="pp-trend-strip" aria-label="Trending signals">
-        <div><span>CATALOGUED</span><strong>{catalog.length}</strong><small>curated projects</small></div>
-        <div><span>LIVE SEARCH</span><strong>08</strong><small>recent repositories</small></div>
-        <div><span>SORTING</span><strong>UPDATE</strong><small>latest GitHub activity</small></div>
-        <div><span>METHOD</span><strong>OBSERVED</strong><small>no search-volume claims</small></div>
-      </div>
+      <div class="pp-trend-strip" aria-label="Trending signals"><div><span>CATALOGUED</span><strong>{catalog.length}</strong><small>curated projects</small></div><div><span>LIVE SEARCH</span><strong>08</strong><small>recent repositories</small></div><div><span>SORTING</span><strong>UPDATE</strong><small>latest GitHub activity</small></div><div><span>METHOD</span><strong>OBSERVED</strong><small>no search-volume claims</small></div></div>
     </header>
-    <section>
-      <div class="pp-section-head"><div><span>01 / CURATED SIGNAL</span><h2>Catalogued projects.</h2></div><p>Projects selected for relevance to public AI-agent tooling. Each card links to a deeper repository profile.</p></div>
-      <div class="grid-2 pp-trend-grid">
-        {catalog.map((e) => (
-          <article class="agent-card">
-            <div class="meta"><span>Recently catalogued</span><span>{e.category}</span></div>
-            <h3>{e.owner}/{e.repo}</h3>
-            <p>{e.summary}</p>
-            <div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open intelligence profile →</a></div>
-          </article>
-        ))}
-      </div>
-    </section>
-    <section>
-      <div class="pp-section-head"><div><span>02 / LIVE GITHUB</span><h2>Recently updated.</h2></div><p>Public repositories matching “ai agent”, sorted by latest update. Results can be empty when GitHub rate limits are reached.</p></div>
-      <div id="liveTrend" class="grid-2 pp-trend-grid"><p class="muted">Loading live GitHub activity…</p></div>
-    </section>
+    <section><div class="pp-section-head"><div><span>01 / CURATED SIGNAL</span><h2>Catalogued projects.</h2></div><p>Projects selected for relevance to public AI-agent tooling. Each card links to a deeper repository profile.</p></div><div class="grid-2 pp-trend-grid">{catalog.map((e) => (<article class="agent-card"><div class="meta"><span>Recently catalogued</span><span>{e.category}</span></div><h3>{e.owner}/{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open intelligence profile →</a></div></article>))}</div></section>
+    <section><div class="pp-section-head"><div><span>02 / LIVE GITHUB</span><h2>Recently updated.</h2></div><p>Observable public activity, sorted by latest update. PARADOX routes live search through its intelligence proxy when configured and keeps a direct fallback.</p></div><p id="trendStatus" class="muted">Connecting to live intelligence…</p><div id="liveTrend" class="grid-2 pp-trend-grid"><p class="muted">Loading live GitHub activity…</p></div></section>
   </main>
-  <script>
-    const el = document.querySelector('#liveTrend');
-    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
-    const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>\"]/g, (c) => entities[c] ?? c);
-    fetch('https://api.github.com/search/repositories?q=ai+agent&sort=updated&order=desc&per_page=8', { headers: { Accept: 'application/vnd.github+json' } })
-      .then(async (r) => {
-        if (!r.ok || !el) { if (el) el.innerHTML = '<p class="muted">Live GitHub activity is unavailable right now.</p>'; return; }
-        const data = await r.json();
-        el.innerHTML = (data.items || []).map((x: { full_name: string; description?: string; html_url: string; pushed_at: string }) =>
-          `<article class="agent-card"><div class="meta"><span>Rapid recent activity</span><span>${escapeHtml(x.pushed_at?.slice(0,10) || 'Unknown')}</span></div><h3>${escapeHtml(x.full_name)}</h3><p>${escapeHtml(x.description || 'No description provided.')}</p><div class="links"><a href="/verify/?url=${encodeURIComponent(x.html_url)}">Verify repository →</a></div></article>`
-        ).join('') || '<p class="muted">No live results returned.</p>';
-      })
-      .catch(() => { if (el) el.innerHTML = '<p class="muted">Live GitHub activity is unavailable right now.</p>'; });
-  </script>
+  <script>import '../../scripts/trending-page.ts';</script>
 </BaseLayout>
