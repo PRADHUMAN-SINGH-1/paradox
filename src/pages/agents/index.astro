@@ -1,9 +1,25 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Discover AI agents and skills" description="Search public GitHub AI agents, skills and developer workflows. Inspect repository freshness, stars, license and project activity before you run them.">
-<main class="agents-page"><header><span>AGENT INDEX / LIVE GITHUB SEARCH</span><h1>Find something<br/><em>worth running.</em></h1><p>Search public GitHub projects, then open a project for deeper verification.</p></header><form id="searchForm"><input id="query" type="search" placeholder="coding agent, research agent, browser automation…"/><button>SEARCH GITHUB ↗</button></form><div id="searchStatus" class="status"></div><section id="results" class="results"></section></main>
-<script type="module" src="/scripts/agents.js"></script>
-<style>.agents-page{padding:80px clamp(20px,7vw,110px);background:#f2efe7;min-height:90svh}.agents-page header>span{font:9px 'DM Mono';letter-spacing:.16em;color:#ff5a3d}.agents-page h1{font:700 clamp(70px,11vw,155px)/.78 'DM Sans';letter-spacing:-.09em;margin:28px 0}.agents-page h1 em{font-family:'Instrument Serif';font-weight:400;color:#ff5a3d}.agents-page header p{color:#686a63;font-size:17px}.agents-page form{display:flex;gap:10px;margin:35px 0}.agents-page input{flex:1;padding:16px;border:1px solid #aaa79e;background:#fff;font:12px 'DM Mono'}.agents-page form button{padding:16px;background:#0d0e0e;color:#fff;border:0;font:9px 'DM Mono'}.status{min-height:22px;font:10px 'DM Mono';color:#ff5a3d}.results{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.agent-card{background:#fff;border:1px solid #c3c0b7;padding:22px;display:flex;flex-direction:column;min-height:230px}.agent-card .meta{font:9px 'DM Mono';color:#777970;display:flex;justify-content:space-between}.agent-card h2{font-size:24px;margin:24px 0 10px}.agent-card p{color:#666960;line-height:1.5}.agent-card .links{margin-top:auto;display:flex;gap:15px}.agent-card a{font:9px 'DM Mono';color:#0d0e0e}.empty{padding:45px 0;color:#777970}@media(max-width:760px){.results{grid-template-columns:1fr}.agents-page form{display:grid}}
-</style>
+<BaseLayout title="Discover AI agents and skills — PARADOX" description="Search public GitHub AI agents, skills and developer workflows. Inspect freshness and open a profile before you run them." canonical="https://paradox.engineer/agents/">
+  <main class="agents-page">
+    <header>
+      <span>DISCOVER / GITHUB SEARCH</span>
+      <h1>Find something<br /><em>worth inspecting.</em></h1>
+      <p class="page-lead">Search public repositories by name, topic or capability. Results come from GitHub Search. Live health scores appear after you open Verify or a catalogued profile.</p>
+    </header>
+    <form id="searchForm">
+      <label class="visually-hidden" for="query">Search query</label>
+      <input id="query" type="search" name="q" placeholder="coding agent, MCP, browser automation, Claude skill…" />
+      <button type="submit">Search</button>
+    </form>
+    <div id="searchStatus" class="status" role="status"></div>
+    <section id="results" class="grid-2 results"></section>
+  </main>
+  <script>
+    import '../../scripts/search-page.ts';
+  </script>
 </BaseLayout>
+<style>
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>

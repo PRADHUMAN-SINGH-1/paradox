@@ -1,9 +1,3 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+return Astro.redirect('/dashboard/');
 ---
-<BaseLayout title="Your PARADOX account" description="Manage your saved agents and PARADOX verification history.">
-<main class="account-page"><div class="account-head"><div><span>ACCOUNT</span><h1>Your shortlist.</h1><p id="accountEmail">Loading…</p></div><button id="signOut">SIGN OUT</button></div><section><h2>Saved agents</h2><div id="savedAgents" class="grid"><p class="muted">Loading…</p></div></section><section><h2>Recent scans</h2><div id="scanHistory" class="grid"><p class="muted">Loading…</p></div></section></main>
-<script type="module" src="/scripts/account.js"></script>
-<style>.account-page{padding:80px clamp(20px,6vw,90px);background:#f2efe7;min-height:80svh}.account-head{display:flex;justify-content:space-between;gap:30px;align-items:end;border-bottom:1px solid #bbb8b0;padding-bottom:25px}.account-head span{font:9px 'DM Mono';letter-spacing:.16em;color:#ff5a3d}.account-head h1{font:700 clamp(70px,10vw,130px)/.78 'DM Sans';letter-spacing:-.08em;margin:20px 0 10px}.account-head p{color:#686a63}.account-head button{font:9px 'DM Mono';padding:12px 14px;background:#0d0e0e;color:#fff;border:0}.account-page section{margin-top:55px}.account-page h2{font:400 44px/.9 'Instrument Serif'}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.card{background:#fff;border:1px solid #c3c0b7;padding:18px}.card h3{margin:0 0 8px;font-size:17px}.card p{color:#676960;font:12px/1.5 'DM Mono'}.card a{font:9px 'DM Mono'}.muted{color:#777970}@media(max-width:650px){.account-head{display:block}.account-head button{margin-top:18px}}
-</style>
-</BaseLayout>

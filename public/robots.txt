@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /account/
+Disallow: /auth/
+Disallow: /dashboard/
+Disallow: /verify/?
 Sitemap: https://paradox.engineer/sitemap.xml

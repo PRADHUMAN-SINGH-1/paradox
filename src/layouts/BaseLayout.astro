@@ -1,37 +1,103 @@
 ---
 import '../styles/global.css';
-const { title, description, canonical = 'https://paradox.engineer/' } = Astro.props;
+import '../styles/product.css';
+const {
+  title,
+  description,
+  canonical = 'https://paradox.engineer/',
+  robots = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1',
+  jsonLd,
+} = Astro.props;
 const year = new Date().getFullYear();
-const jsonLd = { '@context':'https://schema.org', '@type':'WebSite', name:'PARADOX', url:'https://paradox.engineer/', description:'Discover, verify and compare public AI agents, skills and developer workflows.', potentialAction:{ '@type':'SearchAction', target:'https://paradox.engineer/agents/?q={search_term_string}', 'query-input':'required name=search_term_string' } };
+const websiteLd = jsonLd ?? {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'PARADOX',
+  url: 'https://paradox.engineer/',
+  description: 'Discover, inspect and verify public AI agents and GitHub projects.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://paradox.engineer/agents/?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+};
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
     <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
-    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#090b0b" /><meta name="description" content={description} /><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
-    <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" /><link rel="canonical" href={canonical} /><link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090b0b" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PARADOX" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.85em' font-size='86'>✳</text></svg>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4630615697632107" crossorigin="anonymous"></script>
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script><title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(websiteLd).replace(/</g, '\\u003c')}></script>
+    <title>{title}</title>
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">PARADOX<span>/ AGENT INTELLIGENCE</span></a>
-      <nav class="site-nav"><a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/about/">About</a></nav>
-      <div class="header-actions"><a class="header-search" href="/agents/">⌕ <span>Find agents</span></a><a class="header-cta" href="/auth/" data-auth-link>JOIN ↗</a></div>
+      <a class="brand" href="/">PARADOX<span> / AGENT INTELLIGENCE</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/agents/">Discover</a>
+        <a href="/verify/">Verify</a>
+        <a href="/compare/">Compare</a>
+        <a href="/trending/">Trending</a>
+        <a href="/about/">About</a>
+      </nav>
+      <div class="header-actions">
+        <a class="header-search" href="/agents/">Search</a>
+        <a class="header-cta" href="/auth/" data-auth-link>Sign in</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">Menu</button>
+      </div>
+      <nav class="mobile-nav" id="mobileNav">
+        <a href="/agents/">Discover</a>
+        <a href="/verify/">Verify</a>
+        <a href="/compare/">Compare</a>
+        <a href="/trending/">Trending</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+        <a href="/auth/" data-auth-link>Sign in</a>
+      </nav>
     </header>
     <slot />
     <footer class="site-footer">
-      <div><strong>PARADOX</strong><span>Discover, inspect and compare public AI agents and skills.</span></div>
-      <nav><a href="/agents/">Discover</a><a href="/verify/">Verify an agent</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a></nav>
-      <div><a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn</a><a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a></div>
-      <small>© {year} PARADOX ENGINEER</small>
+      <div>
+        <strong>PARADOX</strong>
+        <span>Discover, inspect and verify public AI agents and skills.</span>
+      </div>
+      <nav aria-label="Footer">
+        <a href="/agents/">Discover</a>
+        <a href="/verify/">Verify</a>
+        <a href="/compare/">Compare</a>
+        <a href="/trending/">Trending</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </nav>
+      <div>
+        <a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn</a>
+        <a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a>
+      </div>
+      <small>© {year} PARADOX · Static analysis is not a security certification</small>
     </footer>
-    <script type="module" src="/scripts/auth.js"></script>
+    <script>
+      import '../scripts/header-auth.ts';
+    </script>
   </body>
 </html>

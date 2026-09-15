@@ -1,0 +1,114 @@
+[
+  {
+    "owner": "browser-use",
+    "repo": "browser-use",
+    "category": "browser-agents",
+    "summary": "Python library that lets language models operate a real browser for agentic web tasks.",
+    "topics": ["browser", "agents", "playwright"]
+  },
+  {
+    "owner": "openai",
+    "repo": "openai-agents-python",
+    "category": "coding-agents",
+    "summary": "Official Python SDK for building OpenAI Agents SDK workflows, tools and handoffs.",
+    "topics": ["openai", "agents", "python"]
+  },
+  {
+    "owner": "crewAIInc",
+    "repo": "crewAI",
+    "category": "multi-agent",
+    "summary": "Framework for composing role-based multi-agent crews that collaborate on tasks.",
+    "topics": ["multi-agent", "langchain"]
+  },
+  {
+    "owner": "langchain-ai",
+    "repo": "langgraph",
+    "category": "multi-agent",
+    "summary": "Graph-based orchestration for stateful LLM agents and multi-actor workflows.",
+    "topics": ["langgraph", "agents"]
+  },
+  {
+    "owner": "microsoft",
+    "repo": "autogen",
+    "category": "multi-agent",
+    "summary": "Microsoft AutoGen multi-agent conversation and workflow framework.",
+    "topics": ["autogen", "multi-agent"]
+  },
+  {
+    "owner": "All-Hands-AI",
+    "repo": "OpenHands",
+    "category": "coding-agents",
+    "summary": "Open software-development agent that can edit code, run commands and browse.",
+    "topics": ["coding-agent", "devops"]
+  },
+  {
+    "owner": "assafelovic",
+    "repo": "gpt-researcher",
+    "category": "research-agents",
+    "summary": "Autonomous research agent that searches, crawls and synthesizes reports.",
+    "topics": ["research", "rag"]
+  },
+  {
+    "owner": "run-llama",
+    "repo": "llama_index",
+    "category": "rag-agents",
+    "summary": "Data framework for LLM applications with retrieval, indexing and agent interfaces.",
+    "topics": ["rag", "llamaindex"]
+  },
+  {
+    "owner": "modelcontextprotocol",
+    "repo": "servers",
+    "category": "mcp-tooling",
+    "summary": "Reference MCP servers exposing tools, data sources and local integrations.",
+    "topics": ["mcp", "tools"]
+  },
+  {
+    "owner": "huggingface",
+    "repo": "smolagents",
+    "category": "ai-assistants",
+    "summary": "Hugging Face library for small, hackable agents that write and run Python.",
+    "topics": ["huggingface", "agents"]
+  },
+  {
+    "owner": "pydantic",
+    "repo": "pydantic-ai",
+    "category": "ai-assistants",
+    "summary": "Pydantic-first agent framework with typed tools, models and structured output.",
+    "topics": ["pydantic", "agents"]
+  },
+  {
+    "owner": "Significant-Gravitas",
+    "repo": "AutoGPT",
+    "category": "automation-agents",
+    "summary": "Long-running autonomous agent platform for goal-directed tool use.",
+    "topics": ["autogpt", "automation"]
+  },
+  {
+    "owner": "continuedev",
+    "repo": "continue",
+    "category": "coding-agents",
+    "summary": "Open-source coding assistant that runs in the IDE with local or hosted models.",
+    "topics": ["coding", "ide"]
+  },
+  {
+    "owner": "lastmile-ai",
+    "repo": "mcp-agent",
+    "category": "mcp-tooling",
+    "summary": "Build effective agents on top of the Model Context Protocol.",
+    "topics": ["mcp", "agents"]
+  },
+  {
+    "owner": "chroma-core",
+    "repo": "chroma",
+    "category": "data-agents",
+    "summary": "Open-source embedding database commonly used in RAG and agent memory.",
+    "topics": ["vector-db", "rag"]
+  },
+  {
+    "owner": "google-gemini",
+    "repo": "gemini-cli",
+    "category": "coding-agents",
+    "summary": "Command-line interface for Gemini models aimed at developer workflows.",
+    "topics": ["gemini", "cli"]
+  }
+]

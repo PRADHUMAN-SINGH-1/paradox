@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import catalog from '../../../data/catalog.json';
+import { CATEGORIES } from '../../../lib/catalog.ts';
+
+export function getStaticPaths() {
+  return CATEGORIES
+    .filter((c) => catalog.some((e) => e.category === c.slug))
+    .map((c) => ({ params: { slug: c.slug }, props: { category: c, items: catalog.filter((e) => e.category === c.slug) } }));
+}
+
+const { category, items } = Astro.props;
+const canonical = `https://paradox.engineer/categories/${category.slug}/`;
+---
+<BaseLayout title={`${category.label} — PARADOX`} description={`Public ${category.label.toLowerCase()} with repository evidence, freshness and static analysis.`} canonical={canonical}>
+  <main class="agents-page">
+    <nav class="crumbs"><a href="/">Home</a> / <a href="/agents/">Agents</a> / {category.label}</nav>
+    <header>
+      <span>CATEGORY</span>
+      <h1>{category.label}</h1>
+      <p class="page-lead">Catalogued projects in this category. Search GitHub for a wider set.</p>
+    </header>
+    <div class="grid-2">
+      {items.map((e) => (
+        <article class="agent-card">
+          <div class="meta"><span>{e.owner}</span></div>
+          <h2>{e.repo}</h2>
+          <p>{e.summary}</p>
+          <div class="links">
+            <a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a>
+            <a href={`/agents/?q=${encodeURIComponent(category.query)}`}>Search GitHub</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</BaseLayout>

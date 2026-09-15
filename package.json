@@ -5,10 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/build-sitemap.mjs",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "node --experimental-strip-types --test tests/analysis.test.ts",
+    "validate": "node --check scripts/fetch-demand.js && node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs && npm test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.57.4",
     "astro": "7.3.2"
   },
   "engines": {

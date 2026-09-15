@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import catalog from '../../../data/catalog.json';
+import { CATEGORIES } from '../../../lib/catalog.ts';
+
+export function getStaticPaths() {
+  return catalog.map((entry) => ({ params: { owner: entry.owner, repo: entry.repo }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const fullName = `${entry.owner}/${entry.repo}`;
+const canonical = `https://paradox.engineer/agents/${entry.owner}/${entry.repo}/`;
+const category = CATEGORIES.find((c) => c.slug === entry.category);
+const related = catalog.filter((e) => e.category === entry.category && e.repo !== entry.repo).slice(0, 4);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: entry.repo,
+      url: canonical,
+      description: entry.summary,
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'Any',
+      codeRepository: `https://github.com/${fullName}`,
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://paradox.engineer/' },
+        { '@type': 'ListItem', position: 2, name: 'Agents', item: 'https://paradox.engineer/agents/' },
+        { '@type': 'ListItem', position: 3, name: fullName, item: canonical },
+      ],
+    },
+  ],
+};
+---
+<BaseLayout
+  title={`${entry.repo} — AI Agent Analysis | PARADOX`}
+  description={entry.summary}
+  canonical={canonical}
+  jsonLd={jsonLd}
+>
+  <main class="verify-page" data-agent={fullName}>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a> / <a href="/agents/">Agents</a>
+      {category && <> / <a href={`/categories/${category.slug}/`}>{category.label}</a></>}
+      / {fullName}
+    </nav>
+    <header>
+      <span>PUBLIC AGENT PROFILE / STATIC ANALYSIS</span>
+      <h1>{entry.repo}</h1>
+      <p class="page-lead">{entry.summary}</p>
+      <p class="badge">{fullName} · {category?.label || entry.category}</p>
+    </header>
+    <section>
+      <h2>What it does</h2>
+      <p class="page-lead">{entry.summary} Topics observed in the catalog: {entry.topics.join(', ') || 'Unknown'}.</p>
+    </section>
+    <p id="profileStatus" class="status" role="status">Loading live GitHub evidence…</p>
+    <div id="liveAnalysis"></div>
+    <section>
+      <h2>Similar agents</h2>
+      <div class="grid-2">
+        {related.map((e) => (
+          <article class="agent-card">
+            <h3>{e.owner}/{e.repo}</h3>
+            <p>{e.summary}</p>
+            <div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div>
+          </article>
+        ))}
+      </div>
+      {!related.length && <p class="muted">No similar catalogued agents yet.</p>}
+    </section>
+    <p class="links" style="margin-top:24px">
+      <a href={`/compare/?left=${encodeURIComponent(fullName)}`}>Compare</a>
+      · <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${fullName}`)}`}>Verify again</a>
+      · <a href="/trending/">Trending</a>
+    </p>
+  </main>
+  <script>
+    import '../../../scripts/profile-page.ts';
+  </script>
+</BaseLayout>

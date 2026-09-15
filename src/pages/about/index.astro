@@ -1,4 +1,20 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<MakerLayout title="About PARADOX Makers" description="About PARADOX Makers, a free browser-first generator studio."><main class="maker-main"><article class="maker-why"><div class="maker-label">ABOUT</div><h1>Useful first.<br/>Fancy later.</h1><p>PARADOX Makers is a collection of tiny browser tools that turn a simple input into something useful: a bingo card, a word search, a team list, a bracket, a raffle sheet, a seating chart or a certificate.</p><h2>Why generators?</h2><p>People often know exactly what they need but do not want to learn a software package to make it. A focused generator can remove that friction in seconds.</p><h2>Why no account?</h2><p>The core product is designed around fast, local generation. There is no reason to make someone register just to create a worksheet or randomize a group.</p><h2>How the site is funded</h2><p>The basic generators are free. PARADOX Makers uses legitimate advertising to support the public site rather than putting routine creation behind a subscription.</p></article></main></MakerLayout>
+<BaseLayout title="About PARADOX" description="What PARADOX is, how static analysis works, and what VERIFIED does and does not mean." canonical="https://paradox.engineer/about/">
+  <main class="legal">
+    <p class="label">ABOUT</p>
+    <h1>AI agent intelligence, not another chatbot.</h1>
+    <article>
+      <p>PARADOX helps developers and AI builders discover public AI agents, skills and GitHub projects, then inspect whether those projects look active, documented and potentially risky — before installing them.</p>
+      <h2>How analysis works</h2>
+      <p>The verifier reads public GitHub metadata and a limited set of files (README, manifests, Docker files, workflows). It runs <strong>deterministic static analysis</strong> in the browser or, when configured, in a Supabase Edge Function. Repository contents are treated as data. Instructions inside READMEs are never followed.</p>
+      <h2>What VERIFIED means</h2>
+      <p>VERIFIED means the repository is public, analyzable, has usable documentation, and did not cluster high static-risk patterns. It does <strong>not</strong> mean the software is secure, reviewed, or safe to run.</p>
+      <h2>Limitations</h2>
+      <p>We do not execute cloned code, Dockerfiles, or install scripts. We do not certify security. Evidence can be incomplete, stale the moment a commit lands, or miss obfuscated behavior. Unknown is shown when we lack evidence.</p>
+      <h2>Source methodology</h2>
+      <p>Discovery uses a curated catalog plus GitHub Search. Trending uses recent GitHub activity and catalog inclusion reasons — never claimed Google search volume.</p>
+    </article>
+  </main>
+</BaseLayout>

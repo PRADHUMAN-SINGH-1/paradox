@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const path = Astro.url.pathname;
+const agent = path.match(/^\/agents\/([^/]+)\/([^/]+)\/?$/);
+---
+<BaseLayout title="Page not found — PARADOX" description="That URL is not a published PARADOX page." canonical="https://paradox.engineer/404.html" robots="noindex,nofollow">
+  <main class="legal">
+    <p class="label">404</p>
+    <h1>{agent ? 'This agent is not in the public catalog.' : 'This page is not published.'}</h1>
+    {agent ? (
+      <p class="page-lead">GitHub Pages only prebuilds catalogued profiles. You can still run static analysis on the public repository.</p>
+    ) : (
+      <p class="page-lead">The link may be outdated. Search or verify a GitHub URL instead.</p>
+    )}
+    {agent && (
+      <p><a class="primary-btn" href={`/verify/?url=${encodeURIComponent(`https://github.com/${agent[1]}/${agent[2]}`)}`}>Verify {agent[1]}/{agent[2]}</a></p>
+    )}
+    <p><a href="/">Home</a> · <a href="/agents/">Discover</a> · <a href="/verify/">Verify</a></p>
+  </main>
+</BaseLayout>

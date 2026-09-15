@@ -1,0 +1,76 @@
+.px{padding-left:clamp(20px,6vw,96px);padding-right:clamp(20px,6vw,96px)}
+.hero-home{background:#090b0b;color:#eee;padding:72px clamp(20px,6vw,96px) 88px}
+.hero-home .eyebrow{font:9px 'DM Mono',monospace;letter-spacing:.16em;color:#ff5a3d}
+.hero-home h1{font:700 clamp(48px,9vw,112px)/.82 'DM Sans',sans-serif;letter-spacing:-.07em;margin:22px 0 16px;max-width:18ch}
+.hero-home h1 em{font:400 clamp(40px,7vw,92px)/.9 'Instrument Serif',serif;color:#d9ff3f}
+.hero-home .lead{max-width:640px;color:#aeb1aa;font-size:18px;line-height:1.6}
+.search-row{display:flex;gap:10px;margin-top:28px;max-width:760px}
+.search-row input{flex:1;min-width:0;padding:16px;border:1px solid #3a3d38;background:#151817;color:#fff;font:13px 'DM Mono',monospace}
+.search-row button,.primary-btn{padding:16px 18px;background:#d9ff3f;color:#090b0b;border:0;font:10px 'DM Mono',monospace;letter-spacing:.06em}
+.sub-actions{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px}
+.sub-actions a{font:10px 'DM Mono',monospace;color:#fff;text-decoration:underline}
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.cats a{border:1px solid #3a3d38;padding:8px 10px;font:10px 'DM Mono',monospace;color:#d9ff3f}
+.section{padding:64px clamp(20px,6vw,96px);background:#f2efe7}
+.section h2{font:400 clamp(36px,5vw,64px)/.95 'Instrument Serif',serif;margin:0 0 24px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.agent-card,.card{background:#fff;border:1px solid #c3c0b7;padding:22px;display:flex;flex-direction:column;min-height:210px}
+.agent-card .meta,.card .meta{font:9px 'DM Mono',monospace;color:#777970;display:flex;gap:12px;flex-wrap:wrap}
+.agent-card h2,.agent-card h3,.card h3{font-size:22px;margin:18px 0 8px}
+.agent-card p,.card p{color:#666960;line-height:1.5;flex:1}
+.agent-card .links,.card .links, .actions-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.agent-card a,.card a,.actions-row a{font:10px 'DM Mono',monospace}
+.verify-page,.agents-page,.compare-page,.legal,.account-page,.auth-page,.contact-page{padding:72px clamp(20px,6vw,96px);background:#f2efe7;min-height:80svh}
+.verify-page header>span,.agents-page header>span,.compare-page header>span,.legal .label,.contact-page .label,.account-page span{font:9px 'DM Mono',monospace;letter-spacing:.16em;color:#ff5a3d}
+.verify-page h1,.agents-page h1,.compare-page h1,.legal h1,.contact-page h1,.account-page h1,.auth-card h1{font:700 clamp(44px,8vw,96px)/.84 'DM Sans',sans-serif;letter-spacing:-.07em;margin:20px 0}
+.verify-page h1 em,.agents-page h1 em,.compare-page h1 em,.contact-page h1 em{font:400 .85em/.9 'Instrument Serif',serif;color:#ff5a3d}
+.page-lead{max-width:700px;color:#686a63;font-size:17px;line-height:1.65}
+.verify-page form,.agents-page form{display:flex;gap:10px;margin:28px 0 12px}
+.verify-page input,.agents-page input,.compare-page input,.auth-card input{flex:1;min-width:0;padding:16px;border:1px solid #aaa79e;background:#fff;font:12px 'DM Mono',monospace}
+.verify-page form button,.agents-page form button,.compare-page form button{padding:16px;background:#0d0e0e;color:#fff;border:0;font:9px 'DM Mono',monospace;white-space:nowrap}
+.status{min-height:24px;font:11px 'DM Mono',monospace;color:#ff5a3d}
+.result-head{display:flex;justify-content:space-between;gap:20px;align-items:end;border-bottom:1px solid #aaa79e;padding-bottom:20px}
+.result-head h2{font:400 48px/.9 'Instrument Serif',serif;margin:8px 0}
+.verdict{font:700 12px 'DM Mono',monospace;padding:10px 12px;border:1px solid #0d0e0e;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#aaa79e;margin:12px 0}
+.metric{background:#fff;padding:18px}
+.metric span{font:9px 'DM Mono',monospace;color:#777970}
+.metric b{display:block;font-size:26px;margin-top:8px}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.panel{background:#0d0e0e;color:#fff;padding:22px;margin-top:12px}
+.panel h3{font:9px 'DM Mono',monospace;letter-spacing:.12em;color:#ff5a3d}
+.panel ul{padding-left:18px;line-height:1.7;color:#c7cac3}
+.panel code{font:11px 'DM Mono',monospace;color:#d9ff3f;display:inline-block;margin-top:4px}
+.save,.primary-btn{margin-top:4px;padding:13px 16px;background:#d9ff3f;color:#0d0e0e;border:0;font:9px 'DM Mono',monospace;cursor:pointer}
+.method,.disclaimer,.note,.muted{color:#777970;font:12px/1.6 'DM Mono',monospace}
+.badge{font:9px 'DM Mono',monospace;color:#ff5a3d}
+.compare-page form{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin:28px 0}
+.table-wrap{overflow:auto;border:1px solid #c3c0b7;background:#fff}
+.compare-table{width:100%;border-collapse:collapse;min-width:640px}
+.compare-table th,.compare-table td{padding:12px 14px;border-bottom:1px solid #e4e0d6;text-align:left;font-size:14px}
+.compare-table th{font:10px 'DM Mono',monospace;text-transform:uppercase}
+.auth-page{display:grid;place-items:center}
+.auth-card{width:min(480px,100%);background:#0d0e0e;color:#fff;padding:34px}
+.auth-card form{display:grid;gap:10px;margin-top:22px}
+.auth-card input{background:#151817;color:#fff;border-color:#3b3e39}
+.auth-card button{font:11px 'DM Mono',monospace;padding:14px;border:1px solid #3b3e39;background:#d9ff3f;color:#0d0e0e;cursor:pointer}
+.auth-card .oauth,.auth-card .link-btn{background:transparent;color:#fff}
+.auth-card .link-btn{border:0;text-align:left;padding:8px 0}
+.crumbs{font:10px 'DM Mono',monospace;color:#777970;margin-bottom:18px}
+.crumbs a{text-decoration:underline;color:inherit}
+.legal article{max-width:720px}
+.legal h2{font:400 32px 'Instrument Serif',serif;margin:28px 0 8px}
+.legal p{color:#4f524c;line-height:1.7}
+.account-head{display:flex;justify-content:space-between;gap:24px;align-items:end;border-bottom:1px solid #bbb8b0;padding-bottom:24px}
+.site-header{background:#090b0b;color:#eee;border-bottom:1px solid #222}
+.site-header .brand span{color:#d9ff3f}
+.site-header .site-nav a{color:#c7cac3}
+.site-header .header-cta{background:#d9ff3f;color:#090b0b;border-radius:0}
+.site-footer{background:#090b0b;color:#9ea29a}
+.empty{padding:40px 0;color:#777970}
+@media (max-width:800px){
+  .grid-2,.columns,.metrics,.compare-page form,.how-grid{grid-template-columns:1fr}
+  .search-row,.verify-page form,.agents-page form{display:grid}
+  .metrics{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

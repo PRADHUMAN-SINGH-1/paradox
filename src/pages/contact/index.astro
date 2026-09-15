@@ -1,7 +1,21 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Contact PARADOX" description="Contact PARADOX for product feedback, bug reports, corrections and partnership ideas.">
-<main class="contact-page"><div class="label">CONTACT PARADOX</div><h1>Tell me what<br/><em>needs fixing.</em></h1><p>For bugs, incorrect agent data, feature ideas or partnership requests, email me. Include the page URL and a concise description.</p><div class="links"><a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com ↗</a><a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn ↗</a></div><p class="note">Do not send passwords, API keys, private repositories or sensitive documents.</p></main>
-<style>.contact-page{max-width:1000px;margin:auto;padding:100px 24px}.label{font:9px 'DM Mono';letter-spacing:.16em;color:#ff5a3d}.contact-page h1{font:700 clamp(70px,11vw,150px)/.78 'DM Sans';letter-spacing:-.08em;margin:28px 0}.contact-page h1 em{font-family:'Instrument Serif';font-weight:400;color:#ff5a3d}.contact-page p{max-width:650px;color:#686a63;line-height:1.65;font-size:17px}.links{display:flex;gap:14px;flex-wrap:wrap;margin:35px 0}.links a{background:#0d0e0e;color:#fff;padding:14px 16px;font:9px 'DM Mono'}.note{font-size:12px!important}</style>
+<BaseLayout title="Contact PARADOX" description="Contact PARADOX for bugs, feedback, project corrections and partnership." canonical="https://paradox.engineer/contact/">
+  <main class="contact-page">
+    <p class="label">CONTACT</p>
+    <h1>Tell me what<br /><em>needs fixing.</em></h1>
+    <p class="page-lead">Bug reports, incorrect agent data, feature ideas or partnership requests. Include the page URL.</p>
+    <div class="links">
+      <a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a>
+      <a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn</a>
+    </div>
+    <p class="note">Do not send passwords, API keys, private repositories or sensitive documents.</p>
+    <ul class="page-lead">
+      <li>Bug reports</li>
+      <li>Feedback</li>
+      <li>Project correction</li>
+      <li>Partnership / contact</li>
+    </ul>
+  </main>
 </BaseLayout>

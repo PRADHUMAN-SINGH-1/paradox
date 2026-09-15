@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Your PARADOX dashboard" description="Saved agents and scan history." canonical="https://paradox.engineer/dashboard/" robots="noindex,nofollow">
+  <main class="account-page">
+    <div class="account-head">
+      <div>
+        <span>DASHBOARD</span>
+        <h1>Your shortlist.</h1>
+        <p id="accountEmail">Loading…</p>
+      </div>
+      <div>
+        <button id="clearHistory" type="button">Clear history</button>
+        <button id="signOut" type="button">Sign out</button>
+      </div>
+    </div>
+    <section>
+      <h2>Saved agents</h2>
+      <div id="savedAgents" class="grid-2"><p class="muted">Loading…</p></div>
+    </section>
+    <section>
+      <h2>Scan history</h2>
+      <div id="scanHistory" class="grid-2"><p class="muted">Loading…</p></div>
+    </section>
+    <section>
+      <h2>Profile</h2>
+      <p class="page-lead">Email and session are managed by Supabase Auth. Display name editing will appear here once a live project is connected.</p>
+    </section>
+  </main>
+  <script>
+    import '../../scripts/dashboard-page.ts';
+  </script>
+</BaseLayout>

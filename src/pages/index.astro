@@ -1,23 +1,60 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import catalog from '../data/catalog.json';
+import { CATEGORIES } from '../lib/catalog.ts';
+const featured = catalog.slice(0, 8);
+const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug));
 ---
-<BaseLayout title="PARADOX — Discover and verify AI agents" description="Discover public AI agents, inspect GitHub evidence, compare projects and verify agent health, freshness and risk indicators.">
-<main class="home">
-  <section class="hero">
-    <div class="eyebrow">PUBLIC AGENT INTELLIGENCE / 2026</div>
-    <h1>Find agents.<br/><em>Know what they do.</em></h1>
-    <p>Search public AI agents and skills, inspect the repository evidence, and decide what is worth running before you install it.</p>
-    <div class="actions"><a class="primary" href="/agents/">DISCOVER AGENTS ↗</a><a href="/verify/">VERIFY A GITHUB REPO</a></div>
-  </section>
-  <section class="proof-grid">
-    <article><span>01 / FRESHNESS</span><h2>Is it still alive?</h2><p>See recent commits, issues, releases, and repository activity before trusting an agent.</p></article>
-    <article><span>02 / EVIDENCE</span><h2>Does the code match the claim?</h2><p>PARADOX reads public repository metadata, docs and key project files to build a transparent analysis.</p></article>
-    <article><span>03 / RISK</span><h2>What access does it ask for?</h2><p>Static indicators flag shell execution, secret-file references and risky install patterns. This is a signal, not a security certification.</p></article>
-  </section>
-  <section class="verify-strip"><div><span>DROP A PUBLIC GITHUB URL</span><h2>Verify an agent in seconds.</h2><p>Get a health score, freshness, stack clues, setup signals and a clear verdict.</p></div><a href="/verify/">OPEN VERIFIER ↗</a></section>
-  <section class="how"><div><span>HOW IT WORKS</span><h2>Discover → inspect → decide.</h2></div><ol><li><b>Search</b><span>Find agents by capability, framework, model or workflow.</span></li><li><b>Inspect</b><span>Read public evidence instead of trusting marketing copy.</span></li><li><b>Save</b><span>Sign up to keep a private shortlist and scan history.</span></li></ol></section>
-</main>
-<style>
-.home{background:#f2efe7;color:#0d0e0e}.hero{min-height:72svh;padding:70px clamp(20px,7vw,110px) 90px;background:#090b0b;color:#eee}.eyebrow,.proof-grid span,.verify-strip span,.how>div>span{font:9px 'DM Mono';letter-spacing:.16em;color:#ff5a3d}.hero h1{font:700 clamp(72px,12vw,170px)/.77 'DM Sans';letter-spacing:-.09em;margin:28px 0}.hero h1 em{font:400 clamp(60px,10vw,145px)/.8 'Instrument Serif';color:#d9ff3f}.hero p{max-width:680px;color:#aeb1aa;font-size:18px;line-height:1.6}.actions{display:flex;gap:18px;align-items:center;margin-top:32px}.actions a{font:10px 'DM Mono';letter-spacing:.08em;color:#fff;text-decoration:underline}.actions .primary{background:#d9ff3f;color:#090b0b;text-decoration:none;padding:15px 18px}.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #bdb9b0}.proof-grid article{padding:55px clamp(20px,4vw,50px);border-right:1px solid #bdb9b0}.proof-grid article:last-child{border-right:0}.proof-grid h2,.verify-strip h2,.how h2{font:400 clamp(42px,5vw,75px)/.9 'Instrument Serif';margin:24px 0 15px}.proof-grid p,.verify-strip p,li span{color:#686a63;line-height:1.6}.verify-strip{padding:70px clamp(20px,7vw,110px);display:flex;justify-content:space-between;gap:40px;align-items:end;background:#d9ff3f}.verify-strip a{border:1px solid #0d0e0e;padding:15px 18px;color:#0d0e0e;font:10px 'DM Mono';white-space:nowrap}.how{padding:90px clamp(20px,7vw,110px)}.how>div{margin-bottom:45px}.how ol{display:grid;grid-template-columns:repeat(3,1fr);padding:0;margin:0;list-style:none;border-top:1px solid #bdb9b0}.how li{padding:28px 20px 20px 0;border-right:1px solid #bdb9b0;margin-right:20px}.how li:last-child{border-right:0}.how b{display:block;font:10px 'DM Mono';margin-bottom:14px}@media(max-width:800px){.proof-grid,.how ol{grid-template-columns:1fr}.proof-grid article{border-right:0;border-bottom:1px solid #bdb9b0}.how li{border-right:0;border-bottom:1px solid #bdb9b0;margin-right:0}.verify-strip{display:block}.verify-strip a{display:inline-block;margin-top:20px}.actions{flex-wrap:wrap}}
-</style>
+<BaseLayout title="PARADOX — Discover, inspect and verify AI agents" description="Discover public AI agents, paste a GitHub URL, and inspect health, freshness, stack, and static risk indicators before you run anything.">
+  <main>
+    <section class="hero-home">
+      <p class="eyebrow">AI AGENT INTELLIGENCE</p>
+      <h1>Discover AI agents you can actually <em>understand.</em></h1>
+      <p class="lead">Search public agents and GitHub projects, then inspect what they do, how fresh they are, what they require, and which static risk indicators show up in the repository.</p>
+      <form class="search-row" method="get" action="/agents/">
+        <label class="visually-hidden" for="homeQuery">Search AI agents</label>
+        <input id="homeQuery" name="q" type="search" placeholder="Search AI agents, skills, repositories..." />
+        <button type="submit">Search</button>
+      </form>
+      <div class="sub-actions">
+        <a href="/verify/">Verify a GitHub agent</a>
+        <a href="/compare/">Compare two repositories</a>
+      </div>
+      <div class="cats">
+        {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
+      </div>
+    </section>
+    <section class="section">
+      <h2>Featured agents</h2>
+      <div class="grid-2">
+        {featured.map((e) => (
+          <article class="agent-card">
+            <div class="meta"><span>{e.owner}</span><span>{e.category}</span></div>
+            <h3>{e.repo}</h3>
+            <p>{e.summary}</p>
+            <div class="links">
+              <a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a>
+              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+    <section class="section" style="padding-top:0">
+      <h2>Recently catalogued</h2>
+      <div class="grid-2">
+        {catalog.slice(8).map((e) => (
+          <article class="agent-card">
+            <div class="meta"><span>{e.owner}/{e.repo}</span></div>
+            <h3>{e.repo}</h3>
+            <p>{e.summary}</p>
+            <div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
 </BaseLayout>
+<style>
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>

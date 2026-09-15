@@ -4,4 +4,10 @@ export default defineConfig({
   site: 'https://paradox.engineer',
   output: 'static',
   build: { format: 'directory' },
+  redirects: {
+    '/account': '/dashboard',
+    '/studio': '/verify',
+    '/ai-studio': '/about',
+    '/ai-radar': '/trending',
+  },
 });

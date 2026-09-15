@@ -1,36 +1,17 @@
 # PARADOX Agent Intelligence
 
-## Product direction
-PARADOX is moving from a broad AI workspace to a focused discovery and verification product for public AI agents, skills, and developer workflows.
+## Product
+PARADOX discovers and verifies public AI agents, skills and GitHub projects. It is not a generic AI workspace, chatbot, or utility mill.
 
 ## MVP flow
-1. Visitor searches agents by capability.
-2. Visitor opens an agent/project profile.
-3. PARADOX shows GitHub freshness, activity, stack, dependencies, model/tool signals, setup difficulty, and static permission/risk indicators.
-4. Visitor pastes a public GitHub URL into **Verify an Agent**.
-5. PARADOX generates an evidence-based verdict: VERIFIED, QUESTIONABLE, STALE, or HIGH-RISK.
-6. Authenticated users can save agents/analyses and build a personal shortlist.
+1. Search agents by capability.
+2. Open a catalogued profile or paste a GitHub URL into Verify.
+3. Inspect freshness, health, stack, models/tools, setup files and static risk indicators.
+4. Compare two repositories.
+5. Sign in to save a shortlist and scan history.
 
-## Planned feature layers
-- Agent discovery and search
-- GitHub repository analyzer
-- Agent health/freshness score
-- Static risk indicators
-- Model/tool/dependency detection
-- Setup difficulty and compatibility hints
-- Compare agents
-- Save/bookmark agents for signed-in users
-- Scan history for signed-in users
-- SEO-friendly public agent pages
-- Contact/about pages
+## Architecture (locked)
+Astro static frontend on GitHub Pages. Supabase Auth + Postgres + RLS. Optional Edge Function for GitHub. No Node app server.
 
-## Deployment constraint
-The site remains a static Astro site on GitHub Pages. Authentication is client-side through Supabase Auth; no server secrets are placed in the browser. The deploy workflow pins core dependencies and runs build validation before publishing.
-
-## Success metrics
-- Agent searches
-- Analyzer starts/completions
-- Saved agents
-- Outbound GitHub clicks
-- Return users
-- Organic landing pages and Search Console clicks
+## Limitations to keep honest
+VERIFIED ≠ secure. Static analysis only. Unknown when evidence is missing.

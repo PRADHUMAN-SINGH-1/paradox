@@ -1,4 +1,26 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<MakerLayout title="Privacy Policy — PARADOX Makers" description="Privacy policy for PARADOX Makers."><main class="maker-main"><article class="maker-why"><div class="maker-label">PRIVACY</div><h1>Simple by design.</h1><p>PARADOX Makers is built around browser-side generators. For the core generators, the words, names and choices you enter are processed in the browser and are not uploaded to a PARADOX server.</p><h2>Files and generated content</h2><p>The core generators do not require an account or a file upload. Generated results are created locally in your browser. Your browser may store normal local data such as cached assets or a page's own storage.</p><h2>Advertising</h2><p>PARADOX Makers uses Google AdSense after approval to support the free service. Google and its partners may use cookies or similar technologies for advertising, measurement and fraud prevention according to their own policies and the consent choices presented to users where required.</p><h2>Third-party services</h2><p>The site may load fonts, advertising scripts or other ordinary web resources from third parties. Review the applicable provider policies when you use those services.</p><h2>Contact</h2><p>For privacy questions or corrections, email <a href="mailto:hello@paradox.engineer">hello@paradox.engineer</a>.</p><h2>Changes</h2><p>This policy may be updated when the product or advertising configuration changes.</p></article></main></MakerLayout>
+<BaseLayout title="Privacy — PARADOX" description="How PARADOX handles authentication, saved agents, scan history, analytics and GitHub API usage." canonical="https://paradox.engineer/privacy/">
+  <main class="legal">
+    <p class="label">PRIVACY</p>
+    <h1>What we store, and what we don't.</h1>
+    <article>
+      <p>You can search, browse and run static analysis without an account. Authentication is optional and used for saved agents and scan history.</p>
+      <h2>Authentication</h2>
+      <p>When configured, accounts are handled by Supabase Auth (email/password and optional GitHub OAuth). Email verification and password reset are provided by that service.</p>
+      <h2>Saved agents and scan history</h2>
+      <p>If you sign in, PARADOX stores the repository URL, name, verdict, scores and a small JSON summary of detections — not full repository source — under your user id with row-level security.</p>
+      <h2>Analytics</h2>
+      <p>Google Analytics 4 records product events such as search, verify, save and signup. Passwords, tokens, API keys and private repository contents are not intended to be sent as event parameters.</p>
+      <h2>Cookies</h2>
+      <p>GA4 and, on some legacy pages, advertising scripts may set cookies according to those providers. PARADOX session cookies come from Supabase when auth is enabled.</p>
+      <h2>GitHub API</h2>
+      <p>Verification requests public GitHub metadata and file contents. GitHub sees the requester IP (browser) or the Edge Function IP (when deployed). Do not submit private repositories.</p>
+      <h2>Retention</h2>
+      <p>Browser analysis cache is local and short-lived. Server-side summaries, when enabled, should expire or be overwritten when HEAD changes. Delete saved rows and history from the dashboard.</p>
+      <h2>Contact</h2>
+      <p>Privacy questions: <a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a>.</p>
+    </article>
+  </main>
+</BaseLayout>

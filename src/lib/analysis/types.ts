@@ -1,0 +1,67 @@
+export type RiskSeverity = 'LOW' | 'MODERATE' | 'HIGH';
+export type Verdict = 'VERIFIED' | 'QUESTIONABLE' | 'STALE' | 'HIGH-RISK';
+
+export type Detection = {
+  name: string;
+  category: 'model' | 'framework' | 'tool' | 'capability';
+  file: string;
+  evidence: string;
+};
+
+export type RiskIndicator = {
+  category: string;
+  severity: RiskSeverity;
+  file: string;
+  evidence: string;
+  reason: string;
+};
+
+export type FileHit = { path: string; content: string };
+
+export type RepoMeta = {
+  name: string;
+  fullName: string;
+  owner: string;
+  description: string | null;
+  stars: number;
+  forks: number;
+  watchers: number;
+  openIssues: number;
+  defaultBranch: string;
+  license: string | null;
+  createdAt: string;
+  updatedAt: string;
+  pushedAt: string;
+  topics: string[];
+  archived: boolean;
+  language: string | null;
+  htmlUrl: string;
+  homepage: string | null;
+};
+
+export type Scores = {
+  health: number;
+  freshness: number;
+  documentation: number;
+  activity: number;
+  risk: number;
+  paradox: number;
+};
+
+export type Analysis = {
+  meta: RepoMeta;
+  languages: Record<string, number>;
+  files: string[];
+  detections: Detection[];
+  risks: RiskIndicator[];
+  scores: Scores;
+  verdict: Verdict;
+  verdictReasons: string[];
+  structure: string[];
+  readmeExcerpt: string;
+  contributors: number | null;
+  latestRelease: string | null;
+  latestCommit: string | null;
+  analyzedAt: string;
+  method: 'static-analysis';
+};
