@@ -13,7 +13,10 @@ export async function bootProfile(fullName: string) {
   try {
     const ref = parseRepoRef(fullName);
     const cached = readCache(ref.fullName);
-    if (status) status.textContent = cached ? 'Showing cached static analysis.' : 'Fetching live public GitHub evidence…';
+    if (status instanceof HTMLElement) {
+      status.textContent = cached ? 'Showing cached static analysis.' : 'Fetching live public GitHub evidence…';
+      status.dataset.state = 'loading';
+    }
     const analysis = cached ?? await fetchAnalysis(ref.url);
     if (!cached) writeCache(analysis);
     mount.innerHTML = renderAnalysis(analysis, {
@@ -26,7 +29,10 @@ export async function bootProfile(fullName: string) {
         const saved = JSON.parse(localStorage.getItem(key) || '[]') as string[];
         if (!saved.includes(analysis.meta.fullName)) saved.push(analysis.meta.fullName);
         localStorage.setItem(key, JSON.stringify(saved));
-        if (status) status.textContent = 'Saved on this device. Create an account later to sync it across devices.';
+        if (status instanceof HTMLElement) {
+          status.textContent = 'Saved on this device. Create an account later to sync it across devices.';
+          status.dataset.state = 'success';
+        }
         return;
       }
       const user = await currentUser();
@@ -41,11 +47,20 @@ export async function bootProfile(fullName: string) {
         verdict: analysis.verdict,
         score: analysis.scores.paradox,
       }, { onConflict: 'user_id,repository_full_name' });
-      if (status) status.textContent = error ? "We couldn't save this agent. Try again." : 'Saved to your collection.';
+      if (status instanceof HTMLElement) {
+        status.textContent = error ? "We couldn't save this agent. Try again." : 'Saved to your collection.';
+        status.dataset.state = error ? 'error' : 'success';
+      }
     });
-    if (status) status.textContent = 'Live static analysis loaded.';
+    if (status instanceof HTMLElement) {
+      status.textContent = 'Live static analysis loaded.';
+      status.dataset.state = 'success';
+    }
   } catch (err) {
-    if (status) status.textContent = err instanceof Error ? err.message : "We couldn't complete this analysis. Try again.";
+    if (status instanceof HTMLElement) {
+      status.textContent = err instanceof Error ? err.message : "We couldn't complete this analysis. Try again.";
+      status.dataset.state = 'error';
+    }
   }
 }
 

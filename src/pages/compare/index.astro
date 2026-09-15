@@ -2,11 +2,16 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Compare AI agent repositories — PARADOX" description="Compare two public AI agent repositories by freshness, health, documentation, stack and static risk indicators." canonical="https://paradox.engineer/compare/">
-  <main class="compare-page">
+  <main id="main-content" class="compare-page">
     <header>
       <span>COMPARE / SIDE BY SIDE</span>
       <h1>Two agents.<br /><em>Same evidence.</em></h1>
       <p class="page-lead">Paste two public GitHub repositories. Missing fields stay Unknown. Nothing is invented.</p>
+      <div class="signal-strip">
+        <span><b>Scores</b> PARADOX + subscores</span>
+        <span><b>Quality</b> Repo health & freshness</span>
+        <span><b>Risk</b> Static risk indicators</span>
+      </div>
     </header>
     <form id="compareForm">
       <label class="visually-hidden" for="repoA">First repository</label>

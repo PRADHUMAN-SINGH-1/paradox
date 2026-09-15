@@ -2,12 +2,17 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Your PARADOX dashboard" description="Saved agents and scan history." canonical="https://paradox.engineer/dashboard/" robots="noindex,nofollow">
-  <main class="account-page">
+  <main id="main-content" class="account-page">
     <div class="account-head">
       <div>
         <span>DASHBOARD</span>
         <h1>Your shortlist.</h1>
         <p id="accountEmail">Loading…</p>
+        <div class="signal-strip">
+          <span><b>Saved</b> Agent watchlist</span>
+          <span><b>History</b> Previous scans</span>
+          <span><b>Sync</b> Supabase auth aware</span>
+        </div>
       </div>
       <div>
         <button id="clearHistory" type="button">Clear history</button>

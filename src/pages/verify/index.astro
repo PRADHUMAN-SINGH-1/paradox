@@ -2,11 +2,16 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Verify an AI agent — PARADOX" description="Paste a public GitHub repository URL. PARADOX runs static analysis for freshness, stack, dependencies and risk indicators." canonical="https://paradox.engineer/verify/">
-  <main class="verify-page">
+  <main id="main-content" class="verify-page">
     <header>
       <span>STATIC ANALYSIS / PUBLIC GITHUB</span>
       <h1>Verify an agent.<br /><em>See the evidence.</em></h1>
       <p class="page-lead">Public repositories only. We fetch metadata and selected files, then score health, freshness, documentation, activity and static risk indicators. This is not a security audit.</p>
+      <div class="signal-strip">
+        <span><b>Signals</b> Freshness · docs · risk markers</span>
+        <span><b>Method</b> Static evidence only</span>
+        <span><b>Safety</b> No repository code execution</span>
+      </div>
     </header>
     <form id="verifyForm">
       <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>

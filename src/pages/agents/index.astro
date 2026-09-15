@@ -2,11 +2,16 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Discover AI agents and skills — PARADOX" description="Search public GitHub AI agents, skills and developer workflows. Inspect freshness and open a profile before you run them." canonical="https://paradox.engineer/agents/">
-  <main class="agents-page">
+  <main id="main-content" class="agents-page">
     <header>
       <span>DISCOVER / GITHUB SEARCH</span>
       <h1>Find something<br /><em>worth inspecting.</em></h1>
       <p class="page-lead">Search public repositories by name, topic or capability. Results come from GitHub Search. Live health scores appear after you open Verify or a catalogued profile.</p>
+      <div class="signal-strip">
+        <span><b>Live</b> Public repository search</span>
+        <span><b>Focus</b> AI agents, MCP, automation</span>
+        <span><b>Next</b> Inspect before execution</span>
+      </div>
     </header>
     <form id="searchForm">
       <label class="visually-hidden" for="query">Search query</label>

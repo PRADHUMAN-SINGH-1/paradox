@@ -20,6 +20,7 @@ export function bootCompare() {
     e.preventDefault();
     if (!left || !right || !status || !out) return;
     status.textContent = 'Analyzing both repositories…';
+    status.dataset.state = 'loading';
     out.hidden = true;
     track('compare_started');
     try {
@@ -54,10 +55,12 @@ export function bootCompare() {
         <p><a href="/verify/?url=${encodeURIComponent(x.meta.htmlUrl)}">Open ${x.meta.fullName}</a> · <a href="/verify/?url=${encodeURIComponent(y.meta.htmlUrl)}">Open ${y.meta.fullName}</a></p>`;
       out.hidden = false;
       status.textContent = 'Comparison complete.';
+      status.dataset.state = 'success';
       history.replaceState(null, '', `/compare/?left=${encodeURIComponent(x.meta.fullName)}&right=${encodeURIComponent(y.meta.fullName)}`);
       track('compare_completed', { repository: `${x.meta.fullName},${y.meta.fullName}` });
     } catch (err) {
       status.textContent = err instanceof Error ? err.message : "We couldn't complete this analysis. Try again.";
+      status.dataset.state = 'error';
     }
   });
 

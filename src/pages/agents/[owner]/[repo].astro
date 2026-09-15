@@ -41,7 +41,7 @@ const jsonLd = {
   canonical={canonical}
   jsonLd={jsonLd}
 >
-  <main class="verify-page" data-agent={fullName}>
+  <main id="main-content" class="verify-page" data-agent={fullName}>
     <nav class="crumbs" aria-label="Breadcrumb">
       <a href="/">Home</a> / <a href="/agents/">Agents</a>
       {category && <> / <a href={`/categories/${category.slug}/`}>{category.label}</a></>}
@@ -52,6 +52,11 @@ const jsonLd = {
       <h1>{entry.repo}</h1>
       <p class="page-lead">{entry.summary}</p>
       <p class="badge">{fullName} · {category?.label || entry.category}</p>
+      <div class="signal-strip">
+        <span><b>Profile</b> Catalog + live analysis</span>
+        <span><b>Scope</b> Public GitHub evidence</span>
+        <span><b>Use</b> Validate before adopting</span>
+      </div>
     </header>
     <section>
       <h2>What it does</h2>

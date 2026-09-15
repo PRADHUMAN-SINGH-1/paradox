@@ -37,7 +37,10 @@ async function directSearch(query: string) {
 export async function searchGitHub(q: string) {
   const status = document.querySelector('#searchStatus');
   const results = document.querySelector('#results');
-  if (status) status.textContent = 'Searching public GitHub repositories…';
+  if (status instanceof HTMLElement) {
+    status.textContent = 'Searching public GitHub repositories…';
+    status.dataset.state = 'loading';
+  }
   if (results) results.innerHTML = '';
   const query = q.trim() || 'ai agent';
   track('search', { search_term: query });
@@ -45,7 +48,10 @@ export async function searchGitHub(q: string) {
   const items = data.items || [];
   if (!items.length) {
     if (results) results.innerHTML = '<p class="empty">No repositories found. Try a capability like “browser agent” or “MCP”.</p>';
-    if (status) status.textContent = '0 matches';
+    if (status instanceof HTMLElement) {
+      status.textContent = '0 matches';
+      status.dataset.state = 'idle';
+    }
     return;
   }
   if (results) {
@@ -65,7 +71,10 @@ export async function searchGitHub(q: string) {
     }).join('');
     results.querySelectorAll('[data-full]').forEach((a) => a.addEventListener('click', () => track('search_result_click', { repository: a.getAttribute('data-full') || '' })));
   }
-  if (status) status.textContent = `${data.total_count ?? items.length} public repositories matched.`;
+  if (status instanceof HTMLElement) {
+    status.textContent = `${data.total_count ?? items.length} public repositories matched.`;
+    status.dataset.state = 'success';
+  }
 }
 
 export function bootSearch() {
@@ -78,14 +87,20 @@ export function bootSearch() {
     try { await searchGitHub(q); }
     catch (err) {
       const status = document.querySelector('#searchStatus');
-      if (status) status.textContent = err instanceof Error ? err.message : 'Search failed.';
+      if (status instanceof HTMLElement) {
+        status.textContent = err instanceof Error ? err.message : 'Search failed.';
+        status.dataset.state = 'error';
+      }
     }
   });
   const q = new URLSearchParams(location.search).get('q') || '';
   if (query) query.value = q;
   if (q) searchGitHub(q).catch((err) => {
     const status = document.querySelector('#searchStatus');
-    if (status) status.textContent = err instanceof Error ? err.message : 'Search failed.';
+    if (status instanceof HTMLElement) {
+      status.textContent = err instanceof Error ? err.message : 'Search failed.';
+      status.dataset.state = 'error';
+    }
   });
 }
 

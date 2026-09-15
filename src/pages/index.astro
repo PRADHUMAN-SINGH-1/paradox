@@ -6,7 +6,7 @@ const featured = catalog.slice(0, 8);
 const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug));
 ---
 <BaseLayout title="PARADOX — Discover, inspect and verify AI agents" description="Discover public AI agents, paste a GitHub URL, and inspect health, freshness, stack, and static risk indicators before you run anything.">
-  <main>
+  <main id="main-content">
     <section class="hero-home">
       <p class="eyebrow">AI AGENT INTELLIGENCE</p>
       <h1>Discover AI agents you can actually <em>understand.</em></h1>
@@ -19,6 +19,11 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
       <div class="sub-actions">
         <a href="/verify/">Verify a GitHub agent</a>
         <a href="/compare/">Compare two repositories</a>
+      </div>
+      <div class="signal-strip" aria-label="Platform capabilities">
+        <span><b>01</b> Live GitHub intelligence</span>
+        <span><b>02</b> Static safety signals</span>
+        <span><b>03</b> Save and monitor candidates</span>
       </div>
       <div class="cats">
         {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
