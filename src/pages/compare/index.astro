@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Compare AI agent repositories — PARADOX" description="Compare two public AI agent repositories by freshness, health, documentation, stack and static risk indicators." canonical="https://paradox.engineer/compare/">
   <main class="compare-page">
     <header>
-      <span>COMPARE / SIDE BY SIDE</span>
+      <span>COMPARE / SIDE BY SIDE / 01</span>
       <h1>Two agents.<br /><em>Same evidence.</em></h1>
       <p class="page-lead">Paste two public GitHub repositories. Missing fields stay Unknown. Nothing is invented.</p>
     </header>
@@ -16,6 +16,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <button type="submit">Compare</button>
     </form>
     <div id="compareStatus" class="status" role="status"></div>
+    <section class="pv-compare-stage" aria-label="Comparison preview">
+      <article class="pv-repo-card"><span>01 / REPOSITORY A</span><h2>Evidence snapshot</h2><p>Freshness, stack, activity, documentation and static risk signals are normalized into comparable evidence.</p><div class="pv-score-row"><div class="pv-score"><span>FRESHNESS</span><b>—</b></div><div class="pv-score"><span>HEALTH</span><b>—</b></div><div class="pv-score"><span>RISK</span><b>—</b></div></div></article>
+      <div class="pv-vs">VS</div>
+      <article class="pv-repo-card"><span>02 / REPOSITORY B</span><h2>Evidence snapshot</h2><p>The comparison remains evidence-first: missing fields stay Unknown instead of being guessed.</p><div class="pv-score-row"><div class="pv-score"><span>FRESHNESS</span><b>—</b></div><div class="pv-score"><span>HEALTH</span><b>—</b></div><div class="pv-score"><span>RISK</span><b>—</b></div></div></article>
+    </section>
     <section id="compareResult" hidden></section>
   </main>
   <script>
