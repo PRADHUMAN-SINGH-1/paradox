@@ -17,6 +17,7 @@
       "mode": "percentage",
       "toolRoute": "/utilities/percentage-calculator/",
       "topic": "percentage",
+      "context": "Public demand signal matched to an implemented PARADOX utility.",
       "score": 80,
       "metrics": {"demandVelocity": 80, "utilityIntent": 1, "competitionSaturation": 1, "feasibilityMultiplier": 1},
       "evidence": {"source": "evergreen fallback", "trafficProxy": 90000, "signalType": "fallback"}
