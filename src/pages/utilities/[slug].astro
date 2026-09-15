@@ -15,7 +15,7 @@ const canonical = `https://paradox.engineer/utilities/${item.slug}/`;
   <section class="maker-section utility-seo-copy">
     <div class="maker-section-head">
       <div><div class="maker-label">USEFUL, NOT DECORATIVE</div><h2>{item.label} for everyday work.</h2></div>
-      <p>This utility is designed to answer one practical question quickly, entirely in your browser. No account and no upload are required.</p>
+      <p>This utility is designed to answer one practical question quickly, entirely in your browser.</p>
     </div>
   </section>
 </MakerLayout>
@@ -28,5 +28,7 @@ const canonical = `https://paradox.engineer/utilities/${item.slug}/`;
   url:canonical,
   applicationCategory:'UtilitiesApplication',
   operatingSystem:'Web Browser',
-  offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}
+  isAccessibleForFree:true,
+  offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},
+  featureList:[item.label,'Browser-based processing','Immediate output']
 })} />
