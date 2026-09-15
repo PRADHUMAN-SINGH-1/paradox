@@ -1,4 +1,5 @@
 import { track } from '../lib/analytics.ts';
+import { supabase } from '../lib/supabase.ts';
 
 function esc(s: string): string {
   return String(s || '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -18,6 +19,21 @@ function freshnessLabel(iso: string): string {
   return 'Stale';
 }
 
+async function proxySearch(query: string) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.functions.invoke('analyze-repo', { body: { mode: 'search', query } });
+  if (error || !data || data.error) return null;
+  return data as { total_count?: number; items?: Array<Record<string, unknown>> };
+}
+
+async function directSearch(query: string) {
+  const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`;
+  const r = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+  if (r.status === 403) throw new Error('GitHub is temporarily rate limiting requests. Please try again shortly.');
+  if (!r.ok) throw new Error("We couldn't complete this search. Try again.");
+  return await r.json() as { total_count?: number; items?: Array<Record<string, unknown>> };
+}
+
 export async function searchGitHub(q: string) {
   const status = document.querySelector('#searchStatus');
   const results = document.querySelector('#results');
@@ -25,11 +41,7 @@ export async function searchGitHub(q: string) {
   if (results) results.innerHTML = '';
   const query = q.trim() || 'ai agent';
   track('search', { search_term: query });
-  const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`;
-  const r = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
-  if (r.status === 403) throw new Error('GitHub is temporarily rate limiting requests. Please try again shortly.');
-  if (!r.ok) throw new Error("We couldn't complete this search. Try again.");
-  const data = await r.json() as { total_count?: number; items?: Array<Record<string, unknown>> };
+  const data = (await proxySearch(query)) ?? await directSearch(query);
   const items = data.items || [];
   if (!items.length) {
     if (results) results.innerHTML = '<p class="empty">No repositories found. Try a capability like “browser agent” or “MCP”.</p>';
@@ -40,21 +52,18 @@ export async function searchGitHub(q: string) {
     results.innerHTML = items.map((x) => {
       const full = String(x.full_name || '');
       const href = `/agents/view/?repo=${encodeURIComponent(full)}`;
-      const pushed = String(x.pushed_at || '');
       return `<article class="agent-card">
-        <div class="meta"><span>${esc(String(x.language || 'Unknown'))}</span><span>★ ${Number(x.stargazers_count || 0)}</span><span>${freshnessLabel(pushed)}</span></div>
+        <div class="meta"><span>${esc(String(x.language || 'Unknown'))}</span><span>★ ${Number(x.stargazers_count || 0)}</span><span>${freshnessLabel(String(x.pushed_at || ''))}</span></div>
         <h2>${esc(full)}</h2>
         <p>${esc(String(x.description || 'No description provided.'))}</p>
         <div class="links">
           <a href="${href}" data-full="${esc(full)}">Inspect</a>
           <a href="/verify/?url=${encodeURIComponent(String(x.html_url))}">Verify</a>
-          <a href="${String(x.html_url)}" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="${esc(String(x.html_url || '#'))}" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </article>`;
     }).join('');
-    results.querySelectorAll('[data-full]').forEach((a) => {
-      a.addEventListener('click', () => track('search_result_click', { repository: a.getAttribute('data-full') || '' }));
-    });
+    results.querySelectorAll('[data-full]').forEach((a) => a.addEventListener('click', () => track('search_result_click', { repository: a.getAttribute('data-full') || '' })));
   }
   if (status) status.textContent = `${data.total_count ?? items.length} public repositories matched.`;
 }
