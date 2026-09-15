@@ -4,13 +4,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Discover AI agents and skills — PARADOX" description="Search public GitHub AI agents, skills and developer workflows. Inspect freshness and open a profile before you run them." canonical="https://paradox.engineer/agents/">
   <main class="agents-page">
     <header>
-      <span>DISCOVER / GITHUB SEARCH</span>
+      <span>DISCOVER / GITHUB SEARCH / 01</span>
       <h1>Find something<br /><em>worth inspecting.</em></h1>
       <p class="page-lead">Search public repositories by name, topic or capability. Results come from GitHub Search. Live health scores appear after you open Verify or a catalogued profile.</p>
     </header>
+    <div class="pv-results-frame" aria-hidden="true">
+      <div class="pv-results-top"><span><strong>PARADOX DISCOVERY ENGINE</strong> / READY</span><div class="pv-results-dots"><i></i><i></i><i></i></div></div>
+      <div class="pv-results-top"><span>INDEX / PUBLIC GITHUB</span><span>LIVE SEARCH · EVIDENCE FIRST</span></div>
+    </div>
     <form id="searchForm">
       <label class="visually-hidden" for="query">Search query</label>
-      <input id="query" type="search" name="q" placeholder="coding agent, MCP, browser automation, Claude skill…" />
+      <input id="query" type="search" name="q" placeholder="coding agent, MCP, browser automation, Claude skill…" autocomplete="off" />
       <button type="submit">Search</button>
     </form>
     <div id="searchStatus" class="status" role="status"></div>
