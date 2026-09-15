@@ -1,7 +1,7 @@
 import { track } from '../lib/analytics.ts';
 
 function esc(s: string): string {
-  return String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  return String(s || '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 }
 
 function daysSince(iso: string): number {
@@ -23,8 +23,8 @@ export async function searchGitHub(q: string) {
   const results = document.querySelector('#results');
   if (status) status.textContent = 'Searching public GitHub repositories…';
   if (results) results.innerHTML = '';
-  track('search', { search_term: q });
   const query = q.trim() || 'ai agent';
+  track('search', { search_term: query });
   const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`;
   const r = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
   if (r.status === 403) throw new Error('GitHub is temporarily rate limiting requests. Please try again shortly.');
@@ -39,15 +39,16 @@ export async function searchGitHub(q: string) {
   if (results) {
     results.innerHTML = items.map((x) => {
       const full = String(x.full_name || '');
-      const href = `/agents/${full}/`;
+      const href = `/agents/view/?repo=${encodeURIComponent(full)}`;
       const pushed = String(x.pushed_at || '');
       return `<article class="agent-card">
         <div class="meta"><span>${esc(String(x.language || 'Unknown'))}</span><span>★ ${Number(x.stargazers_count || 0)}</span><span>${freshnessLabel(pushed)}</span></div>
         <h2>${esc(full)}</h2>
         <p>${esc(String(x.description || 'No description provided.'))}</p>
         <div class="links">
-          <a href="${href}" data-full="${esc(full)}">Open profile</a>
+          <a href="${href}" data-full="${esc(full)}">Inspect</a>
           <a href="/verify/?url=${encodeURIComponent(String(x.html_url))}">Verify</a>
+          <a href="${String(x.html_url)}" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </article>`;
     }).join('');
