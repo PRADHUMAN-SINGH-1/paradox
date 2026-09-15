@@ -15,6 +15,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const reasons = x.verdictReasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('');
   const compare = opts.compareHref || `/compare/?left=${encodeURIComponent(x.meta.fullName)}`;
   const liveProfile = `/agents/view/?repo=${encodeURIComponent(x.meta.fullName)}`;
+  const score = (n: number) => Math.max(0, Math.min(100, n));
   return `
   <div class="result-head">
     <div>
@@ -26,12 +27,12 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   </div>
   <p class="method">Method: static analysis of public GitHub evidence. Not a security certification.</p>
   <div class="metrics">
-    <div class="metric"><span>PARADOX SCORE</span><b>${x.scores.paradox}/100</b></div>
-    <div class="metric"><span>HEALTH</span><b>${x.scores.health}</b></div>
-    <div class="metric"><span>FRESHNESS</span><b>${x.scores.freshness}</b></div>
-    <div class="metric"><span>DOCS</span><b>${x.scores.documentation}</b></div>
-    <div class="metric"><span>ACTIVITY</span><b>${x.scores.activity}</b></div>
-    <div class="metric"><span>RISK</span><b>${x.scores.risk}</b></div>
+    <div class="metric" style="--score:${score(x.scores.paradox)}"><span>PARADOX SCORE</span><b>${x.scores.paradox}/100</b></div>
+    <div class="metric" style="--score:${score(x.scores.health)}"><span>HEALTH</span><b>${x.scores.health}</b></div>
+    <div class="metric" style="--score:${score(x.scores.freshness)}"><span>FRESHNESS</span><b>${x.scores.freshness}</b></div>
+    <div class="metric" style="--score:${score(x.scores.documentation)}"><span>DOCS</span><b>${x.scores.documentation}</b></div>
+    <div class="metric" style="--score:${score(x.scores.activity)}"><span>ACTIVITY</span><b>${x.scores.activity}</b></div>
+    <div class="metric" style="--score:${score(100 - Math.min(100, x.scores.risk))}"><span>RISK</span><b>${x.scores.risk}</b></div>
   </div>
   <div class="columns">
     <div class="panel">
