@@ -21,7 +21,7 @@ for (const form of document.querySelectorAll<HTMLFormElement>('form')) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     void currentUser().then((user) => {
-      if (user) form.requestSubmit();
+      if (user) HTMLFormElement.prototype.submit.call(form);
       else location.href = loginUrl();
     });
   }, { capture: true });
