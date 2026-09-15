@@ -1,30 +1,52 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Sign in to PARADOX" description="Create a PARADOX account to save agents and keep your scan history." canonical="https://paradox.engineer/auth/" robots="noindex,nofollow">
-  <main class="auth-page">
-    <div class="auth-card">
-      <div class="label">PARADOX ACCOUNT</div>
-      <h1 id="authTitle">Save the agents you trust.</h1>
-      <p id="authCopy">Discovery and verification stay free. Sign in only when you want a private shortlist and scan history.</p>
-      <form id="authForm">
-        <label class="visually-hidden" for="authEmail">Email</label>
-        <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
-        <label class="visually-hidden" for="authPassword">Password</label>
-        <input id="authPassword" type="password" autocomplete="new-password" placeholder="Password" minlength="8" required />
-        <button type="submit" id="authSubmit">Create account</button>
-      </form>
-      <button class="oauth" id="githubAuth" type="button">Continue with GitHub</button>
-      <button class="link-btn" id="toggleMode" type="button">Already have an account? Sign in.</button>
-      <button class="link-btn" id="resetPassword" type="button">Forgot your password?</button>
-      <p class="status" id="authStatus" role="status"></p>
-    </div>
+<BaseLayout title="Create or sign in to PARADOX" description="Create a PARADOX account to use AI tools, verification, comparison and saved intelligence features." canonical="https://paradox.engineer/auth/" robots="noindex,nofollow">
+  <main class="auth-page auth-modern">
+    <section class="auth-shell" aria-label="PARADOX authentication">
+      <div class="auth-intro">
+        <div class="auth-kicker">PARADOX ACCOUNT / ACCESS</div>
+        <h1 id="authTitle">Create your PARADOX account.</h1>
+        <p id="authCopy">Sign up once to use PARADOX tools, verification, comparisons and private features.</p>
+        <div class="auth-benefits">
+          <span><b>01</b> AI tools & workflows</span>
+          <span><b>02</b> Repository verification</span>
+          <span><b>03</b> Saved agents & scan history</span>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-card-top"><span class="label">SIGN UP / SIGN IN</span><span class="secure-note">PRIVATE ACCOUNT</span></div>
+        <form id="authForm">
+          <label for="authEmail">Email</label>
+          <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+          <label for="authPassword">Password</label>
+          <div class="password-wrap"><input id="authPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required /><button type="button" id="togglePassword" aria-label="Show password">Show</button></div>
+          <button class="auth-primary" type="submit" id="authSubmit">Create account</button>
+        </form>
+
+        <div class="auth-divider"><span>OR CONTINUE WITH</span></div>
+        <div class="social-auth-grid">
+          <button class="oauth social-github" id="githubAuth" type="button"><span class="oauth-logo github-logo" aria-hidden="true">GH</span> GitHub</button>
+          <button class="oauth social-google" id="googleAuth" type="button"><span class="oauth-logo google-logo" aria-hidden="true">G</span> Google</button>
+        </div>
+
+        <button class="link-btn auth-switch" id="toggleMode" type="button">Already have an account? Sign in.</button>
+        <button class="link-btn" id="resetPassword" type="button">Forgot your password?</button>
+        <p class="status" id="authStatus" role="status" aria-live="polite"></p>
+        <p class="auth-terms">By continuing, you agree to PARADOX's <a href="/terms/">Terms</a> and <a href="/privacy/">Privacy Policy</a>.</p>
+      </div>
+    </section>
   </main>
   <script>
     import '../../scripts/auth-page.ts';
   </script>
 </BaseLayout>
 <style>
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-.label{font:9px 'DM Mono',monospace;letter-spacing:.16em;color:#ff5a3d}
+.auth-modern{min-height:calc(100svh - 82px);display:grid;place-items:center;padding:70px clamp(20px,6vw,96px);background:#f2efe7}
+.auth-shell{width:min(1080px,100%);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(380px,.95fr);gap:70px;align-items:center}
+.auth-intro{max-width:580px}.auth-kicker,.label,.secure-note{font:700 10px/1.4 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase}.auth-kicker{color:#657065}.auth-intro h1{font:700 clamp(48px,7vw,86px)/.88 'DM Sans',sans-serif;letter-spacing:-.065em;color:#101311;margin:22px 0 18px}.auth-intro p{font:500 18px/1.65 'DM Sans',sans-serif;color:#626a64;max-width:520px}.auth-benefits{display:grid;gap:12px;margin-top:32px}.auth-benefits span{display:flex;gap:14px;align-items:center;color:#1a211d;font:600 13px/1.4 'DM Mono',monospace}.auth-benefits b{display:grid;place-items:center;width:30px;height:30px;border:1px solid #afb6af;border-radius:50%;font:700 10px 'DM Mono',monospace;color:#667069}
+.auth-card{background:#090c0a;color:#eef3ef;border:1px solid #242b27;border-radius:20px;padding:30px;box-shadow:0 20px 60px rgba(10,15,12,.12)}.auth-card-top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:24px}.auth-card .label{color:#d9ff3f}.secure-note{color:#6f7b74;font-size:9px}.auth-card form{display:grid;gap:9px}.auth-card label{font:700 10px 'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#98a39c;margin-top:5px}.auth-card input{width:100%;box-sizing:border-box;background:#131815;border:1px solid #323a35;color:#f3f7f4;border-radius:10px;padding:14px 14px;font:500 15px 'DM Sans',sans-serif;outline:none}.auth-card input:focus{border-color:#d9ff3f;box-shadow:0 0 0 3px rgba(217,255,63,.1)}.password-wrap{position:relative}.password-wrap input{padding-right:68px}.password-wrap button{position:absolute;right:8px;top:8px;border:0;background:transparent;color:#9da8a1;font:700 10px 'DM Mono',monospace;cursor:pointer;padding:8px}.auth-primary{margin-top:8px;border:0;border-radius:10px;background:#d9ff3f;color:#090c0a;padding:14px;font:800 11px 'DM Mono',monospace;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}.auth-primary:disabled{opacity:.55;cursor:wait}.auth-divider{display:flex;align-items:center;gap:12px;margin:22px 0 14px;color:#657169;font:700 9px 'DM Mono',monospace;letter-spacing:.12em}.auth-divider:before,.auth-divider:after{content:'';height:1px;flex:1;background:#27302b}.social-auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.oauth{min-height:46px;border:1px solid #343d37;border-radius:10px;background:#111512;color:#edf2ef;display:flex;align-items:center;justify-content:center;gap:9px;font:700 11px 'DM Mono',monospace;cursor:pointer}.oauth:hover{border-color:#66736b;background:#151a17}.oauth-logo{display:grid;place-items:center;width:22px;height:22px;border-radius:6px;font:800 10px 'DM Mono',monospace}.github-logo{background:#f3f5f3;color:#111}.google-logo{background:#fff;color:#4285f4;font:800 14px Arial,sans-serif}.auth-switch{margin-top:18px}.link-btn{display:block;width:100%;padding:10px 0;border:0;background:none;color:#aab5ae;text-align:center;font:600 11px 'DM Mono',monospace;cursor:pointer}.link-btn:hover{color:#d9ff3f}.status{min-height:22px;margin:10px 0 0;color:#d9ff3f;font:600 11px/1.5 'DM Mono',monospace}.auth-terms{margin:16px 0 0;color:#68756d;font:500 10px/1.6 'DM Mono',monospace;text-align:center}.auth-terms a{color:#aab5ae;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:860px){.auth-modern{padding:52px 20px}.auth-shell{grid-template-columns:1fr;gap:34px}.auth-intro{max-width:700px}.auth-card{width:100%;box-sizing:border-box}}
+@media(max-width:520px){.auth-intro h1{font-size:46px}.auth-intro p{font-size:16px}.social-auth-grid{grid-template-columns:1fr}.auth-card{padding:24px}}
 </style>
