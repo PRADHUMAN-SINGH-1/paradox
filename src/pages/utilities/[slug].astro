@@ -17,7 +17,6 @@ const canonical = `https://paradox.engineer/utilities/${item.slug}/`;
       <div><div class="maker-label">USEFUL, NOT DECORATIVE</div><h2>{item.label} for everyday work.</h2></div>
       <p>This utility is designed to answer one practical question quickly, entirely in your browser. No account and no upload are required.</p>
     </div>
-    {item.matchedTrends?.length ? <article class="maker-why"><p>Demand signals currently associated with this utility include {item.matchedTrends.slice(0,4).map((trend, i) => <span>{i ? ', ' : ''}<strong>{trend.query}</strong></span>)}. These are public aggregate signals, not private search history.</p></article> : null}
   </section>
 </MakerLayout>
 
