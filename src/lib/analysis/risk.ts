@@ -8,23 +8,23 @@ type Rule = {
 };
 
 const RULES: Rule[] = [
-  { category: 'Remote script execution', severity: 'HIGH', test: /curl[^\n]{0,80}\|\s*(ba)?sh|wget[^\n]{0,80}\|\s*(ba)?sh/i, reason: 'Downloads and executes a remote script.' },
-  { category: 'Shell execution', severity: 'HIGH', test: /child_process|os\.system\(|subprocess\.[a-z]+\([^)]*shell\s*=\s*True|exec\(|spawn\(/i, reason: 'Process or shell execution was observed in repository files.' },
-  { category: 'Dynamic code execution', severity: 'HIGH', test: /\beval\s*\(|new Function\s*\(/i, reason: 'Dynamic code evaluation can run untrusted input.' },
-  { category: 'Privileged Docker', severity: 'HIGH', test: /privileged:\s*true|--privileged/i, reason: 'Container may run in privileged mode.' },
-  { category: 'Broad filesystem mount', severity: 'MODERATE', test: /-\s*\/:\/|volumes:\s*\n[^\n]*\/:/i, reason: 'Broad host filesystem mount pattern observed.' },
-  { category: 'Credential access', severity: 'MODERATE', test: /process\.env\.|os\.getenv|os\.environ|dotenv|\.env\b/i, reason: 'Reads environment variables or dotenv files (common, but relevant for secret handling).' },
-  { category: 'SSH / token reference', severity: 'HIGH', test: /id_rsa|BEGIN OPENSSH|github_token|api_key\s*=\s*['\"][A-Za-z0-9]/i, reason: 'Possible credential or SSH key material referenced in files.' },
-  { category: 'Network access', severity: 'LOW', test: /https?:\/\/|fetch\(|axios\.|requests\.(get|post)|httpx\./i, reason: 'Outbound network access is present.' },
-  { category: 'Browser automation', severity: 'MODERATE', test: /playwright|puppeteer|selenium/i, reason: 'Can control a browser session.' },
-  { category: 'chmod / install', severity: 'MODERATE', test: /chmod\s+\+x|pip install|npm install -g/i, reason: 'Install or permission-changing commands observed.' },
+  { category: 'Remote script execution', severity: 'HIGH', test: /(?:curl|wget)[^\n]{0,120}\|\s*(?:ba)?sh\b/i, reason: 'Downloads and executes a remote script.' },
+  { category: 'Shell execution', severity: 'HIGH', test: /child_process|os\.system\s*\(|subprocess\.[a-z]+\([^)]*shell\s*=\s*True|\b(?:exec|spawn)\s*\(/i, reason: 'Process or shell execution was observed in repository files.' },
+  { category: 'Dynamic code execution', severity: 'HIGH', test: /\beval\s*\(|new Function\s*\(/i, reason: 'Dynamic code evaluation can execute untrusted input.' },
+  { category: 'Privileged Docker', severity: 'HIGH', test: /privileged:\s*true|--privileged\b/i, reason: 'Container may run in privileged mode.' },
+  { category: 'Broad filesystem mount', severity: 'MODERATE', test: /(?:volumes|mounts):[\s\S]{0,240}(?:^|\s)-?\s*\/:(?:\/|$)/im, reason: 'A broad host filesystem mount pattern was observed.' },
+  { category: 'Credential access', severity: 'MODERATE', test: /(?:process\.env|os\.(?:getenv|environ))\s*(?:\.|\[)[^\n]*(?:KEY|TOKEN|SECRET|PASSWORD|PRIVATE|CREDENTIAL)/i, reason: 'Code reads an environment value whose name suggests a secret or credential.' },
+  { category: 'Credential file access', severity: 'MODERATE', test: /(?:readFile|open|cat|source)\b[^\n]{0,120}(?:\.env|id_rsa|credentials\.json|\.npmrc)/i, reason: 'Code appears to read a local credential/configuration file.' },
+  { category: 'SSH / token material', severity: 'HIGH', test: /BEGIN (?:OPENSSH|RSA) PRIVATE KEY|id_rsa\b|github_token\s*[:=]/i, reason: 'Repository contains a strong indicator of credential or private-key material.' },
+  { category: 'Network access', severity: 'LOW', test: /https?:\/\/|\bfetch\s*\(|axios\.|requests\.(?:get|post)|httpx\./i, reason: 'Outbound network access is present.' },
+  { category: 'Browser automation', severity: 'MODERATE', test: /playwright|puppeteer|selenium/i, reason: 'The project can control a browser session.' },
+  { category: 'Install / permission change', severity: 'MODERATE', test: /chmod\s+\+x|(?:^|\s)(?:pip|npm)\s+install(?:\s+-g)?\b/i, reason: 'Install or executable-permission commands were observed.' },
 ];
 
 function snippet(text: string, re: RegExp): string {
   const m = text.match(re);
   if (!m || m.index == null) return '';
-  const start = Math.max(0, m.index - 24);
-  return text.slice(start, start + 140).replace(/\s+/g, ' ').trim();
+  return text.slice(Math.max(0, m.index - 24), m.index + 140).replace(/\s+/g, ' ').trim();
 }
 
 export function detectRisks(files: FileHit[]): RiskIndicator[] {
