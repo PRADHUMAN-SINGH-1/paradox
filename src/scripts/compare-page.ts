@@ -38,8 +38,14 @@ export function bootCompare() {
   const out = document.querySelector<HTMLElement>('#compareResult');
   const params = new URLSearchParams(location.search);
   if (!form || !left || !right || !status || !out) return;
-  if (params.get('left')) left.value = params.get('left')!;
-  if (params.get('right')) right.value = params.get('right')!;
+  const leftParam = params.get('left');
+  const rightParam = params.get('right');
+  if (leftParam) left.value = leftParam;
+  if (rightParam) right.value = rightParam;
+  if (leftParam && !rightParam) {
+    status.textContent = 'Repository A loaded. Add a second public GitHub repository to compare.';
+    window.setTimeout(() => right.focus(), 80);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -115,7 +121,7 @@ export function bootCompare() {
     }
   });
 
-  if (params.get('left') && params.get('right')) form.requestSubmit();
+  if (leftParam && rightParam) form.requestSubmit();
 }
 
 bootCompare();
