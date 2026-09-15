@@ -2,8 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import catalog from '../data/catalog.json';
 import { CATEGORIES } from '../lib/catalog.ts';
+import tools from '../data/ai-tools.json';
 const featured = catalog.slice(0, 8);
 const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug));
+const featuredTools = tools.slice(0, 6);
 ---
 <BaseLayout title="PARADOX — AI agent intelligence and trust signals" description="Discover, inspect, compare and evaluate public AI agents and GitHub projects using observable repository evidence before you depend on them.">
   <main class="paradox-home">
@@ -37,6 +39,25 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
       <div class="pv-stat"><span>Decision layer</span><strong>VERIFY / COMPARE</strong><em>READY</em></div>
     </section>
 
+    <section class="ai-product-section" id="ai-tools">
+      <div class="ai-product-copy">
+        <span class="pv-section-label">02 / AI WORKBENCH</span>
+        <h2>Actual AI tools.<br /><em>Not another AI landing page.</em></h2>
+        <p>Use PARADOX to do real work: tailor a resume, prepare for an interview, turn notes into a study pack, generate content, fix code and use focused AI developer utilities.</p>
+        <div class="ai-product-actions"><a href="/ai/" class="ai-product-primary">OPEN AI TOOLS ↗</a><a href="/ai-studio/">Launch AI Studio</a></div>
+      </div>
+      <div class="ai-tool-grid-home">
+        {featuredTools.map((tool, i) => (
+          <a class="ai-tool-card-home" href={`/ai/${tool.slug}/`}>
+            <span>{String(i + 1).padStart(2, '0')}</span>
+            <strong>{tool.label}</strong>
+            <p>{tool.description}</p>
+            <b>USE TOOL ↗</b>
+          </a>
+        ))}
+      </div>
+    </section>
+
     <section class="section">
       <div class="si-trust-grid" aria-label="What PARADOX evaluates">
         <article class="si-trust-card"><span>01 / MAINTENANCE</span><strong>Is it alive?</strong><p>Freshness, commits, releases and contributor activity help reveal whether a project is still maintained.</p></article>
@@ -48,7 +69,7 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
 
     <section class="section" style="padding-top:20px">
       <div class="si-decision">
-        <div><span class="pv-section-label">02 / THE WORKFLOW</span><h2>From discovery to a defensible decision.</h2><p class="si-lead">PARADOX is designed to make an agent understandable before it becomes a dependency. Every step leads back to observable repository evidence.</p></div>
+        <div><span class="pv-section-label">03 / THE WORKFLOW</span><h2>From discovery to a defensible decision.</h2><p class="si-lead">PARADOX is designed to make an agent understandable before it becomes a dependency. Every step leads back to observable repository evidence.</p></div>
         <div class="si-steps" aria-label="PARADOX workflow">
           <div class="si-step"><b>01</b><strong>Discover</strong><span>find candidates</span><em>CATALOG + SEARCH</em></div>
           <div class="si-step"><b>02</b><strong>Inspect</strong><span>read the evidence</span><em>HEALTH + STACK</em></div>
@@ -62,8 +83,8 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
       <div class="si-profile-band"><div><h3>Built for the agent ecosystem, not just one scanner.</h3><p>Security is one signal. PARADOX combines trust, maintenance, engineering and activity signals into one intelligence profile so builders can evaluate an agent before depending on it.</p></div><div class="si-pills"><span class="si-pill">Agent registry</span><span class="si-pill">Repository intelligence</span><span class="si-pill">Trust signals</span><span class="si-pill">Evidence graph</span></div></div>
     </section>
 
-    <section class="section"><div class="pv-section-head"><div><span class="pv-section-label">03 / CURATED SIGNALS</span><h2>Featured agents.</h2></div><p>Start with public systems already catalogued by PARADOX, then inspect the evidence behind each profile.</p></div><div class="grid-2">{featured.map((e) => (<article class="agent-card"><div class="meta"><span>{e.owner}</span><span>{e.category}</span></div><h3>{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a><a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify</a></div></article>))}</div></section>
-    <section class="section" style="padding-top:0"><div class="pv-section-head"><div><span class="pv-section-label">04 / RECENT ACTIVITY</span><h2>Recently catalogued.</h2></div><p>New repositories enter the catalog as discoverable starting points. Live health signals are checked when you inspect them.</p></div><div class="grid-2">{catalog.slice(8).map((e) => (<article class="agent-card"><div class="meta"><span>{e.owner}/{e.repo}</span></div><h3>{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div></article>))}</div></section>
+    <section class="section"><div class="pv-section-head"><div><span class="pv-section-label">04 / CURATED SIGNALS</span><h2>Featured agents.</h2></div><p>Start with public systems already catalogued by PARADOX, then inspect the evidence behind each profile.</p></div><div class="grid-2">{featured.map((e) => (<article class="agent-card"><div class="meta"><span>{e.owner}</span><span>{e.category}</span></div><h3>{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a><a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify</a></div></article>))}</div></section>
+    <section class="section" style="padding-top:0"><div class="pv-section-head"><div><span class="pv-section-label">05 / RECENT ACTIVITY</span><h2>Recently catalogued.</h2></div><p>New repositories enter the catalog as discoverable starting points. Live health signals are checked when you inspect them.</p></div><div class="grid-2">{catalog.slice(8).map((e) => (<article class="agent-card"><div class="meta"><span>{e.owner}/{e.repo}</span></div><h3>{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div></article>))}</div></section>
   </main>
 </BaseLayout>
 <style>.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
