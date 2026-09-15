@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+if (!Astro.locals.user) return Astro.redirect('/auth/?next=/account/');
+const { data: analyses } = await Astro.locals.supabase.from('analyses').select('id,repo_full_name,score,verdict,created_at').order('created_at',{ ascending:false }).limit(30);
+---
+<BaseLayout title="My workspace — PARADOX" description="Saved GitHub agent analyses and verification history in PARADOX." canonical="https://paradox.engineer/account/">
+<main class="account-page">
+  <div class="account-head"><div><span class="eyebrow">PARADOX / WORKSPACE</span><h1>Your <em>research.</em></h1><p>{Astro.locals.user.email}</p></div><button id="signout">SIGN OUT ↗</button></div>
+  <section class="panel"><div class="panel-head"><strong>SAVED ANALYSES</strong><span>{analyses?.length || 0}</span></div>
+  {analyses?.length ? <div class="history">{analyses.map(item => <a href={`/agent/${item.repo_full_name.split('/')[0]}/${item.repo_full_name.split('/')[1]}/`}><span>{item.repo_full_name}</span><b>{item.verdict}</b><small>{new Date(item.created_at).toLocaleDateString()}</small></a>)}</div> : <div class="empty"><p>No saved analyses yet.</p><a href="/analyze/">Analyze your first agent ↗</a></div>}
+  </section>
+</main>
+<script>
+  import { browserSupabase } from '../../lib/supabase';
+  document.querySelector('#signout')?.addEventListener('click', async () => { await browserSupabase().auth.signOut(); location.assign('/'); });
+</script>
+<style>
+.account-page{max-width:1100px;margin:auto;padding:80px 24px 120px}.account-head{display:flex;justify-content:space-between;gap:30px;align-items:end;padding-bottom:38px;border-bottom:1px solid var(--line)}.eyebrow{font:700 9px 'DM Mono';letter-spacing:.14em;color:var(--accent)}h1{font:400 clamp(65px,9vw,115px)/.8 'Instrument Serif';margin:17px 0}h1 em{color:var(--accent);font-style:italic}.account-head p{color:var(--muted)}#signout{border:1px solid var(--line);background:var(--paper);padding:12px 15px;font:700 9px 'DM Mono'}.panel{margin-top:24px;border:1px solid var(--line);background:var(--paper)}.panel-head{display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);font:9px 'DM Mono'}.history a{display:grid;grid-template-columns:1fr auto auto;gap:20px;padding:18px;border-bottom:1px solid var(--line);align-items:center}.history a:hover{background:#fff}.history b{font:9px 'DM Mono';color:var(--accent)}.history small{color:var(--muted);font:9px 'DM Mono'}.empty{padding:50px;text-align:center;color:var(--muted)}.empty a{color:var(--ink);text-decoration:underline;font:700 9px 'DM Mono'}
+</style>
+</BaseLayout>
