@@ -12,6 +12,7 @@ import '../styles/visibility-fixes.css';
 import '../styles/site-final.css';
 import '../styles/professional-polish.css';
 import '../styles/analysis-output.css';
+import '../styles/ai-studio-polish.css';
 const { title, description, canonical='https://paradox.engineer/', robots='index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1', jsonLd } = Astro.props;
 const year = new Date().getFullYear();
 const websiteLd = jsonLd ?? {'@context':'https://schema.org','@type':'WebSite',name:'PARADOX',url:'https://paradox.engineer/',description:'Discover, inspect and verify public AI agents and GitHub projects.',potentialAction:{'@type':'SearchAction',target:'https://paradox.engineer/agents/?q={search_term_string}','query-input':'required name=search_term_string'}};
@@ -54,5 +55,5 @@ const websiteLdText = JSON.stringify(websiteLd).replace(/</g,'\\u003c');
   </div>
   <div class="pf-footer-bottom"><span>© {year} PARADOX</span><span>Static analysis is not a security certification.</span><span>Built for the web.</span></div>
 </footer>
-<script>import '../scripts/header-auth.ts';</script><script>import '../scripts/ai-studio-provider.ts';</script><script>import '../scripts/auth-gate.ts';</script>
+<script>import '../scripts/header-auth.ts';</script><script>import '../scripts/ai-studio-provider.ts';</script><script>import '../scripts/auth-gate.ts';</script><script>import '../scripts/ai-studio-polish.ts';</script>
 </body></html>
