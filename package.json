@@ -15,6 +15,10 @@
     "@supabase/supabase-js": "2.57.4",
     "astro": "7.3.2"
   },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "7.0.2"
+  },
   "engines": {
     "node": ">=22"
   }
