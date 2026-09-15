@@ -7,6 +7,7 @@ import '../styles/product-complete-ui.css';
 import '../styles/product-polish.css';
 import '../styles/product-final-ui.css';
 import '../styles/startup-intelligence.css';
+import '../styles/startup-visual-system.css';
 const {
   title,
   description,
@@ -35,7 +36,7 @@ const websiteLd = jsonLd ?? {
     <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(['js',new Date()])}gtag('config','G-5V0LJN6HTS');</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#090b0b" />
+    <meta name="theme-color" content="#060807" />
     <meta name="description" content={description} />
     <meta name="robots" content={robots} />
     <meta property="og:title" content={title} />
@@ -48,16 +49,20 @@ const websiteLd = jsonLd ?? {
     <meta name="twitter:description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.85em' font-size='86'>✳</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23060807'/><path d='M30 72V28h22c13 0 21 7 21 18s-8 18-21 18H42V72zM42 53h9c6 0 10-2 10-7s-4-7-10-7h-9z' fill='%23d8ff43'/><path d='M28 78L72 22' stroke='%2371e6d2' stroke-width='5' opacity='.82'/></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script type="application/ld+json" set:html={JSON.stringify(websiteLd).replace(/</g, '\\u003c')}></script>
     <title>{title}</title>
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">PARADOX<span> / AGENT INTELLIGENCE</span></a>
+      <a class="brand" href="/" aria-label="PARADOX home">
+        <span class="brand-mark" aria-hidden="true">P</span>
+        <span class="brand-name">PARADOX</span>
+        <span class="brand-subtitle">/ AGENT INTELLIGENCE</span>
+      </a>
       <nav class="site-nav" aria-label="Primary">
         <a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Trending</a><a href="/about/">About</a>
       </nav>
