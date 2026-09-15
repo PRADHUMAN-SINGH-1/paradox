@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="AI Agent Analysis — PARADOX" description="Inspect a public GitHub AI agent with live repository evidence, freshness, stack and static risk indicators." robots="noindex,nofollow">
+  <main class="verify-page">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/agents/">Agents</a> / Live analysis</nav>
+    <header>
+      <span>LIVE AGENT ANALYSIS</span>
+      <h1>Understand the repository.<br /><em>Then decide.</em></h1>
+      <p class="page-lead">This page analyzes the public GitHub repository in the URL and shows the evidence PARADOX can actually observe.</p>
+    </header>
+    <p id="profileStatus" class="status" role="status">Preparing analysis…</p>
+    <div id="liveAnalysis"></div>
+    <p class="links" style="margin-top:24px"><a href="/agents/">Back to discovery</a> · <a href="/verify/">Verify another repository</a></p>
+  </main>
+  <script>
+    import '../../../scripts/profile-page.ts';
+  </script>
+</BaseLayout>
