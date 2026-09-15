@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase.ts';
+import { currentUser, supabase } from '../lib/supabase.ts';
 
 const PROVIDERS = [
   ['auto', 'AUTO / FALLBACK'],
@@ -23,11 +23,16 @@ function taskFor(flow: string) {
   return `${flow} AI workflow`;
 }
 
-function valuesForFlow(root: HTMLElement, flow: string) {
+function valuesForFlow(root: HTMLElement) {
   const ids = Array.from(root.querySelectorAll<HTMLElement>('#fields input, #fields textarea'))
     .map((el) => el.id)
     .filter(Boolean);
   return { ids, get: (id: string) => (root.querySelector<HTMLElement>(`#${id}`) as HTMLInputElement | HTMLTextAreaElement | null)?.value.trim() || '' };
+}
+
+function loginUrl() {
+  const next = `${location.pathname}${location.search}${location.hash}`;
+  return `/auth/?next=${encodeURIComponent(next)}`;
 }
 
 async function invoke(provider: Provider, flow: string, prompt: string) {
@@ -41,18 +46,23 @@ async function invoke(provider: Provider, flow: string, prompt: string) {
     },
   });
   if (error) throw new Error(error.message || 'AI router request failed.');
-  if (!data?.text) throw new Error(data?.error || 'No AI output returned.');
+  if (!data?.text) {
+    const details = Array.isArray(data?.details) ? ` ${data.details.join(' · ')}` : '';
+    throw new Error((data?.error || 'No AI output returned.') + details);
+  }
   return data as { text: string; provider: string; latencyMs?: number; attempted?: string[] };
 }
 
 function init() {
   const root = document.querySelector<HTMLElement>('.studio');
   if (!root) return;
+
   const connect = root.querySelector<HTMLElement>('.studio-connect');
   if (connect) {
-    connect.innerHTML = `<div class="px-provider-connect"><label for="pxProvider">AI provider</label><select id="pxProvider">${PROVIDERS.map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}</select><small>Provider credentials stay server-side. PARADOX automatically falls back when a provider is unavailable.</small></div>`;
+    connect.innerHTML = `<div class="px-provider-connect"><label for="pxProvider">AI provider</label><select id="pxProvider" aria-label="AI provider">${PROVIDERS.map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}</select><small>Provider credentials stay server-side. Auto mode falls back when a provider is unavailable.</small></div>`;
   }
 
+  const provider = root.querySelector<HTMLSelectElement>('#pxProvider, #provider');
   const oldRun = root.querySelector<HTMLButtonElement>('#run');
   if (!oldRun) return;
   const run = oldRun.cloneNode(true) as HTMLButtonElement;
@@ -62,12 +72,17 @@ function init() {
   const result = root.querySelector<HTMLElement>('#result');
   const empty = root.querySelector<HTMLElement>('#resultEmpty');
   const err = root.querySelector<HTMLElement>('#error');
-  const provider = root.querySelector<HTMLSelectElement>('#pxProvider');
 
   run.addEventListener('click', async () => {
+    const user = await currentUser();
+    if (!user) {
+      location.href = loginUrl();
+      return;
+    }
+
     const active = root.querySelector<HTMLElement>('.flow.active');
     const flow = active?.dataset.flow || 'resume';
-    const source = valuesForFlow(root, flow);
+    const source = valuesForFlow(root);
     const promptBuilder = prompts[flow];
     if (!promptBuilder) return;
     if (source.ids.some((id) => !source.get(id))) {
