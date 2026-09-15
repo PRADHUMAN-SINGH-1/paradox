@@ -5,6 +5,7 @@ import type { Analysis } from '../lib/analysis/types.ts';
 import { track } from '../lib/analytics.ts';
 import { parseRepoRef } from '../lib/github-url.ts';
 import { currentUser, supabase } from '../lib/supabase.ts';
+import { saveLocalAgent, saveLocalScan } from '../lib/local-state.ts';
 
 function statusEl() { return document.querySelector('#verifyStatus'); }
 function resultEl() { return document.querySelector('#result'); }
@@ -15,6 +16,12 @@ function setStatus(text: string) {
 }
 
 async function persist(analysis: Analysis) {
+  saveLocalScan({
+    repository: analysis.meta.fullName,
+    verdict: analysis.verdict,
+    score: analysis.scores.paradox,
+    scannedAt: analysis.analyzedAt,
+  });
   if (!supabase) return;
   const user = await currentUser();
   if (!user) return;
@@ -37,7 +44,8 @@ async function persist(analysis: Analysis) {
 async function save(fullName: string, url: string, verdict: string, score: number) {
   track('save_agent', { repository: fullName, verdict, score });
   if (!supabase) {
-    setStatus('Create a free account to save it. Authentication is not configured on this build.');
+    saveLocalAgent({ repository: fullName, url, verdict, score, savedAt: new Date().toISOString() });
+    setStatus('Saved on this device. Create an account later to sync it across devices.');
     return;
   }
   const user = await currentUser();
