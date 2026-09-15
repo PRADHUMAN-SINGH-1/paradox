@@ -24,7 +24,7 @@ const websiteLd = jsonLd ?? {
   potentialAction: {
     '@type': 'SearchAction',
     target: 'https://paradox.engineer/agents/?q={search_term_string}',
-    'query-input': 'required name=SearchAction',
+    'query-input': 'required name=search_term_string',
   },
 };
 ---
@@ -32,7 +32,7 @@ const websiteLd = jsonLd ?? {
 <html lang="en">
   <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
-    <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5V0LJN6HTS');</script>
+    <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(['js',new Date()])}gtag('config','G-5V0LJN6HTS');</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090b0b" />
@@ -59,44 +59,13 @@ const websiteLd = jsonLd ?? {
     <header class="site-header">
       <a class="brand" href="/">PARADOX<span> / AGENT INTELLIGENCE</span></a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="/agents/">Discover</a>
-        <a href="/verify/">Verify</a>
-        <a href="/compare/">Compare</a>
-        <a href="/trending/">Trending</a>
-        <a href="/about/">About</a>
+        <a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Trending</a><a href="/about/">About</a>
       </nav>
-      <div class="header-actions">
-        <a class="header-search" href="/agents/">Search</a>
-        <a class="header-cta" href="/auth/" data-auth-link>Sign in</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">Menu</button>
-      </div>
-      <nav class="mobile-nav" id="mobileNav">
-        <a href="/agents/">Discover</a>
-        <a href="/verify/">Verify</a>
-        <a href="/compare/">Compare</a>
-        <a href="/trending/">Trending</a>
-        <a href="/about/">About</a>
-        <a href="/contact/">Contact</a>
-        <a href="/auth/" data-auth-link>Sign in</a>
-      </nav>
+      <div class="header-actions"><a class="header-search" href="/agents/">Search</a><a class="header-cta" href="/auth/" data-auth-link>Sign in</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">Menu</button></div>
+      <nav class="mobile-nav" id="mobileNav"><a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Trending</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/auth/" data-auth-link>Sign in</a></nav>
     </header>
     <slot />
-    <footer class="site-footer">
-      <div>
-        <strong>PARADOX</strong>
-        <span>Discover, inspect and verify public AI agents and skills.</span>
-      </div>
-      <nav aria-label="Footer">
-        <a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Trending</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
-      </nav>
-      <div>
-        <a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn</a>
-        <a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a>
-      </div>
-      <small>© {year} PARADOX · Static analysis is not a security certification</small>
-    </footer>
-    <script>
-      import '../scripts/header-auth.ts';
-    </script>
+    <footer class="site-footer"><div><strong>PARADOX</strong><span>Discover, inspect and verify public AI agents and skills.</span></div><nav aria-label="Footer"><a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Trending</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><div><a href="https://www.linkedin.com/in/pradhuman--singh/" rel="me">LinkedIn</a><a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a></div><small>© {year} PARADOX · Static analysis is not a security certification</small></footer>
+    <script>import '../scripts/header-auth.ts';</script>
   </body>
 </html>
