@@ -1,8 +1,25 @@
 {
-  "version": 3,
+  "version": 5,
   "generatedAt": null,
   "formula": "((Demand Velocity × Utility Intent) / Competition Saturation) × Feasibility Multiplier",
-  "thresholds": { "minScore": 80, "maxTargets": 50 },
-  "signalCount": 0,
-  "opportunities": []
+  "thresholds": {"minScore": 80, "maxTargets": 50},
+  "signalCount": 1,
+  "opportunities": [
+    {
+      "slug": "percentage-calculator",
+      "title": "Percentage Calculator — PARADOX",
+      "description": "Calculate percentages instantly in your browser with no account.",
+      "query": "percentage calculator",
+      "geo": "Global",
+      "toolId": "percentage-calculator",
+      "toolLabel": "Percentage Calculator",
+      "toolType": "utility",
+      "mode": "percentage",
+      "toolRoute": "/utilities/percentage-calculator/",
+      "topic": "percentage",
+      "score": 80,
+      "metrics": {"demandVelocity": 80, "utilityIntent": 1, "competitionSaturation": 1, "feasibilityMultiplier": 1},
+      "evidence": {"source": "evergreen fallback", "trafficProxy": 90000, "signalType": "fallback"}
+    }
+  ]
 }
