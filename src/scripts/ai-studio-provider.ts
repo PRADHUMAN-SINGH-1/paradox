@@ -1,15 +1,6 @@
 import { currentUser, supabase } from '../lib/supabase.ts';
 
-const PROVIDERS = [
-  ['auto', 'AUTO / FALLBACK'],
-  ['gemini', 'Gemini'],
-  ['groq', 'Groq'],
-  ['cerebras', 'Cerebras'],
-  ['huggingface', 'Hugging Face'],
-  ['ollama', 'Ollama'],
-] as const;
-
-type Provider = typeof PROVIDERS[number][0];
+type Provider = 'auto' | 'gemini' | 'groq' | 'cerebras' | 'huggingface' | 'ollama';
 
 const samples: Record<string, Record<string, string>> = {
   resume: { resume: 'Software engineering student. Built React + Node.js applications, REST APIs and PostgreSQL-backed projects.\nProjects: NeighborhoodFit, News Hunger.', jd: 'Software Engineer\nBuild REST APIs, React interfaces, clean JavaScript/TypeScript, Git and database-backed products. Strong debugging and communication skills.', role: 'Software Engineer' },
@@ -83,7 +74,7 @@ function init() {
     } finally { run.disabled = false; run.textContent = 'RUN AI ↗'; }
   });
 
-  root.querySelectorAll<HTMLButtonElement>('.flow').forEach((button) => button.addEventListener('click', () => { if (status) status.textContent = 'READY'; const active = button.dataset.flow || 'resume'; setTimeout(() => fillSample(root, active), 0); }));
+  root.querySelectorAll<HTMLButtonElement>('.flow').forEach((button) => button.addEventListener('click', () => { if (status) status.textContent = 'READY'; }));
 }
 
 init();
