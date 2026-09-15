@@ -16,6 +16,8 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const compare = opts.compareHref || `/compare/?left=${encodeURIComponent(x.meta.fullName)}`;
   const liveProfile = `/agents/view/?repo=${encodeURIComponent(x.meta.fullName)}`;
   const score = (n: number) => Math.max(0, Math.min(100, n));
+  const observedSignals = x.structure.length + x.detections.length + x.risks.length + x.verdictReasons.length;
+  const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
   return `
   <div class="result-head">
     <div>
@@ -34,41 +36,30 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     <div class="metric" style="--score:${score(x.scores.activity)}"><span>ACTIVITY</span><b>${x.scores.activity}</b></div>
     <div class="metric" style="--score:${score(100 - Math.min(100, x.scores.risk))}"><span>RISK</span><b>${x.scores.risk}</b></div>
   </div>
+  <div class="si-trust-grid" aria-label="Evidence profile">
+    <article class="si-trust-card"><span>OBSERVED SIGNALS</span><strong>${observedSignals}</strong><p>Repository structure, detectors, risk rules and verdict evidence currently observed.</p></article>
+    <article class="si-trust-card"><span>HIGH-RISK INDICATORS</span><strong>${highRisks}</strong><p>High-severity static indicators matched by the current analysis rules.</p></article>
+    <article class="si-trust-card"><span>MODELS / TOOLS</span><strong>${x.detections.length}</strong><p>Detected model or tool signals. No match is treated as unknown, not proof of absence.</p></article>
+    <article class="si-trust-card"><span>REPOSITORY EVIDENCE</span><strong>${x.structure.length}</strong><p>Selected files and paths contributing to the current evidence profile.</p></article>
+  </div>
   <div class="columns">
     <div class="panel">
       <h3>WHY THIS VERDICT</h3>
       <ul>${reasons}</ul>
       <h3>REPOSITORY HEALTH</h3>
       <ul>
-        <li>Stars: ${x.meta.stars}</li>
-        <li>Forks: ${x.meta.forks}</li>
-        <li>Open issues: ${x.meta.openIssues}</li>
-        <li>License: ${escapeHtml(x.meta.license || 'Unknown')}</li>
-        <li>Language: ${escapeHtml(x.meta.language || 'Unknown')}</li>
-        <li>Last push: ${escapeHtml(x.meta.pushedAt || 'Unknown')}</li>
-        <li>Archived: ${x.meta.archived ? 'yes' : 'no'}</li>
-        <li>Latest release: ${escapeHtml(x.latestRelease || 'Unknown')}</li>
-        <li>Contributors (sample): ${x.contributors ?? 'Unknown'}</li>
+        <li>Stars: ${x.meta.stars}</li><li>Forks: ${x.meta.forks}</li><li>Open issues: ${x.meta.openIssues}</li>
+        <li>License: ${escapeHtml(x.meta.license || 'Unknown')}</li><li>Language: ${escapeHtml(x.meta.language || 'Unknown')}</li>
+        <li>Last push: ${escapeHtml(x.meta.pushedAt || 'Unknown')}</li><li>Archived: ${x.meta.archived ? 'yes' : 'no'}</li>
+        <li>Latest release: ${escapeHtml(x.latestRelease || 'Unknown')}</li><li>Contributors (sample): ${x.contributors ?? 'Unknown'}</li>
       </ul>
     </div>
     <div class="panel">
-      <h3>DETECTED MODELS / TOOLS</h3>
-      <ul>${dets}</ul>
-      <h3>STATIC RISK INDICATORS</h3>
-      <ul>${risks}</ul>
-      <h3>STACK FILES OBSERVED</h3>
-      <ul>${x.structure.length ? x.structure.map((p) => `<li>${escapeHtml(p)}</li>`).join('') : '<li>Unknown</li>'}</ul>
+      <h3>DETECTED MODELS / TOOLS</h3><ul>${dets}</ul>
+      <h3>STATIC RISK INDICATORS</h3><ul>${risks}</ul>
+      <h3>STACK FILES OBSERVED</h3><ul>${x.structure.length ? x.structure.map((p) => `<li>${escapeHtml(p)}</li>`).join('') : '<li>Unknown</li>'}</ul>
     </div>
   </div>
-  <div class="panel">
-    <h3>README EXCERPT (UNTRUSTED TEXT)</h3>
-    <p>${escapeHtml(x.readmeExcerpt || 'Unknown')}</p>
-    <p>Languages: ${langs}</p>
-  </div>
-  <div class="actions-row">
-    <button class="save" type="button" data-save>Save this analysis</button>
-    <a href="${escapeHtml(x.meta.htmlUrl)}" target="_blank" rel="noopener noreferrer" data-github>Open GitHub</a>
-    <a href="${compare}">Compare</a>
-    <a href="${liveProfile}">Agent page</a>
-  </div>`;
+  <div class="panel"><h3>README EXCERPT (UNTRUSTED TEXT)</h3><p>${escapeHtml(x.readmeExcerpt || 'Unknown')}</p><p>Languages: ${langs}</p></div>
+  <div class="actions-row"><button class="save" type="button" data-save>Save this analysis</button><a href="${escapeHtml(x.meta.htmlUrl)}" target="_blank" rel="noopener noreferrer" data-github>Open GitHub</a><a href="${compare}">Compare</a><a href="${liveProfile}">Agent page</a></div>`;
 }
