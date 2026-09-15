@@ -1,18 +1,22 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Terms — PARADOX" description="PARADOX is informational static analysis, not a security certification. You are responsible for third-party software you run." canonical="https://paradox.engineer/terms/">
+<BaseLayout title="Terms — PARADOX" description="PARADOX provides informational analysis of public GitHub evidence and does not certify or guarantee third-party software." canonical="https://paradox.engineer/terms/">
   <main class="legal">
-    <p class="label">TERMS</p>
-    <h1>Informational tool, not a guarantee.</h1>
+    <p class="label">TERMS / LIMITATIONS</p>
+    <h1>Evidence, not a guarantee.</h1>
     <article>
-      <p>PARADOX provides automated static analysis and discovery of public GitHub projects. Output is informational.</p>
+      <p>PARADOX provides automated discovery and static analysis of public GitHub projects. Results are informational and describe evidence observed by the system at analysis time.</p>
       <h2>No security certification</h2>
-      <p>Static analysis is not a security audit, penetration test, or certification. A VERIFIED verdict does not mean software is safe.</p>
+      <p>PARADOX does not issue security certifications, safety certifications, penetration-test reports, formal code reviews or guarantees. An <strong>Evidence-supported</strong> result does not mean the software is secure or safe to run.</p>
+      <h2>Evidence can be incomplete</h2>
+      <p>Static analysis only examines the evidence selected by the current analysis rules. Dependencies, generated code, remote services, runtime behavior, obfuscated logic and newly pushed commits may not be represented.</p>
       <h2>Your responsibility</h2>
-      <p>You are responsible for reviewing and running third-party software. Repository contents can change after analysis. Dependencies, permissions and behavior may differ from detected evidence.</p>
+      <p>You are responsible for reviewing and running third-party software. Open the source repository, inspect its current documentation and permissions, review dependencies and use appropriate security controls before installing or executing it.</p>
+      <h2>Scores and rankings</h2>
+      <p>Scores are derived from PARADOX's current evidence model. They are not endorsements, popularity guarantees or objective measures of software quality.</p>
       <h2>No warranty</h2>
-      <p>The service is provided as-is. PARADOX does not guarantee completeness, availability, ranking quality or safety of any project listed or analyzed.</p>
+      <p>The service is provided as-is. PARADOX does not guarantee completeness, availability, ranking quality, accuracy of every detected signal, or safety of any project listed or analyzed.</p>
       <h2>Contact</h2>
       <p><a href="mailto:pradhumansingh196@gmail.com">pradhumansingh196@gmail.com</a></p>
     </article>
