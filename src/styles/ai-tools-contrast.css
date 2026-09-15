@@ -28,15 +28,30 @@
 .generator-page.utility-page .generator-preview-head span {
   color: #59615b !important;
 }
+.generator-page.ai-page .field,
+.generator-page.utility-page .field {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
 .generator-page.ai-page .field label,
 .generator-page.utility-page .field label {
+  display: block !important;
+  width: 100% !important;
   color: #28302b !important;
   opacity: 1 !important;
+  margin: 0 0 8px !important;
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+  letter-spacing: .09em !important;
 }
 .generator-page.ai-page .field input,
 .generator-page.ai-page .field textarea,
 .generator-page.utility-page .field input,
 .generator-page.utility-page .field textarea {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
   color: #f4f7f4 !important;
   background: #0b100e !important;
   border: 1px solid #3d4741 !important;
@@ -48,7 +63,7 @@
 .generator-page.ai-page .field textarea::placeholder,
 .generator-page.utility-page .field input::placeholder,
 .generator-page.utility-page .field textarea::placeholder {
-  color: #9aa49d !important;
+  color: #99a49d !important;
   opacity: 1 !important;
 }
 .generator-page.ai-page .field input.prefilled,
@@ -167,6 +182,46 @@
   color: #303632 !important;
 }
 .ai-v2 .ai-marquee { color: #111412 !important; }
+
+/* AI Studio: keep workflow navigation readable and inputs properly stacked. */
+.studio .flow,
+.studio .flow span,
+.studio .flow small,
+.studio .flow strong {
+  color: #5b625d !important;
+  opacity: 1 !important;
+}
+.studio .flow span { font-weight: 700 !important; }
+.studio .flow small { color: #68706a !important; }
+.studio .flow strong { color: #8b948e !important; }
+.studio .flow:hover,
+.studio .flow.active { background: #fffdf7 !important; }
+.studio .flow:hover span,
+.studio .flow.active span { color: #e84e38 !important; }
+.studio .flow:hover strong,
+.studio .flow.active strong { color: #e84e38 !important; }
+.studio .flow:focus-visible { outline: 2px solid #d9ff3f !important; outline-offset: -2px !important; }
+.studio #fields label {
+  display: block !important;
+  width: 100% !important;
+  margin: 20px 0 8px !important;
+  color: #242a26 !important;
+  line-height: 1.25 !important;
+}
+.studio #fields input,
+.studio #fields textarea {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+.studio #fields input::placeholder,
+.studio #fields textarea::placeholder {
+  color: #89928c !important;
+  opacity: 1 !important;
+}
+.studio .actions { position: relative; z-index: 1; }
+
 @media (max-width: 700px) {
   .generator-page.ai-page .field input,
   .generator-page.ai-page .field textarea,
