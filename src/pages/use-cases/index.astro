@@ -4,8 +4,8 @@ import demand from '../../data/demand.json';
 import seoOpportunities from '../../data/seo-opportunities.json';
 
 const activeOpportunities = Array.isArray(seoOpportunities) ? seoOpportunities : [];
-const trendCount = Array.isArray(demand?.globalTrends)
-  ? demand.globalTrends.length
+const trendCount = Array.isArray(demand?.opportunities)
+  ? demand.opportunities.length
   : 0;
 ---
 <MakerLayout title="Useful Generator Ideas — PARADOX Makers" description="Demand-driven use cases for PARADOX Makers free generators, selected from aggregate public trend signals.">
@@ -18,7 +18,7 @@ const trendCount = Array.isArray(demand?.globalTrends)
       </div>
       <div class="maker-proof">
         <div class="proof-tile"><strong>{activeOpportunities.length} ACTIVE</strong><span>Demand-selected use cases in this build.</span></div>
-        <div class="proof-tile"><strong>{trendCount} SIGNALS</strong><span>Global trend rows collected for this refresh.</span></div>
+        <div class="proof-tile"><strong>{trendCount} SIGNALS</strong><span>Global demand opportunities collected for this refresh.</span></div>
         <div class="proof-tile"><strong>NO ACCOUNT</strong><span>Visitors can use every core generator directly.</span></div>
       </div>
     </section>
