@@ -27,6 +27,32 @@
 .paradox-home .si-trust-card:hover,.paradox-home .si-step:hover{transform:translateY(-2px);border-color:rgba(217,255,63,.22);box-shadow:0 18px 50px rgba(0,0,0,.2)}
 .paradox-home .si-profile-band{box-shadow:0 20px 70px rgba(0,0,0,.2)}
 .paradox-home .cats a{font-weight:600}
+
+/* AI is a first-class product, not a hidden secondary route. */
+.paradox-home .ai-product-section{position:relative;display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);gap:42px;align-items:stretch;padding:92px clamp(20px,5vw,72px);background:radial-gradient(circle at 80% 20%,rgba(217,255,63,.09),transparent 32%),linear-gradient(145deg,#111815,#080c0a);border-top:1px solid rgba(255,255,255,.10);border-bottom:1px solid rgba(255,255,255,.10);overflow:hidden}
+.paradox-home .ai-product-section:before{content:'AI / WORKBENCH';position:absolute;right:28px;top:18px;color:rgba(255,255,255,.055);font:700 clamp(60px,11vw,150px)/.8 'DM Mono',monospace;letter-spacing:-.08em;pointer-events:none}
+.paradox-home .ai-product-copy,.paradox-home .ai-tool-grid-home{position:relative;z-index:1}
+.paradox-home .ai-product-copy .pv-section-label{color:#d9ff3f!important}
+.paradox-home .ai-product-copy h2{color:#f4f7f2!important;font:500 clamp(48px,6vw,82px)/.88 'Instrument Serif',serif!important;letter-spacing:-.045em!important;margin:12px 0 22px}
+.paradox-home .ai-product-copy h2 em{font-style:italic;color:#68e5d1}
+.paradox-home .ai-product-copy p{max-width:560px;color:#9eaaa2;font-size:14px;line-height:1.75;margin:0}
+.paradox-home .ai-product-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:28px}
+.paradox-home .ai-product-actions a{color:#dce4dd;font:700 9px 'DM Mono',monospace;letter-spacing:.09em;text-transform:uppercase}
+.paradox-home .ai-product-actions a:hover{color:#d9ff3f}
+.paradox-home .ai-product-actions .ai-product-primary{padding:14px 17px;background:#d9ff3f;color:#080a08;box-shadow:0 12px 40px rgba(217,255,63,.12);transition:transform .2s ease,box-shadow .2s ease}
+.paradox-home .ai-product-actions .ai-product-primary:hover{color:#080a08;transform:translateY(-2px);box-shadow:0 18px 50px rgba(217,255,63,.2)}
+.paradox-home .ai-tool-grid-home{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10)}
+.paradox-home .ai-tool-card-home{position:relative;display:flex;flex-direction:column;min-height:210px;padding:21px;background:linear-gradient(145deg,#151c18,#0e1311);color:#edf3ee;border:1px solid transparent;overflow:hidden;transition:transform .22s ease,border-color .22s ease,background .22s ease}
+.paradox-home .ai-tool-card-home:before{content:'';position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,#d9ff3f,#68e5d1);transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.paradox-home .ai-tool-card-home:hover{transform:translateY(-4px);background:linear-gradient(145deg,#19221d,#101612);border-color:rgba(217,255,63,.24)}
+.paradox-home .ai-tool-card-home:hover:before{transform:scaleX(1)}
+.paradox-home .ai-tool-card-home>span{font:700 8px 'DM Mono',monospace;color:#6e7a72;letter-spacing:.12em}
+.paradox-home .ai-tool-card-home strong{margin-top:34px;color:#f4f7f2;font:600 21px/1.05 'DM Sans',sans-serif;letter-spacing:-.025em}
+.paradox-home .ai-tool-card-home p{margin:8px 0 0;color:#87948c;font-size:11px;line-height:1.55}
+.paradox-home .ai-tool-card-home b{margin-top:auto;padding-top:18px;color:#d9ff3f;font:700 8px 'DM Mono',monospace;letter-spacing:.08em}
+
 @keyframes paradox-card-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.paradox-home .ai-product-section{grid-template-columns:1fr;padding-top:72px;padding-bottom:72px}.paradox-home .ai-tool-grid-home{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:800px){.paradox-home .section{padding-top:60px;padding-bottom:60px}.paradox-home .pv-section-head h2{font-size:clamp(42px,12vw,64px)!important}.paradox-home .agent-card{min-height:225px!important}}
-@media(prefers-reduced-motion:reduce){.paradox-home .agent-card{animation:none!important;transition:none!important}.paradox-home .agent-card:hover,.paradox-home .si-trust-card:hover,.paradox-home .si-step:hover{transform:none!important}}
+@media(max-width:560px){.paradox-home .ai-tool-grid-home{grid-template-columns:1fr}.paradox-home .ai-product-section{padding-left:18px;padding-right:18px}.paradox-home .ai-product-copy h2{font-size:clamp(44px,13vw,68px)!important}}
+@media(prefers-reduced-motion:reduce){.paradox-home .agent-card,.paradox-home .ai-tool-card-home{animation:none!important;transition:none!important}.paradox-home .agent-card:hover,.paradox-home .si-trust-card:hover,.paradox-home .si-step:hover,.paradox-home .ai-tool-card-home:hover,.paradox-home .ai-product-actions .ai-product-primary:hover{transform:none!important}}
