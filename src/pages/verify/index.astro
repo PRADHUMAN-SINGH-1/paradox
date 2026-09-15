@@ -2,12 +2,28 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Verify an AI agent — PARADOX" description="Paste a public GitHub repository URL. PARADOX runs static analysis for freshness, stack, dependencies and risk indicators." canonical="https://paradox.engineer/verify/">
-  <main class="verify-page">
-    <header>
-      <span>STATIC ANALYSIS / PUBLIC GITHUB</span>
-      <h1>Verify an agent.<br /><em>See the evidence.</em></h1>
-      <p class="page-lead">Public repositories only. We fetch metadata and selected files, then score health, freshness, documentation, activity and static risk indicators. This is not a security audit.</p>
-    </header>
+  <main class="verify-page pp-verify-page">
+    <div class="pp-verify-hero">
+      <header>
+        <span>STATIC ANALYSIS / PUBLIC GITHUB</span>
+        <h1>Verify an agent.<br /><em>See the evidence.</em></h1>
+        <p class="page-lead">Public repositories only. We fetch metadata and selected files, then score health, freshness, documentation, activity and static risk indicators. This is not a security audit.</p>
+      </header>
+      <aside class="pp-analysis-visual" aria-label="PARADOX analysis visualization">
+        <div class="pp-visual-top"><span>PARADOX / ANALYSIS CORE</span><b><i></i>LIVE</b></div>
+        <div class="pp-visual-stage">
+          <div class="pp-ring pp-ring-a"></div>
+          <div class="pp-ring pp-ring-b"></div>
+          <div class="pp-ring pp-ring-c"></div>
+          <div class="pp-core">P</div>
+          <span class="pp-node pp-node-a">META<small>READY</small></span>
+          <span class="pp-node pp-node-b">STACK<small>READY</small></span>
+          <span class="pp-node pp-node-c">RISK<small>READY</small></span>
+          <span class="pp-node pp-node-d">ACTIVITY<small>READY</small></span>
+        </div>
+        <div class="pp-visual-feed"><span>METADATA</span><span>FILES</span><span>SIGNALS</span><strong>WAITING FOR REPOSITORY</strong></div>
+      </aside>
+    </div>
     <form id="verifyForm">
       <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>
       <input id="repoUrl" type="url" name="url" autocomplete="url" placeholder="https://github.com/owner/repository" required />
