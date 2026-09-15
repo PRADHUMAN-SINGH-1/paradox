@@ -2,32 +2,48 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Your PARADOX dashboard" description="Saved agents and scan history." canonical="https://paradox.engineer/dashboard/" robots="noindex,nofollow">
-  <main class="account-page">
-    <div class="account-head">
+  <main class="account-page professional-dashboard">
+    <header class="account-head">
       <div>
-        <span>DASHBOARD</span>
+        <span>DASHBOARD / PRIVATE WORKSPACE</span>
         <h1>Your shortlist.</h1>
-        <p id="accountEmail">Loading…</p>
+        <p id="accountEmail">Loading account…</p>
       </div>
-      <div>
+      <div class="account-actions">
         <button id="clearHistory" type="button">Clear history</button>
         <button id="signOut" type="button">Sign out</button>
       </div>
+    </header>
+
+    <div class="dashboard-overview" aria-label="Workspace overview">
+      <article><span>SAVED AGENTS</span><strong>Private</strong><p>Keep the repositories you want to revisit.</p></article>
+      <article><span>SCAN HISTORY</span><strong>Private</strong><p>Your recent repository analysis stays tied to your account.</p></article>
+      <article><span>AUTHENTICATION</span><strong>Secure session</strong><p>Email, GitHub and Google sign-in are handled by Supabase Auth.</p></article>
     </div>
-    <section>
-      <h2>Saved agents</h2>
-      <div id="savedAgents" class="grid-2"><p class="muted">Loading…</p></div>
+
+    <section class="dashboard-section">
+      <div class="section-head"><div><span>01 / COLLECTION</span><h2>Saved agents</h2></div><a href="/agents/">Discover more →</a></div>
+      <div id="savedAgents" class="grid-2"><p class="muted">Loading saved agents…</p></div>
     </section>
-    <section>
-      <h2>Scan history</h2>
-      <div id="scanHistory" class="grid-2"><p class="muted">Loading…</p></div>
+
+    <section class="dashboard-section">
+      <div class="section-head"><div><span>02 / ACTIVITY</span><h2>Scan history</h2></div><a href="/verify/">Run a new scan →</a></div>
+      <div id="scanHistory" class="grid-2"><p class="muted">Loading scan history…</p></div>
     </section>
-    <section>
-      <h2>Profile</h2>
-      <p class="page-lead">Email and session are managed by Supabase Auth. Display name editing will appear here once a live project is connected.</p>
+
+    <section class="dashboard-section profile-section">
+      <div class="section-head"><div><span>03 / ACCOUNT</span><h2>Profile</h2></div></div>
+      <div class="profile-grid">
+        <div><strong>Authenticated workspace</strong><p id="profileEmail">Your signed-in account is used for saved agents and scan history.</p></div>
+        <div><strong>Data ownership</strong><p>Your saved and historical entries are scoped to your authenticated account by the database access policies.</p></div>
+        <div><strong>Next step</strong><p>Verify a repository or explore AI tools, then return here when you want to keep your work organized.</p></div>
+      </div>
     </section>
   </main>
   <script>
     import '../../scripts/dashboard-page.ts';
   </script>
+  <style>
+    .professional-dashboard .account-actions{display:flex;gap:8px;flex-wrap:wrap}.professional-dashboard .dashboard-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}.professional-dashboard .dashboard-overview article{padding:18px;background:#0b100e;border:1px solid #26302b;border-radius:14px}.professional-dashboard .dashboard-overview span,.professional-dashboard .section-head>div>span{display:block;color:#7f8b84;font:800 9px 'DM Mono',monospace;letter-spacing:.1em}.professional-dashboard .dashboard-overview strong{display:block;color:#eef3ef;font:700 20px 'DM Sans',sans-serif;margin:8px 0 5px}.professional-dashboard .dashboard-overview p{margin:0;color:#93a097;font:500 12px/1.55 'DM Sans',sans-serif}.professional-dashboard .dashboard-section{margin-top:20px}.professional-dashboard .section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:15px}.professional-dashboard .section-head h2{margin:8px 0 0}.professional-dashboard .section-head>a{color:#bfc9c2;font:700 10px 'DM Mono',monospace;text-decoration:none}.professional-dashboard .section-head>a:hover{color:#d9ff3f}.professional-dashboard .profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.professional-dashboard .profile-grid>div{padding:18px;background:#0e1411;border:1px solid #26302b;border-radius:14px}.professional-dashboard .profile-grid strong{color:#eef3ef;font:700 13px 'DM Sans',sans-serif}.professional-dashboard .profile-grid p{color:#93a097;font:500 12px/1.65 'DM Sans',sans-serif;margin:8px 0 0}@media(max-width:800px){.professional-dashboard .dashboard-overview,.professional-dashboard .profile-grid{grid-template-columns:1fr}.professional-dashboard .section-head{align-items:flex-start;flex-direction:column}}
+  </style>
 </BaseLayout>
