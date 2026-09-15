@@ -3,7 +3,6 @@ import { allowAnonymousVerify, readCache, writeCache } from '../lib/analysis/cac
 import { renderAnalysis } from '../lib/analysis/render.ts';
 import type { Analysis } from '../lib/analysis/types.ts';
 import { track } from '../lib/analytics.ts';
-import { parseRepoRef } from '../lib/github-url.ts';
 import { currentUser, supabase } from '../lib/supabase.ts';
 import { saveLocalAgent, saveLocalScan } from '../lib/local-state.ts';
 
@@ -13,6 +12,47 @@ function resultEl(): HTMLElement | null { return document.querySelector<HTMLElem
 function setStatus(text: string) {
   const el = statusEl();
   if (el) el.textContent = text;
+}
+
+function downloadAnalysis(analysis: Analysis) {
+  const payload = JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    repository: analysis.meta.fullName,
+    verdict: analysis.verdict,
+    scores: analysis.scores,
+    metadata: analysis.meta,
+    latestRelease: analysis.latestRelease,
+    contributors: analysis.contributors,
+    languages: analysis.languages,
+    detections: analysis.detections,
+    risks: analysis.risks,
+    verdictReasons: analysis.verdictReasons,
+    analyzedAt: analysis.analyzedAt,
+  }, null, 2);
+  const blob = new Blob([payload], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${analysis.meta.fullName.replace(/[^A-Za-z0-9._-]+/g, '-')}-paradox-analysis.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function showSaveFeedback(message: string, analysis: Analysis) {
+  const status = statusEl();
+  if (!status) return;
+  status.textContent = message;
+  let panel = document.querySelector<HTMLElement>('#verifySaveFeedback');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'verifySaveFeedback';
+    panel.setAttribute('role', 'status');
+    panel.innerHTML = `<strong>Analysis saved.</strong><span>Keep a local evidence file and reopen the workspace later.</span><a href="/dashboard/">Open dashboard →</a>`;
+    status.insertAdjacentElement('afterend', panel);
+  }
+  panel.querySelector('a')?.setAttribute('href', '/dashboard/');
+  downloadAnalysis(analysis);
 }
 
 async function persist(analysis: Analysis) {
@@ -41,17 +81,20 @@ async function persist(analysis: Analysis) {
   await supabase.from('scan_history').insert(row);
 }
 
-async function save(fullName: string, url: string, verdict: string, score: number) {
+async function save(fullName: string, url: string, verdict: string, score: number, analysis: Analysis) {
   track('save_agent', { repository: fullName, verdict, score });
+  downloadAnalysis(analysis);
   if (!supabase) {
     saveLocalAgent({ repository: fullName, url, verdict, score, savedAt: new Date().toISOString() });
-    setStatus('Saved on this device. Create an account later to sync it across devices.');
+    showSaveFeedback('Saved on this device and downloaded.', analysis);
     return;
   }
   const user = await currentUser();
   if (!user) {
-    setStatus('Create a free account to save it.');
-    location.href = `/auth/?next=${encodeURIComponent(location.pathname + location.search)}`;
+    showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.', analysis);
+    window.setTimeout(() => {
+      location.href = `/auth/?next=${encodeURIComponent(location.pathname + location.search)}`;
+    }, 650);
     return;
   }
   const { error } = await supabase.from('saved_agents').upsert({
@@ -61,7 +104,11 @@ async function save(fullName: string, url: string, verdict: string, score: numbe
     verdict,
     score,
   }, { onConflict: 'user_id,repository_full_name' });
-  setStatus(error ? "We couldn't save this agent. Try again." : 'Saved to your collection.');
+  if (error) {
+    setStatus("Local download complete, but dashboard save failed. Try again.");
+    return;
+  }
+  showSaveFeedback('Saved to your dashboard and downloaded.', analysis);
 }
 
 export async function runVerify(url: string) {
@@ -89,7 +136,7 @@ export async function runVerify(url: string) {
       result.innerHTML = renderAnalysis(analysis);
       result.hidden = false;
       result.querySelector('[data-save]')?.addEventListener('click', () => {
-        save(analysis.meta.fullName, analysis.meta.htmlUrl, analysis.verdict, analysis.scores.paradox);
+        void save(analysis.meta.fullName, analysis.meta.htmlUrl, analysis.verdict, analysis.scores.paradox, analysis);
       });
       result.querySelector('[data-github]')?.addEventListener('click', () => {
         track('github_clicked', { repository: analysis.meta.fullName });
@@ -97,7 +144,7 @@ export async function runVerify(url: string) {
     }
     history.replaceState(null, '', `/verify/?url=${encodeURIComponent(analysis.meta.htmlUrl)}`);
     await persist(analysis);
-    setStatus('Static analysis complete. Save it if you want to come back later.');
+    setStatus('Static analysis complete. Save it to your dashboard or download the evidence file.');
     track('verify_completed', { repository: analysis.meta.fullName, verdict: analysis.verdict, score: analysis.scores.paradox });
   } catch (err) {
     const message = err instanceof GitHubHttpError ? err.message : "We couldn't complete this analysis. Try again.";
