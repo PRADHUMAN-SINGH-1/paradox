@@ -8,24 +8,45 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
 <BaseLayout title="PARADOX — Discover, inspect and verify AI agents" description="Discover public AI agents, paste a GitHub URL, and inspect health, freshness, stack, and static risk indicators before you run anything.">
   <main>
     <section class="hero-home">
-      <p class="eyebrow">AI AGENT INTELLIGENCE</p>
-      <h1>Discover AI agents you can actually <em>understand.</em></h1>
-      <p class="lead">Search public agents and GitHub projects, then inspect what they do, how fresh they are, what they require, and which static risk indicators show up in the repository.</p>
-      <form class="search-row" method="get" action="/agents/">
-        <label class="visually-hidden" for="homeQuery">Search AI agents</label>
-        <input id="homeQuery" name="q" type="search" placeholder="Search AI agents, skills, repositories..." />
-        <button type="submit">Search</button>
-      </form>
-      <div class="sub-actions">
-        <a href="/verify/">Verify a GitHub agent</a>
-        <a href="/compare/">Compare two repositories</a>
+      <div class="hero-home-copy">
+        <p class="eyebrow">AI AGENT INTELLIGENCE / 01</p>
+        <h1>Discover AI agents you can actually <em>understand.</em></h1>
+        <p class="lead">Search public agents and GitHub projects, then inspect what they do, how fresh they are, what they require, and which static risk indicators show up in the repository.</p>
+        <form class="search-row" method="get" action="/agents/">
+          <label class="visually-hidden" for="homeQuery">Search AI agents</label>
+          <input id="homeQuery" name="q" type="search" placeholder="Search agents, skills, repositories, MCP…" />
+          <button type="submit"><span>Search</span></button>
+        </form>
+        <div class="sub-actions">
+          <a href="/verify/">Verify a GitHub agent →</a>
+          <a href="/compare/">Compare two repositories →</a>
+        </div>
+        <div class="cats" aria-label="Agent categories">
+          {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
+        </div>
       </div>
-      <div class="cats">
-        {cats.map((c) => <a href={`/categories/${c.slug}/`}>{c.label}</a>)}
+      <div class="pv-hero-visual" aria-label="PARADOX intelligence network visualization">
+        <div class="pv-orbit"></div>
+        <div class="pv-core"><strong>PX</strong></div>
+        <div class="pv-node n1"><b>REPOSITORY</b><span>indexed</span></div>
+        <div class="pv-node n2"><b>RISK ENGINE</b><span>scanning</span></div>
+        <div class="pv-node n3"><b>FRESHNESS</b><span>live signal</span></div>
+        <div class="pv-node n4"><b>STACK</b><span>detected</span></div>
+        <div class="pv-wave"></div>
+        <div class="pv-scan"><span>NETWORK STATUS <strong>ONLINE</strong></span><span>48 SIGNALS / MIN</span></div>
       </div>
     </section>
+    <section class="pv-stats" aria-label="Platform signals">
+      <div class="pv-stat"><span>Indexed intelligence</span><strong>PUBLIC REPOS</strong><em>LIVE</em></div>
+      <div class="pv-stat"><span>Evidence model</span><strong>STATIC SIGNALS</strong><em>ON</em></div>
+      <div class="pv-stat"><span>Inspection mode</span><strong>NO EXECUTION</strong><em>SAFE</em></div>
+      <div class="pv-stat"><span>Decision layer</span><strong>COMPARE / VERIFY</strong><em>READY</em></div>
+    </section>
     <section class="section">
-      <h2>Featured agents</h2>
+      <div class="pv-section-head">
+        <div><span class="pv-section-label">02 / CURATED SIGNALS</span><h2>Featured agents.</h2></div>
+        <p>Start with public systems already catalogued by PARADOX, then inspect the evidence behind each profile.</p>
+      </div>
       <div class="grid-2">
         {featured.map((e) => (
           <article class="agent-card">
@@ -41,7 +62,10 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
       </div>
     </section>
     <section class="section" style="padding-top:0">
-      <h2>Recently catalogued</h2>
+      <div class="pv-section-head">
+        <div><span class="pv-section-label">03 / RECENT ACTIVITY</span><h2>Recently catalogued.</h2></div>
+        <p>New repositories enter the catalog as discoverable starting points. Live health signals are checked when you inspect them.</p>
+      </div>
       <div class="grid-2">
         {catalog.slice(8).map((e) => (
           <article class="agent-card">
