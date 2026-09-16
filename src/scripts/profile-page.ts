@@ -4,6 +4,7 @@ import { renderAnalysis } from '../lib/analysis/render.ts';
 import { track } from '../lib/analytics.ts';
 import { parseRepoRef } from '../lib/github-url.ts';
 import { currentUser, supabase } from '../lib/supabase.ts';
+import { saveLocalAgent } from '../lib/local-state.ts';
 
 export async function bootProfile(fullName: string) {
   const mount = document.querySelector('#liveAnalysis');
@@ -22,10 +23,13 @@ export async function bootProfile(fullName: string) {
     mount.querySelector('[data-save]')?.addEventListener('click', async () => {
       track('save_agent', { repository: analysis.meta.fullName });
       if (!supabase) {
-        const key = 'paradox:saved-agents';
-        const saved = JSON.parse(localStorage.getItem(key) || '[]') as string[];
-        if (!saved.includes(analysis.meta.fullName)) saved.push(analysis.meta.fullName);
-        localStorage.setItem(key, JSON.stringify(saved));
+        saveLocalAgent({
+          repository: analysis.meta.fullName,
+          url: analysis.meta.htmlUrl,
+          verdict: analysis.verdict,
+          score: analysis.scores.paradox,
+          savedAt: new Date().toISOString(),
+        });
         if (status) status.textContent = 'Saved on this device. Create an account later to sync it across devices.';
         return;
       }
