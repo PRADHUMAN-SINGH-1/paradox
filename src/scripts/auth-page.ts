@@ -14,13 +14,38 @@ const google = document.querySelector('#googleAuth');
 const reset = document.querySelector('#resetPassword');
 const showPassword = document.querySelector<HTMLButtonElement>('#togglePassword');
 let signUp = true;
+let recovery = new URLSearchParams(location.search).get('mode') === 'recovery' || new URLSearchParams(location.hash.replace(/^#/, '')).get('type') === 'recovery';
 const message = (t: string) => { if (status) status.textContent = t; };
 const next = () => {
   const value = new URLSearchParams(location.search).get('next') || '/dashboard/';
   return value.startsWith('/') ? value : '/dashboard/';
 };
+const renderRecovery = () => {
+  if (!recovery) return;
+  if (title) title.textContent = 'Choose a new password.';
+  if (copy) copy.textContent = 'Your recovery link is active. Set a new password to secure your account.';
+  if (submit) submit.textContent = 'Update password';
+  if (toggle) toggle.style.display = 'none';
+  if (github) github.style.display = 'none';
+  if (google) google.style.display = 'none';
+  if (reset) reset.style.display = 'none';
+  if (password) { password.autocomplete = 'new-password'; password.placeholder = 'At least 8 characters'; }
+  const divider = document.querySelector<HTMLElement>('.auth-divider');
+  const socialGrid = document.querySelector<HTMLElement>('.social-auth-grid');
+  if (divider) divider.style.display = 'none';
+  if (socialGrid) socialGrid.style.display = 'none';
+};
 
 if (!supabase) message('Authentication is not configured yet. Add the Supabase public URL and publishable key to the site environment.');
+renderRecovery();
+
+supabase?.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    recovery = true;
+    renderRecovery();
+    message('Set a new password below.');
+  }
+});
 
 showPassword?.addEventListener('click', () => {
   if (!password || !showPassword) return;
@@ -31,6 +56,7 @@ showPassword?.addEventListener('click', () => {
 });
 
 toggle?.addEventListener('click', () => {
+  if (recovery) return;
   signUp = !signUp;
   if (title) title.textContent = signUp ? 'Create your PARADOX account.' : 'Welcome back to PARADOX.';
   if (copy) copy.textContent = signUp ? 'Sign up once to use PARADOX tools, verification, comparisons and private features.' : 'Sign in to continue to the PARADOX feature you were using.';
@@ -47,21 +73,34 @@ form?.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!supabase || !email || !password || !submit) return message('Authentication is not configured yet.');
   submit.disabled = true;
-  if (signUp) track('signup_started');
   message('Working…');
-  const destination = next();
-  const result = signUp
-    ? await supabase.auth.signUp({ email: email.value.trim(), password: password.value, options: { emailRedirectTo: `${location.origin}/auth/?next=${encodeURIComponent(destination)}` } })
-    : await supabase.auth.signInWithPassword({ email: email.value.trim(), password: password.value });
-  submit.disabled = false;
-  if (result.error) return message(result.error.message);
-  if (signUp && !result.data.session) {
-    track('signup_completed');
-    return message('Account created. Check your email to confirm, then return here to continue.');
+  try {
+    if (recovery) {
+      const { error } = await supabase.auth.updateUser({ password: password.value });
+      if (error) return message(error.message);
+      track('password_reset_completed');
+      message('Password updated. Redirecting…');
+      location.href = next();
+      return;
+    }
+    if (signUp) track('signup_started');
+    const destination = next();
+    const result = signUp
+      ? await supabase.auth.signUp({ email: email.value.trim(), password: password.value, options: { emailRedirectTo: `${location.origin}/auth/?next=${encodeURIComponent(destination)}` } })
+      : await supabase.auth.signInWithPassword({ email: email.value.trim(), password: password.value });
+    if (result.error) return message(result.error.message);
+    if (signUp && !result.data.session) {
+      track('signup_completed');
+      return message('Account created. Check your email to confirm, then return here to continue.');
+    }
+    if (signUp) track('signup_completed');
+    else track('login_completed');
+    location.href = destination;
+  } catch (error) {
+    message(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
+  } finally {
+    submit.disabled = false;
   }
-  if (signUp) track('signup_completed');
-  else track('login_completed');
-  location.href = destination;
 });
 
 async function oauth(provider: 'github' | 'google') {
@@ -82,6 +121,6 @@ reset?.addEventListener('click', async () => {
   if (!supabase) return message('Authentication is not configured yet.');
   const value = email?.value.trim();
   if (!value) return message('Enter your email first.');
-  const { error } = await supabase.auth.resetPasswordForEmail(value, { redirectTo: `${location.origin}/auth/` });
+  const { error } = await supabase.auth.resetPasswordForEmail(value, { redirectTo: `${location.origin}/auth/?mode=recovery` });
   message(error ? error.message : 'If an account exists, a reset email has been sent.');
 });
