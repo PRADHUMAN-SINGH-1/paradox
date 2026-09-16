@@ -6,7 +6,5 @@ export default defineConfig({
   build: { format: 'directory' },
   redirects: {
     '/account': '/dashboard',
-    '/studio': '/verify',
-    '/ai-radar': '/trending',
   },
 });
