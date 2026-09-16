@@ -28,7 +28,15 @@ async function proxySearch(query: string) {
 
 async function directSearch(query: string) {
   const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`;
-  const r = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+  let r: Response;
+  try {
+    r = await fetch(url, { headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw new Error('GitHub search timed out. Please try again.');
+    throw error;
+  } finally { window.clearTimeout(timeout); }
   if (r.status === 403) throw new Error('GitHub is temporarily rate limiting requests. Please try again shortly.');
   if (!r.ok) throw new Error("We couldn't complete this search. Try again.");
   return await r.json() as { total_count?: number; items?: Array<Record<string, unknown>> };
