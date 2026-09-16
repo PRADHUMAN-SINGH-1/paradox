@@ -45,18 +45,10 @@ async function boot() {
   if (!links.length) return;
   try {
     const { supabase } = await import('../lib/supabase.ts');
-    let user = null;
-    if (supabase) {
-      try {
-        const { data } = await supabase.auth.getSession();
-        user = data.session?.user ?? null;
-      } catch {
-        user = null;
-      }
-    }
+    const sessionUser = supabase ? (await supabase.auth.getSession()).data.session?.user ?? null : null;
     links.forEach((a) => {
-      a.href = user ? '/dashboard/' : '/auth/';
-      a.textContent = user ? 'Dashboard' : 'Sign in';
+      a.href = sessionUser ? '/dashboard/' : '/auth/';
+      a.textContent = sessionUser ? 'Dashboard' : 'Sign in';
     });
     revealAuthLinks(links);
   } catch {
