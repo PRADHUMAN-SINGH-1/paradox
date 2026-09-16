@@ -1,0 +1,103 @@
+const ALLOWED_ORIGINS = new Set(['https://paradox.engineer','http://localhost:4321','http://127.0.0.1:4321']);
+const MAX_PROMPT = 60_000;
+const MINUTE = 60_000;
+const hits = new Map<string, { at: number; count: number }>();
+function cors(req: Request) {
+  const origin = req.headers.get('origin') || '';
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://paradox.engineer',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
+}
+function json(data: unknown, status: number, headers: Record<string, string>) {
+  return new Response(JSON.stringify(data), { status, headers: { ...headers, 'Content-Type': 'application/json' } });
+}
+function rateLimit(req: Request) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const now = Date.now();
+  const row = hits.get(ip);
+  if (!row || now - row.at > MINUTE) {
+    hits.set(ip, { at: now, count: 1 });
+    return true;
+  }
+  row.count += 1;
+  return row.count <= 20;
+}
+type Provider = 'auto' | 'gemini' | 'groq' | 'cerebras' | 'huggingface' | 'ollama';
+const providers: Provider[] = ['gemini', 'groq', 'cerebras', 'huggingface', 'ollama'];
+function env(name: string) { return Deno.env.get(name) || ''; }
+function candidates(requested: Provider, task: string): Provider[] {
+  if (requested !== 'auto') return [requested, ...providers.filter((p) => p !== requested)];
+  if (/code|debug|program|technical/i.test(task)) return ['groq', 'cerebras', 'gemini', 'huggingface', 'ollama'];
+  if (/resume|interview|study|research|content/i.test(task)) return ['gemini', 'groq', 'cerebras', 'huggingface', 'ollama'];
+  return ['cerebras', 'groq', 'gemini', 'huggingface', 'ollama'];
+}
+async function requestOpenAICompatible(base: string, key: string, model: string, system: string, prompt: string) {
+  if (!base) throw new Error('Provider base URL is not configured');
+  if (!key) throw new Error('Provider credential is not configured');
+  const res = await fetch(`${base.replace(/\/$/, '')}/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify({ model, temperature: .35, max_tokens: 5000, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error?.message || `Provider returned ${res.status}`);
+  const text = data?.choices?.[0]?.message?.content || '';
+  if (!text) throw new Error('Provider returned no text');
+  return text;
+}
+async function requestGemini(system: string, prompt: string) {
+  const key = env('GEMINI_API_KEY');
+  if (!key) throw new Error('Gemini is not configured');
+  const model = env('GEMINI_MODEL') || 'gemini-3.6-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 5000 } }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error?.message || `Gemini returned ${res.status}`);
+  const text = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('\n') || '';
+  if (!text) throw new Error('Gemini returned no text');
+  return text;
+}
+async function runProvider(provider: Provider, system: string, prompt: string) {
+  switch (provider) {
+    case 'gemini': return requestGemini(system, prompt);
+    case 'groq': return requestOpenAICompatible('https://api.groq.com/openai/v1', env('GROQ_API_KEY'), env('GROQ_MODEL') || 'openai/gpt-oss-20b', system, prompt);
+    case 'cerebras': return requestOpenAICompatible(env('CEREBRAS_BASE_URL') || 'https://api.cerebras.ai/v1', env('CEREBRAS_API_KEY'), env('CEREBRAS_MODEL') || 'gpt-oss-120b', system, prompt);
+    case 'huggingface': return requestOpenAICompatible('https://router.huggingface.co/v1', env('HF_API_KEY'), env('HF_MODEL') || 'meta-llama/Llama-3.3-70B-Instruct', system, prompt);
+    case 'ollama': return requestOpenAICompatible(env('OLLAMA_BASE_URL'), env('OLLAMA_API_KEY'), env('OLLAMA_MODEL') || 'llama3.2', system, prompt);
+  }
+}
+Deno.serve(async (req) => {
+  const h = cors(req);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: h });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405, h);
+  if (!rateLimit(req)) return json({ error: 'Too many AI requests. Please wait a minute.' }, 429, h);
+  try {
+    const body = await req.json();
+    const prompt = String(body.prompt || '').slice(0, MAX_PROMPT);
+    const system = String(body.system || 'You are PARADOX AI. Be accurate, specific and transparent about uncertainty. Never invent credentials, sources or facts.').slice(0, 10000);
+    const task = String(body.task || 'general').slice(0, 100);
+    const requested = String(body.provider || 'auto') as Provider;
+    const order = candidates(providers.includes(requested) || requested === 'auto' ? requested : 'auto', task);
+    if (!prompt.trim()) return json({ error: 'Prompt is required.' }, 400, h);
+    const failures: string[] = [];
+    for (const provider of order) {
+      try {
+        const started = Date.now();
+        const text = await runProvider(provider, system, prompt);
+        return json({ text, provider, latencyMs: Date.now() - started, attempted: order.slice(0, order.indexOf(provider) + 1) }, 200, h);
+      } catch (e) {
+        failures.push(`${provider}: ${e instanceof Error ? e.message : 'failed'}`);
+      }
+    }
+    return json({ error: 'No configured AI provider is currently available.', details: failures }, 503, h);
+  } catch (e) {
+    return json({ error: e instanceof Error ? e.message : 'Invalid AI request.' }, 400, h);
+  }
+});
