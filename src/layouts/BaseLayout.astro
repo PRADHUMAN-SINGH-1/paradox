@@ -29,31 +29,9 @@ const breadcrumb: Record<string, unknown> | null = breadcrumbPaths.length > 0 ? 
   ]
 } : null;
 const graph: Record<string, unknown>[] = [
-  {
-    '@type':'WebSite',
-    '@id':'https://paradox.engineer/#website',
-    name:'PARADOX',
-    url:'https://paradox.engineer/',
-    description:'Discover, inspect and verify public AI agents, GitHub projects and practical AI tools.',
-    inLanguage:'en-US',
-    publisher:{ '@id':'https://paradox.engineer/#organization' }
-  },
-  {
-    '@type':'Organization',
-    '@id':'https://paradox.engineer/#organization',
-    name:'PARADOX',
-    url:'https://paradox.engineer/',
-    sameAs:['https://www.linkedin.com/in/pradhuman--singh/']
-  },
-  {
-    '@type':'WebPage',
-    '@id':`${canonical}#webpage`,
-    url:canonical,
-    name:title,
-    description,
-    inLanguage:'en-US',
-    isPartOf:{ '@id':'https://paradox.engineer/#website' }
-  }
+  { '@type':'WebSite', '@id':'https://paradox.engineer/#website', name:'PARADOX', url:'https://paradox.engineer/', description:'Discover, inspect and verify public AI agents, GitHub projects and practical AI tools.', inLanguage:'en-US', publisher:{ '@id':'https://paradox.engineer/#organization' } },
+  { '@type':'Organization', '@id':'https://paradox.engineer/#organization', name:'PARADOX', url:'https://paradox.engineer/', sameAs:['https://www.linkedin.com/in/pradhuman--singh/'] },
+  { '@type':'WebPage', '@id':`${canonical}#webpage`, url:canonical, name:title, description, inLanguage:'en-US', isPartOf:{ '@id':'https://paradox.engineer/#website' } }
 ];
 if (breadcrumb) graph.push({ '@context':'https://schema.org', ...breadcrumb });
 if (jsonLd) graph.push(jsonLd as Record<string, unknown>);
@@ -104,4 +82,15 @@ const websiteLdText = JSON.stringify(websiteLd).replace(/</g,'\\u003c');
   <div class="pf-footer-bottom"><span>© {year} PARADOX</span><span>Static analysis is not a security certification.</span><span>Built for the web.</span></div>
 </footer>
 <script>import '../scripts/header-auth.ts';</script>
+<script>
+  if (location.pathname.startsWith('/ai-studio/')) {
+    void import('../scripts/ai-studio-provider.ts');
+    void import('../scripts/ai-studio-polish.ts');
+  }
+  if (location.pathname === '/ai/' || location.pathname.startsWith('/utilities/')) {
+    void import('../scripts/ai-tool-polish.ts');
+    void import('../scripts/ai-tool-inputs.ts');
+  }
+  if (document.querySelector('[data-requires-auth]')) void import('../scripts/auth-gate.ts');
+</script>
 </body></html>
