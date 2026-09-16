@@ -59,5 +59,5 @@ export function getLocalScans(): LocalScan[] {
 }
 
 export function clearLocalScans() {
-  localStorage.removeItem(SCANS_KEY);
+  try { localStorage.removeItem(SCANS_KEY); } catch {}
 }
