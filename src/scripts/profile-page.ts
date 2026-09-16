@@ -43,7 +43,7 @@ export async function bootProfile(fullName: string) {
       }, { onConflict: 'user_id,repository_full_name' });
       if (status) status.textContent = error ? "We couldn't save this agent. Try again." : 'Saved to your collection.';
     });
-    if (status) status.textContent = 'Live static analysis loaded.';
+    if (status) status.textContent = cached ? 'Cached static analysis loaded. Use Verify for a fresh run.' : 'Fresh static analysis loaded.';
   } catch (err) {
     if (status) status.textContent = err instanceof Error ? err.message : "We couldn't complete this analysis. Try again.";
   }
