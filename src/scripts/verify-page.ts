@@ -32,12 +32,12 @@ function downloadAnalysis(analysis: Analysis) {
   }, null, 2);
   const blob = new Blob([payload], { type: 'application/json' });
   const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
+  const href = URL.createObjectURL(blob);
+  link.href = href;
   link.download = `${analysis.meta.fullName.replace(/[^A-Za-z0-9._-]+/g, '-')}-paradox-analysis.json`;
   document.body.appendChild(link);
   link.click();
   link.remove();
-  const href = link.href;
   window.setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
 
@@ -63,7 +63,7 @@ async function persist(analysis: Analysis) {
   if (!supabase) return;
   const user = await currentUser();
   if (!user) return;
-  await supabase.from('scan_history').insert({
+  const { error } = await supabase.from('scan_history').insert({
     user_id: user.id,
     repository_url: analysis.meta.htmlUrl,
     repository_full_name: analysis.meta.fullName,
@@ -76,6 +76,7 @@ async function persist(analysis: Analysis) {
       risks: analysis.risks.map((r) => ({ category: r.category, severity: r.severity, file: r.file })),
     },
   });
+  if (error) console.warn('scan_history insert failed:', error.message);
 }
 
 async function save(fullName: string, url: string, verdict: string, score: number, analysis: Analysis) {
@@ -127,9 +128,9 @@ export async function runVerify(url: string) {
       result.querySelector('[data-github]')?.addEventListener('click', () => { track('github_clicked', { repository: analysis.meta.fullName }); });
     }
     history.replaceState(null, '', `/verify/?url=${encodeURIComponent(analysis.meta.htmlUrl)}`);
-    await persist(analysis);
-    setStatus('Static analysis complete. Save it to your dashboard or download the evidence file.');
-    track('verify_completed', { repository: analysis.meta.fullName, verdict: analysis.verdict, score: analysis.scores.paradox });
+    if (!cached) await persist(analysis);
+    setStatus(cached ? 'Cached static analysis complete. Run fresh analysis for new evidence.' : 'Static analysis complete. Save it to your dashboard or download the evidence file.');
+    track('verify_completed', { repository: analysis.meta.fullName, verdict: analysis.verdict, score: analysis.scores.paradox, cached: Boolean(cached) });
   } catch (err) {
     const message = err instanceof GitHubHttpError ? err.message : "We couldn't complete this analysis. Try again.";
     setStatus(message);
