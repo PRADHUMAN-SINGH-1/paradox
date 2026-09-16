@@ -44,9 +44,16 @@ async function boot() {
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]');
   if (!links.length) return;
   try {
-    const { currentUser } = await import('../lib/supabase.ts');
-    let user: Awaited<ReturnType<typeof currentUser>> = null;
-    try { user = await currentUser(); } catch { user = null; }
+    const { supabase } = await import('../lib/supabase.ts');
+    let user = null;
+    if (supabase) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        user = data.session?.user ?? null;
+      } catch {
+        user = null;
+      }
+    }
     links.forEach((a) => {
       a.href = user ? '/dashboard/' : '/auth/';
       a.textContent = user ? 'Dashboard' : 'Sign in';
@@ -67,8 +74,9 @@ if (btn && nav) {
   });
 }
 
-// Resolve auth immediately. Delaying this check causes a visible flash of the
-// wrong authentication state ("Sign in" before an existing session is known).
+// Resolve auth from Supabase's locally cached session first. getUser() can
+// require a network round-trip, which caused the visible "Sign in" ->
+// "Dashboard" transition on every page load.
 void boot().catch(() => {
   document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]').forEach((a) => {
     a.href = '/auth/';
