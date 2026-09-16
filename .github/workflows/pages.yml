@@ -5,9 +5,12 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# Never cancel a real deployment just because a newer commit arrived.
+# Every main push gets a chance to validate, build, and deploy; the newest
+# successful run will leave production on the newest commit.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
