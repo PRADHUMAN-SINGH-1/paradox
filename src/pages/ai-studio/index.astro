@@ -67,7 +67,6 @@ const routerUrl = 'https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/ai-rout
     }catch(e){result.hidden=true;empty.hidden=false;error.textContent=e?.name==='AbortError'?'The AI request timed out. Please try again.':e?.message||'AI request failed.';error.hidden=false;status.textContent='ERROR';} finally {clearTimeout(timer);}
   }
   $('#run').addEventListener('click',run); $('#clear').addEventListener('click',()=>render(current));
-  $('#copy').addEventListener('click',async()=>{if(result.hidden)return;try{await navigator.clipboard.writeText(result.textContent||'');status.textContent='COPIED';}catch{error.textContent='Clipboard access is blocked. Select the result and copy it manually.';error.hidden=false;}});
   $('#download').addEventListener('click',()=>{if(result.hidden)return;const a=document.createElement('a');const href=URL.createObjectURL(new Blob([result.textContent],{type:'text/plain'}));a.href=href;a.download='paradox-ai-result.txt';a.click();setTimeout(()=>URL.revokeObjectURL(href),800);});
   render('resume');
 })();
