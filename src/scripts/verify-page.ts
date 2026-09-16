@@ -36,7 +36,7 @@ async function save(fullName:string,url:string,verdict:string,score:number,analy
     let user: Awaited<ReturnType<typeof currentUser>> = null;
     try { user=await currentUser(); } catch { showSaveFeedback('Download complete, but authentication could not be checked. Sign in to sync later.',true); return; }
     if(!user){showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.',true);window.setTimeout(()=>{location.href=`/auth/?next=${encodeURIComponent(location.pathname+location.search)}`},650);return}
-    const {error}=await supabase.from('saved_agents').upsert({user_id:user.id,repository_url:url,repository_full_name:fullName,verdict,score},{onConflict:'user_id,repository_fullName'});
+    const {error}=await supabase.from('saved_agents').upsert({user_id:user.id,repository_url:url,repository_full_name:fullName,verdict,score},{onConflict:'user_id,repository_full_name'});
     if(error){setStatus('Local download complete, but dashboard save failed. Try again.');return}
     showSaveFeedback('Saved to your dashboard and downloaded.',true);
   } catch {
