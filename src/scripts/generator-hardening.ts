@@ -24,11 +24,8 @@ function hardenBracket() {
     }
   });
   if (changed && winners.every(Boolean)) {
-    const next = winners.filter(Boolean) as string[];
-    const real = next.filter((name) => name !== 'BYE');
-    if (real.length > 1 && real.length !== next.length) {
-      root._roundWinners = winners.map((name) => name === 'BYE' ? null : name);
-    }
+    const trigger = picks.flat().find((button) => !button.disabled);
+    trigger?.click();
   }
 }
 
