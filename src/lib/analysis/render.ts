@@ -26,7 +26,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const dets = x.detections.length
     ? x.detections.map((d) => `<li><strong>${escapeHtml(d.name)}</strong><span class="evidence-file">${escapeHtml(d.file)}</span><br/><code>${escapeHtml(d.evidence)}</code></li>`).join('')
     : '<li>No model/tool detectors matched. That is Unknown, not proof of absence.</li>';
-  const risks = x.risks.length
+  const riskItems = x.risks.length
     ? x.risks.map((r) => `<li><strong>${escapeHtml(r.severity)} · ${escapeHtml(r.category)}</strong><span class="evidence-file">${escapeHtml(r.file)}</span><br/>${escapeHtml(r.reason)}<br/><code>${escapeHtml(r.evidence)}</code></li>`).join('')
     : '<li>No static risk indicators matched the current rules.</li>';
   const reasons = x.verdictReasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('');
@@ -35,6 +35,8 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const score = (n: number) => Math.max(0, Math.min(100, n));
   const observedSignals = x.structure.length + x.detections.length + x.risks.length + x.verdictReasons.length;
   const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
+  const selectedFiles = Math.min(x.coverage.selectedFiles, x.coverage.maxFiles);
+  const coverageLabel = `${selectedFiles}/${x.coverage.maxFiles}`;
   return `
   <section class="result-head" aria-label="Analysis summary">
     <div>
@@ -67,7 +69,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     <article class="si-trust-card"><span>OBSERVED SIGNALS</span><strong>${observedSignals}</strong><p>Repository structure, detectors, risk rules and verdict evidence currently observed.</p></article>
     <article class="si-trust-card"><span>HIGH-RISK INDICATORS</span><strong>${highRisks}</strong><p>High-severity static indicators matched by the current analysis rules.</p></article>
     <article class="si-trust-card"><span>MODELS / TOOLS</span><strong>${x.detections.length}</strong><p>Detected model or tool signals. No match is treated as unknown, not proof of absence.</p></article>
-    <article class="si-trust-card"><span>REPOSITORY EVIDENCE</span><strong>${x.structure.length}</strong><p>Selected files and paths contributing to the current evidence profile.</p></article>
+    <article class="si-trust-card"><span>FILES SAMPLED</span><strong>${coverageLabel}</strong><p>${x.coverage.recursiveTree ? 'Recursive repository tree inspected, then a bounded file sample was analyzed.' : 'Repository tree data was incomplete, so this analysis is based on an incomplete sample.'}</p></article>
   </div>
 
   <div class="columns">
@@ -84,7 +86,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     </div>
     <div class="panel">
       <h3>DETECTED MODELS / TOOLS</h3><ul>${dets}</ul>
-      <h3>STATIC RISK INDICATORS</h3><ul>${risks}</ul>
+      <h3>STATIC RISK INDICATORS</h3><ul>${riskItems}</ul>
       <h3>STACK FILES OBSERVED</h3><ul>${x.structure.length ? x.structure.map((p) => `<li>${escapeHtml(p)}</li>`).join('') : '<li>Unknown</li>'}</ul>
     </div>
   </div>
