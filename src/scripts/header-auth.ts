@@ -1,18 +1,24 @@
-import { currentUser, supabase } from '../lib/supabase.ts';
-
 async function boot() {
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]');
-  if (!supabase) return;
-  let user = null;
+  if (!links.length) return;
   try {
-    user = await currentUser();
+    const { currentUser } = await import('../lib/supabase.ts');
+    let user: Awaited<ReturnType<typeof currentUser>> = null;
+    try {
+      user = await currentUser();
+    } catch {
+      user = null;
+    }
+    links.forEach((a) => {
+      a.href = user ? '/dashboard/' : '/auth/';
+      a.textContent = user ? 'Dashboard' : 'Sign in';
+    });
   } catch {
-    user = null;
+    links.forEach((a) => {
+      a.href = '/auth/';
+      a.textContent = 'Sign in';
+    });
   }
-  links.forEach((a) => {
-    a.href = user ? '/dashboard/' : '/auth/';
-    a.textContent = user ? 'Dashboard' : 'Sign in';
-  });
 }
 
 const btn = document.querySelector('.menu-toggle');
@@ -24,4 +30,11 @@ if (btn && nav) {
   });
 }
 
-void boot().catch(() => undefined);
+const schedule = (work: () => void) => {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(work, { timeout: 2000 });
+  } else {
+    window.setTimeout(work, 1000);
+  }
+};
+schedule(() => { void boot().catch(() => undefined); });
