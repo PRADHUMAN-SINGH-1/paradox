@@ -7,7 +7,7 @@ function loginUrl() {
 
 for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth]')) {
   button.addEventListener('click', async (event) => {
-    let user = null;
+    let user: Awaited<ReturnType<typeof currentUser>> = null;
     try {
       user = await currentUser();
     } catch {
