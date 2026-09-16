@@ -1,5 +1,6 @@
 ---
-const { mode, title, intro, aValue: propAValue, bValue: propBValue } = Astro.props;
+const { mode, title, intro, aValue: propAValue, bValue: propBValue , headingLevel = 'h1' } = Astro.props;
+const Heading = headingLevel === 'h2' ? 'h2' : 'h1';
 const configs = {
   percentage:{a:'Percentage',b:'Of number',aType:'number',bType:'number',aValue:'15',bValue:'200'},
   age:{a:'Date of birth',b:'Calculate as of',aType:'date',bType:'date'},
@@ -26,7 +27,7 @@ const c=configs[mode]??configs.percentage;
 ---
 <main class="generator-page utility-page" data-utility={mode}>
   <div class="generator-breadcrumb"><a href="/">PARADOX MAKERS</a> / <span>{title}</span></div>
-  <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL CALCULATION</span><h1>{title}</h1><p>{intro}</p><div class="generator-subline">No upload · No paid API · Works in your browser</div></header>
+  <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL CALCULATION</span><Heading>{title}</Heading><p>{intro}</p><div class="generator-subline">No upload · No paid API · Works in your browser</div></header>
   <div class="generator-layout">
     <section class="generator-panel" aria-label="Utility controls"><div class="generator-panel-head"><h2>01 / Inputs</h2><span>Instant</span></div><div class="generator-fields">
       <div class="field"><label for="utilityA">{c.a}</label>{c.aType==='textarea'?<textarea id="utilityA" data-field="a" placeholder="Paste or type text here"></textarea>:c.aType==='file'?<input id="utilityA" data-field="a" type="file" accept="image/jpeg,image/png,image/webp" />:<input id="utilityA" data-field="a" type={c.aType} value={propAValue ?? c.aValue} />}</div>
