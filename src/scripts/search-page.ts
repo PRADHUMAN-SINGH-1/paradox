@@ -1,5 +1,14 @@
 import { track } from '../lib/analytics.ts';
 import { supabase } from '../lib/supabase.ts';
+import { readSearchCache, writeSearchCache } from '../lib/analysis/cache.ts';
+
+type SearchPayload = { total_count?: number; items?: Array<Record<string, unknown>> };
+
+let searchSeq = 0;
+
+const SKELETON = Array.from({ length: 4 })
+  .map(() => '<article class="agent-card is-skeleton" aria-hidden="true"><div class="meta"><span class="sk sk-pill"></span><span class="sk sk-pill"></span><span class="sk sk-pill"></span></div><h2><span class="sk sk-line sk-title"></span></h2><p><span class="sk sk-line"></span><span class="sk sk-line sk-short"></span></p></article>')
+  .join('');
 
 function esc(s: string): string {
   return String(s || '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -45,11 +54,19 @@ async function directSearch(query: string) {
 export async function searchGitHub(q: string) {
   const status = document.querySelector('#searchStatus');
   const results = document.querySelector('#results');
-  if (status) status.textContent = 'Searching public GitHub repositories…';
-  if (results) results.innerHTML = '';
   const query = q.trim() || 'ai agent';
+  const seq = ++searchSeq;
+
+  const cached = readSearchCache<SearchPayload>(query);
+  if (!cached) {
+    if (status) status.textContent = 'Searching public GitHub repositories…';
+    if (results) results.innerHTML = SKELETON;
+  }
+
   track('search', { search_term: query });
-  const data = (await proxySearch(query)) ?? await directSearch(query);
+  const data = cached ?? (await proxySearch(query)) ?? await directSearch(query);
+  if (seq !== searchSeq) return;
+  if (!cached) writeSearchCache(query, data);
   const items = data.items || [];
   if (!items.length) {
     if (results) results.innerHTML = '<p class="empty">No repositories found. Try a capability like “browser agent” or “MCP”.</p>';
@@ -57,10 +74,10 @@ export async function searchGitHub(q: string) {
     return;
   }
   if (results) {
-    results.innerHTML = items.map((x) => {
+    results.innerHTML = items.map((x, i) => {
       const full = String(x.full_name || '');
       const href = `/agents/view/?repo=${encodeURIComponent(full)}`;
-      return `<article class="agent-card">
+      return `<article class="agent-card is-revealing" style="--i:${i}">
         <div class="meta"><span>${esc(String(x.language || 'Unknown'))}</span><span>★ ${Number(x.stargazers_count || 0)}</span><span>${freshnessLabel(String(x.pushed_at || ''))}</span></div>
         <h2>${esc(full)}</h2>
         <p>${esc(String(x.description || 'No description provided.'))}</p>
@@ -73,7 +90,7 @@ export async function searchGitHub(q: string) {
     }).join('');
     results.querySelectorAll('[data-full]').forEach((a) => a.addEventListener('click', () => track('search_result_click', { repository: a.getAttribute('data-full') || '' })));
   }
-  if (status) status.textContent = `${data.total_count ?? items.length} public repositories matched.`;
+  if (status) status.textContent = `${data.total_count ?? items.length} public repositories matched.${cached ? ' (cached)' : ''}`;
 }
 
 export function bootSearch() {
