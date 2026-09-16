@@ -26,7 +26,12 @@ function read<T>(key: string): T[] {
 }
 
 function write<T>(key: string, value: T[]) {
-  localStorage.setItem(key, JSON.stringify(value.slice(0, 50)));
+  try {
+    localStorage.setItem(key, JSON.stringify(value.slice(0, 50)));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function saveLocalAgent(agent: LocalSavedAgent) {
