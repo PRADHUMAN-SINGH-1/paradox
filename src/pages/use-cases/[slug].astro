@@ -6,97 +6,23 @@ import demand from '../../data/demand.json';
 import seoOpportunities from '../../data/seo-opportunities.json';
 import blacklist from '../../data/blacklist.json';
 
-const modeById = {
-  'classroom-bingo':'bingo',
-  'word-search-puzzles':'words',
-  'random-teams':'teams',
-  'decision-wheel':'wheel',
-  'tournament-brackets':'bracket',
-  'raffle-tickets':'raffle',
-  'seating-charts':'seating',
-  'certificates':'certificate'
-};
+const modeById = {'classroom-bingo':'bingo','word-search-puzzles':'words','random-teams':'teams','decision-wheel':'wheel','tournament-brackets':'bracket','raffle-tickets':'raffle','seating-charts':'seating','certificates':'certificate'};
 const stepsByMode = {
-  bingo:['Add at least 24 names, words or prompts.','Generate a randomized 5×5 card.','Print or save the card as PDF.'],
-  words:['Add words you want hidden.','Generate the puzzle.','Print or save the finished sheet.'],
-  teams:['Paste your participants.','Choose the number of teams.','Generate and share the randomized groups.'],
-  wheel:['Add two or more choices.','Spin by generating a result.','Use the selected option.'],
-  bracket:['Add participants or teams.','Generate first-round matchups.','Print or save the bracket.'],
-  raffle:['Set the event title and ticket count.','Generate numbered tickets.','Print the tickets for your event.'],
-  seating:['Add names.','Choose the number of columns.','Generate and print the arrangement.'],
-  certificate:['Enter the recipient and award.','Generate the certificate.','Print or save it as PDF.']
+  bingo:['Add at least 24 names, words or prompts.','Generate a randomized 5×5 card.','Print or save the card as PDF.'], words:['Add words you want hidden.','Generate the puzzle.','Print or save the finished sheet.'], teams:['Paste your participants.','Choose the number of teams.','Generate and share the randomized groups.'], wheel:['Add two or more choices.','Spin by generating a result.','Use the selected option.'], bracket:['Add participants or teams.','Generate first-round matchups.','Print or save the bracket.'], raffle:['Set the event title and ticket count.','Generate numbered tickets.','Print the tickets for your event.'], seating:['Add names.','Choose the number of columns.','Generate and print the arrangement.'], certificate:['Enter the recipient and award.','Generate the certificate.','Print or save it as PDF.']
 };
-export function getStaticPaths() {
-  const blocked = new Set(blacklist.slugs || []);
-  return seoOpportunities
-    .filter(item => !blocked.has(item.slug) && item.evidence?.fallback !== true)
-    .map(item => ({ params:{slug:item.slug}, props:{item} }));
-}
-const { item } = Astro.props;
-const mode = modeById[item.toolId] || 'bingo';
-const related = demand.opportunities.filter(tool => tool.route !== item.toolRoute).slice(0,3);
-const canonical = `https://paradox.engineer/use-cases/${item.slug}/`;
-const context = item.geo ? `Public demand signal observed in ${item.geo}. This page adapts an existing PARADOX tool to that use case; it is not a claim of exact search volume.` : 'This page adapts an existing PARADOX tool to a detected public use case.';
-const faq = [
-  [`What can I make with this page?`, `You can use the embedded ${item.toolLabel} to create a result for ${item.query}. The core generator runs in your browser and does not require an account.`],
-  ['Does PARADOX upload my content?', 'No. The core generator keeps your entered content in the browser for the tool flow.'],
-  ['Can I print the result?', 'Yes. Generate the result, then use Print / Save PDF in the browser.']
-];
-const jsonLd = {
-  '@context':'https://schema.org',
-  '@type':'WebApplication',
-  name:item.title,
-  url:canonical,
-  description:item.description,
-  applicationCategory:'UtilitiesApplication',
-  operatingSystem:'Web Browser',
-  isAccessibleForFree:true,
-  offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},
-  featureList:[item.toolLabel,'Browser-based generation','No account required','Print-ready output']
-};
+export function getStaticPaths() { const blocked = new Set(blacklist.slugs || []); return seoOpportunities.filter(item => !blocked.has(item.slug) && item.evidence?.fallback !== true).map(item => ({ params:{slug:item.slug}, props:{item} })); }
+const { item } = Astro.props; const mode = modeById[item.toolId] || 'bingo'; const related = demand.opportunities.filter(tool => tool.route !== item.toolRoute).slice(0,3); const canonical = `https://paradox.engineer/use-cases/${item.slug}/`; const context = item.geo ? `Public demand signal observed in ${item.geo}. This page adapts an existing PARADOX tool to that use case; it is not a claim of exact search volume.` : 'This page adapts an existing PARADOX tool to a detected public use case.';
+const faq = [[`What can I make with this page?`,`You can use the embedded ${item.toolLabel} to create a result for ${item.query}. The core generator runs in your browser and does not require an account.`],['Does PARADOX upload my content?','No. The core generator keeps your entered content in the browser for the tool flow.'],['Can I print the result?','Yes. Generate the result, then use Print / Save PDF in the browser.']];
+const jsonLd = {'@context':'https://schema.org','@type':'WebApplication',name:item.title,url:canonical,description:item.description,applicationCategory:'UtilitiesApplication',operatingSystem:'Web Browser',isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:[item.toolLabel,'Browser-based generation','No account required','Print-ready output']};
 ---
 <MakerLayout title={`${item.title} — PARADOX Makers`} description={item.description} canonical={canonical}>
   <main class="maker-main">
-    <section class="maker-hero compact-hero">
-      <div>
-        <div class="maker-kicker">USEFUL TOOL · {item.geo || 'GLOBAL'} · SCORE {item.score}</div>
-        <h1>{item.title}</h1>
-        <p>{item.description}</p>
-      </div>
-      <div class="maker-proof">
-        <div class="proof-tile"><strong>01 · TOOL</strong><span>{item.toolLabel}</span></div>
-        <div class="proof-tile"><strong>02 · CONTEXT</strong><span>{context}</span></div>
-        <div class="proof-tile"><strong>03 · OUTPUT</strong><span>Generate, print or save.</span></div>
-      </div>
-    </section>
-
-    <section class="maker-section" id="tool">
-      <div class="maker-section-head"><div><div class="maker-label">MODULE 01 · INTERACTIVE TOOL</div><h2>Do the job<br/><em>right here.</em></h2></div><p>No separate account, dashboard or upload step. The actual generator is embedded below.</p></div>
-      <GeneratorTool mode={mode} title={item.toolLabel} intro={`Make a ${item.query} result with this free browser generator.`} steps={stepsByMode[mode] || stepsByMode.bingo} faq={faq} />
-    </section>
-
-    <section class="maker-section">
-      <div class="maker-section-head"><div><div class="maker-label">MODULE 02 · CONTEXT</div><h2>Why this<br/><em>use case?</em></h2></div><p>{context}</p></div>
-      <div class="maker-guide-grid">
-        <article class="maker-guide"><strong>Demand signal</strong><br/>The opportunity was selected from public aggregate signals rather than individual search histories.</article>
-        <article class="maker-guide"><strong>Existing capability</strong><br/>The page is feasible because PARADOX already has a matching {item.toolLabel} generator.</article>
-        <article class="maker-guide"><strong>Useful outcome</strong><br/>The visitor can create something tangible instead of reading a keyword-only article.</article>
-      </div>
-    </section>
-
-    <section class="maker-section">
-      <AdSlot height={280} label="Advertisement" />
-    </section>
-
-    <section class="maker-section">
-      <div class="maker-section-head"><div><div class="maker-label">MODULE 03 · ANSWERS</div><h2>Before you<br/><em>start.</em></h2></div></div>
-      <div class="maker-guide-grid">{faq.map(([q,a]) => <article class="maker-guide"><strong>{q}</strong><br/>{a}</article>)}</div>
-    </section>
-
-    <section class="maker-section">
-      <div class="maker-section-head"><div><div class="maker-label">MORE USEFUL TOOLS</div><h2>Keep going.</h2></div></div>
-      <div class="maker-tools">{related.map(tool => <a class="maker-card" href={tool.route}><div><div class="maker-card-top"><div class="maker-icon">↗</div></div><h2>{tool.label}</h2><p>Open the free generator.</p></div><div class="maker-open">Use it →</div></a>)}</div>
-    </section>
+    <section class="maker-hero compact-hero"><div><div class="maker-kicker">USEFUL TOOL · {item.geo || 'GLOBAL'} · SCORE {item.score}</div><h1>{item.title}</h1><p>{item.description}</p></div><div class="maker-proof"><div class="proof-tile"><strong>01 · TOOL</strong><span>{item.toolLabel}</span></div><div class="proof-tile"><strong>02 · CONTEXT</strong><span>{context}</span></div><div class="proof-tile"><strong>03 · OUTPUT</strong><span>Generate, print or save.</span></div></div></section>
+    <section class="maker-section" id="tool"><div class="maker-section-head"><div><div class="maker-label">MODULE 01 · INTERACTIVE TOOL</div><h2>Do the job<br/><em>right here.</em></h2></div><p>No separate account, dashboard or upload step. The actual generator is embedded below.</p></div><GeneratorTool mode={mode} title={item.toolLabel} intro={`Make a ${item.query} result with this free browser generator.`} steps={stepsByMode[mode] || stepsByMode.bingo} faq={faq} /></section>
+    <section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">MODULE 02 · CONTEXT</div><h2>Why this<br/><em>use case?</em></h2></div><p>{context}</p></div><div class="maker-guide-grid"><article class="maker-guide"><strong>Demand signal</strong><br/>The opportunity was selected from public aggregate signals rather than individual search histories.</article><article class="maker-guide"><strong>Existing capability</strong><br/>The page is feasible because PARADOX already has a matching {item.toolLabel} generator.</article><article class="maker-guide"><strong>Useful outcome</strong><br/>The visitor can create something tangible instead of reading a keyword-only article.</article></div></section>
+    <section class="maker-section"><AdSlot height={280} label="Advertisement" /></section>
+    <section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">MODULE 03 · ANSWERS</div><h2>Before you<br/><em>start.</em></h2></div></div><div class="maker-guide-grid">{faq.map(([q,a]) => <article class="maker-guide"><strong>{q}</strong><br/>{a}</article>)}</div></section>
+    <section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">MORE USEFUL TOOLS</div><h2>Keep going.</h2></div></div><div class="maker-tools">{related.map(tool => <a class="maker-card" href={tool.route}><div><div class="maker-card-top"><div class="maker-icon">↗</div></div><h2>{tool.label}</h2><p>Open the free generator.</p></div><div class="maker-open">Use it →</div></a>)}</div></section>
   </main>
 </MakerLayout>
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+<script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
