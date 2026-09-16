@@ -47,9 +47,6 @@ if (btn && nav) {
   });
 }
 
-const schedule = (work: () => void) => {
-  const requestIdle = window.requestIdleCallback;
-  if (typeof requestIdle === 'function') requestIdle(work, { timeout: 2000 });
-  else globalThis.setTimeout(work, 1000);
-};
-schedule(() => { void boot().catch(() => undefined); });
+// Resolve auth immediately. Delaying this check causes a visible flash of the
+// wrong authentication state ("Sign in" before an existing session is known).
+void boot().catch(() => undefined);
