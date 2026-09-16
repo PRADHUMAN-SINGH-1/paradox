@@ -55,7 +55,8 @@ import MakerLayout from '../../layouts/MakerLayout.astro';
     if(models.length){ok++;modelBox.innerHTML=models.slice(0,8).map((m,i)=>`<a class="tool-card" href="https://huggingface.co/${esc(m.id)}" target="_blank" rel="noreferrer"><div class="tool-number">${String(i+1).padStart(2,'0')}</div><h3>${esc(m.id)}</h3><p>${Number(m.downloads||0).toLocaleString()} downloads · ${Number(m.likes||0).toLocaleString()} likes</p><span class="tool-arrow">View model ↗</span></a>`).join('')}else modelBox.innerHTML='<div class="tool-card"><h3>Model feed unavailable</h3><p>The public endpoint is rate-limited right now. Refresh later.</p></div>';
     if(repos.length){ok++;githubBox.innerHTML=repos.slice(0,8).map(r=>`<a href="${esc(r.html_url)}" target="_blank" rel="noreferrer"><span>${esc(r.name)}</span><small>★ ${Number(r.stargazers_count||0).toLocaleString()}</small></a>`).join('')}else githubBox.innerHTML='<div class="tool-card"><h3>GitHub feed unavailable</h3><p>Try refreshing the page.</p></div>';
     if(stories.length){ok++;newsBox.innerHTML=stories.slice(0,8).map(s=>`<a href="${esc(s.url||'https://news.ycombinator.com/') }" target="_blank" rel="noreferrer"><span>${esc(s.title||'AI story')}</span><small>${Number(s.points||0)} points · ${Number(s.num_comments||0)} comments</small></a>`).join('')}else newsBox.innerHTML='<div class="tool-card"><h3>News feed unavailable</h3><p>Try refreshing the page.</p></div>';
-    updated.textContent=`Updated ${time()}`; status.textContent=`${ok}/3 sources live`;
+    status.textContent=`${ok}/3 sources live`;
+    updated.textContent=ok>0?`Updated ${time()}`:'No live sources right now';
   }
   load();
 })();
