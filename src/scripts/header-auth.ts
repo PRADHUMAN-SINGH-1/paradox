@@ -22,6 +22,9 @@ function repairDashboardSectionLabels() {
 normalizeInitialFields();
 repairDashboardSectionLabels();
 
+const formDefaultObserver = new MutationObserver(() => normalizeInitialFields());
+formDefaultObserver.observe(document.documentElement, { childList: true, subtree: true });
+
 async function boot() {
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]');
   if (!links.length) return;
