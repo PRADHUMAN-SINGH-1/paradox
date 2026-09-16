@@ -43,10 +43,17 @@ import MakerLayout from '../../layouts/MakerLayout.astro';
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const time=()=>new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   async function load(){
+    const timedFetch = async (url) => {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 10000);
+      try { const response = await fetch(url, { signal: controller.signal }); if (!response.ok) throw new Error('Request failed'); return await response.json(); }
+      catch (error) { if (error instanceof DOMException && error.name === 'AbortError') throw new Error('Request timed out'); throw error; }
+      finally { window.clearTimeout(timeout); }
+    };
     const results=await Promise.allSettled([
-      fetch('https://huggingface.co/api/models?sort=trending&direction=-1&limit=8').then(r=>r.ok?r.json():Promise.reject()),
-      fetch('https://api.github.com/search/repositories?q=AI+OR+LLM&sort=stars&order=desc&per_page=8').then(r=>r.ok?r.json():Promise.reject()),
-      fetch('https://hn.algolia.com/api/v1/search?query=AI%20LLM&tags=story&hitsPerPage=8').then(r=>r.ok?r.json():Promise.reject())
+      timedFetch('https://huggingface.co/api/models?sort=trending&direction=-1&limit=8'),
+      timedFetch('https://api.github.com/search/repositories?q=AI+OR+LLM&sort=stars&order=desc&per_page=8'),
+      timedFetch('https://hn.algolia.com/api/v1/search?query=AI%20LLM&tags=story&hitsPerPage=8')
     ]);
     let ok=0;
     const models=results[0].status==='fulfilled'?results[0].value:[];
