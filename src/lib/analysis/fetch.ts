@@ -7,11 +7,14 @@ import type { Analysis, FileHit, RepoMeta } from './types.ts';
 
 const API = 'https://api.github.com';
 const MAX_FILE = 80_000;
+const MAX_FILES = 32;
 const INTERESTING = [
   'README.md', 'readme.md', 'README', 'package.json', 'requirements.txt', 'pyproject.toml',
-  'Cargo.toml', 'go.mod', 'pom.xml', 'build.gradle', 'Dockerfile', 'docker-compose.yml',
+  'Cargo.toml', 'go.mod', 'pom.xml', 'build.gradle', 'build.gradle.kts', 'Dockerfile', 'docker-compose.yml',
   'docker-compose.yaml', '.env.example', 'compose.yml',
 ];
+const SOURCE_EXT = /\.(?:ts|tsx|js|jsx|mjs|cjs|py|java|kt|go|rs|php|cs|rb|swift|sh|yml|yaml)$/i;
+const SKIP_PATH = /(?:^|\/)(?:node_modules|\.git|dist|build|coverage|vendor|target|\.next|\.astro)(?:\/|$)/i;
 
 export class GitHubHttpError extends Error {
   status: number;
@@ -58,12 +61,12 @@ function analyzeEvidence(data: {
   analyzedAt?: string;
 }): Analysis {
   const meta = mapMeta(data.repo);
-  const files: FileHit[] = data.files.filter(file => file.content).map(file => ({ path: file.path, content: file.content }));
-  const names = data.root.map(item => String(item.name || ''));
+  const files: FileHit[] = data.files.filter((file) => file.content).map((file) => ({ path: file.path, content: file.content }));
+  const names = data.root.map((item) => String(item.name || ''));
   const detections = detectSignals(files);
   const risks = detectRisks(files);
-  const readme = files.find(file => /^readme/i.test(file.path))?.content || '';
-  const structure = files.map(file => file.path);
+  const readme = files.find((file) => /^readme/i.test(file.path))?.content || '';
+  const structure = files.map((file) => file.path);
   const scores = computeScores({ meta, readmeLength: readme.length, structureCount: structure.length, risks });
   const { verdict, reasons } = decideVerdict({ meta, scores, risks, readmeLength: readme.length, detections: detections.length });
   return {
@@ -91,8 +94,12 @@ async function githubJson(path: string): Promise<{ ok: true; status: number; dat
 
 function decodeContent(encoded: string): string {
   try {
-    return Uint8Array.from(atob(encoded.replace(/\s/g, '')), c => c.charCodeAt(0)).reduce((s, c) => s + String.fromCharCode(c), '');
-  } catch { return ''; }
+    const cleaned = encoded.replace(/\s/g, '');
+    const bytes = Uint8Array.from(atob(cleaned), (c) => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes).slice(0, MAX_FILE);
+  } catch {
+    return '';
+  }
 }
 
 async function textFile(owner: string, repo: string, path: string): Promise<{ path: string; content: string; size: number; skipped: boolean } | null> {
@@ -103,35 +110,42 @@ async function textFile(owner: string, repo: string, path: string): Promise<{ pa
   return { path, content: res.data.content ? decodeContent(res.data.content) : '', size, skipped: false };
 }
 
+function selectPaths(rootNames: string[], treeItems: Array<{ path?: string; type?: string; size?: number }>): string[] {
+  const available = new Set(treeItems.filter((item) => item.type === 'blob' && item.path && !SKIP_PATH.test(item.path)).map((item) => item.path as string));
+  const priority = INTERESTING.filter((name) => rootNames.some((item) => item.toLowerCase() === name.toLowerCase()))
+    .concat(treeItems.filter((item) => item.type === 'blob' && item.path && !SKIP_PATH.test(item.path) && /\.github\/workflows\//i.test(item.path)).map((item) => item.path as string));
+  const source = treeItems
+    .filter((item) => item.type === 'blob' && item.path && !SKIP_PATH.test(item.path) && SOURCE_EXT.test(item.path) && Number(item.size || 0) <= MAX_FILE)
+    .sort((a, b) => String(a.path).length - String(b.path).length)
+    .map((item) => item.path as string);
+  return [...new Set([...priority.filter((path) => available.has(path)), ...source])].slice(0, MAX_FILES);
+}
+
 async function fetchDirect(ref: RepoRef): Promise<Analysis> {
   const repoRes = await githubJson(`/repos/${ref.owner}/${ref.repo}`);
   if (!repoRes.ok) throw new GitHubHttpError(repoRes.status, userMessage(repoRes.status));
   if (repoRes.data.private === true) throw new GitHubHttpError(404, 'This repository is not publicly accessible.');
 
-  const [langs, root, contributors, releases, commits] = await Promise.all([
+  const branch = String(repoRes.data.default_branch || 'main');
+  const [langs, root, contributors, releases, commits, tree] = await Promise.all([
     githubJson(`/repos/${ref.owner}/${ref.repo}/languages`),
     githubJson(`/repos/${ref.owner}/${ref.repo}/contents`),
-    githubJson(`/repos/${ref.owner}/${ref.repo}/contributors?per_page=1&anon=true`),
+    githubJson(`/repos/${ref.owner}/${ref.repo}/contributors?per_page=100&anon=true`),
     githubJson(`/repos/${ref.owner}/${ref.repo}/releases?per_page=1`),
     githubJson(`/repos/${ref.owner}/${ref.repo}/commits?per_page=1`),
+    githubJson(`/repos/${ref.owner}/${ref.repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`),
   ]);
   const rootItems = root.ok && Array.isArray(root.data) ? root.data : [];
   const names = rootItems.map((item: { name?: string }) => String(item.name || ''));
-  const wanted = INTERESTING.filter(name => names.some((item: string) => item.toLowerCase() === name.toLowerCase()));
-  let workflowFiles: string[] = [];
-  if (names.includes('.github')) {
-    const workflows = await githubJson(`/repos/${ref.owner}/${ref.repo}/contents/.github/workflows`);
-    workflowFiles = workflows.ok && Array.isArray(workflows.data)
-      ? workflows.data.filter((item: any) => item.type === 'file').map((item: any) => `.github/workflows/${item.name}`).slice(0, 6) : [];
-  }
-  const filePaths = [...new Set([...wanted, ...workflowFiles])].slice(0, 16);
-  const files = (await Promise.all(filePaths.map(path => textFile(ref.owner, ref.repo, path)))).filter(Boolean) as Array<{ path: string; content: string; size: number; skipped: boolean }>;
+  const treeItems = tree.ok && Array.isArray(tree.data?.tree) ? tree.data.tree : [];
+  const filePaths = selectPaths(names, treeItems);
+  const files = (await Promise.all(filePaths.map((path) => textFile(ref.owner, ref.repo, path)))).filter(Boolean) as Array<{ path: string; content: string; size: number; skipped: boolean }>;
   return analyzeEvidence({
     repo: repoRes.data,
     languages: langs.ok ? langs.data : {},
     root: rootItems,
     files,
-    contributors: contributors.ok && Array.isArray(contributors.data) ? contributors.data.length : null,
+    contributors: contributors.ok && Array.isArray(contributors.data) ? Math.min(contributors.data.length, 100) : null,
     latestRelease: releases.ok && Array.isArray(releases.data) ? releases.data[0]?.tag_name || null : null,
     latestCommit: commits.ok && Array.isArray(commits.data) ? commits.data[0]?.commit?.committer?.date || null : null,
   });
