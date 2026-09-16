@@ -25,10 +25,14 @@ const renderRecovery = () => {
   if (title) title.textContent = 'Choose a new password.';
   if (copy) copy.textContent = 'Your recovery link is active. Set a new password to secure your account.';
   if (submit) submit.textContent = 'Update password';
-  if (toggle) toggle.style.display = 'none';
-  if (github) github.style.display = 'none';
-  if (google) google.style.display = 'none';
-  if (reset) reset.style.display = 'none';
+  const toggleButton = toggle as HTMLElement | null;
+  const githubButton = github as HTMLElement | null;
+  const googleButton = google as HTMLElement | null;
+  const resetButton = reset as HTMLElement | null;
+  if (toggleButton) toggleButton.style.display = 'none';
+  if (githubButton) githubButton.style.display = 'none';
+  if (googleButton) googleButton.style.display = 'none';
+  if (resetButton) resetButton.style.display = 'none';
   if (password) { password.autocomplete = 'new-password'; password.placeholder = 'At least 8 characters'; }
   const divider = document.querySelector<HTMLElement>('.auth-divider');
   const socialGrid = document.querySelector<HTMLElement>('.social-auth-grid');
@@ -78,7 +82,6 @@ form?.addEventListener('submit', async (e) => {
     if (recovery) {
       const { error } = await supabase.auth.updateUser({ password: password.value });
       if (error) return message(error.message);
-      track('password_reset_completed');
       message('Password updated. Redirecting…');
       location.href = next();
       return;
