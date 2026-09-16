@@ -33,7 +33,11 @@ export async function bootProfile(fullName: string) {
         if (status) status.textContent = 'Saved on this device. Create an account later to sync it across devices.';
         return;
       }
-      const user = await currentUser();
+      let user: Awaited<ReturnType<typeof currentUser>> = null;
+      try { user = await currentUser(); } catch {
+        if (status) status.textContent = "We couldn't check your account. Try again.";
+        return;
+      }
       if (!user) {
         location.href = `/auth/?next=${encodeURIComponent(location.href)}`;
         return;
