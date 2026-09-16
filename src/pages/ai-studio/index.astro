@@ -1,5 +1,6 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
+import { supabase } from '../../lib/supabase.ts';
 const canonical = 'https://paradox.engineer/ai-studio/';
 const routerUrl = 'https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/ai-router';
 ---
@@ -62,7 +63,9 @@ const routerUrl = 'https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/ai-rout
     status.textContent='RUNNING'; result.hidden=false; empty.hidden=true; result.textContent='Generating…';
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),30000);
     try{
-      const res=await fetch(routerUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:provider.value,task:current,prompt:promptFor(current),system:'You are PARADOX AI Studio. Be specific, truthful, useful and concise. Never invent credentials, sources, statistics or facts. State uncertainty when evidence is missing.'}),signal:controller.signal});
+      const session = supabase ? (await supabase.auth.getSession()).data.session : null;
+      if (!session?.access_token) throw new Error('Please sign in to use AI Studio.');
+      const res=await fetch(routerUrl,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({provider:provider.value,task:current,prompt:promptFor(current),system:'You are PARADOX AI Studio. Be specific, truthful, useful and concise. Never invent credentials, sources, statistics or facts. State uncertainty when evidence is missing.'}),signal:controller.signal});
       const data=await res.json().catch(()=>null); if(!res.ok)throw new Error(data?.error||'AI router request failed'); result.textContent=data?.text||'No output returned.'; status.textContent=`DONE · ${(data.provider||'AI').toUpperCase()}`; window.gtag?.('event','ai_studio_run',{workflow:current,provider:data.provider||'auto'});
     }catch(e){result.hidden=true;empty.hidden=false;error.textContent=e?.name==='AbortError'?'The AI request timed out. Please try again.':e?.message||'AI request failed.';error.hidden=false;status.textContent='ERROR';} finally {clearTimeout(timer);}
   }
