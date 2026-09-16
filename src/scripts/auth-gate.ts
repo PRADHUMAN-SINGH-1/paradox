@@ -3,6 +3,7 @@ import { currentUser } from '../lib/supabase.ts';
 const publicPaths = ['/auth/', '/contact/', '/privacy/', '/terms/'];
 const toolPaths = [/^\/verify\/?$/, /^\/compare\/?$/, /^\/ai-studio\/?$/, /^\/studio\/?$/, /^\/ai\/[^/]+\/?$/, /^\/tools\/[^/]+\/?$/, /^\/utilities\/[^/]+\/?$/, /^\/agents\/?$/];
 const gatedForms = new Set(['searchForm', 'compareForm', 'verifyForm', 'authForm']);
+const bypassedButtons = new WeakSet<HTMLElement>();
 
 function requiresAuth(form: HTMLFormElement) {
   if (form.id === 'authForm') return false;
@@ -38,6 +39,10 @@ for (const form of document.querySelectorAll<HTMLFormElement>('form')) {
 
 for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth]')) {
   button.addEventListener('click', (event) => {
+    if (bypassedButtons.has(button)) {
+      bypassedButtons.delete(button);
+      return;
+    }
     event.preventDefault();
     void currentUser().then((user) => {
       if (!user) {
@@ -45,7 +50,12 @@ for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth
         return;
       }
       const href = button.getAttribute('href');
-      if (href) location.href = href;
+      if (href) {
+        location.href = href;
+      } else {
+        bypassedButtons.add(button);
+        button.click();
+      }
     });
   });
 }
