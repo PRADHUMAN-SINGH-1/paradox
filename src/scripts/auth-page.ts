@@ -124,6 +124,8 @@ reset?.addEventListener('click', async () => {
   if (!supabase) return message('Authentication is not configured yet.');
   const value = email?.value.trim();
   if (!value) return message('Enter your email first.');
-  const { error } = await supabase.auth.resetPasswordForEmail(value, { redirectTo: `${location.origin}/auth/?mode=recovery` });
+  const destination = next();
+  const recoveryUrl = `${location.origin}/auth/?mode=recovery&next=${encodeURIComponent(destination)}`;
+  const { error } = await supabase.auth.resetPasswordForEmail(value, { redirectTo: recoveryUrl });
   message(error ? error.message : 'If an account exists, a reset email has been sent.');
 });
