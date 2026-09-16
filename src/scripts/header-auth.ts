@@ -1,3 +1,14 @@
+// The global startup stylesheet animates the entire header from opacity: 0.
+// That animation runs on every document load/navigation and makes the top-right
+// auth/dashboard button visibly disappear for a fraction of a second. Disable
+// that entrance animation before any async auth work begins.
+const siteHeader = document.querySelector<HTMLElement>('.site-header');
+if (siteHeader) {
+  siteHeader.style.animation = 'none';
+  siteHeader.style.opacity = '1';
+  siteHeader.style.transform = 'none';
+}
+
 function normalizeInitialFields() {
   const selector = 'input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]), textarea';
   document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(selector).forEach((field) => {
