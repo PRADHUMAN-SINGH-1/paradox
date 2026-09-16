@@ -19,22 +19,33 @@ function loginUrl() {
 for (const form of document.querySelectorAll<HTMLFormElement>('form')) {
   if (!requiresAuth(form)) continue;
   form.addEventListener('submit', (event) => {
+    if (form.dataset.authResolved === 'true') {
+      delete form.dataset.authResolved;
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
     void currentUser().then((user) => {
-      if (user) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      location.href = loginUrl();
+      if (!user) {
+        location.href = loginUrl();
+        return;
+      }
+      form.dataset.authResolved = 'true';
+      form.requestSubmit();
     });
   }, { capture: true });
 }
 
 for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth]')) {
   button.addEventListener('click', (event) => {
+    event.preventDefault();
     void currentUser().then((user) => {
-      if (user) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      location.href = loginUrl();
+      if (!user) {
+        location.href = loginUrl();
+        return;
+      }
+      const href = button.getAttribute('href');
+      if (href) location.href = href;
     });
   });
 }
