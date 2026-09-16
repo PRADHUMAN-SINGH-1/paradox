@@ -38,6 +38,43 @@ export function writeCache(analysis: Analysis): void {
 const VERIFY_WINDOW = 10 * 60 * 1000;
 const ANON_MAX = 8;
 
+const SEARCH_TTL_MS = 5 * 60 * 1000;
+const searchMem = new Map<string, { at: number; value: unknown }>();
+
+function searchKey(query: string): string {
+  return query.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+export function readSearchCache<T>(query: string): T | null {
+  const k = searchKey(query);
+  const hit = searchMem.get(k);
+  if (hit && Date.now() - hit.at < SEARCH_TTL_MS) return hit.value as T;
+  try {
+    const raw = sessionStorage.getItem(`paradox:search:${k}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { at: number; value: T };
+    if (Date.now() - parsed.at < SEARCH_TTL_MS) {
+      searchMem.set(k, parsed);
+      return parsed.value;
+    }
+    sessionStorage.removeItem(`paradox:search:${k}`);
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+export function writeSearchCache(query: string, value: unknown): void {
+  const k = searchKey(query);
+  const entry = { at: Date.now(), value };
+  searchMem.set(k, entry);
+  try {
+    sessionStorage.setItem(`paradox:search:${k}`, JSON.stringify(entry));
+  } catch {
+    /* quota */
+  }
+}
+
 export function allowAnonymousVerify(): boolean {
   try {
     const raw = JSON.parse(localStorage.getItem('paradox:verify-times') || '[]') as number[];
