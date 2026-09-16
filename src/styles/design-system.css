@@ -7,7 +7,6 @@
   --muted: 99 105 114;
   --line: 225 228 232;
   --accent: 82 100 255;
-  color-scheme: light;
 }
 .dark {
   --canvas: 5 6 8;
@@ -19,7 +18,7 @@
   color-scheme: dark;
 }
 
-.ds-shell { min-height:100vh; background:rgb(var(--canvas)); color:rgb(var(--ink)); }
+.ds-shell { min-height:100vh; background:rgb(var(--canvas)); color:rgb(var(--ink)); color-scheme:light; }
 .ds-panel { background:rgb(var(--surface)); border:1px solid rgb(var(--line)); border-radius:14px; }
 .ds-mono { font-family:'JetBrains Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
 .ds-button { min-height:40px; border:1px solid rgb(var(--line)); border-radius:10px; padding:.55rem .85rem; font-weight:600; transition:transform .12s ease,background .12s ease,border-color .12s ease; }
