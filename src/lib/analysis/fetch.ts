@@ -8,6 +8,7 @@ import type { Analysis, FileHit, RepoMeta } from './types.ts';
 const API = 'https://api.github.com';
 const MAX_FILE = 80_000;
 const MAX_FILES = 32;
+const REQUEST_TIMEOUT_MS = 12_000;
 const INTERESTING = [
   'README.md', 'readme.md', 'README', 'package.json', 'requirements.txt', 'pyproject.toml',
   'Cargo.toml', 'go.mod', 'pom.xml', 'build.gradle', 'build.gradle.kts', 'Dockerfile', 'docker-compose.yml',
@@ -93,9 +94,13 @@ async function fetchViaProxy(ref: RepoRef): Promise<Analysis> {
 }
 
 async function githubJson(path: string): Promise<{ ok: true; status: number; data: any } | { ok: false; status: number }> {
-  const r = await fetch(`${API}${path}`, { headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } });
-  if (!r.ok) return { ok: false, status: r.status };
-  return { ok: true, status: r.status, data: await r.json() };
+  try {
+    const r = await fetch(`${API}${path}`, { headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    if (!r.ok) return { ok: false, status: r.status };
+    return { ok: true, status: r.status, data: await r.json() };
+  } catch {
+    return { ok: false, status: 0 };
+  }
 }
 
 function decodeContent(encoded: string): string {
