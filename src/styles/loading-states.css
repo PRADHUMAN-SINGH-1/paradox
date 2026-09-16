@@ -1,0 +1,68 @@
+/* PARADOX — loading skeletons + result reveal.
+   Scoped to search/agent cards. Uses existing surface + line tokens. */
+
+.agent-card.is-skeleton {
+  pointer-events: none;
+}
+
+.sk {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.045) 100%
+  );
+  background-size: 220% 100%;
+  animation: sk-shimmer 1.25s ease-in-out infinite;
+}
+
+.sk-pill {
+  width: 62px;
+  height: 11px;
+  border-radius: 999px;
+}
+
+.sk-line {
+  height: 12px;
+  margin: 9px 0;
+  width: 100%;
+}
+
+.sk-title {
+  height: 19px;
+  width: 66%;
+  margin: 4px 0 2px;
+}
+
+.sk-short {
+  width: 47%;
+}
+
+@keyframes sk-shimmer {
+  0%   { background-position: 130% 0; }
+  100% { background-position: -30% 0; }
+}
+
+/* Staggered reveal for real results. Caps the stagger so a 20-result
+   page never delays the last card by more than ~220ms. */
+.agent-card.is-revealing {
+  animation: pdx-rise 0.34s cubic-bezier(0.22, 0.68, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 26ms);
+}
+
+@keyframes pdx-rise {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+    background: rgba(255, 255, 255, 0.07);
+  }
+  .agent-card.is-revealing {
+    animation: none;
+  }
+}
