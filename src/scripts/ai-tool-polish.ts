@@ -16,3 +16,5 @@ function markPrefilled() {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', markPrefilled, { once: true });
 else markPrefilled();
+
+export {};
