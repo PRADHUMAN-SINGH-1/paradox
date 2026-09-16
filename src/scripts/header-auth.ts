@@ -25,6 +25,10 @@ repairDashboardSectionLabels();
 const formDefaultObserver = new MutationObserver(() => normalizeInitialFields());
 formDefaultObserver.observe(document.documentElement, { childList: true, subtree: true });
 
+function revealAuthLinks(links: NodeListOf<HTMLAnchorElement>): void {
+  links.forEach((a) => a.classList.add('auth-state-ready'));
+}
+
 async function boot() {
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]');
   if (!links.length) return;
@@ -32,9 +36,14 @@ async function boot() {
     const { currentUser } = await import('../lib/supabase.ts');
     let user: Awaited<ReturnType<typeof currentUser>> = null;
     try { user = await currentUser(); } catch { user = null; }
-    links.forEach((a) => { a.href = user ? '/dashboard/' : '/auth/'; a.textContent = user ? 'Dashboard' : 'Sign in'; });
+    links.forEach((a) => {
+      a.href = user ? '/dashboard/' : '/auth/';
+      a.textContent = user ? 'Dashboard' : 'Sign in';
+    });
+    revealAuthLinks(links);
   } catch {
     links.forEach((a) => { a.href = '/auth/'; a.textContent = 'Sign in'; });
+    revealAuthLinks(links);
   }
 }
 
@@ -49,4 +58,10 @@ if (btn && nav) {
 
 // Resolve auth immediately. Delaying this check causes a visible flash of the
 // wrong authentication state ("Sign in" before an existing session is known).
-void boot().catch(() => undefined);
+void boot().catch(() => {
+  document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]').forEach((a) => {
+    a.href = '/auth/';
+    a.textContent = 'Sign in';
+    a.classList.add('auth-state-ready');
+  });
+});
