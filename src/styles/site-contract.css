@@ -1,8 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+
 /* PARADOX final UI contract. Loaded last to stop legacy theme layers from leaking across page families. */
 
 :root{
   color-scheme:dark;
+  --font-serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --font-sans:'DM Sans',Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'DM Mono','SFMono-Regular',SF Mono,ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
 }
+
+html,body,button,input,textarea,select{font-family:var(--font-sans)}
+code,pre,kbd,.eyebrow,.brand,.site-nav,.site-footer,.generator-breadcrumb,.generator-subline,.maker-kicker,.tool-number,.feature-label,.feature-meta,.header-search{font-family:var(--font-mono)}
+h1,h2,h3,h4,.generator-head h1,.feature-body h2,.section h2,.simple-section h2,.live-intro h2{font-family:var(--font-serif)}
 
 /* ---------------- Maker / AI utility pages ---------------- */
 .maker-main,
@@ -19,11 +28,10 @@
   opacity:1!important;
 }
 
-.maker-main *,
-.generator-page.ai-page *,
-.generator-page.utility-page *{
-  opacity:1;
-}
+/* Keep decorative/theme opacity intact. Only text surfaces get an explicit readable color. */
+.maker-main [aria-hidden="true"],
+.generator-page.ai-page [aria-hidden="true"],
+.generator-page.utility-page [aria-hidden="true"]{opacity:1}
 
 .maker-main h1,
 .maker-main h2,
@@ -175,7 +183,7 @@
 .verify-page .card h2,
 .verify-page .card h3{
   color:#f2f6f1!important;
-  font-family:'DM Sans',Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-family:var(--font-sans)!important;
 }
 
 .verify-page .agent-card p,
@@ -193,12 +201,6 @@
 .verify-page .card a:hover,
 .verify-page .actions-row a:hover{
   color:#ffffff!important;
-}
-
-/* Never allow a legacy light card to reuse dark-theme inherited text. */
-.verify-page .agent-card * ,
-.verify-page .card *{
-  opacity:1!important;
 }
 
 .verify-page .agent-card::before,
