@@ -19,19 +19,21 @@ function loginUrl() {
 for (const form of document.querySelectorAll<HTMLFormElement>('form')) {
   if (!requiresAuth(form)) continue;
   form.addEventListener('submit', (event) => {
-    event.preventDefault();
     void currentUser().then((user) => {
-      if (user) HTMLFormElement.prototype.submit.call(form);
-      else location.href = loginUrl();
+      if (user) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      location.href = loginUrl();
     });
   }, { capture: true });
 }
 
 for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth]')) {
   button.addEventListener('click', (event) => {
-    event.preventDefault();
     void currentUser().then((user) => {
       if (user) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
       location.href = loginUrl();
     });
   });
