@@ -1,4 +1,4 @@
-import type { Analysis, RepoMeta, RiskIndicator, Scores, Verdict } from './types.ts';
+import type { RepoMeta, RiskIndicator, Scores, Verdict } from './types.ts';
 
 export function daysSince(iso: string, now = Date.now()): number {
   const t = new Date(iso).getTime();
