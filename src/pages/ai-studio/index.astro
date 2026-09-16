@@ -17,23 +17,21 @@ const routerUrl = 'https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/ai-rout
       <div class="orbit"><strong>AI</strong><span>PARADOX<br>STUDIO</span></div>
     </div>
   </header>
-
   <section class="workbench">
     <aside class="sidebar">
       <div class="side-head"><span>01</span><b>WORKFLOW</b></div>
-      <button class="flow active" data-flow="resume"><strong>01</strong><span>Resume Tailor<small>Match your resume to a job</small></span></button>
-      <button class="flow" data-flow="interview"><strong>02</strong><span>Interview Coach<small>Generate questions + model answers</small></span></button>
-      <button class="flow" data-flow="study"><strong>03</strong><span>Study Engine<small>Turn notes into a revision pack</small></span></button>
-      <button class="flow" data-flow="content"><strong>04</strong><span>Content Studio<small>Idea → polished post or article</small></span></button>
-      <button class="flow" data-flow="code"><strong>05</strong><span>Code Fixer<small>Explain, repair and improve code</small></span></button>
+      <button type="button" class="flow active" data-flow="resume"><strong>01</strong><span>Resume Tailor<small>Match your resume to a job</small></span></button>
+      <button type="button" class="flow" data-flow="interview"><strong>02</strong><span>Interview Coach<small>Generate questions + model answers</small></span></button>
+      <button type="button" class="flow" data-flow="study"><strong>03</strong><span>Study Engine<small>Turn notes into a revision pack</small></span></button>
+      <button type="button" class="flow" data-flow="content"><strong>04</strong><span>Content Studio<small>Idea → polished post or article</small></span></button>
+      <button type="button" class="flow" data-flow="code"><strong>05</strong><span>Code Fixer<small>Explain, repair and improve code</small></span></button>
     </aside>
-
     <section class="main-panel">
       <div class="form-head"><div><span id="flowLabel">RESUME TAILOR</span><h2 id="flowTitle">Make the application fit.</h2></div><span id="status" class="status">READY</span></div>
       <div id="fields"></div>
-      <div class="actions"><button id="run" class="run">RUN AI ↗</button><button id="clear" class="btn">CLEAR</button><button id="copy" class="btn">COPY RESULT</button></div>
+      <div class="actions"><button type="button" id="run" class="run">RUN AI ↗</button><button type="button" id="clear" class="btn">CLEAR</button><button type="button" id="copy" class="btn">COPY RESULT</button></div>
       <div id="error" class="error" hidden></div>
-      <article class="result"><div class="result-top"><span>02 / OUTPUT</span><button id="download" class="mini">DOWNLOAD .TXT</button></div><div id="resultEmpty"><strong>Your deliverable will appear here.</strong><p>Choose a workflow, fill the inputs and run AI.</p></div><pre id="result" hidden></pre></article>
+      <article class="result"><div class="result-top"><span>02 / OUTPUT</span><button type="button" id="download" class="mini">DOWNLOAD .TXT</button></div><div id="resultEmpty"><strong>Your deliverable will appear here.</strong><p>Choose a workflow, fill the inputs and run AI.</p></div><pre id="result" hidden></pre></article>
     </section>
   </section>
 </main>
@@ -50,11 +48,7 @@ const routerUrl = 'https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/ai-rout
   const $=s=>root.querySelector(s); const fields=$('#fields'), flowLabel=$('#flowLabel'), flowTitle=$('#flowTitle'), result=$('#result'), empty=$('#resultEmpty'), status=$('#status'), error=$('#error'), provider=$('#provider');
   let current='resume';
   function get(id){return root.querySelector('#'+id)?.value?.trim()||'';}
-  function render(name){
-    current=name; const f=workflows[name]; flowLabel.textContent=f.label; flowTitle.textContent=f.title;
-    fields.innerHTML=f.fields.map(([label,id,type,ph])=>type==='ta'?`<label>${label}<textarea id="${id}" placeholder="${ph}"></textarea></label>`:`<label>${label}<input id="${id}" placeholder="${ph}" /></label>`).join('');
-    root.querySelectorAll('.flow').forEach(b=>b.classList.toggle('active',b.dataset.flow===name)); result.hidden=true; empty.hidden=false; error.hidden=true; status.textContent='READY';
-  }
+  function render(name){ current=name; const f=workflows[name]; flowLabel.textContent=f.label; flowTitle.textContent=f.title; fields.innerHTML=f.fields.map(([label,id,type,ph])=>type==='ta'?`<label>${label}<textarea id="${id}" placeholder="${ph}"></textarea></label>`:`<label>${label}<input id="${id}" placeholder="${ph}" /></label>`).join(''); root.querySelectorAll('.flow').forEach(b=>b.classList.toggle('active',b.dataset.flow===name)); result.hidden=true; empty.hidden=false; error.hidden=true; status.textContent='READY'; }
   root.querySelectorAll('.flow').forEach(b=>b.addEventListener('click',()=>render(b.dataset.flow)));
   function promptFor(name){
     if(name==='resume')return `Act as an expert ATS resume strategist. Compare the resume below against the job description. Return: 1) match score /100 with reasons, 2) missing skills/keywords, 3) rewritten high-impact bullets for the most relevant experience, 4) a tailored professional summary, 5) exact changes the candidate should make. Do not invent experience or credentials.\n\nRESUME:\n${get('resume')}\n\nJOB DESCRIPTION:\n${get('jd')}\n\nTARGET ROLE:\n${get('role')}`;
@@ -64,19 +58,17 @@ const routerUrl = 'https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/ai-rout
     return `Act as a senior ${get('language')} engineer. Diagnose the supplied code and error. Return: root cause, exact corrected code, critical-fix explanation, tests or test cases that should be added, and one improvement that would prevent the bug recurring. Do not rewrite unrelated code.\n\nCODE:\n${get('code')}\n\nERROR / EXPECTED BEHAVIOUR:\n${get('errorInfo')}\n\nLANGUAGE:\n${get('language')}`;
   }
   async function run(){
-    error.hidden=true; const f=workflows[current];
-    if(f.fields.map(x=>x[1]).some(id=>!get(id))){error.textContent='Complete the workflow inputs first.';error.hidden=false;return;}
+    error.hidden=true; const f=workflows[current]; if(f.fields.map(x=>x[1]).some(id=>!get(id))){error.textContent='Complete the workflow inputs first.';error.hidden=false;return;}
     status.textContent='RUNNING'; result.hidden=false; empty.hidden=true; result.textContent='Generating…';
+    const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),30000);
     try{
-      const res=await fetch(routerUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:provider.value,task:current,prompt:promptFor(current),system:'You are PARADOX AI Studio. Be specific, truthful, useful and concise. Never invent credentials, sources, statistics or facts. State uncertainty when evidence is missing.'})});
-      const data=await res.json().catch(()=>null); if(!res.ok)throw new Error(data?.error||'AI router request failed');
-      result.textContent=data?.text||'No output returned.'; status.textContent=`DONE · ${(data.provider||'AI').toUpperCase()}`;
-      window.gtag?.('event','ai_studio_run',{workflow:current,provider:data.provider||'auto'});
-    }catch(e){result.hidden=true;empty.hidden=false;error.textContent=e?.message||'AI request failed.';error.hidden=false;status.textContent='ERROR';}
+      const res=await fetch(routerUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:provider.value,task:current,prompt:promptFor(current),system:'You are PARADOX AI Studio. Be specific, truthful, useful and concise. Never invent credentials, sources, statistics or facts. State uncertainty when evidence is missing.'}),signal:controller.signal});
+      const data=await res.json().catch(()=>null); if(!res.ok)throw new Error(data?.error||'AI router request failed'); result.textContent=data?.text||'No output returned.'; status.textContent=`DONE · ${(data.provider||'AI').toUpperCase()}`; window.gtag?.('event','ai_studio_run',{workflow:current,provider:data.provider||'auto'});
+    }catch(e){result.hidden=true;empty.hidden=false;error.textContent=e?.name==='AbortError'?'The AI request timed out. Please try again.':e?.message||'AI request failed.';error.hidden=false;status.textContent='ERROR';} finally {clearTimeout(timer);}
   }
   $('#run').addEventListener('click',run); $('#clear').addEventListener('click',()=>render(current));
-  $('#copy').addEventListener('click',async()=>{if(result.hidden)return;await navigator.clipboard.writeText(result.textContent);status.textContent='COPIED';});
-  $('#download').addEventListener('click',()=>{if(result.hidden)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([result.textContent],{type:'text/plain'}));a.download='paradox-ai-result.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),800);});
+  $('#copy').addEventListener('click',async()=>{if(result.hidden)return;try{await navigator.clipboard.writeText(result.textContent||'');status.textContent='COPIED';}catch{error.textContent='Clipboard access is blocked. Select the result and copy it manually.';error.hidden=false;}});
+  $('#download').addEventListener('click',()=>{if(result.hidden)return;const a=document.createElement('a');const href=URL.createObjectURL(new Blob([result.textContent],{type:'text/plain'}));a.href=href;a.download='paradox-ai-result.txt';a.click();setTimeout(()=>URL.revokeObjectURL(href),800);});
   render('resume');
 })();
 </script>
