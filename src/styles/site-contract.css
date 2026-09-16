@@ -214,6 +214,10 @@ h1,h2,h3,h4,.generator-head h1,.feature-body h2,.section h2,.simple-section h2,.
   color-scheme:dark;
 }
 
+/* Resolve authentication before showing the navigation state. */
+[data-auth-link]{visibility:hidden;}
+[data-auth-link].auth-state-ready{visibility:visible;}
+
 @media (prefers-reduced-motion:reduce){
   .verify-page .agent-card,
   .verify-page .card{
