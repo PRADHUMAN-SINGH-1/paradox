@@ -85,16 +85,16 @@ export function decideVerdict(analysis: {
     return { verdict: 'STALE', reasons };
   }
   const thinDocs = analysis.readmeLength < 300;
-  const weak = thinDocs || !analysis.meta.description || analysis.detections === 0;
-  if (weak || analysis.scores.health < 62) {
+  const weak = thinDocs || !analysis.meta.description || analysis.scores.health < 62;
+  if (weak) {
     if (thinDocs) reasons.push('Documentation is thin or missing.');
     if (!analysis.meta.description) reasons.push('Repository description is missing.');
-    if (analysis.detections === 0) reasons.push('No model/framework/tool evidence matched current detectors.');
-    if (analysis.scores.health < 62) reasons.push('Composite health is below the verified threshold.');
+    if (analysis.scores.health < 62) reasons.push('Composite health is below the evidence-supported threshold.');
+    if (analysis.detections === 0) reasons.push('No model/framework/tool evidence matched the current detectors; this is unknown, not proof of absence.');
     return { verdict: 'QUESTIONABLE', reasons };
   }
   reasons.push('Public repository analyzed with documentation, structure, and no high-risk cluster.');
-  reasons.push('VERIFIED means the public evidence is consistent enough to inspect — not that the software is safe.');
+  if (analysis.detections === 0) reasons.push('No model/framework/tool detector matched; this is unknown, not proof of absence.');
   return { verdict: 'VERIFIED', reasons };
 }
 
