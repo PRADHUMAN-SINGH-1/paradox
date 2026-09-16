@@ -9,7 +9,7 @@ type Rule = {
 
 const RULES: Rule[] = [
   { category: 'Remote script execution', severity: 'HIGH', test: /(?:curl|wget)[^\n]{0,120}\|\s*(?:ba)?sh\b/i, reason: 'Downloads and executes a remote script.' },
-  { category: 'Shell execution', severity: 'HIGH', test: /child_process|os\.system\s*\(|subprocess\.[a-z]+\([^)]*shell\s*=\s*True|\b(?:exec|spawn)\s*\(/i, reason: 'Process or shell execution was observed in repository files.' },
+  { category: 'Shell execution', severity: 'HIGH', test: /(?:child_process(?:\.(?:exec|execFile|spawn|spawnSync|execFileSync))|require\s*\(\s*['"]child_process['"]|from\s*['"]child_process['"]|os\.system\s*\(|subprocess\.(?:run|Popen|call|check_call|check_output)\s*\([^)]*shell\s*=\s*True)/i, reason: 'Repository code explicitly exposes process or shell execution primitives.' },
   { category: 'Dynamic code execution', severity: 'HIGH', test: /\beval\s*\(|new Function\s*\(/i, reason: 'Dynamic code evaluation can execute untrusted input.' },
   { category: 'Privileged Docker', severity: 'HIGH', test: /privileged:\s*true|--privileged\b/i, reason: 'Container may run in privileged mode.' },
   { category: 'Broad filesystem mount', severity: 'MODERATE', test: /(?:volumes|mounts):[\s\S]{0,240}(?:^|\s)-?\s*\/:(?:\/|$)/im, reason: 'A broad host filesystem mount pattern was observed.' },
