@@ -35,12 +35,31 @@ import MakerLayout from '../../layouts/MakerLayout.astro';
   {q:'Which number is prime?',a:['21','27','29','33'],correct:2}
  ];
  const day=Math.floor(Date.now()/86400000), item=bank[day%bank.length];
- const key='paradox-daily-v1', state=JSON.parse(localStorage.getItem(key)||'{"last":-1,"streak":0,"score":0}');
- const streak=document.querySelector('#streak'), q=document.querySelector('#question'), answers=document.querySelector('#answers'), result=document.querySelector('#result'), next=document.querySelector('#next');
+ const key='paradox-daily-v1';
+ let state={last:-1,streak:0,score:0};
+ try {
+   const saved=JSON.parse(localStorage.getItem(key)||'{}');
+   if(saved && typeof saved==='object' && Number.isFinite(saved.last) && Number.isFinite(saved.streak) && Number.isFinite(saved.score)) state={last:saved.last,streak:saved.streak,score:saved.score};
+ } catch { localStorage.removeItem(key); }
+ const streak=document.querySelector('#streak'), q=document.querySelector('#question'), answers=document.querySelector('#answers'), result=document.querySelector('#result'), next=document.querySelector('#next'), timer=document.querySelector('#timer'), share=document.querySelector('#share');
+ let remaining=5, finished=false;
  streak.textContent='🔥 '+state.streak+' day streak'; q.textContent=item.q;
- item.a.forEach((x,i)=>{const b=document.createElement('button');b.textContent=x;b.onclick=()=>{if(answers.dataset.done)return;answers.dataset.done='1';const good=i===item.correct;result.hidden=false;result.className='result '+(good?'good':'bad');result.textContent=good?'✓ Correct. '+(state.streak?'Keep the streak alive.':'You started a streak!'):'Not quite — the answer is '+item.a[item.correct]+'.';if(day>state.last){state.streak=state.last===day-1?state.streak+1:1;state.last=day;state.score+=good?1:0;localStorage.setItem(key,JSON.stringify(state));streak.textContent='🔥 '+state.streak+' day streak';}next.hidden=false;};answers.appendChild(b);});
+ const finish = (good, timedOut=false) => {
+   if(finished)return;
+   finished=true;
+   answers.dataset.done='1';
+   result.hidden=false;
+   result.className='result '+(good?'good':'bad');
+   result.textContent=timedOut?'Time’s up — the answer is '+item.a[item.correct]+'.':good?'✓ Correct. '+(state.streak?'Keep the streak alive.':'You started a streak!'):'Not quite — the answer is '+item.a[item.correct]+'.';
+   if(day>state.last){state.streak=state.last===day-1?state.streak+1:1;state.last=day;state.score+=good?1:0;localStorage.setItem(key,JSON.stringify(state));streak.textContent='🔥 '+state.streak+' day streak';}
+   next.hidden=false;
+ };
+ item.a.forEach((x,i)=>{const b=document.createElement('button');b.textContent=x;b.onclick=()=>finish(i===item.correct,false);answers.appendChild(b);});
+ const tick=()=>{timer.textContent='00:0'+remaining;if(remaining===0){finish(false,true);clearInterval(clock);return;}remaining-=1;};
+ const clock=setInterval(tick,1000);
  next.onclick=()=>location.reload();
- document.querySelector('#share').onclick=async()=>{const text='I scored '+state.score+' on PARADOX Daily. Try today’s challenge: https://paradox.engineer/daily/';if(navigator.share)await navigator.share({title:'PARADOX Daily',text});else await navigator.clipboard.writeText(text);document.querySelector('#share').textContent='Copied ✓';};
+ share?.addEventListener('click',async()=>{const text='I scored '+state.score+' on PARADOX Daily. Try today’s challenge: https://paradox.engineer/daily/';try{if(navigator.share)await navigator.share({title:'PARADOX Daily',text});else if(navigator.clipboard)await navigator.clipboard.writeText(text);else throw new Error('Clipboard unavailable');share.textContent='Copied ✓';}catch{messageShare('Could not copy/share right now.');}});
+ function messageShare(text){if(share)share.textContent=text;}
 })();
 </script>
 </MakerLayout>
