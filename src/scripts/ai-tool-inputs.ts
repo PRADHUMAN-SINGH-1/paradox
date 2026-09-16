@@ -69,3 +69,5 @@ window.setTimeout(scan, 250);
 
 const observer = new MutationObserver(() => scan());
 if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+
+export {};
