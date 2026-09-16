@@ -5,12 +5,9 @@
   const routerPrefix = '/functions/v1/ai-router';
   const originalFetch = window.fetch.bind(window);
 
-  /* Improve every Studio request without exposing or changing provider credentials. */
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input instanceof Request ? input.url : input.toString();
-    if (!url.includes(routerPrefix) || !init?.body || typeof init.body !== 'string') {
-      return originalFetch(input, init);
-    }
+    if (!url.includes(routerPrefix) || !init?.body || typeof init.body !== 'string') return originalFetch(input, init);
     try {
       const payload = JSON.parse(init.body);
       const qualityLayer = `\n\nQUALITY REQUIREMENTS:\n- Tailor the response directly to the supplied inputs; do not produce a generic template.\n- Use clear section headings and concise bullets where they improve scanning.\n- Prioritize concrete, actionable edits or decisions over filler.\n- Never invent facts, credentials, experience, metrics, sources, APIs, or citations.\n- Preserve user-provided facts exactly unless you explicitly label a suggested rewrite.\n- State assumptions or uncertainty briefly when the input is insufficient.\n- For code, preserve unrelated behavior and show the smallest safe correction before optional improvements.\n- End with a short NEXT STEPS section when the task benefits from one.`;
@@ -61,3 +58,5 @@
   observer.observe(result, { childList: true, characterData: true, subtree: true });
   updateMeta();
 })();
+
+export {};

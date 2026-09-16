@@ -22,7 +22,7 @@ function showSaveFeedback(message: string, downloaded=false) {
 async function persist(analysis: Analysis) {
   saveLocalScan({ repository:analysis.meta.fullName, verdict:analysis.verdict, score:analysis.scores.paradox, scannedAt:analysis.analyzedAt });
   if(!supabase)return;
-  let user=null;
+  let user: Awaited<ReturnType<typeof currentUser>> = null;
   try { user=await currentUser(); } catch { return; }
   if(!user)return;
   const { error } = await supabase.from('scan_history').insert({ user_id:user.id, repository_url:analysis.meta.htmlUrl, repository_full_name:analysis.meta.fullName, verdict:analysis.verdict, score:analysis.scores.paradox, analysis_json:{ scores:analysis.scores, verdict:analysis.verdict, detections:analysis.detections, risks:analysis.risks.map(r=>({category:r.category,severity:r.severity,file:r.file})) } });
@@ -33,7 +33,7 @@ async function save(fullName:string,url:string,verdict:string,score:number,analy
     track('save_agent',{repository:fullName,verdict,score});
     downloadAnalysis(analysis);
     if(!supabase){saveLocalAgent({repository:fullName,url,verdict,score,savedAt:new Date().toISOString()});showSaveFeedback('Saved on this device and downloaded.',true);return}
-    let user=null;
+    let user: Awaited<ReturnType<typeof currentUser>> = null;
     try { user=await currentUser(); } catch { showSaveFeedback('Download complete, but authentication could not be checked. Sign in to sync later.',true); return; }
     if(!user){showSaveFeedback('Download complete. Sign in to sync this analysis to your dashboard.',true);window.setTimeout(()=>{location.href=`/auth/?next=${encodeURIComponent(location.pathname+location.search)}`},650);return}
     const {error}=await supabase.from('saved_agents').upsert({user_id:user.id,repository_url:url,repository_full_name:fullName,verdict,score},{onConflict:'user_id,repository_full_name'});
