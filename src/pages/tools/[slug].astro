@@ -8,16 +8,10 @@ import opportunities from '../../data/verified_opportunities.json';
 export function getStaticPaths(){return (opportunities.opportunities||[]).map(item=>({params:{slug:item.slug},props:{item}}));}
 const {item}=Astro.props;
 const canonical=`https://paradox.engineer/tools/${item.slug}/`;
-const jsonLd={
- '@context':'https://schema.org','@type':'WebApplication',name:item.title||item.query,url:canonical,description:item.description,
- applicationCategory:'UtilitiesApplication',operatingSystem:'Web Browser',isAccessibleForFree:true,
- offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:[item.toolLabel||item.toolId||'Utility generator','No account required','Browser-based','Print-ready output'],
- creator:{'@type':'Organization',name:'PARADOX',url:'https://paradox.engineer/'},potentialAction:{'@type':'UseAction',target:canonical}
-};
+const jsonLd={ '@context':'https://schema.org','@type':'WebApplication',name:item.title||item.query,url:canonical,description:item.description,applicationCategory:'UtilitiesApplication',operatingSystem:'Web Browser',isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:[item.toolLabel||item.toolId||'Utility generator','No account required','Browser-based','Print-ready output'],creator:{'@type':'Organization',name:'PARADOX',url:'https://paradox.engineer/'},potentialAction:{'@type':'UseAction',target:canonical} };
 const jsonLdText=JSON.stringify(jsonLd).replace(/</g,'\\u003c');
 const generatorMode=item.mode||({'classroom-bingo':'bingo','word-search-puzzles':'words','random-teams':'teams','decision-wheel':'wheel','tournament-brackets':'bracket','raffle-tickets':'raffle','seating-charts':'seating','certificates':'certificate'}[item.toolId]||'bingo');
-const utilityMode=item.mode;
-const isUtility=item.toolType==='utility';
+const utilityMode=item.mode; const isUtility=item.toolType==='utility';
 const steps={bingo:['Add at least 24 entries.','Generate the randomized card.','Print or save it as PDF.'],words:['Add at least 3 words.','Generate the puzzle.','Print or save the finished sheet.'],teams:['Paste your participants.','Choose the number of teams.','Generate the groups.'],wheel:['Add two or more choices.','Generate a result.','Use the selected choice.'],bracket:['Add participants or teams.','Generate matchups.','Print or save the bracket.'],raffle:['Set a title and ticket count.','Generate numbered tickets.','Print the tickets.'],seating:['Add names.','Choose columns.','Generate the seating plan.'],certificate:['Enter the recipient and award.','Generate the certificate.','Print or save it.']}[generatorMode]||['Enter your information.','Generate the result.','Print or save it.'];
 const faq=[['Is this free?','Yes. The tool is free to use and does not require an account.'],['Do I need to upload anything?','No. The core utility runs in your browser.'],['Can I print the result?','Yes. Use Print / Save PDF after generating your result.']];
 ---
@@ -30,5 +24,5 @@ const faq=[['Is this free?','Yes. The tool is free to use and does not require a
 <section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">MODULE 02 · CONTEXT</div><h2>Why this<br/><em>page exists.</em></h2></div><p>{item.context||'This page connects a public demand signal to an existing PARADOX utility. It is generated only when a real tool can fulfil the use case.'}</p></div><div class="maker-guide-grid"><article class="maker-guide"><strong>Demand signal</strong><br/>Public aggregate signals are used as discovery inputs, not individual user data.</article><article class="maker-guide"><strong>Tool match</strong><br/>The page exists because an implemented browser tool can fulfil the intent.</article><article class="maker-guide"><strong>Useful result</strong><br/>The visitor gets an interactive output instead of a keyword-only article.</article></div></section>
 <section class="maker-section"><AdSlot height={280}/></section>
 <section class="maker-section"><div class="maker-section-head"><div><div class="maker-label">MODULE 03 · QUICK ANSWERS</div><h2>Before you<br/><em>start.</em></h2></div></div><div class="maker-guide-grid">{faq.map(([q,a])=><article class="maker-guide"><strong>{q}</strong><br/>{a}</article>)}</div></section>
-</main><script type="application/ld+json" set:html={jsonLdText}></script>
+</main><script is:inline type="application/ld+json" set:html={jsonLdText}></script>
 </MakerLayout>

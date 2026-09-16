@@ -58,7 +58,7 @@ function init() {
   const resultProvider = root.querySelector<HTMLElement>('.px-result-provider'), resultLatency = root.querySelector<HTMLElement>('.px-result-latency');
 
   run.addEventListener('click', async () => {
-    let user;
+    let user: Awaited<ReturnType<typeof currentUser>> = null;
     try { user = await currentUser(); } catch { if (err) { err.textContent = 'Authentication could not be checked. Please try again.'; err.hidden = false; } if (status) status.textContent = 'ERROR'; return; }
     if (!user) { location.href = loginUrl(); return; }
     const active = root.querySelector<HTMLElement>('.flow.active'); const flow = active?.dataset.flow || 'resume'; const promptBuilder = prompts[flow]; if (!promptBuilder) return;
