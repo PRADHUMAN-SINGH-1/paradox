@@ -4,20 +4,10 @@ async function boot() {
   try {
     const { currentUser } = await import('../lib/supabase.ts');
     let user: Awaited<ReturnType<typeof currentUser>> = null;
-    try {
-      user = await currentUser();
-    } catch {
-      user = null;
-    }
-    links.forEach((a) => {
-      a.href = user ? '/dashboard/' : '/auth/';
-      a.textContent = user ? 'Dashboard' : 'Sign in';
-    });
+    try { user = await currentUser(); } catch { user = null; }
+    links.forEach((a) => { a.href = user ? '/dashboard/' : '/auth/'; a.textContent = user ? 'Dashboard' : 'Sign in'; });
   } catch {
-    links.forEach((a) => {
-      a.href = '/auth/';
-      a.textContent = 'Sign in';
-    });
+    links.forEach((a) => { a.href = '/auth/'; a.textContent = 'Sign in'; });
   }
 }
 
@@ -31,10 +21,8 @@ if (btn && nav) {
 }
 
 const schedule = (work: () => void) => {
-  if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(work, { timeout: 2000 });
-  } else {
-    window.setTimeout(work, 1000);
-  }
+  const requestIdle = window.requestIdleCallback;
+  if (typeof requestIdle === 'function') requestIdle(work, { timeout: 2000 });
+  else globalThis.setTimeout(work, 1000);
 };
 schedule(() => { void boot().catch(() => undefined); });
