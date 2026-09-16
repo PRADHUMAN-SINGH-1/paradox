@@ -49,7 +49,7 @@ const preview = {
     </aside>
   </div>
   <div class="ad-slot">ADVERTISEMENT</div>
-  <aside class="generator-info"><h2>How it works</h2><ol>{steps.map(step => <li>{step}</li>)}</ol><h3>Privacy</h3><p>This generator runs in the browser. Your input is not uploaded to a PARADOX server.</p><h3>Print-friendly</h3><p>Generate a result, then use Print / Save PDF.</p></aside>
+  <aside class="generator-info"><h2>How it works</h2><ol>{steps.map((step: string) => <li>{step}</li>)}</ol><h3>Privacy</h3><p>This generator runs in the browser. Your input is not uploaded to a PARADOX server.</p><h3>Print-friendly</h3><p>Generate a result, then use Print / Save PDF.</p></aside>
   {faq.length ? <section class="generator-faq"><h2>Common questions</h2>{faq.map(([q,a]) => <div><h3>{q}</h3><p>{a}</p></div>)}</section> : null}
 </main>
 <script is:inline>
@@ -72,6 +72,8 @@ const preview = {
   const show = html => { empty.hidden = true; out.hidden = false; out.innerHTML = '<div class="sheet">' + html + '</div>'; };
   const saveState = () => Object.fromEntries(fields.map(field => [field.dataset.field, field.value]));
   const applyState = data => fields.forEach(field => { if (data && data[field.dataset.field] != null) field.value = data[field.dataset.field]; });
+  const encodeShare = value => { const bytes = new TextEncoder().encode(JSON.stringify(value)); let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(binary); };
+  const decodeShare = value => { const binary = atob(value); const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0)); return JSON.parse(new TextDecoder().decode(bytes)); };
   const presets = {
     bingo: ['Alice','Bob','Charlie','Dana','Eli','Fiona','George','Hana','Ivy','Jack','Kiran','Leo','Mia','Noah','Olivia','Priya','Quinn','Ravi','Sara','Theo','Uma','Victor','Wren','Zara'],
     words: ['planet','rocket','moon','comet','orbit','astronaut','galaxy','star','mars','saturn'],
@@ -135,9 +137,9 @@ const preview = {
   }
   function bracket() { let players = shuffle(unique(lines())); if (players.length < 2) return message('Add at least 2 teams or participants.'); if (players.length > 32) return message('Use 2–32 participants for an interactive bracket.'); const size = 2 ** Math.ceil(Math.log2(players.length)); while (players.length < size) players.push('BYE'); root._roundNumber = 1; renderBracket(players); }
   function raffle() {
-    const qty = Math.max(4, Math.min(500, Number(root.querySelector('#qty')?.value || 24))); const title = (root.querySelector('#ticketTitle')?.value || 'Raffle').trim() || 'Raffle'; root._rafflePool = Array.from({ length: qty }, (_,i) => i + 1);
-    let tickets = ''; for (let i = 0; i < qty; i += 1) tickets += '<div class="ticket"><strong>TICKET #' + String(i + 1).padStart(3,'0') + '</strong><p>' + escapeHtml(title) + '</p></div>';
-    show('<h2 class="result-title">' + escapeHtml(title) + '</h2><div class="print-grid">' + tickets + '</div><div class="generator-actions"><button type="button" class="gen-btn" id="drawRaffle">DRAW WINNER</button><button type="button" class="gen-btn alt" id="resetRaffle">RESET</button></div><p id="raffleWinner">' + qty + ' tickets available.</p>');
+    const qty = Math.max(4, Math.min(500, Number(root.querySelector('#qty')?.value || 24))); const ticketTitle = (root.querySelector('#ticketTitle')?.value || 'Raffle').trim() || 'Raffle'; root._rafflePool = Array.from({ length: qty }, (_,i) => i + 1);
+    let tickets = ''; for (let i = 0; i < qty; i += 1) tickets += '<div class="ticket"><strong>TICKET #' + String(i + 1).padStart(3,'0') + '</strong><p>' + escapeHtml(ticketTitle) + '</p></div>';
+    show('<h2 class="result-title">' + escapeHtml(ticketTitle) + '</h2><div class="print-grid">' + tickets + '</div><div class="generator-actions"><button type="button" class="gen-btn" id="drawRaffle">DRAW WINNER</button><button type="button" class="gen-btn alt" id="resetRaffle">RESET</button></div><p id="raffleWinner">' + qty + ' tickets available.</p>');
     root.querySelector('#drawRaffle')?.addEventListener('click', () => { if (!root._rafflePool.length) return root.querySelector('#raffleWinner').textContent = 'No tickets left. Reset the draw.'; const i = Math.floor(Math.random() * root._rafflePool.length); const win = root._rafflePool.splice(i,1)[0]; root.querySelector('#raffleWinner').textContent = 'Winner: ticket #' + String(win).padStart(3,'0') + ' · ' + root._rafflePool.length + ' left.'; });
     root.querySelector('#resetRaffle')?.addEventListener('click', () => { root._rafflePool = Array.from({ length: qty }, (_,i) => i + 1); root.querySelector('#raffleWinner').textContent = qty + ' tickets available.'; });
   }
@@ -148,7 +150,7 @@ const preview = {
   clearButton?.addEventListener('click', () => { fields.forEach(field => { if (field.tagName === 'TEXTAREA') field.value = ''; else if (field.id === 'count') field.value = '3'; else if (field.id === 'cols') field.value = '4'; else if (field.id === 'qty') field.value = '24'; else if (field.id === 'award') field.value = ''; else if (field.id === 'issuer') field.value = ''; else field.value = ''; }); out.hidden = true; empty.hidden = false; message('Cleared.','success'); });
   root.querySelector('#generate')?.addEventListener('click', () => { message(''); if (generators[mode]) generators[mode](); });
   root.querySelector('#print')?.addEventListener('click', () => window.print());
-  root.querySelector('#share')?.addEventListener('click', async () => { const payload = btoa(unescape(encodeURIComponent(JSON.stringify(saveState())))); const url = location.origin + location.pathname + '?share=' + encodeURIComponent(payload); try { await navigator.clipboard.writeText(url); message('Share link copied.','success'); } catch { message(url,'success'); } });
-  const shared = new URLSearchParams(location.search).get('share'); if (shared) { try { const data = JSON.parse(decodeURIComponent(escape(atob(shared)))); applyState(data); message('Shared setup loaded.','success'); if (generators[mode]) generators[mode](); } catch { message('This share link is invalid or incomplete.'); } }
+  root.querySelector('#share')?.addEventListener('click', async () => { const payload = encodeShare(saveState()); const url = location.origin + location.pathname + '?share=' + encodeURIComponent(payload); try { await navigator.clipboard.writeText(url); message('Share link copied.','success'); } catch { message(url,'success'); } });
+  const shared = new URLSearchParams(location.search).get('share'); if (shared) { try { const data = decodeShare(shared); applyState(data); message('Shared setup loaded.','success'); if (generators[mode]) generators[mode](); } catch { message('This share link is invalid or incomplete.'); } }
 })();
 </script>
