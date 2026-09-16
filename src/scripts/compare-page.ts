@@ -50,7 +50,8 @@ export function bootCompare() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     e.stopImmediatePropagation();
-    const user = await currentUser();
+    let user;
+    try { user = await currentUser(); } catch { status.textContent = 'Authentication could not be checked. Please try again.'; return; }
     if (!user) { location.href = loginUrl(); return; }
     out.hidden = true;
     status.textContent = 'Validating repositories…';

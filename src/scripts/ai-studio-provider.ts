@@ -58,7 +58,9 @@ function init() {
   const resultProvider = root.querySelector<HTMLElement>('.px-result-provider'), resultLatency = root.querySelector<HTMLElement>('.px-result-latency');
 
   run.addEventListener('click', async () => {
-    const user = await currentUser(); if (!user) { location.href = loginUrl(); return; }
+    let user;
+    try { user = await currentUser(); } catch { if (err) { err.textContent = 'Authentication could not be checked. Please try again.'; err.hidden = false; } if (status) status.textContent = 'ERROR'; return; }
+    if (!user) { location.href = loginUrl(); return; }
     const active = root.querySelector<HTMLElement>('.flow.active'); const flow = active?.dataset.flow || 'resume'; const promptBuilder = prompts[flow]; if (!promptBuilder) return;
     const fieldIds = Object.keys(samples[flow] || {}); if (fieldIds.some((id) => !getValue(root, id))) { if (err) { err.textContent = 'Complete the workflow inputs first, or use TRY EXAMPLE.'; err.hidden = false; } return; }
     const selected = (provider?.value || 'auto') as Provider; if (err) err.hidden = true; if (status) status.textContent = 'ROUTING AI'; if (result) { result.hidden = false; result.textContent = 'Generating a structured result…'; } if (empty) empty.hidden = true; run.disabled = true; run.textContent = 'RUNNING…';
@@ -74,6 +76,11 @@ function init() {
     } finally { run.disabled = false; run.textContent = 'RUN AI ↗'; }
   });
 
+  root.querySelector<HTMLButtonElement>('#copy')?.addEventListener('click', async () => {
+    if (!result || result.hidden) return;
+    try { await navigator.clipboard.writeText(result.textContent || ''); if (status) status.textContent = 'COPIED'; }
+    catch { if (err) { err.textContent = 'Clipboard access is blocked. Select the result and copy it manually.'; err.hidden = false; } }
+  });
   root.querySelectorAll<HTMLButtonElement>('.flow').forEach((button) => button.addEventListener('click', () => { if (status) status.textContent = 'READY'; }));
 }
 
