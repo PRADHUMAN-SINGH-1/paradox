@@ -1,0 +1,223 @@
+/* PARADOX final UI contract. Loaded last to stop legacy theme layers from leaking across page families. */
+
+:root{
+  color-scheme:dark;
+}
+
+/* ---------------- Maker / AI utility pages ---------------- */
+.maker-main,
+.generator-page.ai-page,
+.generator-page.utility-page{
+  --maker-bg:#f4f1e9;
+  --maker-paper:#fffdf8;
+  --maker-ink:#111412;
+  --maker-muted:#515954;
+  --maker-line:#cbc7bd;
+  color-scheme:light;
+  background:var(--maker-bg)!important;
+  color:var(--maker-ink)!important;
+  opacity:1!important;
+}
+
+.maker-main *,
+.generator-page.ai-page *,
+.generator-page.utility-page *{
+  opacity:1;
+}
+
+.maker-main h1,
+.maker-main h2,
+.maker-main h3,
+.maker-main h4,
+.generator-page.ai-page h1,
+.generator-page.ai-page h2,
+.generator-page.ai-page h3,
+.generator-page.ai-page h4,
+.generator-page.utility-page h1,
+.generator-page.utility-page h2,
+.generator-page.utility-page h3,
+.generator-page.utility-page h4{
+  color:var(--maker-ink)!important;
+}
+
+.maker-main p,
+.maker-main li,
+.maker-main label,
+.maker-main small,
+.generator-page.ai-page p,
+.generator-page.ai-page li,
+.generator-page.ai-page label,
+.generator-page.ai-page small,
+.generator-page.utility-page p,
+.generator-page.utility-page li,
+.generator-page.utility-page label,
+.generator-page.utility-page small{
+  color:var(--maker-muted)!important;
+}
+
+.maker-main a,
+.generator-page.ai-page a,
+.generator-page.utility-page a{
+  color:#202622!important;
+}
+
+.maker-main .generator-head p,
+.generator-page.ai-page .generator-head p,
+.generator-page.utility-page .generator-head p{
+  color:#505752!important;
+}
+
+.maker-main .generator-subline,
+.generator-page.ai-page .generator-subline,
+.generator-page.utility-page .generator-subline,
+.generator-page.ai-page .generator-breadcrumb,
+.generator-page.utility-page .generator-breadcrumb{
+  color:#59615b!important;
+}
+
+.maker-main .generator-panel,
+.maker-main .generator-preview,
+.generator-page.ai-page .generator-panel,
+.generator-page.ai-page .generator-preview,
+.generator-page.utility-page .generator-panel,
+.generator-page.utility-page .generator-preview{
+  background:var(--maker-paper)!important;
+  color:var(--maker-ink)!important;
+  border-color:var(--maker-line)!important;
+}
+
+/* Form controls stay dark for readable long-form input while their surrounding page remains light. */
+.generator-page.ai-page .field input,
+.generator-page.ai-page .field textarea,
+.generator-page.utility-page .field input,
+.generator-page.utility-page .field textarea{
+  color:#f4f7f4!important;
+  background:#0b100e!important;
+  border-color:#3d4741!important;
+}
+
+.generator-page.ai-page .field input::placeholder,
+.generator-page.ai-page .field textarea::placeholder,
+.generator-page.utility-page .field input::placeholder,
+.generator-page.utility-page .field textarea::placeholder{
+  color:#9da7a0!important;
+  opacity:1!important;
+}
+
+.generator-page.ai-page .preview-empty,
+.generator-page.utility-page .preview-empty{
+  color:#17201b!important;
+  background:#e4e1d8!important;
+}
+
+.generator-page.ai-page .preview-empty strong,
+.generator-page.utility-page .preview-empty strong{
+  color:#17201b!important;
+}
+
+.generator-page.ai-page .preview-empty span,
+.generator-page.utility-page .preview-empty span{
+  color:#5d655f!important;
+}
+
+/* ---------------- Agent / repository intelligence pages ---------------- */
+.verify-page{
+  background:#060807!important;
+  color:#f4f8f5!important;
+}
+
+.verify-page h1,
+.verify-page h2,
+.verify-page h3,
+.verify-page h4,
+.verify-page strong,
+.verify-page b{
+  color:#f4f8f5!important;
+}
+
+.verify-page p,
+.verify-page li,
+.verify-page .page-lead,
+.verify-page .muted,
+.verify-page .status{
+  color:#aab5ae!important;
+}
+
+.verify-page .crumbs,
+.verify-page .crumbs a,
+.verify-page header>span{
+  color:#89958d!important;
+}
+
+.verify-page .badge{
+  color:#0b100e!important;
+  background:#d9ff3f!important;
+}
+
+.verify-page section,
+.verify-page .grid-2,
+.verify-page .agent-card,
+.verify-page .card{
+  color:#f4f8f5!important;
+}
+
+.verify-page .agent-card,
+.verify-page .card{
+  position:relative;
+  background:linear-gradient(145deg,#111714,#0b100e)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#f4f8f5!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.18)!important;
+}
+
+.verify-page .agent-card h2,
+.verify-page .agent-card h3,
+.verify-page .card h2,
+.verify-page .card h3{
+  color:#f2f6f1!important;
+  font-family:'DM Sans',Inter,ui-sans-serif,system-ui,sans-serif!important;
+}
+
+.verify-page .agent-card p,
+.verify-page .card p{
+  color:#9da8a0!important;
+}
+
+.verify-page .agent-card a,
+.verify-page .card a,
+.verify-page .actions-row a{
+  color:#d9ff3f!important;
+}
+
+.verify-page .agent-card a:hover,
+.verify-page .card a:hover,
+.verify-page .actions-row a:hover{
+  color:#ffffff!important;
+}
+
+/* Never allow a legacy light card to reuse dark-theme inherited text. */
+.verify-page .agent-card * ,
+.verify-page .card *{
+  opacity:1!important;
+}
+
+.verify-page .agent-card::before,
+.verify-page .agent-card::after,
+.verify-page .card::before,
+.verify-page .card::after{
+  pointer-events:none;
+}
+
+/* ---------------- Shared contrast guard ---------------- */
+.site-footer,
+.site-header{
+  color-scheme:dark;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .verify-page .agent-card,
+  .verify-page .card{
+    animation:none!important;
+    transition:none!important;
+  }
+}
