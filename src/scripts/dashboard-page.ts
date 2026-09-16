@@ -1,5 +1,5 @@
 import { track } from '../lib/analytics.ts';
-import { currentUser, supabase } from '../lib/supabase.ts';
+import { supabase } from '../lib/supabase.ts';
 import { clearLocalScans, getLocalSavedAgents, getLocalScans, removeLocalAgent } from '../lib/local-state.ts';
 
 function esc(s: string) {
@@ -32,7 +32,14 @@ async function boot() {
     localMode();
     return;
   }
-  const user = await currentUser();
+  let user;
+  try { user = await supabase.auth.getUser().then(({ data }) => data.user ?? null); }
+  catch {
+    renderLoadError(saved, 'Authentication could not be checked.', boot);
+    renderLoadError(history, 'Authentication could not be checked.', boot);
+    if (email) email.textContent = 'Authentication unavailable';
+    return;
+  }
   if (!user) {
     localMode();
     return;
@@ -70,18 +77,22 @@ function renderSaved(el: Element | null, rows: Array<Record<string, unknown>>) {
     : '<p class="muted">Nothing saved yet. Verify an agent, then save it.</p>';
   el.querySelectorAll<HTMLButtonElement>('[data-unsave]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!supabase || btn.dataset.unsave?.includes('/')) {
-        removeLocalAgent(btn.dataset.unsave || '');
+      try {
+        if (!supabase || btn.dataset.unsave?.includes('/')) {
+          removeLocalAgent(btn.dataset.unsave || '');
+          boot();
+          return;
+        }
+        const { error } = await supabase.from('saved_agents').delete().eq('id', btn.dataset.unsave);
+        if (error) {
+          btn.textContent = 'Retry remove';
+          return;
+        }
+        track('unsave_agent');
         boot();
-        return;
-      }
-      const { error } = await supabase.from('saved_agents').delete().eq('id', btn.dataset.unsave);
-      if (error) {
+      } catch {
         btn.textContent = 'Retry remove';
-        return;
       }
-      track('unsave_agent');
-      boot();
     });
   });
 }
@@ -97,24 +108,28 @@ function renderHistory(el: Element | null, rows: Array<Record<string, unknown>>)
 }
 
 document.querySelector('#signOut')?.addEventListener('click', async () => {
-  if (supabase) await supabase.auth.signOut();
-  location.href = '/';
+  try { if (supabase) await supabase.auth.signOut(); } finally { location.href = '/'; }
 });
 
 document.querySelector('#clearHistory')?.addEventListener('click', async () => {
-  if (!supabase) {
-    clearLocalScans();
-    boot();
-    return;
+  try {
+    if (!supabase) {
+      clearLocalScans();
+      boot();
+      return;
+    }
+    let user;
+    try { user = await supabase.auth.getUser().then(({ data }) => data.user ?? null); } catch { clearLocalScans(); boot(); return; }
+    if (!user) {
+      clearLocalScans();
+      boot();
+      return;
+    }
+    const { error } = await supabase.from('scan_history').delete().eq('user_id', user.id);
+    if (!error) boot();
+  } catch {
+    /* keep current dashboard state */
   }
-  const user = await currentUser();
-  if (!user) {
-    clearLocalScans();
-    boot();
-    return;
-  }
-  const { error } = await supabase.from('scan_history').delete().eq('user_id', user.id);
-  if (!error) boot();
 });
 
 boot();
