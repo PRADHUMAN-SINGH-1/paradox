@@ -59,6 +59,7 @@ function analyzeEvidence(data: {
   latestRelease: string | null;
   latestCommit: string | null;
   analyzedAt?: string;
+  coverage?: { selectedFiles?: number; maxFiles?: number; recursiveTree?: boolean };
 }): Analysis {
   const meta = mapMeta(data.repo);
   const files: FileHit[] = data.files.filter((file) => file.content).map((file) => ({ path: file.path, content: file.content }));
@@ -75,6 +76,11 @@ function analyzeEvidence(data: {
     contributors: data.contributors, latestRelease: data.latestRelease,
     latestCommit: data.latestCommit || meta.pushedAt, analyzedAt: data.analyzedAt || new Date().toISOString(),
     method: 'static-analysis',
+    coverage: {
+      selectedFiles: data.coverage?.selectedFiles ?? files.length,
+      maxFiles: data.coverage?.maxFiles ?? MAX_FILES,
+      recursiveTree: data.coverage?.recursiveTree ?? true,
+    },
   };
 }
 
@@ -148,6 +154,7 @@ async function fetchDirect(ref: RepoRef): Promise<Analysis> {
     contributors: contributors.ok && Array.isArray(contributors.data) ? Math.min(contributors.data.length, 100) : null,
     latestRelease: releases.ok && Array.isArray(releases.data) ? releases.data[0]?.tag_name || null : null,
     latestCommit: commits.ok && Array.isArray(commits.data) ? commits.data[0]?.commit?.committer?.date || null : null,
+    coverage: { selectedFiles: files.length, maxFiles: MAX_FILES, recursiveTree: tree.ok && tree.data?.truncated !== true },
   });
 }
 
