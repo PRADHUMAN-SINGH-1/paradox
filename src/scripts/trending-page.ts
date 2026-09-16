@@ -12,7 +12,15 @@ async function proxySearch(query: string) {
 }
 
 async function directSearch(query: string) {
-  const r = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=8`, { headers: { Accept: 'application/vnd.github+json' } });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+  let r: Response;
+  try {
+    r = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=8`, { headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw new Error('GitHub trend data request timed out.');
+    throw error;
+  } finally { window.clearTimeout(timeout); }
   if (r.status === 403) throw new Error('GitHub is temporarily rate limiting live trend data.');
   if (!r.ok) throw new Error('Live GitHub trend data is unavailable.');
   return await r.json() as { items?: Array<Record<string, unknown>>; total_count?: number };
