@@ -1,4 +1,5 @@
 import { fetchAnalysis } from '../lib/analysis/fetch.ts';
+import { currentUser } from '../lib/supabase.ts';
 import { track } from '../lib/analytics.ts';
 import { parseRepoRef } from '../lib/github-url.ts';
 
@@ -14,6 +15,10 @@ function showError(status: HTMLElement, out: HTMLElement, message: string) {
   out.innerHTML = `<div class="panel"><h2>Comparison could not be completed.</h2><p>${escapeHtml(message)}</p><p>Use two public <strong>github.com/owner/repository</strong> URLs and try again.</p></div>`;
   out.hidden = false;
   status.textContent = 'Compare needs another attempt.';
+}
+function loginUrl() {
+  const next = `${location.pathname}${location.search}${location.hash}`;
+  return `/auth/?next=${encodeURIComponent(next)}`;
 }
 
 export function bootCompare() {
@@ -35,6 +40,14 @@ export function bootCompare() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const user = await currentUser();
+    if (!user) {
+      location.href = loginUrl();
+      return;
+    }
+
     out.hidden = true;
     status.textContent = 'Validating repositories…';
     track('compare_started');
@@ -71,7 +84,7 @@ export function bootCompare() {
       right.disabled = false;
       if (submit) { submit.disabled = false; submit.textContent = 'Compare'; }
     }
-  });
+  }, { capture: true });
 
   if (leftParam && rightParam) form.requestSubmit();
 }
