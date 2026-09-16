@@ -4,17 +4,32 @@ import { clearLocalScans, getLocalSavedAgents, getLocalScans, removeLocalAgent }
 
 function esc(s: string) { return String(s || '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!)); }
 function renderLoadError(el: Element | null, message: string, retry: () => void) { if (!el) return; el.innerHTML = `<div class="muted"><strong>Couldn’t load this section.</strong><br/>${esc(message)} <button type="button" data-retry>Retry</button></div>`; el.querySelector<HTMLButtonElement>('[data-retry]')?.addEventListener('click', retry); }
-function localMode() { const email = document.querySelector('#accountEmail'); const profileEmail = document.querySelector('#profileEmail'); const saved = document.querySelector('#savedAgents'); const history = document.querySelector('#scanHistory'); if (email) email.textContent = 'Local device mode — sign in to sync across devices.'; if (profileEmail) profileEmail.textContent = 'No authenticated session is active. Local results remain on this device until you sign in.'; renderSaved(saved, getLocalSavedAgents().map((x) => ({ ...x, local: true }))); renderHistory(history, getLocalScans().map((x) => ({ ...x, repository_url: `https://github.com/${x.repository}` }))); }
+function updateMetrics(savedCount: number, historyCount: number, mode: 'SYNCED' | 'LOCAL' | 'UNAVAILABLE') {
+  const saved = document.querySelector('#savedCount'); const history = document.querySelector('#historyCount'); const workspace = document.querySelector('#workspaceMode');
+  if (saved) saved.textContent = String(savedCount);
+  if (history) history.textContent = String(historyCount);
+  if (workspace) workspace.textContent = mode;
+}
+function localMode() {
+  const email = document.querySelector('#accountEmail'); const profileEmail = document.querySelector('#profileEmail'); const saved = document.querySelector('#savedAgents'); const history = document.querySelector('#scanHistory');
+  const localSaved = getLocalSavedAgents().map((x) => ({ ...x, local: true })); const localHistory = getLocalScans().map((x) => ({ ...x, repository_url: `https://github.com/${x.repository}` }));
+  if (email) email.textContent = 'Local device mode — sign in to sync across devices.';
+  if (profileEmail) profileEmail.textContent = 'No authenticated session is active. Local results remain on this device until you sign in.';
+  updateMetrics(localSaved.length, localHistory.length, 'LOCAL');
+  renderSaved(saved, localSaved); renderHistory(history, localHistory);
+}
 async function boot() {
   const email = document.querySelector('#accountEmail'); const profileEmail = document.querySelector('#profileEmail'); const saved = document.querySelector('#savedAgents'); const history = document.querySelector('#scanHistory');
   if (!supabase) { localMode(); return; }
   let user: Awaited<ReturnType<typeof supabase.auth.getUser>>['data']['user'] = null;
-  try { user = (await supabase.auth.getUser()).data.user ?? null; } catch { renderLoadError(saved, 'Authentication could not be checked.', boot); renderLoadError(history, 'Authentication could not be checked.', boot); if (email) email.textContent = 'Authentication unavailable'; return; }
+  try { user = (await supabase.auth.getUser()).data.user ?? null; } catch { updateMetrics(0, 0, 'UNAVAILABLE'); renderLoadError(saved, 'Authentication could not be checked.', boot); renderLoadError(history, 'Authentication could not be checked.', boot); if (email) email.textContent = 'Authentication unavailable'; return; }
   if (!user) { localMode(); return; }
   const identity = user.email || user.id; if (email) email.textContent = identity; if (profileEmail) profileEmail.textContent = `Signed in as ${identity}. This account is the owner of your saved agents and scan history.`; track('scan_history_opened');
   const [savedResult, historyResult] = await Promise.all([supabase.from('saved_agents').select('*').order('created_at', { ascending: false }).limit(50), supabase.from('scan_history').select('*').order('created_at', { ascending: false }).limit(50)]);
-  if (savedResult.error) renderLoadError(saved, savedResult.error.message, boot); else renderSaved(saved, savedResult.data || []);
-  if (historyResult.error) renderLoadError(history, historyResult.error.message, boot); else renderHistory(history, historyResult.data || []);
+  const savedRows = savedResult.data || []; const historyRows = historyResult.data || [];
+  updateMetrics(savedRows.length, historyRows.length, savedResult.error || historyResult.error ? 'UNAVAILABLE' : 'SYNCED');
+  if (savedResult.error) renderLoadError(saved, savedResult.error.message, boot); else renderSaved(saved, savedRows);
+  if (historyResult.error) renderLoadError(history, historyResult.error.message, boot); else renderHistory(history, historyRows);
 }
 function renderSaved(el: Element | null, rows: Array<Record<string, unknown>>) { if (!el) return; el.innerHTML = rows.length ? rows.map((x) => { const name = String(x.repository_full_name || 'Repository'); const local = Boolean(x.local); return `<article class="card"><h3>${esc(name)}</h3><p>${esc(String(x.verdict || 'Unknown'))} · score ${esc(String(x.score ?? 'Unknown'))}</p><div class="links"><a href="/agents/view/?repo=${encodeURIComponent(name)}">Open</a> <button type="button" data-unsave="${esc(String(x.id || name))}">${local ? 'Remove' : 'Remove'}</button></div></article>`; }).join('') : '<p class="muted">Nothing saved yet. Verify an agent, then save it.</p>'; el.querySelectorAll<HTMLButtonElement>('[data-unsave]').forEach((btn) => { btn.addEventListener('click', async () => { try { if (!supabase || btn.dataset.unsave?.includes('/')) { removeLocalAgent(btn.dataset.unsave || ''); void boot(); return; } const { error } = await supabase.from('saved_agents').delete().eq('id', btn.dataset.unsave); if (error) { btn.textContent = 'Retry remove'; return; } track('unsave_agent'); void boot(); } catch { btn.textContent = 'Retry remove'; } }); }); }
 function renderHistory(el: Element | null, rows: Array<Record<string, unknown>>) { if (!el) return; el.innerHTML = rows.length ? rows.map((x) => { const name = String(x.repository_full_name || 'Repository'); return `<article class="card"><h3>${esc(name)}</h3><p>${esc(String(x.scannedAt || x.created_at || ''))}<br/>${esc(String(x.verdict || 'Unknown'))} · score ${esc(String(x.score ?? 'Unknown'))}</p><div class="links"><a href="/verify/?url=${encodeURIComponent(String(x.repository_url || `https://github.com/${name}`))}">Open again</a></div></article>`; }).join('') : '<p class="muted">No scans stored yet.</p>'; }
