@@ -3,7 +3,12 @@ import { currentUser, supabase } from '../lib/supabase.ts';
 async function boot() {
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]');
   if (!supabase) return;
-  const user = await currentUser();
+  let user = null;
+  try {
+    user = await currentUser();
+  } catch {
+    user = null;
+  }
   links.forEach((a) => {
     a.href = user ? '/dashboard/' : '/auth/';
     a.textContent = user ? 'Dashboard' : 'Sign in';
@@ -19,4 +24,4 @@ if (btn && nav) {
   });
 }
 
-boot();
+void boot().catch(() => undefined);

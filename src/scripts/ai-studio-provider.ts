@@ -76,11 +76,15 @@ function init() {
     } finally { run.disabled = false; run.textContent = 'RUN AI ↗'; }
   });
 
-  root.querySelector<HTMLButtonElement>('#copy')?.addEventListener('click', async () => {
+  document.addEventListener('click', async (event) => {
+    const target = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('#copy') : null;
+    if (!target || !root.contains(target)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
     if (!result || result.hidden) return;
     try { await navigator.clipboard.writeText(result.textContent || ''); if (status) status.textContent = 'COPIED'; }
     catch { if (err) { err.textContent = 'Clipboard access is blocked. Select the result and copy it manually.'; err.hidden = false; } }
-  });
+  }, true);
   root.querySelectorAll<HTMLButtonElement>('.flow').forEach((button) => button.addEventListener('click', () => { if (status) status.textContent = 'READY'; }));
 }
 

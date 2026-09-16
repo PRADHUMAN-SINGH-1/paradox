@@ -5,6 +5,7 @@ const MAX_FILES = 32;
 const CACHE_MS = 5 * 60_000;
 const RATE_WINDOW_MS = 60_000;
 const RATE_LIMIT = 30;
+const REQUEST_TIMEOUT_MS = 12_000;
 const searchCache = new Map<string, { at: number; data: unknown }>();
 const analysisCache = new Map<string, { at: number; data: unknown }>();
 const rateHits = new Map<string, { at: number; count: number }>();
@@ -18,7 +19,7 @@ function requestKey(req:Request){return req.headers.get('x-forwarded-for')?.spli
 function allowed(req:Request){const key=requestKey(req);const now=Date.now();const row=rateHits.get(key);if(!row||now-row.at>RATE_WINDOW_MS){rateHits.set(key,{at:now,count:1});return true}row.count+=1;return row.count<=RATE_LIMIT}
 function parseRepo(raw:string){const v=raw.trim();const url=new URL(v.includes('://')?v:`https://${v}`);if(!['github.com','www.github.com'].includes(url.hostname.toLowerCase()))throw new Error('github-host');const p=url.pathname.split('/').filter(Boolean);if(p.length<2)throw new Error('github-repo');const owner=p[0],repo=p[1].replace(/\.git$/i,'');if(!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(owner)||!/^[A-Za-z0-9._-]{1,100}$/.test(repo)||owner==='.'||owner==='..'||repo==='.'||repo==='..')throw new Error('github-repo');return{owner,repo,fullName:`${owner}/${repo}`}}
 const token=Deno.env.get('GITHUB_TOKEN')||'';const ghHeaders:Record<string,string>={Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};if(token)ghHeaders.Authorization=`Bearer ${token}`;
-async function gh(path:string){const r=await fetch(`https://api.github.com${path}`,{headers:ghHeaders});const data=await r.json().catch(()=>null);return{status:r.status,ok:r.ok,data}}
+async function gh(path:string){try{const r=await fetch(`https://api.github.com${path}`,{headers:ghHeaders,signal:AbortSignal.timeout(REQUEST_TIMEOUT_MS)});const data=await r.json().catch(()=>null);return{status:r.status,ok:r.ok,data}}catch{return{status:0,ok:false,data:null}}}
 function encodePath(path:string){return path.split('/').map(encodeURIComponent).join('/')}
 function decodeBase64(v:string){try{const bytes=Uint8Array.from(atob(v.replace(/\s/g,'')),c=>c.charCodeAt(0));return new TextDecoder().decode(bytes).slice(0,MAX_FILE)}catch{return ''}}
 async function readFile(owner:string,repo:string,path:string){const r=await gh(`/repos/${owner}/${repo}/contents/${encodePath(path)}`);if(!r.ok||!r.data||r.data.type!=='file')return null;const size=Number(r.data.size||0);if(size>MAX_FILE)return{path,content:'',size,skipped:true};return{path,content:typeof r.data.content==='string'?decodeBase64(r.data.content):'',size,skipped:false}}

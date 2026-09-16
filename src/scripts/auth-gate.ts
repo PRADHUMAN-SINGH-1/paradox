@@ -7,7 +7,14 @@ function loginUrl() {
 
 for (const button of document.querySelectorAll<HTMLElement>('[data-requires-auth]')) {
   button.addEventListener('click', async (event) => {
-    const user = await currentUser();
+    let user = null;
+    try {
+      user = await currentUser();
+    } catch {
+      event.preventDefault();
+      location.href = loginUrl();
+      return;
+    }
     if (user) return;
     event.preventDefault();
     location.href = loginUrl();
