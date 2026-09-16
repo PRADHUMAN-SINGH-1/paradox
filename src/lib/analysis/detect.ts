@@ -32,8 +32,7 @@ export function detectSignals(files: FileHit[]): Detection[] {
   const seen = new Set<string>();
   for (const file of files) {
     for (const rule of RULES) {
-      const key = `${rule.name}:${file.path}`;
-      if (seen.has(`${rule.name}`)) continue;
+      if (seen.has(rule.name)) continue;
       if (rule.test.test(file.content) || rule.test.test(file.path)) {
         seen.add(rule.name);
         out.push({
