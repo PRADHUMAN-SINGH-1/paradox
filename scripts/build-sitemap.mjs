@@ -9,6 +9,9 @@ const base = 'https://paradox.engineer';
 const urls = new Set([
   '/', '/agents/', '/verify/', '/compare/', '/trending/', '/about/', '/contact/', '/privacy/', '/terms/',
   '/ai/', '/ai-studio/', '/ai-radar/', '/studio/', '/daily/', '/world/', '/use-cases/', '/utilities/',
+  '/bingo-card-generator/', '/certificate-maker/', '/decision-wheel/', '/raffle-ticket-generator/',
+  '/random-team-generator/', '/seating-chart-generator/', '/tournament-bracket-generator/', '/word-search-generator/',
+  '/guides/bingo-cards/', '/guides/printables/', '/guides/random-teams/', '/guides/word-searches/',
 ]);
 
 for (const e of catalog) {
@@ -29,7 +32,7 @@ for (const item of seoOpportunities) {
   if (!blocked.has(item.slug) && item.evidence?.fallback !== true) urls.add(`/use-cases/${item.slug}/`);
 }
 
-const escapeXml = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+const escapeXml = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&apos;');
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...urls].sort().map((path) => `  <url><loc>${escapeXml(base + path)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await fs.mkdir('public', { recursive: true });
 await fs.writeFile('public/sitemap.xml', xml);
