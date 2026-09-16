@@ -29,10 +29,24 @@ type Provider = 'auto' | 'gemini' | 'groq' | 'cerebras' | 'huggingface' | 'ollam
 const providers: Provider[] = ['gemini', 'groq', 'cerebras', 'huggingface', 'ollama'];
 function env(name: string) { return Deno.env.get(name) || ''; }
 function candidates(requested: Provider, task: string): Provider[] {
-  if (requested !== 'auto') return [requested, ...providers.filter((p) => p !== requested)];
+  if (requested !== 'auto') return [requested];
   if (/code|debug|program|technical/i.test(task)) return ['groq', 'cerebras', 'gemini', 'huggingface', 'ollama'];
   if (/resume|interview|study|research|content/i.test(task)) return ['gemini', 'groq', 'cerebras', 'huggingface', 'ollama'];
   return ['cerebras', 'groq', 'gemini', 'huggingface', 'ollama'];
+}
+async function requireAuthenticatedUser(req: Request) {
+  const authorization = req.headers.get('authorization');
+  if (!authorization?.startsWith('Bearer ')) throw new Error('Authentication required');
+  const supabaseUrl = env('SUPABASE_URL');
+  const anonKey = env('SUPABASE_ANON_KEY') || env('SB_PUBLISHABLE_KEY');
+  if (!supabaseUrl || !anonKey) throw new Error('Authentication service is not configured');
+  const res = await fetch(`${supabaseUrl.replace(/\/$/, '')}/auth/v1/user`, {
+    headers: { Authorization: authorization, apikey: anonKey },
+  });
+  if (!res.ok) throw new Error('Authentication required');
+  const user = await res.json().catch(() => null);
+  if (!user?.id) throw new Error('Authentication required');
+  return user;
 }
 async function requestOpenAICompatible(base: string, key: string, model: string, system: string, prompt: string) {
   if (!base) throw new Error('Provider base URL is not configured');
@@ -79,6 +93,7 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405, h);
   if (!rateLimit(req)) return json({ error: 'Too many AI requests. Please wait a minute.' }, 429, h);
   try {
+    await requireAuthenticatedUser(req);
     const body = await req.json();
     const prompt = String(body.prompt || '').slice(0, MAX_PROMPT);
     const system = String(body.system || 'You are PARADOX AI. Be accurate, specific and transparent about uncertainty. Never invent credentials, sources or facts.').slice(0, 10000);
@@ -96,8 +111,9 @@ Deno.serve(async (req) => {
         failures.push(`${provider}: ${e instanceof Error ? e.message : 'failed'}`);
       }
     }
-    return json({ error: 'No configured AI provider is currently available.', details: failures }, 503, h);
+    return json({ error: requested === 'auto' ? 'No configured AI provider is currently available.' : `The selected provider (${requested}) is currently unavailable.`, details: failures }, 503, h);
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : 'Invalid AI request.' }, 400, h);
+    const message = e instanceof Error ? e.message : 'Invalid AI request.';
+    return json({ error: message }, message === 'Authentication required' || message === 'Authentication service is not configured' ? 401 : 400, h);
   }
 });
