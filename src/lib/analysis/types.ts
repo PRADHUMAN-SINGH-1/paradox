@@ -48,6 +48,12 @@ export type Scores = {
   paradox: number;
 };
 
+export type AnalysisCoverage = {
+  selectedFiles: number;
+  maxFiles: number;
+  recursiveTree: boolean;
+};
+
 export type Analysis = {
   meta: RepoMeta;
   languages: Record<string, number>;
@@ -64,4 +70,5 @@ export type Analysis = {
   latestCommit: string | null;
   analyzedAt: string;
   method: 'static-analysis';
+  coverage: AnalysisCoverage;
 };
