@@ -1,38 +1,38 @@
-/* PARADOX Cyber Intelligence Brutalism Tokens — Inspired by lusion.co & landonorris.com */
+/* PARADOX Cyber Intelligence Design Tokens — Lando Norris & Lusion Production Tier */
 :root {
   color-scheme: dark;
 
-  /* True Pitch Black & Titanium Palette */
-  --bg: #000000;
-  --canvas: #000000;
-  --surface-1: #09090b;
-  --surface-2: #121215;
-  --surface-hover: #18181c;
-  --surface-active: #202026;
-  --surface: #09090b;
-  --surface-elevated: #121215;
+  /* Lusion Deep Rich Void & Titanium Surfaces */
+  --bg: #0a0a0a;
+  --canvas: #0a0a0a;
+  --surface-1: #111111;
+  --surface-2: #191919;
+  --surface-hover: #222222;
+  --surface-active: #2a2a2a;
+  --surface: #111111;
+  --surface-elevated: #191919;
 
-  /* High-Contrast Typography */
+  /* Pure High-Contrast Typography */
   --text-primary: #ffffff;
   --text-hi: #ffffff;
-  --text-secondary: #8a8f98;
-  --text-muted: #525866;
-  --text-lo: #525866;
-  --text-faint: #262930;
+  --text-secondary: #999999;
+  --text-muted: #555555;
+  --text-lo: #555555;
+  --text-faint: #222222;
 
-  /* Electric Volt Accent (Lando Norris SOTY 2025 style) */
-  --accent: #c8ff00;
-  --accent-rgb: 200, 255, 0;
-  --accent-light: #d6ff33;
-  --accent-dim: rgba(200, 255, 0, 0.12);
-  --accent-glow: rgba(200, 255, 0, 0.35);
+  /* Exact Lando Norris Formula 1 Neon Volt Accent (OFF+BRAND) */
+  --accent: #e4f900;
+  --accent-rgb: 228, 249, 0;
+  --accent-light: #efff33;
+  --accent-dim: rgba(228, 249, 0, 0.12);
+  --accent-glow: rgba(228, 249, 0, 0.4);
 
-  /* Tactical Telemetry Accents */
-  --cyan: #c8ff00;
-  --cyan-glow: rgba(200, 255, 0, 0.3);
-  --emerald: #c8ff00;
-  --emerald-light: #d6ff33;
-  --emerald-glow: rgba(200, 255, 0, 0.25);
+  /* Telemetry Status Spectrum */
+  --cyan: #e4f900;
+  --cyan-glow: rgba(228, 249, 0, 0.35);
+  --emerald: #e4f900;
+  --emerald-light: #efff33;
+  --emerald-glow: rgba(228, 249, 0, 0.3);
   --amber: #ffaa00;
   --amber-glow: rgba(255, 170, 0, 0.3);
   --rose: #ff2a55;
@@ -40,12 +40,12 @@
 
   /* Hairline Precision Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: rgba(255, 255, 255, 0.14);
-  --border-bright: rgba(255, 255, 255, 0.28);
-  --border-hover: #c8ff00;
-  --border: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.16);
+  --border-bright: rgba(255, 255, 255, 0.32);
+  --border-hover: #e4f900;
+  --border: rgba(255, 255, 255, 0.12);
 
-  /* Brutalist Radii (Sharp Edges) */
+  /* Brutalist Radii (Zero Border Radius for Architectural Cuts) */
   --radius-none: 0px;
   --radius-sm: 0px;
   --radius-md: 2px;
@@ -53,20 +53,20 @@
   --radius-xl: 6px;
   --radius-full: 9999px;
 
-  /* Typography Font Stacks */
-  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Typography Stacks */
+  --font-display: 'Bebas Neue', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'DM Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Transitions & Springs */
+  /* Motion Curves */
   --ease-brutal: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 120ms;
   --duration-normal: 220ms;
-  --duration-slow: 380ms;
+  --duration-slow: 400ms;
 
-  /* Layout Widths */
+  /* Layout Boundaries */
   --max-w-content: 1360px;
-  --max-w-wide: 1520px;
+  --max-w-wide: 1540px;
 }

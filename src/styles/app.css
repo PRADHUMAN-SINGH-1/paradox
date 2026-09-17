@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PARADOX Master Stylesheet — Cyber Brutalism & Kinetic Void Architecture
+   PARADOX Master Stylesheet — Cyber Brutalism & Kinetic Motion Architecture
    ========================================================================== */
 
 @import './tokens.css';
@@ -17,87 +17,43 @@ html {
   color-scheme: dark;
 }
 
-/* Custom Morphing Cursor Styles */
+/* Lusion & Lando Norris Style Inverted Difference Cursor */
 @media (pointer: fine) {
   html.has-custom-cursor,
   html.has-custom-cursor * {
     cursor: none !important;
   }
 
-  .cursor-dot {
+  #cursor-blob {
     position: fixed;
     top: 0;
     left: 0;
-    width: 6px;
-    height: 6px;
-    margin: -3px 0 0 -3px;
-    background-color: var(--accent);
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+    background-color: #ffffff;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 100000;
-    transition: opacity 0.2s, transform 0.05s linear;
-    box-shadow: 0 0 10px var(--accent);
+    z-index: 999999;
+    mix-blend-mode: difference;
+    transform: translate3d(-100px, -100px, 0);
+    transition: width 0.28s var(--ease-brutal), height 0.28s var(--ease-brutal), margin 0.28s var(--ease-brutal), opacity 0.2s ease;
+    will-change: transform, width, height;
   }
 
-  .cursor-ring {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 34px;
-    height: 34px;
-    margin: -17px 0 0 -17px;
-    border: 1.5px solid rgba(200, 255, 0, 0.45);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: width 0.25s var(--ease-brutal), height 0.25s var(--ease-brutal), margin 0.25s var(--ease-brutal), background-color 0.25s var(--ease-brutal), border-color 0.25s var(--ease-brutal), opacity 0.2s;
+  #cursor-blob.is-hovered {
+    width: 76px;
+    height: 76px;
+    margin: -38px 0 0 -38px;
   }
 
-  .cursor-ring.is-hovered {
-    width: 58px;
-    height: 58px;
-    margin: -29px 0 0 -29px;
-    border-color: var(--accent);
-    background-color: rgba(200, 255, 0, 0.12);
-  }
-
-  .cursor-ring.is-clicking {
+  #cursor-blob.is-clicking {
     width: 24px;
     height: 24px;
     margin: -12px 0 0 -12px;
-    background-color: var(--accent);
   }
 
-  .cursor-ring.has-label {
-    width: 68px;
-    height: 68px;
-    margin: -34px 0 0 -34px;
-    background-color: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .cursor-ring-text {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    color: #000000;
-    opacity: 0;
-    text-transform: uppercase;
-    transform: scale(0.8);
-    transition: all 0.2s;
-  }
-
-  .cursor-ring.has-label .cursor-ring-text {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .cursor-dot.is-hidden,
-  .cursor-ring.is-hidden {
+  #cursor-blob.is-hidden {
     opacity: 0;
   }
 }
@@ -117,14 +73,14 @@ body {
   min-height: 100vh;
 }
 
-/* Subtle Film Grain Noise Texture */
+/* Tactile Film Grain Texture (Lando Norris & Lusion depth layer) */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
-  z-index: 999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: 998;
 }
 
 /* Fluid Distortion Canvas Overlay */
@@ -135,7 +91,7 @@ body::after {
   height: 100vh;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 /* Content Stacking Hierarchy */
@@ -143,9 +99,9 @@ body::after {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(10, 10, 10, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -160,7 +116,7 @@ main {
   border-top: 1px solid var(--border-subtle);
 }
 
-/* Scroll Velocity Skew Wrapper */
+/* Scroll Velocity Angular Skew */
 .skewable {
   will-change: transform;
 }

@@ -1,6 +1,6 @@
 /**
- * PARADOX Elite Creative Engine — Master Orchestrator
- * Integrates PrecisionCursor, Lenis Smooth Scroll, Kinetic Typography & Fluid Distortion.
+ * PARADOX Master Creative Engine — Lando Norris & Lusion Production Standard
+ * Boots PrecisionCursor, Lenis Smooth Scroll, Kinetic Typography & Cyber HUD.
  */
 
 import { PrecisionCursor } from './cursor.ts';
@@ -8,7 +8,13 @@ import { initSmoothScroll } from './scroll.ts';
 import { initKineticText } from './kinetic-text.ts';
 import { FluidCursorCanvas } from './webgl-distortion.ts';
 
-// Re-export CyberHUD for telemetry consoles
+declare global {
+  interface Window {
+    gsap?: any;
+    ScrollTrigger?: any;
+  }
+}
+
 export class CyberHUD {
   public static createLiveStream(container: HTMLElement, label = 'SYSTEM TELEMETRY'): () => void {
     container.classList.add('hud-container');
@@ -84,7 +90,7 @@ export class CyberHUD {
           ctx.lineTo(x, mid + amp);
         }
 
-        ctx.strokeStyle = '#c8ff00';
+        ctx.strokeStyle = '#e4f900';
         ctx.lineWidth = 1.4;
         ctx.stroke();
 
@@ -101,38 +107,59 @@ export class CyberHUD {
   }
 }
 
-export function initCreativeEngine() {
-  if (typeof window === 'undefined') return;
+let hasInitialized = false;
 
-  // 1. Initialize Custom Morphing Cursor
-  const cursor = new PrecisionCursor();
+export function initCreativeEngine() {
+  if (typeof window === 'undefined' || hasInitialized) return;
+  hasInitialized = true;
+
+  // 1. Mount Inverted Difference Cursor
+  new PrecisionCursor();
 
   // 2. Initialize Lenis Smooth Scroll
-  const lenis = initSmoothScroll();
+  initSmoothScroll();
 
-  // 3. Initialize Kinetic Typography
+  // 3. Initialize Kinetic Typography with SplitType
   initKineticText();
 
-  // 4. Initialize Fluid Cursor Canvas (desktop only)
+  // 4. Fluid Canvas for mouse trail
   if (window.matchMedia('(pointer: fine)').matches) {
     const fluidCanvas = document.querySelector<HTMLCanvasElement>('#fluid-canvas');
     if (fluidCanvas) {
       try {
         new FluidCursorCanvas(fluidCanvas);
       } catch (err) {
-        console.warn('FluidCursorCanvas init error:', err);
+        console.warn('Fluid canvas error:', err);
       }
     }
   }
 
-  return { cursor, lenis };
+  // 5. ScrollTrigger Section Reveals
+  if (window.gsap && window.ScrollTrigger) {
+    document.querySelectorAll<HTMLElement>('.section-brutalist').forEach((sec) => {
+      window.gsap.fromTo(sec,
+        { opacity: 0.2, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sec,
+            start: 'top 88%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    });
+  }
 }
 
-// Self-initialize on DOM ready
+// Ensure execution after CDN libraries are loaded
 if (typeof window !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initCreativeEngine());
-  } else {
+  if (document.readyState === 'complete') {
     initCreativeEngine();
+  } else {
+    window.addEventListener('load', () => initCreativeEngine());
   }
 }

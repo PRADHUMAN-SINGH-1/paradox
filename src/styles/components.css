@@ -1,7 +1,7 @@
-/* PARADOX Brutalist Components — Inspired by landonorris.com & lusion.co */
+/* PARADOX Brutalist Component Architecture — Lando Norris & Lusion Standards */
 
 /* ==========================================================================
-   Brutalist Action Buttons (Sharp Edges, Inverted Volt Flashes)
+   Action Buttons (Zero Radius, High-Contrast Volt Flashes)
    ========================================================================== */
 .btn {
   display: inline-flex;
@@ -11,7 +11,7 @@
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 12px 22px;
   border-radius: var(--radius-none);
@@ -100,7 +100,7 @@
 
 .search-bar-unified:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 10px 40px -5px rgba(200, 255, 0, 0.2);
+  box-shadow: 0 0 0 1px var(--accent), 0 10px 40px -5px rgba(228, 249, 0, 0.25);
   background: var(--surface-2);
 }
 
@@ -111,7 +111,7 @@
   outline: none;
   color: #ffffff;
   font-size: 15px;
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 500;
   padding: 10px 8px;
 }
@@ -145,15 +145,15 @@
   overflow: hidden;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  background: #000000;
-  padding: 14px 0;
+  background: #0a0a0a;
+  padding: 16px 0;
   white-space: nowrap;
   user-select: none;
 }
 
 .marquee-content {
   display: inline-flex;
-  animation: marqueeRoll 28s linear infinite;
+  animation: marqueeRoll 24s linear infinite;
   will-change: transform;
 }
 
@@ -165,7 +165,7 @@
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -229,7 +229,7 @@
   position: absolute;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.4);
   line-height: 1;
   pointer-events: none;
 }
@@ -250,7 +250,7 @@
    CYBER HUD TELEMETRY CONSOLE
    ========================================================================== */
 .hud-container {
-  background: #000000;
+  background: #0a0a0a;
   border: 1px solid var(--border-bright);
   border-radius: var(--radius-none);
   padding: 20px;
@@ -293,7 +293,7 @@
   color: var(--accent);
   padding: 3px 8px;
   background: var(--accent-dim);
-  border: 1px solid rgba(200, 255, 0, 0.3);
+  border: 1px solid rgba(228, 249, 0, 0.35);
   font-weight: 700;
 }
 
@@ -301,7 +301,7 @@
   width: 100%;
   height: 44px;
   margin-bottom: 16px;
-  background: rgba(10, 10, 10, 0.8);
+  background: rgba(14, 14, 14, 0.85);
   border: 1px solid var(--border-subtle);
 }
 
@@ -334,11 +334,11 @@
 }
 
 .hud-msg {
-  color: #e5e7eb;
+  color: #f0f0f0;
 }
 
 /* ==========================================================================
-   Badges & Chips
+   Badges, Chips & Results Grid
    ========================================================================== */
 .chip {
   display: inline-flex;
@@ -351,7 +351,7 @@
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: var(--radius-none);
-  background: #121215;
+  background: var(--surface-2);
   border: 1px solid var(--border-default);
   color: var(--text-secondary);
   transition: all var(--duration-fast);
@@ -359,7 +359,7 @@
 
 .chip-verified, .chip-accent {
   background: var(--accent-dim);
-  border-color: rgba(200, 255, 0, 0.4);
+  border-color: rgba(228, 249, 0, 0.4);
   color: var(--accent);
 }
 
@@ -373,15 +373,23 @@
   animation: statusPulse 2s ease-in-out infinite;
 }
 
+.dot-pulse-cyan {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
 .results {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 16px;
   margin-top: 24px;
 }
 
-@media (max-width: 768px) {
-  .results {
-    grid-template-columns: 1fr;
-  }
+.status {
+  padding: 10px 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
 }
