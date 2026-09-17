@@ -317,12 +317,12 @@ const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug)
           <h2 class="editorial-section-title" data-kinetic>Practical Developer AI Tools</h2>
           <p class="editorial-section-lead">Fast, client-side developer utilities designed for repeatable inspection workflows.</p>
         </div>
-        <a href="/ai/" class="btn btn-primary" data-cursor="STUDIO">Open Studio ↗</a>
+        <a href="/ai-studio/" class="btn btn-primary" data-cursor="STUDIO">Open Studio ↗</a>
       </div>
 
       <div class="editorial-tools-grid">
         {featuredTools.map((tool, i) => (
-          <a class="tool-entry spotlight-card" href={`/ai/${tool.slug}/`} data-cursor="LAUNCH">
+          <a class="tool-entry spotlight-card" href={`/ai-studio/?section=toolkit&tool=${tool.slug}`} data-cursor="LAUNCH">
             <div class="tool-entry-meta">
               <span class="tool-num">{String(i + 1).padStart(2, '0')}</span>
               <span class="tool-arrow">↗</span>
