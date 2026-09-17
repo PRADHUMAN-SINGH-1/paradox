@@ -1,155 +1,30 @@
 ---
 import '../styles/app.css';
+import '../styles/workbench-fix.css';
 
 const { title, description, canonical='https://paradox.engineer/', robots='index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1', jsonLd } = Astro.props;
-const year = new Date().getFullYear();
-const pageUrl = new URL(canonical); const pagePath = pageUrl.pathname.replace(/\/+$/, '');
+const year = new Date().getFullYear(); const pageUrl = new URL(canonical); const pagePath = pageUrl.pathname.replace(/\/+$/, '');
 const slugLabel = (slug: string) => slug.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase());
 const breadcrumbPaths = pagePath ? pagePath.split('/').filter(Boolean) : [];
-const breadcrumb: Record<string, unknown> | null = breadcrumbPaths.length > 0 ? { '@type':'BreadcrumbList', itemListElement:[{ '@type':'ListItem', position:1, name:'Home', item:'https://paradox.engineer/' }, ...breadcrumbPaths.map((part, index) => ({ '@type':'ListItem', position:index + 2, name:slugLabel(part), item:`https://paradox.engineer/${breadcrumbPaths.slice(0, index + 1).join('/')}/` }))] } : null;
+const breadcrumb: Record<string, unknown> | null = breadcrumbPaths.length > 0 ? { '@type':'BreadcrumbList', itemListElement:[{ '@type':'ListItem', position:1, name:'Home', item:'https://paradox.engineer/' }, ...breadcrumbPaths.map((part,index)=>({ '@type':'ListItem', position:index+2, name:slugLabel(part), item:`https://paradox.engineer/${breadcrumbPaths.slice(0,index+1).join('/')}/` }))] } : null;
 const graph: Record<string, unknown>[] = [
-  { '@type':'WebSite', '@id':'https://paradox.engineer/#website', name:'PARADOX', url:'https://paradox.engineer/', description:'Discover, inspect and verify public AI agents, GitHub projects and practical AI tools.', inLanguage:'en-US', publisher:{ '@id':'https://paradox.engineer/#organization' } },
-  { '@type':'Organization', '@id':'https://paradox.engineer/#organization', name:'PARADOX', url:'https://paradox.engineer/', sameAs:['https://www.linkedin.com/in/pradhuman--singh/'] },
-  { '@type':'WebPage', '@id':`${canonical}#webpage`, url:canonical, name:title, description, inLanguage:'en-US', isPartOf:{ '@id':'https://paradox.engineer/#website' } }
+  { '@type':'WebSite','@id':'https://paradox.engineer/#website',name:'PARADOX',url:'https://paradox.engineer/',description:'Discover, inspect and verify public AI agents, GitHub projects and practical AI tools.',inLanguage:'en-US',publisher:{ '@id':'https://paradox.engineer/#organization' } },
+  { '@type':'Organization','@id':'https://paradox.engineer/#organization',name:'PARADOX',url:'https://paradox.engineer/',sameAs:['https://www.linkedin.com/in/pradhuman--singh/'] },
+  { '@type':'WebPage','@id':`${canonical}#webpage`,url:canonical,name:title,description,inLanguage:'en-US',isPartOf:{ '@id':'https://paradox.engineer/#website' } }
 ];
-if (breadcrumb) graph.push({ '@context':'https://schema.org', ...breadcrumb }); if (jsonLd) graph.push(jsonLd as Record<string, unknown>);
-const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const websiteLdText = JSON.stringify(websiteLd).replace(/</g,'\\u003c');
+if(breadcrumb)graph.push({ '@context':'https://schema.org',...breadcrumb });if(jsonLd)graph.push(jsonLd as Record<string,unknown>);const websiteLdText=JSON.stringify({ '@context':'https://schema.org','@graph':graph }).replace(/</g,'\\u003c');
 ---
-<!doctype html>
-<html lang="en">
-<head>
-<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script>
-<script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('config','G-5V0LJN6HTS');</script>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#0a0a0a" /><meta name="application-name" content="PARADOX" /><meta name="author" content="PARADOX" /><meta name="description" content={description} /><meta name="robots" content={robots} /><meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" /><meta property="og:site_name" content="PARADOX" /><meta property="og:locale" content="en_US" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content={title} /><meta name="twitter:description" content={description} />
-
-<!-- High-Impact Bebas Neue, Space Grotesk & JetBrains Mono Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/mona-sans@5.1.0/index.min.css" /><link rel="canonical" href={canonical} /><link rel="sitemap" type="application/xml" href="/sitemap.xml" /><script is:inline type="application/ld+json" set:html={websiteLdText}></script><title>{title}</title>
-
-<!-- Animation & Smooth Scroll Engines (GSAP 3, ScrollTrigger, Lenis, SplitType) -->
-<script is:inline src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
-</head>
-<body data-scroll-container>
-<div id="px-preloader" aria-hidden="true">
-  <div class="preloader-top">
-    <span>PARADOX</span>
-    <span>OBSERVABILITY</span>
-  </div>
-  <div class="preloader-center">
-    <div id="px-preloader-counter">00%</div>
-  </div>
-  <div class="preloader-bottom">
-    <div class="preloader-bar-track">
-      <div id="px-preloader-bar"></div>
-    </div>
-  </div>
-</div>
-<div id="cursor-blob" aria-hidden="true"></div>
-<canvas id="three-canvas" aria-hidden="true"></canvas>
-
-<header class="site-header">
-  <a class="brand" href="/" aria-label="PARADOX home">
-    <span class="brand-mark" aria-hidden="true">PX</span>
-    <span class="brand-name">PARADOX</span>
-  </a>
-  <nav class="site-nav" aria-label="Primary">
-    <a href="/agents/">Discover</a>
-    <a href="/verify/">Verify</a>
-    <a href="/compare/">Compare</a>
-    <a href="/trending/">Signals</a>
-    <a href="/ai/">Studio</a>
-    <a href="/about/">About</a>
-  </nav>
-  <div class="header-actions">
-    <button id="sound-toggle-btn" class="sound-toggle-btn" type="button" aria-pressed="false" aria-label="Toggle sound">
-      <canvas id="sound-toggle-wave" class="sound-toggle-wave" width="22" height="12"></canvas>
-      <span id="sound-toggle-label">SOUND</span>
-    </button>
-    <a class="header-search-btn" href="/agents/" title="Search public agents (⌘K or /)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <span>Search</span>
-      <kbd>⌘K</kbd>
-    </a>
-    <a class="btn btn-ghost btn-sm auth-state-pending" href="/auth/" data-auth-link>Sign in</a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-    </button>
-  </div>
-  <nav class="mobile-nav" id="mobileNav">
-    <a href="/agents/">Discover</a>
-    <a href="/verify/">Verify</a>
-    <a href="/compare/">Compare</a>
-    <a href="/trending/">Signals</a>
-    <a href="/ai/">Studio</a>
-    <a href="/about/">About</a>
-    <a href="/auth/" data-auth-link class="auth-state-pending">Sign in</a>
-  </nav>
-</header>
-
+<!doctype html><html lang="en"><head>
+<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-5V0LJN6HTS"></script><script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments)}gtag('config','G-5V0LJN6HTS');</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="theme-color" content="#0a0a0a"/><meta name="application-name" content="PARADOX"/><meta name="author" content="PARADOX"/><meta name="description" content={description}/><meta name="robots" content={robots}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:type" content="website"/><meta property="og:site_name" content="PARADOX"/><meta property="og:locale" content="en_US"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={description}/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/mona-sans@5.1.0/index.min.css"/><link rel="canonical" href={canonical}/><link rel="sitemap" type="application/xml" href="/sitemap.xml"/><script is:inline type="application/ld+json" set:html={websiteLdText}></script><title>{title}</title>
+<script is:inline src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script><script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script><script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script><script is:inline src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script><script is:inline src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+</head><body data-scroll-container>
+<div id="px-preloader" aria-hidden="true"><div class="preloader-top"><span>PARADOX</span><span>OBSERVABILITY</span></div><div class="preloader-center"><div id="px-preloader-counter">00%</div></div><div class="preloader-bottom"><div class="preloader-bar-track"><div id="px-preloader-bar"></div></div></div></div>
+<div id="cursor-blob" aria-hidden="true"></div><canvas id="three-canvas" aria-hidden="true"></canvas>
+<header class="site-header"><a class="brand" href="/" aria-label="PARADOX home"><span class="brand-mark" aria-hidden="true">PX</span><span class="brand-name">PARADOX</span></a><nav class="site-nav" aria-label="Primary"><a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Signals</a><a href="/ai/">Studio</a><a href="/about/">About</a></nav><div class="header-actions"><button id="sound-toggle-btn" class="sound-toggle-btn" type="button" aria-pressed="false" aria-label="Toggle sound"><canvas id="sound-toggle-wave" class="sound-toggle-wave" width="22" height="12"></canvas><span id="sound-toggle-label">SOUND</span></button><a class="header-search-btn" href="/agents/" title="Search public agents (⌘K or /)"><span>Search</span><kbd>⌘K</kbd></a><a class="btn btn-ghost btn-sm auth-state-pending" href="/auth/" data-auth-link>Sign in</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation">☰</button></div><nav class="mobile-nav" id="mobileNav"><a href="/agents/">Discover</a><a href="/verify/">Verify</a><a href="/compare/">Compare</a><a href="/trending/">Signals</a><a href="/ai/">Studio</a><a href="/about/">About</a><a href="/auth/" data-auth-link class="auth-state-pending">Sign in</a></nav></header>
 <slot />
-
-<footer class="site-footer pf-footer">
-  <div class="pf-footer-top">
-    <section class="pf-footer-brand">
-      <span class="pf-footer-kicker">PARADOX // OBSERVABLE INTELLIGENCE</span>
-      <strong style="font-size: 32px; line-height: 1.05; font-family: var(--font-display); letter-spacing: -0.02em;">Observable Evidence.<br/><span style="color: var(--accent);">Defensible Decisions.</span></strong>
-      <p style="color: var(--text-secondary); margin-top: 12px; max-width: 440px; font-size: 14px; line-height: 1.6;">Discover, inspect and verify public AI agents and GitHub projects before you depend on them.</p>
-    </section>
-    <nav class="pf-footer-nav" aria-label="Footer navigation">
-      <span class="pf-footer-label">EXPLORE</span>
-      <a href="/agents/">Discover (Atlas)</a>
-      <a href="/verify/">Verify Repository</a>
-      <a href="/compare/">Compare Matrix</a>
-      <a href="/trending/">Signals Stream</a>
-      <a href="/ai/">Developer Studio</a>
-      <a href="/about/">About & Methodology</a>
-      <a href="/privacy/">Privacy Policy</a>
-      <a href="/terms/">Terms of Service</a>
-    </nav>
-    <section class="pf-footer-contact">
-      <span class="pf-footer-label">DEVELOPER</span>
-      <a class="pf-social-card" href="https://www.linkedin.com/in/pradhuman--singh/" rel="me noopener noreferrer" target="_blank" aria-label="Open LinkedIn profile">
-        <span class="pf-social-icon pf-linkedin" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M5.2 8.7h3.1V19H5.2zM6.75 4.5a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0 3.6ZM10.45 8.7h3v1.4h.04c.42-.8 1.45-1.65 2.98-1.65 3.18 0 3.77 2.1 3.77 4.83V19h-3.1v-5.05c0-1.2-.03-2.74-1.67-2.74-1.68 0-1.94 1.31-1.94 2.65V19h-3.08z"/></svg></span>
-        <span><b>LinkedIn</b><small>Developer Profile</small></span>
-        <i>↗</i>
-      </a>
-      <a class="pf-social-card" href="mailto:pradhumansingh196@gmail.com" aria-label="Email Pradhuman Singh">
-        <span class="pf-social-icon pf-gmail" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M3.5 6.3 12 12.7l8.5-6.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.2 17.9V7.1c0-.7.4-1.3 1.1-1.6L12 10.4l6.7-4.9c.7.3 1.1.9 1.1 1.6v10.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4.2 7.2 12 13l7.8-5.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
-        <span><b>Email Direct</b><small>pradhumansingh196@gmail.com</small></span>
-        <i>↗</i>
-      </a>
-    </section>
-  </div>
-  <div class="pf-footer-bottom">
-    <span>© {year} PARADOX INTELLIGENCE</span>
-    <span>Static analysis is evidence-based, not a security certification.</span>
-    <span style="color: var(--accent);">SECURE_CORE // ZERO_EXECUTION</span>
-  </div>
-</footer>
-
-<script>
-  window.addEventListener('keydown', (e) => {
-    if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName))) {
-      e.preventDefault();
-      const localSearch = document.querySelector<HTMLInputElement>('#homeQuery, #query, input[type="search"]');
-      if (localSearch) {
-        localSearch.focus();
-        localSearch.select();
-      } else {
-        window.location.href = '/agents/';
-      }
-    }
-  });
-</script>
-<script>import '../scripts/header-auth.ts';</script>
-<script>import '../scripts/creative-engine.ts';</script>
-<script>
-  if (location.pathname.startsWith('/ai-studio/')) { void import('../scripts/ai-studio-provider.ts'); void import('../scripts/ai-studio-polish.ts'); }
-  if (location.pathname === '/ai/' || location.pathname.startsWith('/utilities/')) { void import('../scripts/ai-tool-polish.ts'); void import('../scripts/ai-tool-inputs.ts'); }
-  if (document.querySelector('[data-mode="bracket"]')) void import('../scripts/generator-hardening.ts');
-  if (document.querySelector('[data-requires-auth]')) void import('../scripts/auth-gate.ts');
-</script>
+<footer class="site-footer pf-footer"><div class="pf-footer-top"><section class="pf-footer-brand"><span class="pf-footer-kicker">PARADOX // OBSERVABLE INTELLIGENCE</span><strong style="font-size:32px;line-height:1.05;font-family:var(--font-display);letter-spacing:-.02em">Observable Evidence.<br/><span style="color:var(--accent)">Defensible Decisions.</span></strong><p style="color:var(--text-secondary);margin-top:12px;max-width:440px;font-size:14px;line-height:1.6">Discover, inspect and verify public AI agents and GitHub projects before you depend on them.</p></section><nav class="pf-footer-nav" aria-label="Footer navigation"><span class="pf-footer-label">EXPLORE</span><a href="/agents/">Discover (Atlas)</a><a href="/verify/">Verify Repository</a><a href="/compare/">Compare Matrix</a><a href="/trending/">Signals Stream</a><a href="/ai/">Developer Studio</a><a href="/about/">About & Methodology</a><a href="/privacy/">Privacy Policy</a><a href="/terms/">Terms of Service</a></nav><section class="pf-footer-contact"><span class="pf-footer-label">DEVELOPER</span><a class="pf-social-card" href="https://www.linkedin.com/in/pradhuman--singh/" rel="me noopener noreferrer" target="_blank">LinkedIn ↗</a><a class="pf-social-card" href="mailto:pradhumansingh196@gmail.com">Email Direct ↗</a></section></div><div class="pf-footer-bottom"><span>© {year} PARADOX INTELLIGENCE</span><span>Static analysis is evidence-based, not a security certification.</span><span style="color:var(--accent)">SECURE_CORE // ZERO_EXECUTION</span></div></footer>
+<script>window.addEventListener('keydown',(e)=>{if((e.key==='k'&&(e.metaKey||e.ctrlKey))||(e.key==='/'&&!['INPUT','TEXTAREA'].includes((e.target as HTMLElement)?.tagName))){e.preventDefault();const localSearch=document.querySelector<HTMLInputElement>('#homeQuery,#query,input[type="search"]');if(localSearch){localSearch.focus();localSearch.select()}else window.location.href='/agents/'}});</script>
+<script>import '../scripts/header-auth.ts';</script><script>import '../scripts/creative-engine.ts';</script><script>if(location.pathname.startsWith('/ai-studio/'))void import('../scripts/ai-studio-provider.ts');if(location.pathname==='/ai/'||location.pathname.startsWith('/utilities/')){void import('../scripts/ai-tool-polish.ts');void import('../scripts/ai-tool-inputs.ts')}if(document.querySelector('[data-mode="bracket"]'))void import('../scripts/generator-hardening.ts');if(document.querySelector('[data-requires-auth]'))void import('../scripts/auth-gate.ts');</script>
 </body></html>
