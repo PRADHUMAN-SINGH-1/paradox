@@ -8,7 +8,7 @@ import blacklist from '../src/data/blacklist.json' with { type: 'json' };
 const base = 'https://paradox.engineer';
 const urls = new Set([
   '/', '/agents/', '/verify/', '/compare/', '/trending/', '/about/', '/contact/', '/privacy/', '/terms/',
-  '/ai/', '/ai-studio/', '/ai-radar/', '/studio/', '/daily/', '/world/', '/use-cases/', '/utilities/',
+  '/ai-studio/', '/daily/', '/world/', '/use-cases/', '/utilities/',
   '/bingo-card-generator/', '/certificate-maker/', '/decision-wheel/', '/raffle-ticket-generator/',
   '/random-team-generator/', '/seating-chart-generator/', '/tournament-bracket-generator/', '/word-search-generator/',
   '/guides/bingo-cards/', '/guides/printables/', '/guides/random-teams/', '/guides/word-searches/',
@@ -17,10 +17,6 @@ const urls = new Set([
 for (const e of catalog) {
   urls.add(`/agents/${e.owner}/${e.repo}/`);
   urls.add(`/categories/${e.category}/`);
-}
-
-for (const tool of aiTools) {
-  urls.add(`/ai/${tool.slug}/`);
 }
 
 for (const tool of utilityOpportunities) {
