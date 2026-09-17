@@ -1,158 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import tools from '../../data/ai-tools.json';
-
-const workflows = [
-  { num: '01', title: 'Resume Tailor', desc: 'Job Description → match score → rewritten resume bullets', href: '/ai-studio/?v=3' },
-  { num: '02', title: 'Interview Coach', desc: 'Target Role → realistic technical questions → answer framework', href: '/ai-studio/?v=3' },
-  { num: '03', title: 'Study Engine', desc: 'Raw Notes → concept flashcards → comprehensive exam pack', href: '/ai-studio/?v=3' },
-  { num: '04', title: 'Content Studio', desc: 'Raw Outline → structured narrative → polished publishable draft', href: '/ai-studio/?v=3' },
-  { num: '05', title: 'Code Fixer', desc: 'Runtime Error / Trace → root cause diagnosis → corrected patch', href: '/ai-studio/?v=3' }
+const workflows=[
+ {num:'01',key:'resume',title:'Resume Tailor',desc:'Job Description → match score → rewritten resume bullets'},
+ {num:'02',key:'interview',title:'Interview Coach',desc:'Target Role → realistic technical questions → answer framework'},
+ {num:'03',key:'study',title:'Study Engine',desc:'Raw Notes → concept flashcards → comprehensive exam pack'},
+ {num:'04',key:'content',title:'Content Studio',desc:'Raw Outline → structured narrative → polished publishable draft'},
+ {num:'05',key:'code',title:'Code Fixer',desc:'Runtime Error / Trace → root cause diagnosis → corrected patch'}
 ];
 ---
-
-<BaseLayout 
-  title="PARADOX AI — Developer Workbench & Free AI Utilities" 
-  description="A practical AI workbench for job applications, interview prep, study, content and code, plus fast developer AI utilities."
-  canonical="https://paradox.engineer/ai/"
->
-  <main class="home-brutalist">
-    <!-- Hero Section -->
-    <section class="hero-cinematic">
-      <div class="hero-inner">
-        <div class="hero-meta-strip">
-          <div class="meta-tag">
-            <span class="dot-pulse"></span>
-            <span>WORKBENCH_ACTIVE // PROTOCOL: ZERO_SERVER_OVERHEAD</span>
-          </div>
-          <div class="meta-coords">18 UTILITIES · BROWSER EXECUTION · 0 TOKEN LOSS</div>
-        </div>
-
-        <div class="hero-headline-wrap">
-          <h1 class="hero-giant-title" data-kinetic data-hero-kinetic>
-            MAKE AI <span class="text-volt">DO THE WORK.</span>
-          </h1>
-        </div>
-
-        <div class="hero-action-grid">
-          <div class="hero-lead-box">
-            <p class="hero-lead-text">
-              Real workflows that return finished artifacts. Jump into high-impact studios for resumes, interviews, study, and code repair, or use focused browser-based developer utilities for tokens, prompts, and data transforms.
-            </p>
-            <div class="hero-cta-row">
-              <a href="/ai-studio/?v=3" class="btn btn-emerald" data-cursor="STUDIO">
-                <span>Launch AI Studio Workspace ↗</span>
-              </a>
-              <a href="#toolkit" class="btn btn-ghost" data-cursor="TOOLS">
-                <span>Explore Developer Utilities ↓</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="hero-search-box">
-            <div class="hud-container hud-corners">
-              <div class="hud-header">
-                <div class="hud-title">
-                  <span class="dot-pulse"></span>
-                  <span>[ CORE_WORKBENCH_CAPABILITIES ]</span>
-                </div>
-                <div class="hud-status-badge">ONLINE // ACTIVE</div>
-              </div>
-              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 16px;">
-                Browser-first processing. All text manipulation, token calculations, JSON conversions, and regex evaluations run locally in your memory space.
-              </p>
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <span class="chip chip-accent">RESUME TAILOR</span>
-                <span class="chip chip-accent">TOKEN ESTIMATOR</span>
-                <span class="chip chip-accent">JSON VALIDATOR</span>
-                <span class="chip chip-accent">PROMPT BUILDER</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Continuous Marquee Ticker -->
-    <div class="marquee-strip" aria-hidden="true">
-      <div class="marquee-content">
-        <span>RESUME <strong>TAILOR</strong></span>
-        <span>INTERVIEW <strong>COACH</strong></span>
-        <span>STUDY <strong>ENGINE</strong></span>
-        <span>CODE <strong>DIAGNOSIS</strong></span>
-        <span>TOKEN <strong>COUNTER</strong></span>
-        <span>PROMPT <strong>DIFF</strong></span>
-        <span>RESUME <strong>TAILOR</strong></span>
-        <span>INTERVIEW <strong>COACH</strong></span>
-        <span>STUDY <strong>ENGINE</strong></span>
-        <span>CODE <strong>DIAGNOSIS</strong></span>
-        <span>TOKEN <strong>COUNTER</strong></span>
-        <span>PROMPT <strong>DIFF</strong></span>
-      </div>
-    </div>
-
-    <!-- Section 02: High-Impact Studios -->
-    <section class="section-brutalist skewable">
-      <div class="section-header-split">
-        <div>
-          <span class="section-kicker">[ 02 // HIGH_IMPACT_STUDIOS ]</span>
-          <h2 class="section-title" data-kinetic>Five workflows people repeat.</h2>
-        </div>
-        <a href="/ai-studio/?v=3" class="btn btn-primary" data-cursor="STUDIO">Open Studio Suite ↗</a>
-      </div>
-
-      <div class="foundations-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-        {workflows.map((wf) => (
-          <a class="foundation-card hud-corners" href={wf.href} data-cursor="LAUNCH" style="text-decoration: none;">
-            <div class="card-num">{wf.num}</div>
-            <span class="card-kicker">STUDIO WORKFLOW</span>
-            <h3>{wf.title}</h3>
-            <p>{wf.desc}</p>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <!-- Section 03: Full Developer AI Toolkit -->
-    <section class="section-brutalist skewable" id="toolkit">
-      <div class="section-header-split">
-        <div>
-          <span class="section-kicker">[ 03 // FOCUSED_UTILITIES ]</span>
-          <h2 class="section-title" data-kinetic>Developer AI Toolkit.</h2>
-        </div>
-        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 700;">{tools.length} TOOLS READY</span>
-      </div>
-
-      <div class="tools-grid">
-        {tools.map((t, i) => (
-          <a class="tool-brutalist-card hud-corners" href={`/ai/${t.slug}/`} data-cursor="OPEN">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 800;">{String(i + 1).padStart(2, '0')} // UTILITY</span>
-              <span class="tool-arrow">↗</span>
-            </div>
-            <strong style="font-size: 19px; font-family: var(--font-display); color: #ffffff; display: block; margin-bottom: 6px;">{t.label}</strong>
-            <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.55;">{t.description}</p>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <!-- Section 04: Live AI Radar CTA -->
-    <section class="section-brutalist skewable">
-      <div class="radar-station-frame hud-corners" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 32px;">
-        <div style="max-width: 680px;">
-          <span class="section-kicker">[ 04 // LIVE_OBSERVABILITY ]</span>
-          <h2 style="font-family: var(--font-display); font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: #ffffff; margin: 8px 0 12px; line-height: 1.05;">
-            Know what the models are doing.
-          </h2>
-          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin: 0;">
-            PARADOX monitors public GitHub agent activity, commit freshness, model telemetry, and static risk signals in real-time.
-          </p>
-        </div>
-        <a href="/ai-radar/" class="btn btn-emerald" data-cursor="RADAR">
-          <span>Launch AI Radar Station ↗</span>
-        </a>
-      </div>
-    </section>
-  </main>
-</BaseLayout>
+<BaseLayout title="PARADOX AI — Developer Workbench & Free AI Utilities" description="A practical AI workbench for job applications, interview prep, study, content and code, plus fast developer AI utilities." canonical="https://paradox.engineer/ai/">
+<main class="home-brutalist">
+<section class="hero-cinematic"><div class="hero-inner"><div class="hero-meta-strip"><div class="meta-tag"><span class="dot-pulse"></span><span>WORKBENCH_ACTIVE // PROTOCOL: ZERO_SERVER_OVERHEAD</span></div><div class="meta-coords">{tools.length} UTILITIES · BROWSER EXECUTION · 0 TOKEN LOSS</div></div><div class="hero-headline-wrap"><h1 class="hero-giant-title" data-kinetic data-hero-kinetic>MAKE AI <span class="text-volt">DO THE WORK.</span></h1></div><div class="hero-action-grid"><div class="hero-lead-box"><p class="hero-lead-text">Five high-impact AI workflows return finished artifacts, while focused browser utilities handle prompts, tokens, JSON, regex, encoding and data transforms locally.</p><div class="hero-cta-row"><a href="/ai-studio/?workflow=resume" class="btn btn-emerald" data-cursor="STUDIO"><span>Launch AI Studio Workspace ↗</span></a><a href="#toolkit" class="btn btn-ghost" data-cursor="TOOLS"><span>Explore Developer Utilities ↓</span></a></div></div><div class="hero-search-box"><div class="hud-container hud-corners"><div class="hud-header"><div class="hud-title"><span class="dot-pulse"></span><span>[ CORE_WORKBENCH_CAPABILITIES ]</span></div><div class="hud-status-badge">ONLINE // ACTIVE</div></div><p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0 0 16px">Browser-first processing. Text manipulation, token calculations, JSON conversions and regex evaluation run locally.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip chip-accent">RESUME TAILOR</span><span class="chip chip-accent">TOKEN ESTIMATOR</span><span class="chip chip-accent">JSON VALIDATOR</span><span class="chip chip-accent">PROMPT BUILDER</span></div></div></div></div></div></div></section>
+<div class="marquee-strip" aria-hidden="true"><div class="marquee-content"><span>RESUME <strong>TAILOR</strong></span><span>INTERVIEW <strong>COACH</strong></span><span>STUDY <strong>ENGINE</strong></span><span>CODE <strong>DIAGNOSIS</strong></span><span>TOKEN <strong>COUNTER</strong></span><span>PROMPT <strong>DIFF</strong></span><span>RESUME <strong>TAILOR</strong></span><span>INTERVIEW <strong>COACH</strong></span><span>STUDY <strong>ENGINE</strong></span><span>CODE <strong>DIAGNOSIS</strong></span><span>TOKEN <strong>COUNTER</strong></span><span>PROMPT <strong>DIFF</strong></span></div></div>
+<section class="section-brutalist skewable"><div class="section-header-split"><div><span class="section-kicker">[ 02 // HIGH_IMPACT_STUDIOS ]</span><h2 class="section-title" data-kinetic>Five workflows people repeat.</h2></div><a href="/ai-studio/?workflow=resume" class="btn btn-primary" data-cursor="STUDIO">Open Studio Suite ↗</a></div><div class="foundations-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">{workflows.map(wf=><a class="foundation-card hud-corners" href={`/ai-studio/?workflow=${wf.key}`} data-cursor="LAUNCH" style="text-decoration:none"><div class="card-num">{wf.num}</div><span class="card-kicker">STUDIO WORKFLOW</span><h3>{wf.title}</h3><p>{wf.desc}</p></a>)}</div></section>
+<section class="section-brutalist skewable" id="toolkit"><div class="section-header-split"><div><span class="section-kicker">[ 03 // FOCUSED_UTILITIES ]</span><h2 class="section-title" data-kinetic>Developer AI Toolkit.</h2></div><span style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:700">{tools.length} TOOLS READY</span></div><div class="tools-grid">{tools.map((t,i)=><a class="tool-brutalist-card hud-corners" href={`/ai/${t.slug}/`} data-cursor="OPEN"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:800">{String(i+1).padStart(2,'0')} // UTILITY</span><span class="tool-arrow">↗</span></div><strong style="font-size:19px;font-family:var(--font-display);color:#fff;display:block;margin-bottom:6px">{t.label}</strong><p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.55">{t.description}</p></a>)}</div></section>
+<section class="section-brutalist skewable"><div class="radar-station-frame hud-corners" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:32px"><div style="max-width:680px"><span class="section-kicker">[ 04 // LIVE_OBSERVABILITY ]</span><h2 style="font-family:var(--font-display);font-size:clamp(32px,4vw,48px);font-weight:800;color:#fff;margin:8px 0 12px;line-height:1.05">Know what the models are doing.</h2><p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin:0">PARADOX monitors public GitHub agent activity, commit freshness, model telemetry, and static risk signals in real-time.</p></div><a href="/ai-radar/" class="btn btn-emerald" data-cursor="RADAR"><span>Launch AI Radar Station ↗</span></a></div></section>
+</main></BaseLayout>
