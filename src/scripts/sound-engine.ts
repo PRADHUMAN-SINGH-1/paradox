@@ -178,7 +178,7 @@ export function initSoundInteractions() {
             const amp = Math.sin(x * 0.3 + phase) * (soundWave.height * 0.35);
             ctx.lineTo(x, mid + amp);
           }
-          ctx.strokeStyle = '#00E5FF';
+          ctx.strokeStyle = '#F2F4F7';
           ctx.lineWidth = 1.2;
           ctx.stroke();
           phase += 0.18;

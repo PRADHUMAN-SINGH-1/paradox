@@ -94,7 +94,7 @@ export class CyberHUD {
           ctx.lineTo(x, mid + amp);
         }
 
-        ctx.strokeStyle = '#00E5FF';
+        ctx.strokeStyle = '#F2F4F7';
         ctx.lineWidth = 1.4;
         ctx.stroke();
 

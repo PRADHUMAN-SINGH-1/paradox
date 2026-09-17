@@ -11,9 +11,9 @@ export class VisualTheme {
       label: '01 // ORIGIN — Editorial Light Gallery',
       progressStart: 0.0,
       progressEnd: 0.08,
-      cameraPosition: [0, 0, 180],
-      cameraTarget: [0, 0, 0],
-      cameraFov: 48,
+      cameraPosition: [-10, 0, 140],
+      cameraTarget: [12, 0, 0],
+      cameraFov: 46,
       transitionType: 'LIGHT_CROSSFADE',
       backgroundColor: 0xEEF0F4,
       isLightTone: true,
@@ -260,7 +260,7 @@ export class VisualTheme {
       lighting: {
         keyColor: 0xCFD5E1,
         keyIntensity: 1.1,
-        rimColor: 0x00E5FF,
+        rimColor: 0x3B5BDB,
         rimIntensity: 0.8,
         ambientColor: 0x080A0E,
         ambientIntensity: 0.5,
@@ -269,7 +269,7 @@ export class VisualTheme {
       material: {
         baseColor: 0x05070A,
         rimColor: 0xCFD5E1,
-        accentColor: 0x00E5FF,
+        accentColor: 0x3B5BDB,
         roughness: 0.2,
         metalness: 0.8,
         displacement: 0.22

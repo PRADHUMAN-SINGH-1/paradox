@@ -10,6 +10,8 @@ import { AssetRegistry } from './AssetRegistry.ts';
 import { SceneTransition } from './SceneTransition.ts';
 import { SceneRegistry } from './SceneRegistry.ts';
 import { VisualComposition } from './VisualComposition.ts';
+import { VisualTimeline } from './VisualTimeline.ts';
+import { MediaManager } from '../media/MediaManager.ts';
 
 declare global {
   interface Window {
@@ -38,9 +40,11 @@ export class VisualDirector {
   private assets: AssetRegistry | null = null;
   private sceneRegistry: SceneRegistry | null = null;
   private transition: SceneTransition | null = null;
+  private timeline: VisualTimeline | null = null;
   private composition: VisualComposition | null = null;
   private envPipeline: EnvironmentPipeline | null = null;
   private postProcessing: PostProcessing | null = null;
+  private mediaManager: MediaManager | null = null;
 
   private scrollProgress = 0;
   private mouseWorld: any = null;
@@ -105,8 +109,11 @@ export class VisualDirector {
 
     this.assets = new AssetRegistry(THREE);
     this.transition = new SceneTransition(THREE);
+    this.timeline = new VisualTimeline();
     this.sceneRegistry = new SceneRegistry(THREE, this.scene, this.assets, budget);
     this.composition = new VisualComposition(THREE, this.camera);
+    this.mediaManager = MediaManager.getInstance();
+    this.mediaManager.bindPageVideos();
 
     // 4. Loading Readiness
     this.loadingManager.notifyRendererReady();
@@ -216,30 +223,32 @@ export class VisualDirector {
     const { delta, elapsed, audioEnergy } = this.clock.tick();
     const budget = this.governor.tick();
 
-    if (this.transition && this.camera && this.sceneRegistry) {
+    if (this.transition && this.camera && this.sceneRegistry && this.timeline) {
       // 1. Mouse Parallax
       this.transition.setParallax(this.clock.mouse.x, this.clock.mouse.y);
 
-      // 2. Evaluate Continuous Scene Transition State
-      const state = this.transition.evaluate(this.scrollProgress);
+      // 2. Evaluate Continuous Scene Transition State via Timeline
+      const keyframe = this.timeline.evaluate(this.scrollProgress, { x: this.clock.mouse.x, y: this.clock.mouse.y });
 
-      // 3. Camera Choreography
-      this.camera.position.set(state.cameraPosition[0], state.cameraPosition[1], state.cameraPosition[2]);
-      this.camera.lookAt(state.cameraTarget[0], state.cameraTarget[1], state.cameraTarget[2]);
-      if (this.camera.fov !== state.cameraFov) {
-        this.camera.fov = state.cameraFov;
+      // 3. Camera Choreography (Position, Target, FOV, Roll)
+      this.camera.position.set(keyframe.camera.x, keyframe.camera.y, keyframe.camera.z);
+      this.camera.lookAt(keyframe.camera.targetX, keyframe.camera.targetY, keyframe.camera.targetZ);
+      this.camera.rotation.z = keyframe.camera.roll;
+
+      if (this.camera.fov !== keyframe.camera.fov) {
+        this.camera.fov = keyframe.camera.fov;
         this.camera.updateProjectionMatrix();
       }
 
       // 4. Background Color Crossfade
       if (this.scene) {
-        this.scene.background.setHex(state.currentBgColor);
+        this.scene.background.setHex(keyframe.theme.bgColor);
       }
 
       // 5. Dynamic Core Material Adaptation
       const coreMat = this.sceneRegistry.getCoreMaterial();
       if (coreMat && coreMat.uniforms) {
-        if (state.isLightTone) {
+        if (keyframe.theme.isLightTone) {
           coreMat.uniforms.uColor.value.setHex(0x181C24);
           coreMat.uniforms.uRimColor.value.setHex(0xFFFFFF);
         } else {
@@ -250,7 +259,7 @@ export class VisualDirector {
 
       // 6. DOM ↔ WebGL Composition Sync
       if (this.composition) {
-        this.composition.updateTheme(state.isLightTone, state.currentBgColor);
+        this.composition.updateTheme(keyframe.theme.isLightTone, keyframe.theme.bgColor);
       }
 
       // 7. Dynamic Scene Geometries and Shader Updates
