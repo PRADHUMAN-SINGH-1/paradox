@@ -49,6 +49,10 @@ export class VisualDirector {
   private scrollProgress = 0;
   private mouseWorld: any = null;
 
+  private reducedMotion = false;
+  private frameCount = 0;
+  private perfWarnings = 0;
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.clock = new VisualClock();
@@ -58,6 +62,10 @@ export class VisualDirector {
     if (typeof window === 'undefined' || !window.THREE) return;
 
     this.isMobile = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
+    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+      this.reducedMotion = e.matches;
+    });
 
     try {
       this.init();
@@ -143,7 +151,14 @@ export class VisualDirector {
           dpr: budget.targetDpr.toFixed(2),
           scrollProgress: this.scrollProgress.toFixed(3)
         };
-      }
+      },
+      getPerformanceInfo: () => ({
+        triangles: this.renderer?.info?.render?.triangles || 0,
+        drawCalls: this.renderer?.info?.render?.calls || 0,
+        textures: this.renderer?.info?.memory?.textures || 0,
+        geometries: this.renderer?.info?.memory?.geometries || 0,
+        programs: this.renderer?.info?.programs?.length || 0
+      })
     };
     window.paradoxVisualDirector = api;
     window.paradoxWebGL = api;
@@ -223,17 +238,44 @@ export class VisualDirector {
     const { delta, elapsed, audioEnergy } = this.clock.tick();
     const budget = this.governor.tick();
 
+    this.frameCount++;
+    if (this.frameCount >= 60) {
+      this.frameCount = 0;
+      if (this.renderer && this.renderer.info) {
+        const info = this.renderer.info;
+        const tri = info.render.triangles;
+        const calls = info.render.calls;
+        const tex = info.memory.textures;
+        if (tri > 500000 || calls > 200 || tex > 50) {
+          console.warn(`[Paradox] High WebGL Resource Usage: Triangles: ${tri}, Draw Calls: ${calls}, Textures: ${tex}`);
+          this.perfWarnings++;
+          if (this.perfWarnings >= 3) {
+            console.warn('[Paradox] Reducing quality tier due to performance warnings.');
+            this.governor.downgradeTier();
+            this.perfWarnings = 0;
+          }
+        } else {
+          this.perfWarnings = Math.max(0, this.perfWarnings - 1);
+        }
+      }
+    }
+
+    this.clock.updateScrollProgress(this.scrollProgress);
+
     if (this.transition && this.camera && this.sceneRegistry && this.timeline) {
       // 1. Mouse Parallax
       this.transition.setParallax(this.clock.mouse.x, this.clock.mouse.y);
 
       // 2. Evaluate Continuous Scene Transition State via Timeline
-      const keyframe = this.timeline.evaluate(this.scrollProgress, { x: this.clock.mouse.x, y: this.clock.mouse.y });
+      const mouseInput = this.reducedMotion
+        ? { x: 0, y: 0 }
+        : { x: this.clock.mouse.x, y: this.clock.mouse.y };
+      const keyframe = this.timeline.evaluate(this.scrollProgress, mouseInput, delta);
 
       // 3. Camera Choreography (Position, Target, FOV, Roll)
       this.camera.position.set(keyframe.camera.x, keyframe.camera.y, keyframe.camera.z);
       this.camera.lookAt(keyframe.camera.targetX, keyframe.camera.targetY, keyframe.camera.targetZ);
-      this.camera.rotation.z = keyframe.camera.roll;
+      this.camera.rotation.z = this.reducedMotion ? 0 : keyframe.camera.roll;
 
       if (this.camera.fov !== keyframe.camera.fov) {
         this.camera.fov = keyframe.camera.fov;
@@ -248,6 +290,9 @@ export class VisualDirector {
       // 5. Dynamic Core Material Adaptation
       const coreMat = this.sceneRegistry.getCoreMaterial();
       if (coreMat && coreMat.uniforms) {
+        if (coreMat.uniforms.uVelocity) {
+          coreMat.uniforms.uVelocity.value = this.clock.scrollVelocity;
+        }
         if (keyframe.theme.isLightTone) {
           coreMat.uniforms.uColor.value.setHex(0x181C24);
           coreMat.uniforms.uRimColor.value.setHex(0xFFFFFF);
@@ -260,6 +305,16 @@ export class VisualDirector {
       // 6. DOM ↔ WebGL Composition Sync
       if (this.composition) {
         this.composition.updateTheme(keyframe.theme.isLightTone, keyframe.theme.bgColor);
+      }
+
+      // 6b. Dynamic Environment Lighting from Timeline
+      if (this.envPipeline) {
+        this.envPipeline.updateExposure(keyframe.lighting.exposure);
+        this.envPipeline.updateLightingIntensity(
+          keyframe.lighting.keyIntensity,
+          keyframe.lighting.rimIntensity,
+          0.5 // accent stays constant
+        );
       }
 
       // 7. Dynamic Scene Geometries and Shader Updates
@@ -275,7 +330,13 @@ export class VisualDirector {
     }
 
     // 8. Explicit Post-Processing Render Pass
-    if (this.postProcessing) {
+    if (this.reducedMotion) {
+      // Reduced motion: skip post-processing, direct render
+      if (this.renderer && this.scene && this.camera) {
+        this.renderer.setRenderTarget(null);
+        this.renderer.render(this.scene, this.camera);
+      }
+    } else if (this.postProcessing) {
       this.postProcessing.render(delta, budget.tier);
     } else if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);

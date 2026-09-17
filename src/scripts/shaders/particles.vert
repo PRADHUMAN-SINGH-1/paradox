@@ -5,7 +5,9 @@ uniform float uTime;
 uniform float uAudio;
 uniform float uBaseSize;
 uniform vec3 uShockwaveOrigin;
-uniform float uShockwaveProgress; // 0.0 to 1.0
+uniform float uShockwaveProgress;
+uniform float uProgress;
+uniform float uIntensity; // 0.0 to 1.0
 
 attribute float aScale;
 attribute vec3 aVelocity;

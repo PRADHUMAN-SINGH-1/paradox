@@ -32,6 +32,9 @@ export interface TimelineKeyframe {
 
 export class VisualTimeline {
   private scenes: SceneDefinition[];
+  private dampedCamera = { x: 0, y: 0, z: 180, targetX: 0, targetY: 0, targetZ: 0, fov: 48, roll: 0 };
+  private scrollVelocity = 0;
+  private lastProgress = 0;
 
   constructor() {
     this.scenes = VisualTheme.SCENES;
@@ -40,7 +43,7 @@ export class VisualTimeline {
   /**
    * Evaluates the continuous timeline state at exact scroll progress [0..1]
    */
-  public evaluate(p: number, mouseParallax = { x: 0, y: 0 }): TimelineKeyframe {
+  public evaluate(p: number, mouseParallax = { x: 0, y: 0 }, delta: number = 0.016): TimelineKeyframe {
     const clampedP = Math.max(0, Math.min(1, p));
     let idx = 0;
 
@@ -64,16 +67,54 @@ export class VisualTimeline {
     const easeT = localT * localT * localT * (localT * (localT * 6 - 15) + 10);
 
     // Camera Travel with pointer parallax & subtle dynamic roll
-    const camX = s0.cameraPosition[0] + (s1.cameraPosition[0] - s0.cameraPosition[0]) * easeT + mouseParallax.x * 6.0;
-    const camY = s0.cameraPosition[1] + (s1.cameraPosition[1] - s0.cameraPosition[1]) * easeT + mouseParallax.y * 6.0;
-    const camZ = s0.cameraPosition[2] + (s1.cameraPosition[2] - s0.cameraPosition[2]) * easeT;
+    let camX = s0.cameraPosition[0] + (s1.cameraPosition[0] - s0.cameraPosition[0]) * easeT + mouseParallax.x * 6.0;
+    let camY = s0.cameraPosition[1] + (s1.cameraPosition[1] - s0.cameraPosition[1]) * easeT + mouseParallax.y * 6.0;
+    let camZ = s0.cameraPosition[2] + (s1.cameraPosition[2] - s0.cameraPosition[2]) * easeT;
 
-    const tgtX = s0.cameraTarget[0] + (s1.cameraTarget[0] - s0.cameraTarget[0]) * easeT;
-    const tgtY = s0.cameraTarget[1] + (s1.cameraTarget[1] - s0.cameraTarget[1]) * easeT;
-    const tgtZ = s0.cameraTarget[2] + (s1.cameraTarget[2] - s0.cameraTarget[2]) * easeT;
+    let tgtX = s0.cameraTarget[0] + (s1.cameraTarget[0] - s0.cameraTarget[0]) * easeT;
+    let tgtY = s0.cameraTarget[1] + (s1.cameraTarget[1] - s0.cameraTarget[1]) * easeT;
+    let tgtZ = s0.cameraTarget[2] + (s1.cameraTarget[2] - s0.cameraTarget[2]) * easeT;
 
-    const fov = s0.cameraFov + (s1.cameraFov - s0.cameraFov) * easeT;
-    const roll = Math.sin(clampedP * Math.PI * 4) * 0.035;
+    let fov = s0.cameraFov + (s1.cameraFov - s0.cameraFov) * easeT;
+    let roll = Math.sin(clampedP * Math.PI * 4) * 0.035;
+
+    // Per-scene camera motion modifiers
+    if (s0.id === 'ORIGIN') {
+      camX += Math.sin(clampedP * Math.PI * 2) * 2;
+    } else if (s0.id === 'CORE') {
+      camX += Math.cos(clampedP * Math.PI * 4) * 4;
+      camZ -= 10;
+    } else if (s0.id === 'TOPOLOGY') {
+      camZ += Math.sin(clampedP * Math.PI) * -20;
+      roll += 0.05;
+    } else if (s0.id === 'VERIFY') {
+      roll = 0;
+    } else if (s0.id === 'TUNNEL') {
+      camZ -= easeT * 50;
+      fov = 30;
+    } else if (s0.id === 'VOID') {
+      camZ += easeT * 20;
+    }
+
+    this.scrollVelocity = Math.abs(p - this.lastProgress) / Math.max(0.001, delta);
+    this.lastProgress = p;
+    const shake = Math.min(this.scrollVelocity * 0.5, 0.8);
+    
+    if (shake > 0.01) {
+      camX += (Math.random() - 0.5) * shake;
+      camY += (Math.random() - 0.5) * shake;
+    }
+
+    // Apply exponential damping
+    const damp = 1 - Math.exp(-3.5 * delta);
+    this.dampedCamera.x += (camX - this.dampedCamera.x) * damp;
+    this.dampedCamera.y += (camY - this.dampedCamera.y) * damp;
+    this.dampedCamera.z += (camZ - this.dampedCamera.z) * damp;
+    this.dampedCamera.targetX += (tgtX - this.dampedCamera.targetX) * damp;
+    this.dampedCamera.targetY += (tgtY - this.dampedCamera.targetY) * damp;
+    this.dampedCamera.targetZ += (tgtZ - this.dampedCamera.targetZ) * damp;
+    this.dampedCamera.fov += (fov - this.dampedCamera.fov) * damp;
+    this.dampedCamera.roll += (roll - this.dampedCamera.roll) * damp;
 
     // Lighting interpolation
     const exp = s0.lighting.exposure + (s1.lighting.exposure - s0.lighting.exposure) * easeT;
@@ -88,14 +129,14 @@ export class VisualTimeline {
       sceneIndex: idx,
       localProgress: easeT,
       camera: {
-        x: camX,
-        y: camY,
-        z: camZ,
-        targetX: tgtX,
-        targetY: tgtY,
-        targetZ: tgtZ,
-        fov,
-        roll
+        x: this.dampedCamera.x,
+        y: this.dampedCamera.y,
+        z: this.dampedCamera.z,
+        targetX: this.dampedCamera.targetX,
+        targetY: this.dampedCamera.targetY,
+        targetZ: this.dampedCamera.targetZ,
+        fov: this.dampedCamera.fov,
+        roll: this.dampedCamera.roll
       },
       lighting: {
         exposure: exp,

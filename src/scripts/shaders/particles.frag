@@ -2,6 +2,8 @@
 // Smooth circular point rendering with soft alpha glow
 
 uniform float uAudio;
+uniform float uProgress;
+uniform float uIntensity;
 
 varying vec3 vColor;
 varying float vAlpha;

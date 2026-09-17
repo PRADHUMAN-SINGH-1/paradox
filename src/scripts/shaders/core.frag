@@ -8,6 +8,12 @@ uniform vec3 uHealthColor;
 uniform float uHealth;
 uniform float uAudio;
 uniform float uRoughness;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
+uniform float uVelocity;
+uniform float uHover;
+uniform float uIntensity;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -44,6 +50,9 @@ void main() {
   // Soft rim highlight on extreme grazing angles
   float grazingHighlight = pow(1.0 - NdotV, 6.0) * 0.5;
   finalColor += vec3(grazingHighlight);
+
+  float hoverGlow = uHover * 0.4;
+  finalColor += uRimColor * hoverGlow * fresnelVal;
   
   // Opacity: high density center, translucent edge
   float alpha = clamp(0.75 + fresnelVal * 0.25, 0.0, 1.0);

@@ -83,6 +83,12 @@ export class PrecisionCursor {
   private currentX = -200;
   private currentY = -200;
 
+  private factor = 0.22;
+  private velocityX = 0;
+  private velocityY = 0;
+  private hoveredElement: HTMLElement | null = null;
+  private isClicking = false;
+
   constructor() {
     this.isFinePointer = typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches;
     if (!this.isFinePointer) return;
@@ -120,10 +126,12 @@ export class PrecisionCursor {
     }, { passive: true });
 
     window.addEventListener('pointerdown', () => {
+      this.isClicking = true;
       this.blob?.classList.add('is-clicking');
     });
 
     window.addEventListener('pointerup', () => {
+      this.isClicking = false;
       this.blob?.classList.remove('is-clicking');
     });
 
@@ -139,6 +147,15 @@ export class PrecisionCursor {
     document.addEventListener('mouseover', (e) => {
       const target = (e.target as HTMLElement)?.closest('[data-cursor], a, button, input, .card-interactive, .spotlight-card, .hero-3d-stage');
       if (target && this.blob) {
+        this.hoveredElement = target as HTMLElement;
+        const tagName = target.tagName.toLowerCase();
+
+        if (tagName === 'a') {
+          this.blob.classList.add('is-link');
+        } else if (tagName === 'input' || tagName === 'textarea') {
+          this.blob.classList.add('is-input');
+        }
+
         const cursorText = target.getAttribute('data-cursor');
         if (cursorText && this.label) {
           this.label.textContent = cursorText;
@@ -154,21 +171,51 @@ export class PrecisionCursor {
     document.addEventListener('mouseout', (e) => {
       const target = (e.target as HTMLElement)?.closest('[data-cursor], a, button, input, .card-interactive, .spotlight-card, .hero-3d-stage');
       if (target && this.blob) {
-        this.blob.classList.remove('is-hovered');
-        this.blob.classList.remove('has-label');
+        this.hoveredElement = null;
+        this.blob.classList.remove('is-hovered', 'has-label', 'is-link', 'is-input');
         if (this.label) this.label.textContent = '';
       }
     });
   }
 
   private loop = () => {
-    // Smooth LERP (linear interpolation at 120fps)
-    const factor = 0.22;
-    this.currentX += (this.mouseX - this.currentX) * factor;
-    this.currentY += (this.mouseY - this.currentY) * factor;
+    let targetX = this.mouseX;
+    let targetY = this.mouseY;
+
+    // Magnetic snap to buttons
+    if (this.hoveredElement && (this.hoveredElement.tagName.toLowerCase() === 'button' || this.hoveredElement.classList.contains('btn'))) {
+      const rect = this.hoveredElement.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const dx = this.mouseX - centerX;
+      const dy = this.mouseY - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 40) {
+        targetX -= dx * 0.2;
+        targetY -= dy * 0.2;
+      }
+    }
+
+    // Dynamic LERP factor
+    const targetFactor = this.isClicking ? 0.35 : 0.22;
+    this.factor += (targetFactor - this.factor) * 0.1;
+
+    // Smooth LERP
+    const dx = targetX - this.currentX;
+    const dy = targetY - this.currentY;
+    this.currentX += dx * this.factor;
+    this.currentY += dy * this.factor;
+
+    // Velocity stretch
+    this.velocityX = dx * this.factor;
+    this.velocityY = dy * this.factor;
+    const velocity = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+    
+    const scale = Math.min(Math.max(velocity * 0.02, 1), 1.5);
+    const angle = Math.atan2(this.velocityY, this.velocityX) * (180 / Math.PI);
 
     if (this.blob) {
-      this.blob.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
+      this.blob.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0) rotate(${angle}deg) scaleX(${scale})`;
     }
 
     this.animId = requestAnimationFrame(this.loop);

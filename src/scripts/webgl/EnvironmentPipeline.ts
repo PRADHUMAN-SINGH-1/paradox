@@ -7,6 +7,10 @@ export class EnvironmentPipeline {
   private scene: any;
   private pmremGenerator: any = null;
 
+  private keyLight: any = null;
+  private rimLight: any = null;
+  private accentLight: any = null;
+
   constructor(threeInstance: any, renderer: any, scene: any) {
     this.THREE = threeInstance;
     this.renderer = renderer;
@@ -32,19 +36,19 @@ export class EnvironmentPipeline {
 
     // 3. Editorial Architectural Lighting (Neutral Restraint)
     // Key directional light: crisp architectural white
-    const keyLight = new this.THREE.DirectionalLight(0xF2F4F7, 1.1);
-    keyLight.position.set(35, 45, 40);
-    this.scene.add(keyLight);
+    this.keyLight = new this.THREE.DirectionalLight(0xF2F4F7, 1.1);
+    this.keyLight.position.set(35, 45, 40);
+    this.scene.add(this.keyLight);
 
     // Subtle cool rim light: pale lavender-slate
-    const rimLight = new this.THREE.DirectionalLight(0xCFD5E1, 0.85);
-    rimLight.position.set(-35, -20, -30);
-    this.scene.add(rimLight);
+    this.rimLight = new this.THREE.DirectionalLight(0xCFD5E1, 0.85);
+    this.rimLight.position.set(-35, -20, -30);
+    this.scene.add(this.rimLight);
 
     // Data accent light: calibrated cobalt (subtle)
-    const accentLight = new this.THREE.PointLight(0x3B5BDB, 0.5, 120);
-    accentLight.position.set(0, -25, 20);
-    this.scene.add(accentLight);
+    this.accentLight = new this.THREE.PointLight(0x3B5BDB, 0.5, 120);
+    this.accentLight.position.set(0, -25, 20);
+    this.scene.add(this.accentLight);
 
     // Ambient deep charcoal fill
     const ambientLight = new this.THREE.AmbientLight(0x0A0D12, 0.7);
@@ -52,6 +56,18 @@ export class EnvironmentPipeline {
 
     // 4. Generate Synthetic Neutral Studio Reflection Map via PMREMGenerator
     this.generateSyntheticEnvironment();
+  }
+
+  public updateExposure(exposure: number) {
+    if (this.renderer) {
+      this.renderer.toneMappingExposure = exposure;
+    }
+  }
+
+  public updateLightingIntensity(key: number, rim: number, accent: number) {
+    if (this.keyLight) this.keyLight.intensity = key;
+    if (this.rimLight) this.rimLight.intensity = rim;
+    if (this.accentLight) this.accentLight.intensity = accent;
   }
 
   /**
@@ -72,12 +88,13 @@ export class EnvironmentPipeline {
         const grad = ctx.createLinearGradient(0, 0, 0, 256);
         grad.addColorStop(0.0, '#040507');
         grad.addColorStop(0.4, '#0a0d11');
-        grad.addColorStop(0.7, '#13171e');
+        grad.addColorStop(0.5, '#181b22'); // horizon
+        grad.addColorStop(0.6, '#0f1217'); // ground reflection
         grad.addColorStop(1.0, '#020304');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, 512, 256);
 
-        // Neutral monochrome studio softbox highlights
+        // Multiple softbox positions
         ctx.fillStyle = 'rgba(242, 244, 247, 0.22)';
         ctx.beginPath();
         ctx.arc(140, 70, 65, 0, Math.PI * 2);
@@ -87,6 +104,20 @@ export class EnvironmentPipeline {
         ctx.beginPath();
         ctx.arc(380, 80, 55, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.beginPath();
+        ctx.arc(256, 40, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rim light strip
+        const rimGrad = ctx.createLinearGradient(0, 220, 512, 220);
+        rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        rimGrad.addColorStop(0.2, 'rgba(200, 210, 230, 0.2)');
+        rimGrad.addColorStop(0.8, 'rgba(200, 210, 230, 0.2)');
+        rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = rimGrad;
+        ctx.fillRect(0, 210, 512, 20);
 
         const texture = new this.THREE.CanvasTexture(canvas);
         texture.mapping = this.THREE.EquirectangularReflectionMapping;

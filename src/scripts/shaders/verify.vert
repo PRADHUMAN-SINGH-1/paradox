@@ -2,6 +2,9 @@
 
 uniform float uTime;
 uniform float uScanProgress;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uVelocity;
 
 varying vec2 vUv;
 varying vec3 vNormal;

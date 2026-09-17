@@ -12,6 +12,7 @@ export class SceneRegistry {
   private rootScene: any;
   private assets: AssetRegistry;
   private instanceManager: InstanceManager | null = null;
+  private prevP: number = 0;
 
   // 11 Scene Groups
   private groupOrigin: any = null;
@@ -116,7 +117,13 @@ export class SceneRegistry {
         uColor: { value: new this.THREE.Color(0x181C24) },       // Sculptural carbon graphite
         uRimColor: { value: new this.THREE.Color(0xFFFFFF) },    // Platinum specular highlight
         uHealthColor: { value: new this.THREE.Color(0x38D9A9) }, // Clinical mint
-        uRoughness: { value: 0.25 }
+        uRoughness: { value: 0.25 },
+        uProgress: { value: 0 },
+        uResolution: { value: new this.THREE.Vector2(typeof window !== "undefined" ? window.innerWidth : 1920, typeof window !== "undefined" ? window.innerHeight : 1080) },
+        uScroll: { value: 0 },
+        uVelocity: { value: 0 },
+        uHover: { value: 0 },
+        uIntensity: { value: 1.0 }
       },
       transparent: true,
       side: this.THREE.DoubleSide
@@ -324,7 +331,17 @@ export class SceneRegistry {
     manualRotation: { x: number; y: number },
     mouse: { x: number; y: number }
   ) {
+    
     const calc = SceneTransition.calculateSceneWeight;
+
+    // Calculate velocity and scroll
+    const safeDelta = _delta > 0 ? _delta : 0.016;
+    const currentVelocity = (p - this.prevP) / safeDelta;
+    this.prevP = p;
+    const currentScroll = typeof window !== 'undefined' ? window.scrollY : 0;
+    const resX = typeof window !== 'undefined' ? window.innerWidth : 1920;
+    const resY = typeof window !== 'undefined' ? window.innerHeight : 1080;
+
 
     // 01: ORIGIN (0.00 - 0.12)
     const wOrigin = calc(p, 0.00, 0.10);
@@ -358,6 +375,12 @@ export class SceneRegistry {
           this.coreMaterial.uniforms.uTime.value = elapsed;
           this.coreMaterial.uniforms.uAudio.value = audio;
           this.coreMaterial.uniforms.uMouse.value.copy(mouseWorld);
+          this.coreMaterial.uniforms.uProgress.value = p;
+          this.coreMaterial.uniforms.uResolution.value.set(resX, resY);
+          this.coreMaterial.uniforms.uScroll.value = currentScroll;
+          this.coreMaterial.uniforms.uVelocity.value = currentVelocity;
+          this.coreMaterial.uniforms.uHover.value = 0; // Default 0
+          this.coreMaterial.uniforms.uIntensity.value = 1.0;
         }
       }
     }
@@ -395,6 +418,9 @@ export class SceneRegistry {
           this.verifyMaterial.uniforms.uTime.value = elapsed;
           this.verifyMaterial.uniforms.uAudio.value = audio;
           this.verifyMaterial.uniforms.uScanProgress.value = (Math.sin(elapsed * 1.5) + 1.0) / 2.0;
+          this.verifyMaterial.uniforms.uProgress.value = p;
+          this.verifyMaterial.uniforms.uResolution.value.set(resX, resY);
+          this.verifyMaterial.uniforms.uVelocity.value = currentVelocity;
         }
       }
     }

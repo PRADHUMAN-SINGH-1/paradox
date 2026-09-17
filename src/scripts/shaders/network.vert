@@ -4,6 +4,9 @@
 uniform float uTime;
 uniform float uAudio;
 uniform float uPulseSpeed;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
 
 attribute float aLineProgress;
 attribute vec3 aInstanceStart;

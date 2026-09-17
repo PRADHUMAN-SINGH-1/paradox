@@ -6,6 +6,9 @@ uniform vec3 uBaseColor;
 uniform vec3 uPulseColor;
 uniform float uPulseWidth;
 uniform float uAudio;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
 
 varying vec2 vUv;
 varying float vProgress;

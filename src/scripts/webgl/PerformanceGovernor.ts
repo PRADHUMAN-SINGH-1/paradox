@@ -116,4 +116,17 @@ export class PerformanceGovernor {
   public getTier(): QualityTier {
     return this.currentTier;
   }
+
+  /**
+   * Force a quality tier downgrade (called by VisualDirector performance monitoring)
+   */
+  public downgradeTier() {
+    if (this.currentTier === 'HIGH') {
+      this.currentTier = 'MEDIUM';
+    } else if (this.currentTier === 'MEDIUM') {
+      this.currentTier = 'LOW';
+    }
+    this.consecutiveLowFrames = 0;
+    this.consecutiveHighFrames = 0;
+  }
 }

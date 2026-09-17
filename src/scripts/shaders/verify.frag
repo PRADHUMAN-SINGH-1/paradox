@@ -6,6 +6,9 @@ uniform float uScanProgress; // 0.0 to 1.0
 uniform vec3 uScanColor;    // #00E5FF
 uniform vec3 uVerifiedColor;// #59FF9A
 uniform float uAudio;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uVelocity;
 
 varying vec2 vUv;
 varying vec3 vNormal;
@@ -14,7 +17,7 @@ varying vec3 vViewPosition;
 
 void main() {
   // Laser line position moving along Y or X
-  float laserPos = uScanProgress;
+  float laserPos = uScanProgress + (uVelocity * 0.5);
   float distToLaser = abs(vUv.y - laserPos);
   
   // Razor-sharp laser line

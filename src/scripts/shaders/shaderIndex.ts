@@ -92,6 +92,12 @@ uniform vec3 uMouse;
 uniform float uMouseRadius;
 uniform float uMouseStrength;
 uniform float uHealth;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
+uniform float uVelocity;
+uniform float uHover;
+uniform float uIntensity;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -117,7 +123,8 @@ void main() {
   float healthJitter = (1.0 - clamp(uHealth, 0.0, 1.0)) * 0.15 * snoise(pos * 10.0 + vec3(uTime * 2.0));
   disp += healthJitter;
   
-  pos += normal * disp;
+  float velocityWarp = uVelocity * 0.3;
+  pos += normal * disp * (1.0 + velocityWarp);
   vec4 worldPos = modelMatrix * vec4(pos, 1.0);
   
   float distToMouse = length(worldPos.xyz - uMouse);
@@ -146,6 +153,12 @@ uniform vec3 uHealthColor;
 uniform float uHealth;
 uniform float uAudio;
 uniform float uRoughness;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
+uniform float uVelocity;
+uniform float uHover;
+uniform float uIntensity;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -173,6 +186,9 @@ void main() {
   vec3 finalColor = baseColor + (dynamicRim * (fresnelVal * 1.5 + pulseLine));
   float grazingHighlight = pow(1.0 - NdotV, 6.0) * 0.5;
   finalColor += vec3(grazingHighlight);
+
+  float hoverGlow = uHover * 0.4;
+  finalColor += uRimColor * hoverGlow * fresnelVal;
   
   float alpha = clamp(0.75 + fresnelVal * 0.25, 0.0, 1.0);
   gl_FragColor = vec4(finalColor, alpha);
@@ -183,6 +199,9 @@ export const NetworkVert = `
 uniform float uTime;
 uniform float uAudio;
 uniform float uPulseSpeed;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
 
 attribute float aLineProgress;
 attribute vec3 aInstanceStart;
@@ -214,6 +233,9 @@ uniform vec3 uBaseColor;
 uniform vec3 uPulseColor;
 uniform float uPulseWidth;
 uniform float uAudio;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
 
 varying vec2 vUv;
 varying float vProgress;
@@ -242,6 +264,8 @@ export const EvidenceVert = `
 uniform float uTime;
 uniform float uAudio;
 uniform vec3 uHoveredId;
+uniform float uProgress;
+uniform float uHover;
 
 attribute vec3 aInstanceColor;
 attribute float aHealth;
@@ -284,6 +308,8 @@ export const EvidenceFrag = `
 uniform float uTime;
 uniform vec3 uVoidColor;
 uniform float uAudio;
+uniform float uProgress;
+uniform float uHover;
 
 varying vec2 vUv;
 varying vec3 vNormal;
@@ -328,6 +354,9 @@ void main() {
 export const VerifyVert = `
 uniform float uTime;
 uniform float uScanProgress;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uVelocity;
 
 varying vec2 vUv;
 varying vec3 vNormal;
@@ -351,6 +380,9 @@ uniform float uScanProgress;
 uniform vec3 uScanColor;
 uniform vec3 uVerifiedColor;
 uniform float uAudio;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uVelocity;
 
 varying vec2 vUv;
 varying vec3 vNormal;
@@ -358,7 +390,7 @@ varying vec3 vPosition;
 varying vec3 vViewPosition;
 
 void main() {
-  float laserPos = uScanProgress;
+  float laserPos = uScanProgress + (uVelocity * 0.5);
   float distToLaser = abs(vUv.y - laserPos);
   
   float laserLine = smoothstep(0.015, 0.0, distToLaser);
@@ -388,6 +420,8 @@ uniform float uAudio;
 uniform float uBaseSize;
 uniform vec3 uShockwaveOrigin;
 uniform float uShockwaveProgress;
+uniform float uProgress;
+uniform float uIntensity;
 
 attribute float aScale;
 attribute vec3 aVelocity;
@@ -424,6 +458,8 @@ void main() {
 
 export const ParticlesFrag = `
 uniform float uAudio;
+uniform float uProgress;
+uniform float uIntensity;
 
 varying vec3 vColor;
 varying float vAlpha;

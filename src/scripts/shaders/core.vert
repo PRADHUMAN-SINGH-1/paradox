@@ -8,6 +8,12 @@ uniform vec3 uMouse;
 uniform float uMouseRadius;
 uniform float uMouseStrength;
 uniform float uHealth;
+uniform float uProgress;
+uniform vec2 uResolution;
+uniform float uScroll;
+uniform float uVelocity;
+uniform float uHover;
+uniform float uIntensity;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -87,7 +93,8 @@ void main() {
   float healthJitter = (1.0 - clamp(uHealth, 0.0, 1.0)) * 0.15 * snoise(pos * 10.0 + vec3(uTime * 2.0));
   disp += healthJitter;
   
-  pos += normal * disp;
+  float velocityWarp = uVelocity * 0.3;
+  pos += normal * disp * (1.0 + velocityWarp);
   
   // World position calculation
   vec4 worldPos = modelMatrix * vec4(pos, 1.0);

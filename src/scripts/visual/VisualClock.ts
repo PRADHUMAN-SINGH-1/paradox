@@ -9,11 +9,17 @@ export class VisualClock {
 
   // Pointer & Inertia State
   public mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+  public mouseVelocity = { x: 0, y: 0 };
+  private prevMouse = { x: 0, y: 0 };
+  
   public manualRotation = { x: 0.1, y: 0.2 };
   public angularVelocity = { x: 0, y: 0 };
   public isDragging: boolean = false;
   public lastPointerX: number = 0;
   public lastPointerY: number = 0;
+  
+  public scrollVelocity = 0;
+  private prevScrollProgress = 0;
 
   constructor() {
     this.lastTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
@@ -30,6 +36,11 @@ export class VisualClock {
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.08;
     this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.08;
 
+    this.mouseVelocity.x = this.mouse.x - this.prevMouse.x;
+    this.mouseVelocity.y = this.mouse.y - this.prevMouse.y;
+    this.prevMouse.x = this.mouse.x;
+    this.prevMouse.y = this.mouse.y;
+
     // Inertial rotation damping
     if (!this.isDragging) {
       this.angularVelocity.x *= 0.94;
@@ -45,5 +56,10 @@ export class VisualClock {
 
   public getElapsed(): number {
     return this.elapsed;
+  }
+
+  public updateScrollProgress(p: number) {
+    this.scrollVelocity = Math.abs(p - this.prevScrollProgress) / 0.016;
+    this.prevScrollProgress = p;
   }
 }

@@ -4,6 +4,8 @@
 uniform float uTime;
 uniform float uAudio;
 uniform vec3 uHoveredId;
+uniform float uProgress;
+uniform float uHover;
 
 attribute vec3 aInstanceColor;
 attribute float aHealth;

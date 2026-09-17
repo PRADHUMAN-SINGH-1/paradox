@@ -4,6 +4,8 @@
 uniform float uTime;
 uniform vec3 uVoidColor;
 uniform float uAudio;
+uniform float uProgress;
+uniform float uHover;
 
 varying vec2 vUv;
 varying vec3 vNormal;
