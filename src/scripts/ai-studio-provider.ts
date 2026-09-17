@@ -1,91 +1,43 @@
 import { currentUser, supabase } from '../lib/supabase.ts';
 
-type Provider = 'auto' | 'gemini' | 'groq' | 'cerebras' | 'huggingface' | 'ollama';
-
-const samples: Record<string, Record<string, string>> = {
-  resume: { resume: 'Software engineering student. Built React + Node.js applications, REST APIs and PostgreSQL-backed projects.\nProjects: NeighborhoodFit, News Hunger.', jd: 'Software Engineer\nBuild REST APIs, React interfaces, clean JavaScript/TypeScript, Git and database-backed products. Strong debugging and communication skills.', role: 'Software Engineer' },
-  interview: { jd: 'Software Engineer\nReact, JavaScript, REST APIs, PostgreSQL, Git. Expect coding, system fundamentals and behavioural questions.', bg: 'Computer Science student. Full-stack projects using React, Node.js, Express, PostgreSQL and MongoDB. Built and deployed independent products.', stage: 'Technical interview' },
-  study: { topic: 'Database Management Systems — normalization', notes: 'Normalization reduces redundancy and update anomalies. 1NF requires atomic values. 2NF requires 1NF plus no partial dependency on a candidate key. 3NF removes transitive dependency of non-key attributes on a key.', difficulty: 'University exam' },
-  content: { brief: 'Launch announcement for a free developer platform combining AI workflows and practical browser utilities.', audience: 'Developers and students', format: 'LinkedIn post' },
-  code: { code: 'const users = [1, 2, 3];\nconsole.log(users.map(user => user.name));', errorInfo: 'The output is undefined for each item. Explain the root cause and give a corrected version.', language: 'JavaScript' },
+type Provider='auto'|'gemini'|'groq'|'cerebras'|'huggingface'|'ollama';
+type Field=[string,string,'text'|'ta',string,string?];
+const workflows:Record<string,{label:string;title:string;fields:Field[]}>={
+ resume:{label:'RESUME TAILOR',title:'Make the application fit.',fields:[['Your resume','resume','ta','Paste your resume here...'],['Job description','jd','ta','Paste the job description here...'],['Target role','role','text','Software Engineer']]},
+ interview:{label:'INTERVIEW COACH',title:'Train against the actual role.',fields:[['Job description','jd','ta','Paste the job description here...'],['Your background','bg','ta','Projects, experience, skills, education...'],['Interview stage','stage','text','Technical interview']]},
+ study:{label:'STUDY ENGINE',title:'Turn notes into a revision system.',fields:[['Topic or chapter','topic','text','DBMS — normalization'],['Notes / source material','notes','ta','Paste class notes, textbook text or your own notes...'],['Difficulty','difficulty','text','University exam']]},
+ content:{label:'CONTENT STUDIO',title:'Go from idea to publishable draft.',fields:[['Idea / brief','brief','ta','What are you trying to say?'],['Audience','audience','text','College students and young professionals'],['Format','format','text','LinkedIn post']]},
+ code:{label:'CODE FIXER',title:'Understand the bug before you patch it.',fields:[['Code','code','ta','Paste the code that is failing...'],['Error / expected behaviour','errorInfo','ta','Paste the error or explain what should happen.'],['Language','language','text','JavaScript']]}
 };
-
-const prompts: Record<string, (get: (id: string) => string) => string> = {
-  resume: (get) => `Act as an expert ATS resume strategist. Compare the resume against the job description. Return: match score /100 with reasons, missing skills/keywords, rewritten high-impact bullets, tailored professional summary, and exact changes. Never invent experience or credentials.\n\nRESUME:\n${get('resume')}\n\nJOB DESCRIPTION:\n${get('jd')}\n\nTARGET ROLE:\n${get('role')}`,
-  interview: (get) => `Act as a senior interviewer. Create a realistic preparation pack: 8 role-specific questions, what strong answers contain, 3 technical follow-ups, 3 behavioural questions, a tailored 30-second introduction, and 5 red flags to avoid. Ground everything in the supplied evidence.\n\nJOB DESCRIPTION:\n${get('jd')}\n\nBACKGROUND:\n${get('bg')}\n\nSTAGE:\n${get('stage')}`,
-  study: (get) => `Act as a university tutor. Turn the supplied material into a high-retention revision pack: concise explanation, key concepts, formulas/rules where relevant, 12 flashcards, 10 exam questions with answers, common mistakes, and a one-day revision plan. Mark uncertainty clearly.\n\nTOPIC:\n${get('topic')}\n\nMATERIAL:\n${get('notes')}\n\nDIFFICULTY:\n${get('difficulty')}`,
-  content: (get) => `Act as a sharp editor and content strategist. Transform the brief into a publishable ${get('format')}. Give it a strong hook, concrete value, natural human voice, useful structure and a clear ending. Avoid generic AI filler, fake statistics and empty hype. Also provide 3 alternative hooks.\n\nIDEA:\n${get('brief')}\n\nAUDIENCE:\n${get('audience')}`,
-  code: (get) => `Act as a senior ${get('language')} engineer. Diagnose the supplied code and error. Return: root cause, exact corrected code, critical-fix explanation, tests/test cases, and one prevention improvement. Do not rewrite unrelated code.\n\nCODE:\n${get('code')}\n\nERROR / EXPECTED BEHAVIOUR:\n${get('errorInfo')}\n\nLANGUAGE:\n${get('language')}`,
+const samples:Record<string,Record<string,string>>={
+ resume:{resume:'Software engineering student. Built React + Node.js applications, REST APIs and PostgreSQL-backed projects.',jd:'Software Engineer\nBuild REST APIs, React interfaces, Git and database-backed products.',role:'Software Engineer'},
+ interview:{jd:'Software Engineer\nReact, JavaScript, REST APIs, PostgreSQL, Git.',bg:'Computer Science student. Full-stack projects using React, Node.js, Express, PostgreSQL and MongoDB.',stage:'Technical interview'},
+ study:{topic:'Database Management Systems — normalization',notes:'1NF requires atomic values. 2NF removes partial dependency. 3NF removes transitive dependency.',difficulty:'University exam'},
+ content:{brief:'Launch announcement for a developer platform combining AI workflows and browser utilities.',audience:'Developers and students',format:'LinkedIn post'},
+ code:{code:'const users = [1, 2, 3];\nconsole.log(users.map(user => user.name));',errorInfo:'The output is undefined for each item. Diagnose and correct it.',language:'JavaScript'}
 };
-
-function taskFor(flow: string) { return `${flow} AI workflow`; }
-function getValue(root: HTMLElement, id: string) { return (root.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${id}`)?.value || '').trim(); }
-function fillSample(root: HTMLElement, flow: string) { Object.entries(samples[flow] || {}).forEach(([id, value]) => { const el = root.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${id}`); if (el) el.value = value; }); }
-function loginUrl() { const next = `${location.pathname}${location.search}${location.hash}`; return `/auth/?next=${encodeURIComponent(next)}`; }
-
-async function invoke(provider: Provider, flow: string, prompt: string) {
-  if (!supabase) throw new Error('AI service is not configured on this deployment.');
-  const { data: sessionData } = await supabase.auth.getSession();
-  const accessToken = sessionData.session?.access_token;
-  if (!accessToken) throw new Error('Sign in to use PARADOX AI Studio.');
-  const { data, error } = await supabase.functions.invoke('ai-router', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    body: { provider, task: taskFor(flow), prompt, system: 'You are PARADOX AI Studio. Be accurate, concrete and transparent about uncertainty. Never invent credentials, sources, statistics or achievements. Prefer useful output over filler. Structure long answers with clear headings, bullets and code fences where appropriate.' },
-  });
-  if (error) throw new Error(error.message || 'AI router request failed.');
-  if (!data?.text) { const details = Array.isArray(data?.details) ? ` ${data.details.join(' · ')}` : ''; throw new Error((data?.error || 'No AI output returned.') + details); }
-  return data as { text: string; provider: string; latencyMs?: number; attempted?: string[] };
+const promptFor:Record<string,(get:(id:string)=>string)=>string>={
+ resume:g=>`Act as an expert ATS resume strategist. Compare the resume against the job description. Return match score with reasons, missing keywords, rewritten high-impact bullets, tailored summary and exact changes. Never invent experience.\n\nRESUME:\n${g('resume')}\n\nJOB DESCRIPTION:\n${g('jd')}\n\nTARGET ROLE:\n${g('role')}`,
+ interview:g=>`Act as a senior interviewer. Create 8 role-specific questions, strong-answer guidance, 3 technical follow-ups, 3 behavioural questions, a tailored 30-second introduction and 5 pitfalls. Ground everything in the supplied evidence.\n\nJOB DESCRIPTION:\n${g('jd')}\n\nBACKGROUND:\n${g('bg')}\n\nSTAGE:\n${g('stage')}`,
+ study:g=>`Act as a university tutor. Turn the supplied material into a revision pack: concise explanation, key concepts, formulas/rules where relevant, 12 flashcards, 10 exam questions with answers, common mistakes and a one-day revision plan. Do not invent facts.\n\nTOPIC:\n${g('topic')}\n\nMATERIAL:\n${g('notes')}\n\nDIFFICULTY:\n${g('difficulty')}`,
+ content:g=>`Act as a sharp editor. Transform the brief into a publishable ${g('format')} with a strong hook, concrete value, natural voice, useful structure and clear ending. Avoid filler, fake statistics and empty hype. Provide 3 alternative hooks.\n\nIDEA:\n${g('brief')}\n\nAUDIENCE:\n${g('audience')}`,
+ code:g=>`Act as a senior ${g('language')} engineer. Diagnose the supplied code and error. Return root cause, exact corrected code, explanation, tests and one prevention improvement. Do not rewrite unrelated code.\n\nCODE:\n${g('code')}\n\nERROR / EXPECTED BEHAVIOUR:\n${g('errorInfo')}\n\nLANGUAGE:\n${g('language')}`
+};
+function esc(s:unknown){return String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]!));}
+function val(root:HTMLElement,id:string){return (root.querySelector<HTMLInputElement|HTMLTextAreaElement>(`#${id}`)?.value||'').trim()}
+function fieldsHtml(flow:string){return workflows[flow].fields.map(([label,id,type,ph])=>type==='ta'?`<label for="${id}">${label}<textarea id="${id}" placeholder="${esc(ph)}"></textarea></label>`:`<label for="${id}">${label}<input id="${id}" placeholder="${esc(ph)}"></label>`).join('')}
+function loadSample(root:HTMLElement,flow:string){Object.entries(samples[flow]).forEach(([id,v])=>{const el=root.querySelector<HTMLInputElement|HTMLTextAreaElement>(`#${id}`);if(el)el.value=v})}
+function loginUrl(){return `/auth/?next=${encodeURIComponent(location.pathname+location.search+location.hash)}`}
+async function invoke(provider:Provider,flow:string,prompt:string){if(!supabase)throw new Error('AI service is not configured on this deployment.');const {data}=await supabase.auth.getSession();const token=data.session?.access_token;if(!token)throw new Error('Sign in to use PARADOX AI Studio.');const res=await supabase.functions.invoke('ai-router',{headers:{Authorization:`Bearer ${token}`},body:{provider,task:`${flow} AI workflow`,prompt,system:'You are PARADOX AI Studio. Be accurate, concrete and transparent about uncertainty. Never invent credentials, sources, statistics or achievements. Structure useful output with clear headings.'}});if(res.error)throw new Error(res.error.message||'AI router request failed.');if(!res.data?.text)throw new Error(res.data?.error||'No AI output returned.');return res.data as {text:string;provider:string;latencyMs?:number}}
+function init(){const root=document.querySelector<HTMLElement>('.studio');if(!root||root.dataset.controllerReady==='true')return;root.dataset.controllerReady='true';const fields=root.querySelector<HTMLElement>('#fields'),label=root.querySelector<HTMLElement>('#flowLabel'),title=root.querySelector<HTMLElement>('#flowTitle'),status=root.querySelector<HTMLElement>('#status'),result=root.querySelector<HTMLElement>('#result'),empty=root.querySelector<HTMLElement>('#resultEmpty'),error=root.querySelector<HTMLElement>('#error'),provider=root.querySelector<HTMLSelectElement>('#provider'),run=root.querySelector<HTMLButtonElement>('#run'),clear=root.querySelector<HTMLButtonElement>('#clear'),example=root.querySelector<HTMLButtonElement>('#example'),copy=root.querySelector<HTMLButtonElement>('#copy'),download=root.querySelector<HTMLButtonElement>('#download'),metaProvider=root.querySelector<HTMLElement>('.px-result-provider'),metaLatency=root.querySelector<HTMLElement>('.px-result-latency');let current=new URLSearchParams(location.search).get('workflow')||'resume';if(!workflows[current])current='resume';
+ const render=(flow:string,reset=true)=>{current=flow;const w=workflows[flow];label!.textContent=w.label;title!.textContent=w.title;fields!.innerHTML=fieldsHtml(flow);root.querySelectorAll<HTMLButtonElement>('.flow').forEach(b=>b.classList.toggle('active',b.dataset.flow===flow));if(reset){result!.hidden=true;empty!.hidden=false;error!.hidden=true;status!.textContent='READY'}};
+ root.querySelectorAll<HTMLButtonElement>('.flow').forEach(b=>b.addEventListener('click',()=>{render(b.dataset.flow||'resume');history.replaceState(null,'',`/ai-studio/?workflow=${encodeURIComponent(b.dataset.flow||'resume')}`)}));
+ example?.addEventListener('click',()=>{loadSample(root,current);status!.textContent='EXAMPLE LOADED';});
+ clear?.addEventListener('click',()=>render(current));
+ copy?.addEventListener('click',async()=>{if(result!.hidden||!result!.textContent)return;try{await navigator.clipboard.writeText(result!.textContent);status!.textContent='COPIED'}catch{error!.textContent='Clipboard access is blocked. Select the result and copy manually.';error!.hidden=false}});
+ download?.addEventListener('click',()=>{if(result!.hidden)return;const blob=new Blob([result!.textContent||''],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`paradox-${current}-result.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),800)});
+ run?.addEventListener('click',async()=>{const ids=workflows[current].fields.map(x=>x[1]);if(ids.some(id=>!val(root,id))){error!.textContent='Complete all workflow inputs first, or use TRY EXAMPLE.';error!.hidden=false;return}let user:null|Awaited<ReturnType<typeof currentUser>>=null;try{user=await currentUser()}catch{error!.textContent='Authentication could not be checked. Please try again.';error!.hidden=false;return}if(!user){location.href=loginUrl();return}run.disabled=true;run.textContent='RUNNING…';status!.textContent='ROUTING AI';error!.hidden=true;result!.hidden=false;empty!.hidden=true;result!.textContent='Generating a structured result…';const started=performance.now();try{const data=await invoke((provider?.value||'auto') as Provider,current,promptFor[current](id=>val(root,id)));result!.textContent=data.text;status!.textContent=`DONE · ${String(data.provider||'AI').toUpperCase()}`;metaProvider!.textContent=String(data.provider||'AI').toUpperCase();metaLatency!.textContent=`${Math.max(1,Math.round(data.latencyMs||performance.now()-started))}MS · READY TO COPY`;window.gtag?.('event','ai_studio_run',{workflow:current,provider:data.provider})}catch(e){const m=e instanceof Error?e.message:'AI request failed.';if(/sign in/i.test(m)){location.href=loginUrl();return}result!.hidden=true;empty!.hidden=false;error!.textContent=m;error!.hidden=false;status!.textContent='ERROR'}finally{run.disabled=false;run.textContent='RUN AI ↗'}});
+ render(current);
 }
-
-function decorate(root: HTMLElement) {
-  const actions = root.querySelector<HTMLElement>('.actions');
-  if (actions && !root.querySelector('#example')) {
-    const button = document.createElement('button'); button.type = 'button'; button.id = 'example'; button.className = 'btn'; button.textContent = 'TRY EXAMPLE';
-    actions.insertBefore(button, actions.firstChild);
-    button.addEventListener('click', () => { const active = root.querySelector<HTMLElement>('.flow.active'); fillSample(root, active?.dataset.flow || 'resume'); const status = root.querySelector<HTMLElement>('#status'); if (status) status.textContent = 'EXAMPLE LOADED'; });
-  }
-  const result = root.querySelector<HTMLElement>('.result');
-  if (result && !root.querySelector('.px-result-meta')) { const meta = document.createElement('div'); meta.className = 'px-result-meta'; meta.innerHTML = '<span class="px-result-provider">AI</span><span class="px-result-latency">READY</span>'; result.insertBefore(meta, result.firstChild); }
-  if (!root.querySelector('.px-studio-note')) { const card = document.createElement('div'); card.className = 'px-studio-note'; card.innerHTML = '<strong>Built for real work.</strong><span>Your workflow is authenticated. Provider credentials stay server-side.</span>'; root.querySelector('.hero')?.appendChild(card); }
-}
-
-function init() {
-  const root = document.querySelector<HTMLElement>('.studio'); if (!root) return;
-  decorate(root);
-  const oldRun = root.querySelector<HTMLButtonElement>('#run'); if (!oldRun) return;
-  const run = oldRun.cloneNode(true) as HTMLButtonElement; oldRun.replaceWith(run);
-  const status = root.querySelector<HTMLElement>('#status'), result = root.querySelector<HTMLElement>('#result'), empty = root.querySelector<HTMLElement>('#resultEmpty'), err = root.querySelector<HTMLElement>('#error'), provider = root.querySelector<HTMLSelectElement>('#pxProvider, #provider');
-  const resultProvider = root.querySelector<HTMLElement>('.px-result-provider'), resultLatency = root.querySelector<HTMLElement>('.px-result-latency');
-
-  run.addEventListener('click', async () => {
-    let user: Awaited<ReturnType<typeof currentUser>> = null;
-    try { user = await currentUser(); } catch { if (err) { err.textContent = 'Authentication could not be checked. Please try again.'; err.hidden = false; } if (status) status.textContent = 'ERROR'; return; }
-    if (!user) { location.href = loginUrl(); return; }
-    const active = root.querySelector<HTMLElement>('.flow.active'); const flow = active?.dataset.flow || 'resume'; const promptBuilder = prompts[flow]; if (!promptBuilder) return;
-    const fieldIds = Object.keys(samples[flow] || {}); if (fieldIds.some((id) => !getValue(root, id))) { if (err) { err.textContent = 'Complete the workflow inputs first, or use TRY EXAMPLE.'; err.hidden = false; } return; }
-    const selected = (provider?.value || 'auto') as Provider; if (err) err.hidden = true; if (status) status.textContent = 'ROUTING AI'; if (result) { result.hidden = false; result.textContent = 'Generating a structured result…'; } if (empty) empty.hidden = true; run.disabled = true; run.textContent = 'RUNNING…';
-    const started = performance.now();
-    try {
-      const data = await invoke(selected, flow, promptBuilder((id) => getValue(root, id)));
-      if (result) result.textContent = data.text; const latency = Math.max(1, Math.round(data.latencyMs || performance.now() - started));
-      if (status) status.textContent = `DONE · ${String(data.provider || 'AI').toUpperCase()}`; if (resultProvider) resultProvider.textContent = String(data.provider || 'AI').toUpperCase(); if (resultLatency) resultLatency.textContent = `${latency}MS · READY TO COPY`;
-      window.gtag?.('event', 'ai_studio_run', { workflow: flow, provider: data.provider });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'AI request failed.'; if (/sign in/i.test(message)) { location.href = loginUrl(); return; }
-      if (result) result.hidden = true; if (empty) empty.hidden = false; if (err) { err.textContent = message; err.hidden = false; } if (status) status.textContent = 'ERROR'; if (resultProvider) resultProvider.textContent = 'ERROR'; if (resultLatency) resultLatency.textContent = 'CHECK INPUT / SESSION';
-    } finally { run.disabled = false; run.textContent = 'RUN AI ↗'; }
-  });
-
-  document.addEventListener('click', async (event) => {
-    const target = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('#copy') : null;
-    if (!target || !root.contains(target)) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    if (!result || result.hidden) return;
-    try { await navigator.clipboard.writeText(result.textContent || ''); if (status) status.textContent = 'COPIED'; }
-    catch { if (err) { err.textContent = 'Clipboard access is blocked. Select the result and copy it manually.'; err.hidden = false; } }
-  }, true);
-  root.querySelectorAll<HTMLButtonElement>('.flow').forEach((button) => button.addEventListener('click', () => { if (status) status.textContent = 'READY'; }));
-}
-
-init();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+export {};
