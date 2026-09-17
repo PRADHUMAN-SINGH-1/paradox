@@ -24,33 +24,41 @@ export function initPreloader() {
   const target = 100;
   const stepTime = alreadyLoaded ? 3 : 8;
 
+  const finishPreloader = () => {
+    clearInterval(interval);
+    counterEl.textContent = '100%';
+    if (barEl) barEl.style.width = '100%';
+
+    sessionStorage.setItem('px_preloader_seen', 'true');
+
+    // Curtain Shutter Wipe
+    setTimeout(() => {
+      if (window.gsap) {
+        window.gsap.to(preloader, {
+          clipPath: 'inset(0% 0 100% 0)',
+          duration: 0.7,
+          ease: 'power4.inOut',
+          onComplete: () => {
+            preloader.style.display = 'none';
+          }
+        });
+      } else {
+        preloader.style.opacity = '0';
+        preloader.style.pointerEvents = 'none';
+        setTimeout(() => preloader.remove(), 400);
+      }
+    }, 50);
+  };
+
+  // Listen for Hero Ready milestone from WebGL engine
+  window.addEventListener('paradox:hero_ready', () => {
+    finishPreloader();
+  }, { once: true });
+
   const interval = setInterval(() => {
     current += Math.floor(Math.random() * 8) + 4;
     if (current >= target) {
-      current = 100;
-      clearInterval(interval);
-      counterEl.textContent = '100%';
-      if (barEl) barEl.style.width = '100%';
-
-      sessionStorage.setItem('px_preloader_seen', 'true');
-
-      // Curtain Shutter Wipe
-      setTimeout(() => {
-        if (window.gsap) {
-          window.gsap.to(preloader, {
-            clipPath: 'inset(0% 0 100% 0)',
-            duration: 0.8,
-            ease: 'power4.inOut',
-            onComplete: () => {
-              preloader.style.display = 'none';
-            }
-          });
-        } else {
-          preloader.style.opacity = '0';
-          preloader.style.pointerEvents = 'none';
-          setTimeout(() => preloader.remove(), 400);
-        }
-      }, 100);
+      finishPreloader();
     } else {
       counterEl.textContent = `${String(current).padStart(2, '0')}%`;
       if (barEl) barEl.style.width = `${current}%`;

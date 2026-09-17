@@ -6,6 +6,9 @@
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
+  private analyser: AnalyserNode | null = null;
+  private masterGain: GainNode | null = null;
+  private freqData: Uint8Array | null = null;
   private isEnabled = false;
 
   constructor() {
@@ -18,11 +21,28 @@ class SoundEngine {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
+        this.masterGain = this.ctx.createGain();
+        this.analyser = this.ctx.createAnalyser();
+        this.analyser.fftSize = 64;
+        this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
+        this.masterGain.connect(this.analyser);
+        this.analyser.connect(this.ctx.destination);
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume();
     }
+  }
+
+  public getAudioEnergy(): number {
+    if (!this.analyser || !this.freqData || !this.isEnabled) return 0;
+    (this.analyser as any).getByteFrequencyData(this.freqData);
+    let sum = 0;
+    for (let i = 0; i < this.freqData.length; i++) {
+      sum += this.freqData[i];
+    }
+    const avg = sum / this.freqData.length;
+    return Math.min(1.0, avg / 128.0);
   }
 
   public toggle(): boolean {
@@ -40,7 +60,7 @@ class SoundEngine {
   }
 
   public playHover() {
-    if (!this.isEnabled || !this.ctx) return;
+    if (!this.isEnabled || !this.ctx || !this.masterGain) return;
     try {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -54,7 +74,7 @@ class SoundEngine {
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
 
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.masterGain);
 
       osc.start(now);
       osc.stop(now + 0.03);
@@ -65,7 +85,7 @@ class SoundEngine {
 
   public playClick() {
     this.ensureContext();
-    if (!this.isEnabled || !this.ctx) return;
+    if (!this.isEnabled || !this.ctx || !this.masterGain) return;
     try {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -79,7 +99,7 @@ class SoundEngine {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
 
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.masterGain);
 
       osc.start(now);
       osc.stop(now + 0.08);
@@ -89,7 +109,7 @@ class SoundEngine {
   }
 
   public playLaserSweep() {
-    if (!this.isEnabled || !this.ctx) return;
+    if (!this.isEnabled || !this.ctx || !this.masterGain) return;
     try {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -103,7 +123,7 @@ class SoundEngine {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
 
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.masterGain);
 
       osc.start(now);
       osc.stop(now + 0.14);
@@ -158,7 +178,7 @@ export function initSoundInteractions() {
             const amp = Math.sin(x * 0.3 + phase) * (soundWave.height * 0.35);
             ctx.lineTo(x, mid + amp);
           }
-          ctx.strokeStyle = '#d2ff00';
+          ctx.strokeStyle = '#00E5FF';
           ctx.lineWidth = 1.2;
           ctx.stroke();
           phase += 0.18;

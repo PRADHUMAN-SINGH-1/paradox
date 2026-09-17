@@ -1,15 +1,15 @@
-import { initSoundInteractions } from './sound-engine.ts';
-import { initPreloader } from './preloader.ts';
 /**
  * PARADOX Master Creative Engine — Lusion.co & Lando Norris Production Standard
- * Boots 3D WebGL Particle Lattice, Precision Difference Cursor, Lenis Momentum Scroll & Kinetic Reveals.
+ * Boots 3D WebGL Scene, Precision Difference Cursor, Lenis Momentum Scroll, Kinetic Reveals & Media Manager.
  */
 
+import { initSoundInteractions } from './sound-engine.ts';
+import { initPreloader } from './preloader.ts';
 import { PrecisionCursor, initSpotlightCards } from './cursor.ts';
 import { initSmoothScroll } from './scroll.ts';
 import { initKineticText } from './kinetic-text.ts';
 import { ThreeWebGLScene } from './webgl-scene.ts';
-import { FluidCursorCanvas } from './webgl-distortion.ts';
+import { MediaManager } from './media/MediaManager.ts';
 
 declare global {
   interface Window {
@@ -30,7 +30,7 @@ export class CyberHUD {
         <span class="dot-pulse"></span>
         <span>[ ${label} ]</span>
       </div>
-      <div class="hud-status-badge">SECURE_RUN // 120 FPS</div>
+      <div class="hud-status-badge">SECURE_RUN // VERIFIED ENGINE</div>
     `;
 
     const stream = document.createElement('div');
@@ -51,7 +51,7 @@ export class CyberHUD {
       'METRIC_FRESH: commit velocity nominal (>90d delta = 0)',
       'DEP_GRAPH: lockfile parity verified against public registry',
       'ZERO_EXEC: static sandbox boundary confirmed immutable',
-      'PERF_TELEMETRY: render cycle completed in 0.8ms'
+      'PERF_TELEMETRY: frame governor maintaining optimal budget'
     ];
 
     let msgIndex = 0;
@@ -94,7 +94,7 @@ export class CyberHUD {
           ctx.lineTo(x, mid + amp);
         }
 
-        ctx.strokeStyle = '#d2ff00';
+        ctx.strokeStyle = '#00E5FF';
         ctx.lineWidth = 1.4;
         ctx.stroke();
 
@@ -129,7 +129,7 @@ export function initCreativeEngine() {
   // 3. Initialize Kinetic Typography with SplitType
   initKineticText();
 
-  // 4. Initialize Three.js 3D WebGL Particle/Fluid Field (Lusion Tech)
+  // 4. Initialize Three.js 3D WebGL Master Engine
   const threeCanvas = document.querySelector<HTMLCanvasElement>('#three-canvas');
   if (threeCanvas && window.THREE) {
     try {
@@ -139,17 +139,8 @@ export function initCreativeEngine() {
     }
   }
 
-  // 5. Initialize 2D Canvas Fallback / Fluid Ripple Trail
-  if (window.matchMedia('(pointer: fine)').matches) {
-    const fluidCanvas = document.querySelector<HTMLCanvasElement>('#fluid-canvas');
-    if (fluidCanvas) {
-      try {
-        new FluidCursorCanvas(fluidCanvas);
-      } catch (err) {
-        console.warn('Fluid canvas error:', err);
-      }
-    }
-  }
+  // 5. Initialize Media Manager for inline videos
+  MediaManager.getInstance().bindPageVideos();
 
   // 6. ScrollTrigger Section Reveals
   if (window.gsap && window.ScrollTrigger) {

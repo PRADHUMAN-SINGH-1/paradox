@@ -13,14 +13,14 @@ const featuredTools = tools.slice(0, 6);
 >
   <main class="home-brutalist">
     <!-- Chapter 01: High-Contrast Editorial Hero + Interactive 3D Paradox Core Stage -->
-    <section class="hero-cinematic">
+    <section class="hero-cinematic" data-chapter="BOOT">
       <div class="hero-inner">
         <div class="hero-meta-strip">
           <div class="meta-tag">
             <span class="dot-pulse"></span>
             <span>PARADOX // OBSERVABLE INTELLIGENCE PLATFORM</span>
           </div>
-          <div class="meta-coords">PROTOCOL: DETERMINISTIC_EVIDENCE · WEBGL2 · 120 FPS</div>
+          <div class="meta-coords">PROTOCOL: DETERMINISTIC_EVIDENCE · WEBGL2 · VERIFIED</div>
         </div>
 
         <div class="hero-stage-layout">
@@ -67,7 +67,7 @@ const featuredTools = tools.slice(0, 6);
                 <span class="dot-pulse"></span>
                 <span>[ PARADOX CORE ] — EVIDENCE TOPOLOGY</span>
               </div>
-              <div class="stage-badge" id="stageFpsBadge">120 FPS // STABLE</div>
+              <div class="stage-badge" id="stageFpsBadge">ENGINE ACTIVE</div>
             </div>
 
             <!-- Viewport Drag Surface -->
@@ -86,7 +86,7 @@ const featuredTools = tools.slice(0, 6);
                 <button type="button" class="stage-mode-btn" data-mode="tunnel" data-cursor="TUNNEL">03 // TUNNEL</button>
               </div>
               <div class="stage-telemetry">
-                <span id="stageAngles">RX: 11.4° RY: 22.9°</span>
+                <span id="stageAngles">RX: 0.0° RY: 0.0°</span>
                 <button type="button" class="stage-pulse-btn" id="stagePulseBtn" data-cursor="PULSE">PULSE ⟡</button>
               </div>
             </div>
@@ -100,7 +100,7 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Continuous High-Octane Marquee Strip (Lando Norris Signature) -->
+    <!-- Continuous High-Octane Marquee Strip -->
     <div class="marquee-strip" aria-hidden="true">
       <div class="marquee-content">
         <span>PARADOX <strong>INTELLIGENCE</strong></span>
@@ -117,7 +117,7 @@ const featuredTools = tools.slice(0, 6);
     </div>
 
     <!-- Chapter 02: Pinned Horizontal Decision Rail (Evidence Architecture) -->
-    <section class="horizontal-track-wrapper">
+    <section class="horizontal-track-wrapper" data-chapter="OBSERVE">
       <div class="horizontal-track-header">
         <div>
           <span class="section-kicker">[ 02 // EVIDENCE_ARCHITECTURE ]</span>
@@ -171,14 +171,14 @@ const featuredTools = tools.slice(0, 6);
     </section>
 
     <!-- Chapter 03: Tactical Cyber Radar Station & Static Verifier Preview -->
-    <section class="section-brutalist skewable">
+    <section class="section-brutalist skewable" data-chapter="VERIFY">
       <div class="radar-station-frame hud-corners">
         <div class="radar-station-top">
           <div class="radar-station-title">
             <span class="dot-pulse"></span>
             <span>[ 03 // VERIFY_TERMINAL ] — REPOSITORY EVIDENCE SCAN</span>
           </div>
-          <div class="radar-station-meta">AZIMUTH: 184.2° // FREQ: 433.92 MHz // 120 FPS</div>
+          <div class="radar-station-meta">AZIMUTH: 184.2° // FREQ: 433.92 MHz // REALTIME</div>
         </div>
 
         <div class="radar-station-content">
@@ -214,7 +214,7 @@ const featuredTools = tools.slice(0, 6);
               <div class="hud-line"><span class="hud-time">SYSTEM:</span> <span class="hud-glyph">█</span> <span class="hud-msg">PARADOX radar active on 20 public agent categories</span></div>
               <div class="hud-line"><span class="hud-time">SECURITY:</span> <span class="hud-glyph">▓</span> <span class="hud-msg">Zero execution boundary confirmed immutable</span></div>
               <div class="hud-line"><span class="hud-time">ANALYSIS:</span> <span class="hud-glyph">▒</span> <span class="hud-msg">Deterministic GitHub API heuristics verified</span></div>
-              <div class="hud-line"><span class="hud-time">LATENCY:</span> <span class="hud-glyph">░</span> <span class="hud-msg">0.8ms average static evidence resolution</span></div>
+              <div class="hud-line"><span class="hud-time">RESOLUTION:</span> <span class="hud-glyph">░</span> <span class="hud-msg">Sub-second deterministic manifest resolution</span></div>
             </div>
             <div style="margin-top: 20px;">
               <a href="/verify/" class="btn btn-primary" data-cursor="SCAN">
@@ -227,7 +227,7 @@ const featuredTools = tools.slice(0, 6);
     </section>
 
     <!-- Chapter 04: Indexed Agent Atlas (Featured Repositories) -->
-    <section class="section-brutalist skewable">
+    <section class="section-brutalist skewable" data-chapter="ATLAS">
       <div class="section-header-split">
         <div>
           <span class="section-kicker">[ 04 // AGENT_ATLAS_INDEX ]</span>
@@ -255,7 +255,7 @@ const featuredTools = tools.slice(0, 6);
     </section>
 
     <!-- Chapter 05: Practical Developer Studio -->
-    <section class="section-brutalist skewable" id="ai-tools">
+    <section class="section-brutalist skewable" id="ai-tools" data-chapter="STUDIO">
       <div class="section-header-split">
         <div>
           <span class="section-kicker">[ 05 // DEVELOPER_STUDIO ]</span>
@@ -279,7 +279,7 @@ const featuredTools = tools.slice(0, 6);
     </section>
 
     <!-- Chapter 06: Final Statement — Visual Silence (Report Standard) -->
-    <section class="section-silence skewable">
+    <section class="section-silence skewable" data-chapter="VOID">
       <div class="silence-inner">
         <span class="silence-kicker">[ 06 // SYSTEM_RESOLUTION ]</span>
         <h2 class="silence-title" data-kinetic>
@@ -303,6 +303,7 @@ const featuredTools = tools.slice(0, 6);
       const modeButtons = document.querySelectorAll<HTMLButtonElement>('.stage-mode-btn');
       const pulseBtn = document.querySelector<HTMLButtonElement>('#stagePulseBtn');
       const anglesEl = document.querySelector<HTMLElement>('#stageAngles');
+      const fpsBadge = document.querySelector<HTMLElement>('#stageFpsBadge');
 
       modeButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -323,16 +324,20 @@ const featuredTools = tools.slice(0, 6);
         });
       }
 
-      // Telemetry Polling at 30Hz
+      // Real internal telemetry updates at 15Hz (Strictly real data, zero fake numbers)
       setInterval(() => {
-        if (window.paradoxWebGL && anglesEl) {
+        if (window.paradoxWebGL) {
           const t = window.paradoxWebGL.getTelemetry();
           if (t) {
-            anglesEl.textContent = `RX: ${t.rx}° RY: ${t.ry}°`;
+            if (anglesEl) {
+              anglesEl.textContent = `RX: ${t.rx}° RY: ${t.ry}°`;
+            }
+            if (fpsBadge && t.fps) {
+              fpsBadge.textContent = `${t.fps} FPS // ${t.tier}`;
+            }
           }
         }
       }, 66);
     }
   </script>
 </BaseLayout>
-
