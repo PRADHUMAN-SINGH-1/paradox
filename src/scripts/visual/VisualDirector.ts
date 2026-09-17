@@ -105,8 +105,8 @@ export class VisualDirector {
     this.camera = new THREE.PerspectiveCamera(48, w / h, 1, 1500);
     this.camera.position.set(0, 0, 180);
 
-    // Initial Scene Background: Editorial Light Gallery (#EEF0F4)
-    this.scene.background = new THREE.Color(0xEEF0F4);
+    // Initial Scene Background: Deep Obsidian (#050608)
+    this.scene.background = new THREE.Color(0x050608);
 
     // 3. Subsystems
     this.envPipeline = new EnvironmentPipeline(THREE, this.renderer, this.scene);
