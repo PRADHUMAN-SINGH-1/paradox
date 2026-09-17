@@ -8,7 +8,7 @@ import { initPreloader } from './preloader.ts';
 import { PrecisionCursor, initSpotlightCards } from './cursor.ts';
 import { initSmoothScroll } from './scroll.ts';
 import { initKineticText } from './kinetic-text.ts';
-import { ThreeWebGLScene } from './webgl-scene.ts';
+import { VisualDirector } from './visual/VisualDirector.ts';
 import { MediaManager } from './media/MediaManager.ts';
 
 declare global {
@@ -129,13 +129,13 @@ export function initCreativeEngine() {
   // 3. Initialize Kinetic Typography with SplitType
   initKineticText();
 
-  // 4. Initialize Three.js 3D WebGL Master Engine
+  // 4. Initialize Visual Director & Persistent 3D WebGL Engine
   const threeCanvas = document.querySelector<HTMLCanvasElement>('#three-canvas');
   if (threeCanvas && window.THREE) {
     try {
-      new ThreeWebGLScene(threeCanvas);
+      VisualDirector.getInstance(threeCanvas);
     } catch (err) {
-      console.warn('Three.js scene init skipped:', err);
+      console.warn('VisualDirector init skipped:', err);
     }
   }
 
