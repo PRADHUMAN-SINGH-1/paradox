@@ -1273,3 +1273,192 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Legal & Methodology Pages (/about, /privacy, /terms)
+   ========================================================================== */
+.legal,
+.contact-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 80px max(24px, 4vw) 120px;
+}
+
+.legal .label,
+.contact-page .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.legal h1,
+.contact-page h1 {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  margin: 0 0 32px;
+}
+
+.legal article {
+  background: var(--surface-1);
+  border: 1px solid var(--border-default);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legal h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  margin: 28px 0 10px;
+}
+
+.legal h2:first-of-type {
+  margin-top: 8px;
+}
+
+.legal p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+.legal strong {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Dashboard Dynamic Cards & Metrics (.card, .score-chip, .verdict-tag)
+   ========================================================================== */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-default);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-brutal);
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -8px var(--accent-glow);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.card h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 8px 0 0;
+  word-break: break-all;
+}
+
+.card p {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+}
+
+.card .links {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.card .links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--duration-fast);
+}
+
+.card .links a:hover {
+  text-decoration: underline;
+}
+
+.score-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid var(--border-default);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.score-chip small {
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  margin-top: 3px;
+  opacity: 0.75;
+}
+
+.verdict-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 0;
+}
+
+.dash-sk {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  padding: 24px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dash-sk .s1,
+.dash-sk .s2,
+.dash-sk .s3 {
+  background: var(--surface-2);
+  border-radius: 0;
+  animation: skeletonPulse 1.8s ease-in-out infinite;
+}
+
+.dash-sk .s1 { height: 20px; width: 40%; }
+.dash-sk .s2 { height: 32px; width: 80%; }
+.dash-sk .s3 { height: 16px; width: 50%; margin-top: auto; }
+
+.muted {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}

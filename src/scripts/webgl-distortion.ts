@@ -1,5 +1,5 @@
 /**
- * PARADOX Interactive Liquid Cursor & Chromatic Trail — Inspired by lusion.co
+ * PARADOX Interactive Liquid Cursor & Chromatic Trail — Lusion.co & Lando Norris Standards
  * Renders high-performance fluid disturbance and kinetic energy rings around cursor.
  */
 
@@ -60,6 +60,8 @@ export class FluidCursorCanvas {
 
       // Spawn fluid energy ripples when moving fast
       if (dist > 6 && this.drops.length < 35) {
+        const pick = Math.random();
+        const color = pick > 0.45 ? '210, 255, 0' : pick > 0.2 ? '26, 47, 251' : '255, 255, 255';
         this.drops.push({
           x: e.clientX,
           y: e.clientY,
@@ -67,8 +69,8 @@ export class FluidCursorCanvas {
           vy: (Math.random() - 0.5) * 1.5,
           radius: Math.min(32, dist * 0.45 + 4),
           maxRadius: Math.min(64, dist * 0.9 + 18),
-          alpha: 0.35,
-          color: Math.random() > 0.3 ? '200, 255, 0' : '255, 255, 255'
+          alpha: 0.4,
+          color
         });
       }
     }, { passive: true });
@@ -76,6 +78,7 @@ export class FluidCursorCanvas {
     window.addEventListener('pointerdown', (e) => {
       // High-velocity shock ring on click
       for (let i = 0; i < 3; i++) {
+        const color = i === 0 ? '210, 255, 0' : i === 1 ? '26, 47, 251' : '255, 255, 255';
         this.drops.push({
           x: e.clientX,
           y: e.clientY,
@@ -84,7 +87,7 @@ export class FluidCursorCanvas {
           radius: 8 + i * 12,
           maxRadius: 110 + i * 35,
           alpha: 0.65 - i * 0.15,
-          color: '200, 255, 0'
+          color
         });
       }
     }, { passive: true });

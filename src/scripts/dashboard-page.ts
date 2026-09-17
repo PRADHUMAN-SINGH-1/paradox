@@ -1,7 +1,7 @@
 import { track } from '../lib/analytics.ts';
 import { supabase } from '../lib/supabase.ts';
 import { clearLocalScans, getLocalSavedAgents, getLocalScans, removeLocalAgent } from '../lib/local-state.ts';
-import { toScore, STALE_AFTER_DAYS, VERDICT_COLOR, VERDICT_ORDER, daysAgo, filterAndSort, median, normalizeVerdict, numericScores, relativeTime, repoName as name, rowTime as rowDate, scoreTone, verdictCounts, type SortKey } from '../lib/dashboard-insights.ts';
+import { toScore, STALE_AFTER_DAYS, VERDICT_COLOR, VERDICT_ORDER, daysAgo, filterAndSort, median, normalizeVerdict, numericScores, relativeTime, repoName as name, scoreTone, verdictCounts, type SortKey } from '../lib/dashboard-insights.ts';
 
 type Row = Record<string, unknown>;
 
