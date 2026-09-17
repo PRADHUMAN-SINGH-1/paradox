@@ -1,13 +1,24 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro';
-import AITool from '../../components/AITool.astro';
 import tools from '../../data/ai-tools.json';
-export function getStaticPaths(){return tools.map(item=>({params:{slug:item.slug},props:{item}}));}
-const {item}=Astro.props;
-const canonical=`https://paradox.engineer/ai/${item.slug}/`;
+
+export function getStaticPaths() {
+  return tools.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+const { item } = Astro.props;
+const destination = '/ai-studio/?section=toolkit&tool=' + item.slug;
 ---
-<MakerLayout title={item.title} description={item.description} canonical={canonical}>
-  <AITool mode={item.mode} title={item.title} intro={item.description} />
-  <section class="maker-section utility-seo-copy"><div class="maker-section-head"><div><div class="maker-label">AI TOOLKIT</div><h2>{item.label} without the friction.</h2></div><p>Fast, browser-first AI and developer utility. Use the tool directly with a focused input and a clear result.</p></div><article class="maker-why"><p>PARADOX keeps common prompt, token, context, JSON and developer tasks practical, fast and easy to reuse.</p></article></section>
-</MakerLayout>
-<script is:inline type="application/ld+json" set:html={JSON.stringify({'@context':'https://schema.org','@type':'SoftwareApplication',name:item.title,description:item.description,url:canonical,applicationCategory:'DeveloperApplication',operatingSystem:'Web Browser',isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:[item.label,'Browser-based processing','Immediate output']})} />
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="refresh" content={'0;url=' + destination}>
+  <meta name="robots" content="noindex,nofollow">
+  <title>{item.label} — PARADOX AI Studio</title>
+</head>
+<body>
+  <p>Opening {item.label} inside PARADOX Studio…</p>
+  <script is:inline>
+    window.location.replace(destination);
+  </script>
+</body>
+</html>
