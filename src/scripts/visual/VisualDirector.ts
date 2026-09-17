@@ -235,114 +235,117 @@ export class VisualDirector {
       return;
     }
 
-    const { delta, elapsed, audioEnergy } = this.clock.tick();
-    const budget = this.governor.tick();
+    try {
+      const { delta, elapsed, audioEnergy } = this.clock.tick();
+      const budget = this.governor.tick();
 
-    this.frameCount++;
-    if (this.frameCount >= 60) {
-      this.frameCount = 0;
-      if (this.renderer && this.renderer.info) {
-        const info = this.renderer.info;
-        const tri = info.render.triangles;
-        const calls = info.render.calls;
-        const tex = info.memory.textures;
-        if (tri > 500000 || calls > 200 || tex > 50) {
-          console.warn(`[Paradox] High WebGL Resource Usage: Triangles: ${tri}, Draw Calls: ${calls}, Textures: ${tex}`);
-          this.perfWarnings++;
-          if (this.perfWarnings >= 3) {
-            console.warn('[Paradox] Reducing quality tier due to performance warnings.');
-            this.governor.downgradeTier();
-            this.perfWarnings = 0;
+      this.frameCount++;
+      if (this.frameCount >= 60) {
+        this.frameCount = 0;
+        if (this.renderer && this.renderer.info) {
+          const info = this.renderer.info;
+          const tri = info.render.triangles;
+          const calls = info.render.calls;
+          const tex = info.memory.textures;
+          if (tri > 500000 || calls > 200 || tex > 50) {
+            console.warn(`[Paradox] High WebGL Resource Usage: Triangles: ${tri}, Draw Calls: ${calls}, Textures: ${tex}`);
+            this.perfWarnings++;
+            if (this.perfWarnings >= 3) {
+              console.warn('[Paradox] Reducing quality tier due to performance warnings.');
+              this.governor.downgradeTier();
+              this.perfWarnings = 0;
+            }
+          } else {
+            this.perfWarnings = Math.max(0, this.perfWarnings - 1);
           }
-        } else {
-          this.perfWarnings = Math.max(0, this.perfWarnings - 1);
-        }
-      }
-    }
-
-    this.clock.updateScrollProgress(this.scrollProgress);
-
-    if (this.transition && this.camera && this.sceneRegistry && this.timeline) {
-      // 1. Mouse Parallax
-      this.transition.setParallax(this.clock.mouse.x, this.clock.mouse.y);
-
-      // 2. Evaluate Continuous Scene Transition State via Timeline
-      const mouseInput = this.reducedMotion
-        ? { x: 0, y: 0 }
-        : { x: this.clock.mouse.x, y: this.clock.mouse.y };
-      const keyframe = this.timeline.evaluate(this.scrollProgress, mouseInput, delta);
-
-      // 3. Camera Choreography (Position, Target, FOV, Roll)
-      this.camera.position.set(keyframe.camera.x, keyframe.camera.y, keyframe.camera.z);
-      this.camera.lookAt(keyframe.camera.targetX, keyframe.camera.targetY, keyframe.camera.targetZ);
-      this.camera.rotation.z = this.reducedMotion ? 0 : keyframe.camera.roll;
-
-      if (this.camera.fov !== keyframe.camera.fov) {
-        this.camera.fov = keyframe.camera.fov;
-        this.camera.updateProjectionMatrix();
-      }
-
-      // 4. Background Color Crossfade
-      if (this.scene) {
-        this.scene.background.setHex(keyframe.theme.bgColor);
-      }
-
-      // 5. Dynamic Core Material Adaptation
-      const coreMat = this.sceneRegistry.getCoreMaterial();
-      if (coreMat && coreMat.uniforms) {
-        if (coreMat.uniforms.uVelocity) {
-          coreMat.uniforms.uVelocity.value = this.clock.scrollVelocity;
-        }
-        if (keyframe.theme.isLightTone) {
-          coreMat.uniforms.uColor.value.setHex(0x181C24);
-          coreMat.uniforms.uRimColor.value.setHex(0xFFFFFF);
-        } else {
-          coreMat.uniforms.uColor.value.setHex(0x0A0D12);
-          coreMat.uniforms.uRimColor.value.setHex(0xCFD5E1);
         }
       }
 
-      // 6. DOM ↔ WebGL Composition Sync
-      if (this.composition) {
-        this.composition.updateTheme(keyframe.theme.isLightTone, keyframe.theme.bgColor);
-      }
+      this.clock.updateScrollProgress(this.scrollProgress);
 
-      // 6b. Dynamic Environment Lighting from Timeline
-      if (this.envPipeline) {
-        this.envPipeline.updateExposure(keyframe.lighting.exposure);
-        this.envPipeline.updateLightingIntensity(
-          keyframe.lighting.keyIntensity,
-          keyframe.lighting.rimIntensity,
-          0.5 // accent stays constant
+      if (this.transition && this.camera && this.sceneRegistry && this.timeline) {
+        // 1. Mouse Parallax
+        this.transition.setParallax(this.clock.mouse.x, this.clock.mouse.y);
+
+        // 2. Evaluate Continuous Scene Transition State via Timeline
+        const mouseInput = this.reducedMotion
+          ? { x: 0, y: 0 }
+          : { x: this.clock.mouse.x, y: this.clock.mouse.y };
+        const keyframe = this.timeline.evaluate(this.scrollProgress, mouseInput, delta);
+
+        // 3. Camera Choreography (Position, Target, FOV, Roll)
+        this.camera.position.set(keyframe.camera.x, keyframe.camera.y, keyframe.camera.z);
+        this.camera.lookAt(keyframe.camera.targetX, keyframe.camera.targetY, keyframe.camera.targetZ);
+        this.camera.rotation.z = this.reducedMotion ? 0 : keyframe.camera.roll;
+
+        if (this.camera.fov !== keyframe.camera.fov) {
+          this.camera.fov = keyframe.camera.fov;
+          this.camera.updateProjectionMatrix();
+        }
+
+        // 4. Background Color Crossfade
+        if (this.scene) {
+          this.scene.background.setHex(keyframe.theme.bgColor);
+        }
+
+        // 5. Dynamic Core Material Adaptation
+        const coreMat = this.sceneRegistry.getCoreMaterial();
+        if (coreMat && coreMat.uniforms) {
+          if (coreMat.uniforms.uVelocity) {
+            coreMat.uniforms.uVelocity.value = this.clock.scrollVelocity;
+          }
+          if (keyframe.theme.isLightTone) {
+            if (coreMat.uniforms.uColor) coreMat.uniforms.uColor.value.setHex(0x181C24);
+            if (coreMat.uniforms.uRimColor) coreMat.uniforms.uRimColor.value.setHex(0xFFFFFF);
+          } else {
+            if (coreMat.uniforms.uColor) coreMat.uniforms.uColor.value.setHex(0x0A0D12);
+            if (coreMat.uniforms.uRimColor) coreMat.uniforms.uRimColor.value.setHex(0xCFD5E1);
+          }
+        }
+
+        // 6. DOM ↔ WebGL Composition Sync
+        if (this.composition) {
+          this.composition.updateTheme(keyframe.theme.isLightTone, keyframe.theme.bgColor);
+        }
+
+        // 6b. Dynamic Environment Lighting from Timeline
+        if (this.envPipeline) {
+          this.envPipeline.updateExposure(keyframe.lighting.exposure);
+          this.envPipeline.updateLightingIntensity(
+            keyframe.lighting.keyIntensity,
+            keyframe.lighting.rimIntensity,
+            0.5
+          );
+        }
+
+        // 7. Dynamic Scene Geometries and Shader Updates
+        this.sceneRegistry.update(
+          this.scrollProgress,
+          delta,
+          elapsed,
+          audioEnergy,
+          this.mouseWorld,
+          this.clock.manualRotation,
+          this.clock.mouse
         );
       }
 
-      // 7. Dynamic Scene Geometries and Shader Updates
-      this.sceneRegistry.update(
-        this.scrollProgress,
-        delta,
-        elapsed,
-        audioEnergy,
-        this.mouseWorld,
-        this.clock.manualRotation,
-        this.clock.mouse
-      );
-    }
-
-    // 8. Explicit Post-Processing Render Pass
-    if (this.reducedMotion) {
-      // Reduced motion: skip post-processing, direct render
-      if (this.renderer && this.scene && this.camera) {
-        this.renderer.setRenderTarget(null);
+      // 8. Explicit Post-Processing Render Pass
+      if (this.reducedMotion) {
+        if (this.renderer && this.scene && this.camera) {
+          this.renderer.setRenderTarget(null);
+          this.renderer.render(this.scene, this.camera);
+        }
+      } else if (this.postProcessing) {
+        this.postProcessing.render(delta, budget.tier);
+      } else if (this.renderer && this.scene && this.camera) {
         this.renderer.render(this.scene, this.camera);
       }
-    } else if (this.postProcessing) {
-      this.postProcessing.render(delta, budget.tier);
-    } else if (this.renderer && this.scene && this.camera) {
-      this.renderer.render(this.scene, this.camera);
+    } catch (err) {
+      console.warn('[Paradox VisualDirector] Frame error:', err);
+    } finally {
+      this.animId = requestAnimationFrame(this.animate);
     }
-
-    this.animId = requestAnimationFrame(this.animate);
   };
 
   public destroy() {

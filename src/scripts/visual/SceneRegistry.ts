@@ -204,7 +204,10 @@ export class SceneRegistry {
         uScanProgress: { value: 0.4 },
         uScanColor: { value: new this.THREE.Color(0xF2F4F7) },
         uVerifiedColor: { value: new this.THREE.Color(0x38D9A9) },
-        uAudio: { value: 0 }
+        uAudio: { value: 0 },
+        uProgress: { value: 0 },
+        uResolution: { value: new this.THREE.Vector2(typeof window !== 'undefined' ? window.innerWidth : 1920, typeof window !== 'undefined' ? window.innerHeight : 1080) },
+        uVelocity: { value: 0 }
       },
       transparent: true,
       side: this.THREE.DoubleSide
@@ -372,15 +375,16 @@ export class SceneRegistry {
         }
 
         if (this.coreMaterial && this.coreMaterial.uniforms) {
-          this.coreMaterial.uniforms.uTime.value = elapsed;
-          this.coreMaterial.uniforms.uAudio.value = audio;
-          this.coreMaterial.uniforms.uMouse.value.copy(mouseWorld);
-          this.coreMaterial.uniforms.uProgress.value = p;
-          this.coreMaterial.uniforms.uResolution.value.set(resX, resY);
-          this.coreMaterial.uniforms.uScroll.value = currentScroll;
-          this.coreMaterial.uniforms.uVelocity.value = currentVelocity;
-          this.coreMaterial.uniforms.uHover.value = 0; // Default 0
-          this.coreMaterial.uniforms.uIntensity.value = 1.0;
+          const u = this.coreMaterial.uniforms;
+          if (u.uTime) u.uTime.value = elapsed;
+          if (u.uAudio) u.uAudio.value = audio;
+          if (u.uMouse && mouseWorld) u.uMouse.value.copy(mouseWorld);
+          if (u.uProgress) u.uProgress.value = p;
+          if (u.uResolution) u.uResolution.value.set(resX, resY);
+          if (u.uScroll) u.uScroll.value = currentScroll;
+          if (u.uVelocity) u.uVelocity.value = currentVelocity;
+          if (u.uHover) u.uHover.value = 0;
+          if (u.uIntensity) u.uIntensity.value = 1.0;
         }
       }
     }
@@ -415,12 +419,13 @@ export class SceneRegistry {
       if (this.groupVerify.visible) {
         this.groupVerify.scale.setScalar(wVerify);
         if (this.verifyMaterial && this.verifyMaterial.uniforms) {
-          this.verifyMaterial.uniforms.uTime.value = elapsed;
-          this.verifyMaterial.uniforms.uAudio.value = audio;
-          this.verifyMaterial.uniforms.uScanProgress.value = (Math.sin(elapsed * 1.5) + 1.0) / 2.0;
-          this.verifyMaterial.uniforms.uProgress.value = p;
-          this.verifyMaterial.uniforms.uResolution.value.set(resX, resY);
-          this.verifyMaterial.uniforms.uVelocity.value = currentVelocity;
+          const u = this.verifyMaterial.uniforms;
+          if (u.uTime) u.uTime.value = elapsed;
+          if (u.uAudio) u.uAudio.value = audio;
+          if (u.uScanProgress) u.uScanProgress.value = (Math.sin(elapsed * 1.5) + 1.0) / 2.0;
+          if (u.uProgress) u.uProgress.value = p;
+          if (u.uResolution) u.uResolution.value.set(resX, resY);
+          if (u.uVelocity) u.uVelocity.value = currentVelocity;
         }
       }
     }

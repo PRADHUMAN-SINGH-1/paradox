@@ -45,7 +45,9 @@ export class InstanceManager {
         uTime: { value: 0 },
         uAudio: { value: 0 },
         uVoidColor: { value: new this.THREE.Color(0x080A0D) },
-        uHoveredId: { value: new this.THREE.Vector3(-1, -1, -1) }
+        uHoveredId: { value: new this.THREE.Vector3(-1, -1, -1) },
+        uProgress: { value: 0 },
+        uHover: { value: 0 }
       },
       transparent: true,
       depthWrite: true,

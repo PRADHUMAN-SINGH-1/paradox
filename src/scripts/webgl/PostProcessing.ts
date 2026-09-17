@@ -41,9 +41,9 @@ const COMPOSITE_FRAG = `
     vec3 blur = vec3(0.0);
     float weight = 0.0;
     vec2 texelSize = 1.0 / uResolution;
-    for(float x = -2.0; x <= 2.0; x += 1.0) {
-      for(float y = -2.0; y <= 2.0; y += 1.0) {
-        vec3 sampleColor = texture2D(tDiffuse, vUv + vec2(x, y) * texelSize * 2.0).rgb;
+    for(int x = -2; x <= 2; x++) {
+      for(int y = -2; y <= 2; y++) {
+        vec3 sampleColor = texture2D(tDiffuse, vUv + vec2(float(x), float(y)) * texelSize * 2.0).rgb;
         float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));
         if (brightness > 0.8) {
           blur += sampleColor;
@@ -167,15 +167,26 @@ export class PostProcessing {
       const width = Math.floor(window.innerWidth * pixelRatio);
       const height = Math.floor(window.innerHeight * pixelRatio);
 
-      const rtOptions = {
+      const rtOptions1 = {
         minFilter: this.THREE.LinearFilter,
         magFilter: this.THREE.LinearFilter,
         format: this.THREE.RGBAFormat,
-        type: this.THREE.HalfFloatType || this.THREE.FloatType
+        type: this.THREE.UnsignedByteType,
+        depthBuffer: true,
+        stencilBuffer: false
       };
 
-      this.renderTarget1 = new WebGLRenderTarget(width, height, rtOptions);
-      this.renderTarget2 = new WebGLRenderTarget(width, height, rtOptions);
+      const rtOptions2 = {
+        minFilter: this.THREE.LinearFilter,
+        magFilter: this.THREE.LinearFilter,
+        format: this.THREE.RGBAFormat,
+        type: this.THREE.UnsignedByteType,
+        depthBuffer: false,
+        stencilBuffer: false
+      };
+
+      this.renderTarget1 = new WebGLRenderTarget(width, height, rtOptions1);
+      this.renderTarget2 = new WebGLRenderTarget(width, height, rtOptions2);
 
       // Create Fullscreen Quad
       const geometry = new PlaneGeometry(2, 2);
@@ -214,7 +225,8 @@ export class PostProcessing {
       });
 
       this.isAvailable = true;
-    } catch {
+    } catch (err) {
+      console.warn('[Paradox] PostProcessing init fallback:', err);
       this.isAvailable = false;
     }
   }
@@ -222,16 +234,16 @@ export class PostProcessing {
   public setSize(width: number, height: number) {
     if (this.isAvailable && this.renderTarget1 && this.renderTarget2) {
       const pixelRatio = this.renderer.getPixelRatio();
-      const w = Math.floor(width * pixelRatio);
-      const h = Math.floor(height * pixelRatio);
+      const w = Math.max(1, Math.floor(width * pixelRatio));
+      const h = Math.max(1, Math.floor(height * pixelRatio));
 
       this.renderTarget1.setSize(w, h);
       this.renderTarget2.setSize(w, h);
 
-      if (this.compositeMaterial) {
+      if (this.compositeMaterial && this.compositeMaterial.uniforms) {
         this.compositeMaterial.uniforms.uResolution.value.set(w, h);
       }
-      if (this.fxaaMaterial) {
+      if (this.fxaaMaterial && this.fxaaMaterial.uniforms) {
         this.fxaaMaterial.uniforms.uResolution.value.set(1.0 / w, 1.0 / h);
       }
     }
@@ -248,28 +260,34 @@ export class PostProcessing {
       return;
     }
 
-    // 1. Render Scene to RT1
-    this.renderer.setRenderTarget(this.renderTarget1);
-    this.renderer.clear();
-    this.renderer.render(this.scene, this.camera);
-
-    // 2. Composite Pass (RT1 -> RT2 for HIGH, RT1 -> Screen for MEDIUM)
-    const isHigh = tier === 'HIGH';
-    this.renderer.setRenderTarget(isHigh ? this.renderTarget2 : null);
-    if (!isHigh) this.renderer.clear();
-
-    this.compositeMaterial.uniforms.tDiffuse.value = this.renderTarget1.texture;
-    this.compositeMaterial.uniforms.uTime.value += delta;
-    this.fsQuad.mesh.material = this.compositeMaterial;
-    this.renderer.render(this.fsQuad.mesh, this.fsQuad.camera);
-
-    // 3. FXAA Pass (RT2 -> Screen for HIGH only)
-    if (isHigh) {
-      this.renderer.setRenderTarget(null);
+    try {
+      // 1. Render Scene to RT1
+      this.renderer.setRenderTarget(this.renderTarget1);
       this.renderer.clear();
-      this.fxaaMaterial.uniforms.tDiffuse.value = this.renderTarget2.texture;
-      this.fsQuad.mesh.material = this.fxaaMaterial;
+      this.renderer.render(this.scene, this.camera);
+
+      // 2. Composite Pass (RT1 -> RT2 for HIGH, RT1 -> Screen for MEDIUM)
+      const isHigh = tier === 'HIGH';
+      this.renderer.setRenderTarget(isHigh ? this.renderTarget2 : null);
+      if (!isHigh) this.renderer.clear();
+
+      this.compositeMaterial.uniforms.tDiffuse.value = this.renderTarget1.texture;
+      this.compositeMaterial.uniforms.uTime.value += delta;
+      this.fsQuad.mesh.material = this.compositeMaterial;
       this.renderer.render(this.fsQuad.mesh, this.fsQuad.camera);
+
+      // 3. FXAA Pass (RT2 -> Screen for HIGH only)
+      if (isHigh) {
+        this.renderer.setRenderTarget(null);
+        this.renderer.clear();
+        this.fxaaMaterial.uniforms.tDiffuse.value = this.renderTarget2.texture;
+        this.fsQuad.mesh.material = this.fxaaMaterial;
+        this.renderer.render(this.fsQuad.mesh, this.fsQuad.camera);
+      }
+    } catch (err) {
+      console.warn('[Paradox] Post-processing render error, falling back to direct render:', err);
+      this.renderer.setRenderTarget(null);
+      this.renderer.render(this.scene, this.camera);
     }
   }
 

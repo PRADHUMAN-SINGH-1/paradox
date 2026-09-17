@@ -25,9 +25,14 @@ export function initPreloader() {
   const stepTime = alreadyLoaded ? 3 : 8;
 
   let interval: any;
+  let proxyTween: any = null;
+  let isFinished = false;
 
   const finishPreloader = () => {
+    if (isFinished) return;
+    isFinished = true;
     if (interval) clearInterval(interval);
+    if (proxyTween) proxyTween.kill();
     counterEl.textContent = '100%';
     if (barEl) barEl.style.width = '100%';
 
@@ -78,7 +83,7 @@ export function initPreloader() {
 
   if (window.gsap) {
     const proxy = { value: 0 };
-    window.gsap.to(proxy, {
+    proxyTween = window.gsap.to(proxy, {
       value: 100,
       duration: alreadyLoaded ? 0.8 : 2.5,
       ease: "power2.inOut",
