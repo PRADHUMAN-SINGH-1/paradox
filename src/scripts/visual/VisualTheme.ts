@@ -15,8 +15,8 @@ export class VisualTheme {
       cameraTarget: [12, 0, 0],
       cameraFov: 46,
       transitionType: 'LIGHT_CROSSFADE',
-      backgroundColor: 0xEEF0F4,
-      isLightTone: true,
+      backgroundColor: 0x050608,
+      isLightTone: false,
       lighting: {
         keyColor: 0x1A1E24,
         keyIntensity: 0.9,
