@@ -33,6 +33,21 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
 <script is:inline src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
 </head>
 <body data-scroll-container>
+<div id="px-preloader" aria-hidden="true">
+  <div class="preloader-top">
+    <span>PARADOX // NEURAL INTELLIGENCE MATRIX</span>
+    <span>FPS: 120 // V3.0</span>
+  </div>
+  <div class="preloader-center">
+    <div id="px-preloader-counter">00%</div>
+    <div class="preloader-sub">INITIALIZING OBSERVABILITY CORE</div>
+  </div>
+  <div class="preloader-bottom">
+    <div class="preloader-bar-track">
+      <div id="px-preloader-bar"></div>
+    </div>
+  </div>
+</div>
 <div id="cursor-blob" aria-hidden="true"></div>
 <canvas id="three-canvas" aria-hidden="true"></canvas>
 <canvas id="fluid-canvas" aria-hidden="true"></canvas>
@@ -45,13 +60,17 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
   </a>
   <nav class="site-nav" aria-label="Primary">
     <a href="/agents/">Discover</a>
-    <a href="/ai/">AI Tools</a>
     <a href="/verify/">Verify</a>
     <a href="/compare/">Compare</a>
-    <a href="/trending/">Trending</a>
+    <a href="/trending/">Signals</a>
+    <a href="/ai/">Studio</a>
     <a href="/about/">About</a>
   </nav>
   <div class="header-actions">
+    <button id="sound-toggle-btn" class="sound-toggle-btn" type="button" aria-pressed="false" aria-label="Toggle sound FX">
+      <canvas id="sound-toggle-wave" class="sound-toggle-wave" width="22" height="12"></canvas>
+      <span id="sound-toggle-label">SOUND [OFF]</span>
+    </button>
     <a class="header-search-btn" href="/agents/" title="Search public agents (⌘K or /)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <span>Search</span>
@@ -64,10 +83,10 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
   </div>
   <nav class="mobile-nav" id="mobileNav">
     <a href="/agents/">Discover</a>
-    <a href="/ai/">AI Tools</a>
     <a href="/verify/">Verify</a>
     <a href="/compare/">Compare</a>
-    <a href="/trending/">Trending</a>
+    <a href="/trending/">Signals</a>
+    <a href="/ai/">Studio</a>
     <a href="/about/">About</a>
     <a href="/auth/" data-auth-link class="auth-state-pending">Sign in</a>
   </nav>
@@ -84,12 +103,12 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
     </section>
     <nav class="pf-footer-nav" aria-label="Footer navigation">
       <span class="pf-footer-label">EXPLORE</span>
-      <a href="/agents/">Discover Agents</a>
-      <a href="/ai/">AI Workbench</a>
+      <a href="/agents/">Discover (Atlas)</a>
       <a href="/verify/">Verify Repository</a>
       <a href="/compare/">Compare Matrix</a>
-      <a href="/trending/">Trending Agents</a>
-      <a href="/about/">About PARADOX</a>
+      <a href="/trending/">Signals Stream</a>
+      <a href="/ai/">Developer Studio</a>
+      <a href="/about/">About & Methodology</a>
       <a href="/privacy/">Privacy Policy</a>
       <a href="/terms/">Terms of Service</a>
     </nav>

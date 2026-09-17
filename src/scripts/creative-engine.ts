@@ -1,3 +1,5 @@
+import { initSoundInteractions } from './sound-engine.ts';
+import { initPreloader } from './preloader.ts';
 /**
  * PARADOX Master Creative Engine — Lusion.co & Lando Norris Production Standard
  * Boots 3D WebGL Particle Lattice, Precision Difference Cursor, Lenis Momentum Scroll & Kinetic Reveals.
@@ -112,6 +114,8 @@ export class CyberHUD {
 let hasInitialized = false;
 
 export function initCreativeEngine() {
+  initPreloader();
+  initSoundInteractions();
   if (typeof window === 'undefined' || hasInitialized) return;
   hasInitialized = true;
 
@@ -168,11 +172,12 @@ export function initCreativeEngine() {
   }
 }
 
-// Ensure execution after CDN libraries are loaded
+// Ensure reliable execution
 if (typeof window !== 'undefined') {
-  if (document.readyState === 'complete') {
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initCreativeEngine();
   } else {
+    window.addEventListener('DOMContentLoaded', () => initCreativeEngine());
     window.addEventListener('load', () => initCreativeEngine());
   }
 }

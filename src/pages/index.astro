@@ -8,48 +8,47 @@ const featuredTools = tools.slice(0, 6);
 ---
 
 <BaseLayout 
-  title="PARADOX — AI Agent Intelligence & Trust Signals" 
+  title="PARADOX — Observable AI Agent Intelligence & Trust Signals" 
   description="Discover, inspect, compare and evaluate public AI agents and GitHub projects using observable repository evidence before you depend on them."
 >
   <main class="home-brutalist">
-    <!-- Full-Viewport Cinematic Kinetic Hero (Lando Norris & Lusion Inspired) -->
+    <!-- Chapter 01: High-Contrast Editorial Hero + Interactive 3D Paradox Core Stage -->
     <section class="hero-cinematic">
       <div class="hero-inner">
         <div class="hero-meta-strip">
           <div class="meta-tag">
             <span class="dot-pulse"></span>
-            <span>SYSTEM_READY // PROTOCOL: DETERMINISTIC_EVIDENCE</span>
+            <span>PARADOX // OBSERVABLE INTELLIGENCE PLATFORM</span>
           </div>
-          <div class="meta-coords">LAT: 37.7749° N · FPS: 120 · MEM: 1.2MB</div>
+          <div class="meta-coords">PROTOCOL: DETERMINISTIC_EVIDENCE · WEBGL2 · 120 FPS</div>
         </div>
 
-        <div class="hero-headline-wrap">
-          <h1 class="hero-giant-title" data-kinetic data-hero-kinetic>
-            UNDERSTAND THE AGENTS YOU ARE ABOUT TO <span class="text-volt">TRUST.</span>
-          </h1>
-        </div>
-
-        <div class="hero-action-grid">
-          <div class="hero-lead-box">
+        <div class="hero-stage-layout">
+          <!-- Left Column: Editorial Statement & Actions -->
+          <div class="hero-editorial">
+            <div class="hero-statement-kicker">[ CHAPTER 01 // THE THESIS ]</div>
+            <h1 class="hero-giant-title" data-kinetic data-hero-kinetic>
+              OBSERVE WHAT<br />
+              OTHERS <span class="text-electric">ASSUME.</span>
+            </h1>
             <p class="hero-lead-text">
-              Discover public AI agents and GitHub repositories. Inspect deterministic evidence for activity, maintainer velocity, dependencies and static risk signals before making architectural commitments.
+              Inspect public AI agents, MCP tooling and GitHub repositories using deterministic AST evidence before you depend on them. Zero code run. Mathematical proof.
             </p>
+
             <div class="hero-cta-row">
-              <a href="/verify/" class="btn btn-emerald" data-cursor="SCAN">
+              <a href="/verify/" class="btn btn-primary" data-cursor="VERIFY">
                 <span>Inspect Repository →</span>
               </a>
-              <a href="/compare/" class="btn btn-ghost" data-cursor="MATRIX">
-                <span>Compare Agents →</span>
+              <a href="/compare/" class="btn btn-ghost" data-cursor="COMPARE">
+                <span>Compare Matrix →</span>
               </a>
             </div>
-          </div>
 
-          <div class="hero-search-box">
             <form class="search-bar-unified" method="get" action="/agents/">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent); margin-right: 8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input id="homeQuery" name="q" type="search" placeholder="Search MCP servers, coding agents, LangGraph..." autocomplete="off" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--signal); margin-right: 8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input id="homeQuery" name="q" type="search" placeholder="Search 20+ public agent frameworks, MCP servers, LangGraph..." autocomplete="off" />
               <div class="shortcut-hint">⌘K</div>
-              <button type="submit" class="btn btn-primary btn-sm" data-cursor="GO">SEARCH</button>
+              <button type="submit" class="btn btn-emerald btn-sm" data-cursor="SEARCH">SEARCH</button>
             </form>
 
             <div class="hero-chips" aria-label="Suggested searches">
@@ -60,6 +59,43 @@ const featuredTools = tools.slice(0, 6);
               <a href="/agents/?q=browser+automation" data-cursor="BROWSER">Browser Automation</a>
             </div>
           </div>
+
+          <!-- Right Column: Interactive 3D Paradox Core Stage -->
+          <div class="hero-3d-stage hud-corners" data-cursor="DRAG 3D">
+            <div class="stage-header">
+              <div class="stage-tag">
+                <span class="dot-pulse"></span>
+                <span>[ PARADOX CORE ] — EVIDENCE TOPOLOGY</span>
+              </div>
+              <div class="stage-badge" id="stageFpsBadge">120 FPS // STABLE</div>
+            </div>
+
+            <!-- Viewport Drag Surface -->
+            <div class="stage-viewport" id="heroStageViewport">
+              <div class="stage-overlay-reticle" aria-hidden="true"></div>
+              <div class="stage-drag-hint">
+                <span>DRAG TO ORBIT CORE ↺</span>
+              </div>
+            </div>
+
+            <!-- Stage HUD Telemetry & Controls -->
+            <div class="stage-hud-footer">
+              <div class="stage-modes" role="group" aria-label="Core Geometry Mode">
+                <button type="button" class="stage-mode-btn is-active" data-mode="core" data-cursor="CORE">01 // CORE</button>
+                <button type="button" class="stage-mode-btn" data-mode="network" data-cursor="NETWORK">02 // NETWORK</button>
+                <button type="button" class="stage-mode-btn" data-mode="tunnel" data-cursor="TUNNEL">03 // TUNNEL</button>
+              </div>
+              <div class="stage-telemetry">
+                <span id="stageAngles">RX: 11.4° RY: 22.9°</span>
+                <button type="button" class="stage-pulse-btn" id="stagePulseBtn" data-cursor="PULSE">PULSE ⟡</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-scroll-cue">
+          <span class="scroll-cue-line"></span>
+          <span>SCROLL TO ADVANCE NARRATIVE ↓</span>
         </div>
       </div>
     </section>
@@ -80,14 +116,14 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </div>
 
-    <!-- Section 02: Lando Norris Signature Pinned Horizontal Decision Track -->
+    <!-- Chapter 02: Pinned Horizontal Decision Rail (Evidence Architecture) -->
     <section class="horizontal-track-wrapper">
       <div class="horizontal-track-header">
         <div>
-          <span class="section-kicker">[ 02 // HORIZONTAL_DECISION_RAIL ]</span>
+          <span class="section-kicker">[ 02 // EVIDENCE_ARCHITECTURE ]</span>
           <h2 class="section-title" data-kinetic>Deterministic signals. Zero guesswork.</h2>
         </div>
-        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); display: flex; align-items: center; gap: 8px;">
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--signal); display: flex; align-items: center; gap: 8px;">
           <span class="dot-pulse"></span>
           <span>SCROLL DOWN TO ADVANCE RAIL →</span>
         </div>
@@ -99,14 +135,14 @@ const featuredTools = tools.slice(0, 6);
             <div class="horizontal-card-num">01</div>
             <span class="card-kicker">DECISION ARCHITECTURE</span>
             <h3>Evidence First</h3>
-            <p>Every score is anchored exclusively in public commit histories, release provenance, and manifests. No subjective marketing or hype.</p>
+            <p>Every score is anchored exclusively in public commit histories, release provenance, and manifests. No subjective marketing claims or hype.</p>
           </article>
 
           <article class="horizontal-card spotlight-card hud-corners" data-cursor="ISOLATION">
             <div class="horizontal-card-num">02</div>
             <span class="card-kicker">ISOLATION CORE</span>
             <h3>Zero Code Run</h3>
-            <p>Target repository install scripts, Dockerfiles, and binary payloads are never executed. Pure deterministic static AST parsing.</p>
+            <p>Target repository install scripts, Dockerfiles, and binary payloads are never executed. Pure deterministic static AST parsing behind an immutable boundary.</p>
           </article>
 
           <article class="horizontal-card spotlight-card hud-corners" data-cursor="VELOCITY">
@@ -134,13 +170,13 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Section 03: Tactical Cyber Radar Station -->
+    <!-- Chapter 03: Tactical Cyber Radar Station & Static Verifier Preview -->
     <section class="section-brutalist skewable">
       <div class="radar-station-frame hud-corners">
         <div class="radar-station-top">
           <div class="radar-station-title">
             <span class="dot-pulse"></span>
-            <span>[ 03 // TACTICAL_RADAR_STATION ] — REPOSITORY EVIDENCE SCAN</span>
+            <span>[ 03 // VERIFY_TERMINAL ] — REPOSITORY EVIDENCE SCAN</span>
           </div>
           <div class="radar-station-meta">AZIMUTH: 184.2° // FREQ: 433.92 MHz // 120 FPS</div>
         </div>
@@ -190,11 +226,11 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Section 04: Indexed Agent Matrix (Featured Repositories) -->
+    <!-- Chapter 04: Indexed Agent Atlas (Featured Repositories) -->
     <section class="section-brutalist skewable">
       <div class="section-header-split">
         <div>
-          <span class="section-kicker">[ 04 // CURATED_INTELLIGENCE_INDEX ]</span>
+          <span class="section-kicker">[ 04 // AGENT_ATLAS_INDEX ]</span>
           <h2 class="section-title" data-kinetic>Featured Agent Repositories</h2>
         </div>
         <a href="/agents/" class="btn btn-ghost" data-cursor="EXPLORE">Explore All Agents →</a>
@@ -202,7 +238,7 @@ const featuredTools = tools.slice(0, 6);
 
       <div class="grid-agents">
         {featured.map((e) => (
-          <article class="agent-card spotlight-card hud-corners" data-cursor="VIEW">
+          <article class="agent-card spotlight-card hud-corners" data-cursor="INSPECT">
             <div class="meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <span class="chip chip-accent">{e.category}</span>
               <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">{e.owner}</span>
@@ -218,21 +254,21 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Section 05: Practical Developer AI Workbench -->
+    <!-- Chapter 05: Practical Developer Studio -->
     <section class="section-brutalist skewable" id="ai-tools">
       <div class="section-header-split">
         <div>
-          <span class="section-kicker">[ 05 // DEVELOPER_WORKBENCH ]</span>
+          <span class="section-kicker">[ 05 // DEVELOPER_STUDIO ]</span>
           <h2 class="section-title" data-kinetic>Practical Developer AI Tools</h2>
         </div>
-        <a href="/ai/" class="btn btn-emerald" data-cursor="TOOLS">Open All Tools ↗</a>
+        <a href="/ai/" class="btn btn-emerald" data-cursor="STUDIO">Open Studio ↗</a>
       </div>
 
       <div class="tools-grid">
         {featuredTools.map((tool, i) => (
           <a class="tool-brutalist-card spotlight-card hud-corners" href={`/ai/${tool.slug}/`} data-cursor="LAUNCH">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 800;">{String(i + 1).padStart(2, '0')} // AI_TOOL</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--signal); font-weight: 800;">{String(i + 1).padStart(2, '0')} // STUDIO_TOOL</span>
               <span class="tool-arrow">↗</span>
             </div>
             <strong style="font-size: 18px; font-family: var(--font-display); color: #ffffff; display: block; margin-bottom: 6px;">{tool.label}</strong>
@@ -241,5 +277,62 @@ const featuredTools = tools.slice(0, 6);
         ))}
       </div>
     </section>
+
+    <!-- Chapter 06: Final Statement — Visual Silence (Report Standard) -->
+    <section class="section-silence skewable">
+      <div class="silence-inner">
+        <span class="silence-kicker">[ 06 // SYSTEM_RESOLUTION ]</span>
+        <h2 class="silence-title" data-kinetic>
+          BETTER EVIDENCE.<br />
+          <span class="text-electric">BETTER DECISIONS.</span>
+        </h2>
+        <p class="silence-lead">
+          Stop evaluating agents on marketing promises. Start inspecting deterministic commit logs, release provenance, and AST risk signals.
+        </p>
+        <div class="silence-actions">
+          <a href="/verify/" class="btn btn-primary btn-lg" data-cursor="VERIFY">Inspect Repository Now →</a>
+          <a href="/agents/" class="btn btn-ghost btn-lg" data-cursor="ATLAS">Open Agent Atlas ↗</a>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <script>
+    // Hero 3D Stage HUD Controls & Real-time Telemetry
+    if (typeof window !== 'undefined') {
+      const modeButtons = document.querySelectorAll<HTMLButtonElement>('.stage-mode-btn');
+      const pulseBtn = document.querySelector<HTMLButtonElement>('#stagePulseBtn');
+      const anglesEl = document.querySelector<HTMLElement>('#stageAngles');
+
+      modeButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          modeButtons.forEach((b) => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          const mode = btn.getAttribute('data-mode') as any;
+          if (window.paradoxWebGL && mode) {
+            window.paradoxWebGL.setMode(mode);
+          }
+        });
+      });
+
+      if (pulseBtn) {
+        pulseBtn.addEventListener('click', () => {
+          if (window.paradoxWebGL) {
+            window.paradoxWebGL.triggerImpulse();
+          }
+        });
+      }
+
+      // Telemetry Polling at 30Hz
+      setInterval(() => {
+        if (window.paradoxWebGL && anglesEl) {
+          const t = window.paradoxWebGL.getTelemetry();
+          if (t) {
+            anglesEl.textContent = `RX: ${t.rx}° RY: ${t.ry}°`;
+          }
+        }
+      }, 66);
+    }
+  </script>
 </BaseLayout>
+

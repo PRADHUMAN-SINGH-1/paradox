@@ -1,53 +1,78 @@
-/* PARADOX Cyber Intelligence Design Tokens — Lando Norris & Lusion Production Tier */
+/* ==========================================================================
+   PARADOX 2.0 Design Tokens — Immersive Transition Report Specification
+   Neutral restraint: Void (#050505) + Surface (#0B0E11) + Text (#F5F7FA)
+   Functional meaning: Electric (#6D5CFF) + Signal (#00E5FF) + Success (#59FF9A)
+   ========================================================================== */
 :root {
   color-scheme: dark;
 
-  /* Lusion & Lando Norris Deep Carbon Void & Titanium Surfaces */
-  --bg: #0a0a0a;
-  --canvas: #0a0a0a;
-  --surface-1: #111112;
-  --surface-2: #18191a;
-  --surface-hover: #222324;
-  --surface-active: #2a2b2c;
-  --surface: #111112;
-  --surface-elevated: #18191a;
+  /* Section 6 Report Color Specification */
+  --bg-void: #050505;
+  --bg: #050505;
+  --canvas: #050505;
+  --surface: #0B0E11;
+  --surface-1: #0B0E11;
+  --surface-2: #12161B;
+  --surface-hover: #181D24;
+  --surface-active: #1F252E;
+  --surface-elevated: #12161B;
 
-  /* Pure High-Contrast Typography */
-  --text-primary: #ffffff;
-  --text-hi: #ffffff;
-  --text-secondary: #9c9e97;
-  --text-muted: #555750;
-  --text-lo: #555750;
-  --text-faint: #222324;
+  /* Pure High-Contrast Editorial Typography */
+  --text-primary: #F5F7FA;
+  --text-hi: #F5F7FA;
+  --text-secondary: #9BA3AF;
+  --text-muted: #7E8792;
+  --text-lo: #7E8792;
+  --text-faint: #1F252E;
 
-  /* Exact Lando Norris Formula 1 Neon Lime Accent (#d2ff00) */
-  --accent: #d2ff00;
-  --accent-rgb: 210, 255, 0;
-  --accent-light: #e4ff4d;
-  --accent-dim: rgba(210, 255, 0, 0.12);
-  --accent-glow: rgba(210, 255, 0, 0.4);
+  /* Report Saturated Functional Accents (Restraint Principle) */
+  --electric: #6D5CFF;
+  --electric-dim: rgba(109, 92, 255, 0.14);
+  --electric-glow: rgba(109, 92, 255, 0.35);
 
-  /* Lusion Electric Cobalt & Spectrum */
-  --cobalt: #1a2ffb;
-  --cobalt-glow: rgba(26, 47, 251, 0.4);
-  --cyan: #d2ff00;
-  --cyan-glow: rgba(210, 255, 0, 0.35);
-  --emerald: #d2ff00;
-  --emerald-light: #e4ff4d;
-  --emerald-glow: rgba(210, 255, 0, 0.3);
-  --amber: #ffaa00;
-  --amber-glow: rgba(255, 170, 0, 0.3);
-  --rose: #ff2a55;
-  --rose-glow: rgba(255, 42, 85, 0.3);
+  --signal: #00E5FF;
+  --signal-dim: rgba(0, 229, 255, 0.12);
+  --signal-glow: rgba(0, 229, 255, 0.35);
+
+  --warning: #FFB020;
+  --warning-dim: rgba(255, 176, 32, 0.14);
+
+  --danger: #FF4D4F;
+  --danger-dim: rgba(255, 77, 79, 0.14);
+
+  --success: #59FF9A;
+  --success-dim: rgba(89, 255, 154, 0.14);
+
+  /* Primary Brand Accent (Electric Purple-Cobalt) */
+  --accent: #6D5CFF;
+  --accent-rgb: 109, 92, 255;
+  --accent-light: #8B7EFF;
+  --accent-dim: rgba(109, 92, 255, 0.14);
+  --accent-glow: rgba(109, 92, 255, 0.35);
+
+  /* Secondary Signal Accent (High-Velocity Volt / Emerald) */
+  --volt: #D2FF00;
+  --volt-dim: rgba(210, 255, 0, 0.12);
+  --emerald: #59FF9A;
+  --emerald-light: #80FFB4;
+  --emerald-glow: rgba(89, 255, 154, 0.3);
+  --cobalt: #6D5CFF;
+  --cobalt-glow: rgba(109, 92, 255, 0.35);
+  --cyan: #00E5FF;
+  --cyan-glow: rgba(0, 229, 255, 0.35);
+  --amber: #FFB020;
+  --amber-glow: rgba(255, 176, 32, 0.3);
+  --rose: #FF4D4F;
+  --rose-glow: rgba(255, 77, 79, 0.3);
 
   /* Hairline Precision Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: rgba(255, 255, 255, 0.16);
-  --border-bright: rgba(255, 255, 255, 0.32);
-  --border-hover: #d2ff00;
-  --border: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.14);
+  --border-bright: rgba(255, 255, 255, 0.28);
+  --border-hover: #6D5CFF;
+  --border: rgba(255, 255, 255, 0.1);
 
-  /* Brutalist Radii (Zero Border Radius for Architectural Cuts) */
+  /* Architectural Radii */
   --radius-none: 0px;
   --radius-sm: 0px;
   --radius-md: 2px;
@@ -55,18 +80,18 @@
   --radius-xl: 6px;
   --radius-full: 9999px;
 
-  /* Typography Stacks: Bebas Neue + Mona Sans + JetBrains Mono */
-  --font-display: 'Bebas Neue', 'Mona Sans', 'Space Grotesk', -apple-system, sans-serif;
+  /* Typography Stacks: Mona Sans + Space Grotesk + JetBrains Mono */
+  --font-display: 'Mona Sans', 'Space Grotesk', -apple-system, sans-serif;
   --font-sans: 'Mona Sans', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'DM Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Motion Curves */
+  /* Motion Curves (Report Asymmetric Easing: Quick Response, Long Settle) */
   --ease-brutal: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 120ms;
-  --duration-normal: 220ms;
-  --duration-slow: 400ms;
+  --ease-settle: cubic-bezier(0.08, 0.95, 0.15, 1);
+  --duration-fast: 140ms;
+  --duration-normal: 240ms;
+  --duration-slow: 450ms;
 
   /* Layout Boundaries */
   --max-w-content: 1360px;
