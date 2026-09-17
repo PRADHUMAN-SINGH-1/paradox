@@ -3,7 +3,7 @@
  * Boots 3D WebGL Particle Lattice, Precision Difference Cursor, Lenis Momentum Scroll & Kinetic Reveals.
  */
 
-import { PrecisionCursor } from './cursor.ts';
+import { PrecisionCursor, initSpotlightCards } from './cursor.ts';
 import { initSmoothScroll } from './scroll.ts';
 import { initKineticText } from './kinetic-text.ts';
 import { ThreeWebGLScene } from './webgl-scene.ts';
@@ -117,6 +117,7 @@ export function initCreativeEngine() {
 
   // 1. Mount Inverted Difference Cursor
   new PrecisionCursor();
+  initSpotlightCards();
 
   // 2. Initialize Lenis Momentum Smooth Scroll & Marquee Speedup
   initSmoothScroll();

@@ -393,3 +393,64 @@
   font-family: var(--font-mono);
   font-size: 12px;
 }
+
+/* ==========================================================================
+   Radial Specular Spotlight Cards (Linear / Stripe / Lando Norris Standard)
+   ========================================================================== */
+.spotlight-card {
+  position: relative;
+  background: #111112;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    380px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    rgba(210, 255, 0, 0.18),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    280px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    rgba(210, 255, 0, 0.7),
+    transparent 50%
+  ) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.spotlight-card:hover::before,
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+.spotlight-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(210, 255, 0, 0.25);
+}
+
+.spotlight-card > * {
+  position: relative;
+  z-index: 3;
+}

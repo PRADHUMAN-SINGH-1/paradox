@@ -80,41 +80,57 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </div>
 
-    <!-- Section 02: Platform Foundations Split Presentation -->
-    <section class="section-brutalist skewable">
-      <div class="section-header">
-        <span class="section-kicker">[ 02 // PLATFORM_FOUNDATIONS ]</span>
-        <h2 class="section-title" data-kinetic>Deterministic signals.<br/>Zero guesswork.</h2>
+    <!-- Section 02: Lando Norris Signature Pinned Horizontal Decision Track -->
+    <section class="horizontal-track-wrapper">
+      <div class="horizontal-track-header">
+        <div>
+          <span class="section-kicker">[ 02 // HORIZONTAL_DECISION_RAIL ]</span>
+          <h2 class="section-title" data-kinetic>Deterministic signals. Zero guesswork.</h2>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); display: flex; align-items: center; gap: 8px;">
+          <span class="dot-pulse"></span>
+          <span>SCROLL DOWN TO ADVANCE RAIL →</span>
+        </div>
       </div>
 
-      <div class="foundations-grid">
-        <div class="foundation-card hud-corners" data-cursor="DECISION">
-          <div class="card-num">01</div>
-          <span class="card-kicker">DECISION ARCHITECTURE</span>
-          <h3>Evidence First</h3>
-          <p>Every score is anchored exclusively in public commit histories, release provenance, and manifests. No subjective hype.</p>
-        </div>
+      <div class="horizontal-track-pin">
+        <div class="horizontal-track-inner">
+          <article class="horizontal-card spotlight-card hud-corners" data-cursor="EVIDENCE">
+            <div class="horizontal-card-num">01</div>
+            <span class="card-kicker">DECISION ARCHITECTURE</span>
+            <h3>Evidence First</h3>
+            <p>Every score is anchored exclusively in public commit histories, release provenance, and manifests. No subjective marketing or hype.</p>
+          </article>
 
-        <div class="foundation-card hud-corners" data-cursor="SECURITY">
-          <div class="card-num">02</div>
-          <span class="card-kicker">ISOLATION CORE</span>
-          <h3>Zero Code Run</h3>
-          <p>Target repository install scripts, Dockerfiles, and binary payloads are never executed. Pure static AST heuristic parsing.</p>
-        </div>
+          <article class="horizontal-card spotlight-card hud-corners" data-cursor="ISOLATION">
+            <div class="horizontal-card-num">02</div>
+            <span class="card-kicker">ISOLATION CORE</span>
+            <h3>Zero Code Run</h3>
+            <p>Target repository install scripts, Dockerfiles, and binary payloads are never executed. Pure deterministic static AST parsing.</p>
+          </article>
 
-        <div class="foundation-card hud-corners" data-cursor="METRICS">
-          <div class="card-num">03</div>
-          <span class="card-kicker">SIGNAL VELOCITY</span>
-          <h3>Live Health & Risk</h3>
-          <p>Dynamic detection of abandoned codebases, unpinned transitive dependencies, credential access heuristics, and remote shell calls.</p>
-        </div>
+          <article class="horizontal-card spotlight-card hud-corners" data-cursor="VELOCITY">
+            <div class="horizontal-card-num">03</div>
+            <span class="card-kicker">SIGNAL VELOCITY</span>
+            <h3>Live Health & Risk</h3>
+            <p>Real-time detection of abandoned codebases, unpinned transitive dependencies, credential access heuristics, and remote shell calls.</p>
+          </article>
 
-        <div class="foundation-card hud-corners" data-cursor="EVALUATE">
-          <div class="card-num">04</div>
-          <span class="card-kicker">COMPARISON ENGINE</span>
-          <h3>Side-by-Side Matrix</h3>
-          <p>Direct mathematical alignment of two competing frameworks across maintenance freshness, stars, releases, and risk vectors.</p>
+          <article class="horizontal-card spotlight-card hud-corners" data-cursor="MATRIX">
+            <div class="horizontal-card-num">04</div>
+            <span class="card-kicker">COMPARISON ENGINE</span>
+            <h3>Side-by-Side Matrix</h3>
+            <p>Direct mathematical alignment of competing frameworks across maintenance freshness, stars, releases, and vulnerability vectors.</p>
+          </article>
+
+          <article class="horizontal-card spotlight-card hud-corners" data-cursor="REASONING">
+            <div class="horizontal-card-num">05</div>
+            <span class="card-kicker">PROTOCOL VERIFICATION</span>
+            <h3>Verified Manifests</h3>
+            <p>Comprehensive AST analysis extracting Model Context Protocol (MCP) definitions, tool exports, and agent capabilities in sub-millisecond execution.</p>
+          </article>
         </div>
+        <div class="horizontal-progress-bar" id="trackProgress"></div>
       </div>
     </section>
 
@@ -186,7 +202,7 @@ const featuredTools = tools.slice(0, 6);
 
       <div class="grid-agents">
         {featured.map((e) => (
-          <article class="agent-card hud-corners" data-cursor="VIEW">
+          <article class="agent-card spotlight-card hud-corners" data-cursor="VIEW">
             <div class="meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <span class="chip chip-accent">{e.category}</span>
               <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">{e.owner}</span>
@@ -214,7 +230,7 @@ const featuredTools = tools.slice(0, 6);
 
       <div class="tools-grid">
         {featuredTools.map((tool, i) => (
-          <a class="tool-brutalist-card hud-corners" href={`/ai/${tool.slug}/`} data-cursor="LAUNCH">
+          <a class="tool-brutalist-card spotlight-card hud-corners" href={`/ai/${tool.slug}/`} data-cursor="LAUNCH">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 800;">{String(i + 1).padStart(2, '0')} // AI_TOOL</span>
               <span class="tool-arrow">↗</span>

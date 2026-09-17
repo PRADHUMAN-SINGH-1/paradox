@@ -1,6 +1,7 @@
 /**
  * PARADOX Momentum Smooth Scroll & Kinetic Skew Physics — Lando Norris Standard
- * Connects Studio Freight Lenis with GSAP ScrollTrigger, drives velocity skew and marquee racing.
+ * Connects Studio Freight Lenis with GSAP ScrollTrigger, drives velocity skew,
+ * marquee racing, and horizontal pinned scroll track.
  */
 
 declare global {
@@ -10,6 +11,36 @@ declare global {
     ScrollTrigger?: any;
     lenisInstance?: any;
   }
+}
+
+export function initHorizontalTrack() {
+  if (typeof window === 'undefined' || !window.gsap || !window.ScrollTrigger) return;
+
+  const wrapper = document.querySelector<HTMLElement>('.horizontal-track-wrapper');
+  const inner = document.querySelector<HTMLElement>('.horizontal-track-inner');
+  const progressBar = document.querySelector<HTMLElement>('#trackProgress');
+
+  if (!wrapper || !inner) return;
+
+  const getScrollAmount = () => Math.max(0, inner.scrollWidth - window.innerWidth + 120);
+
+  window.gsap.to(inner, {
+    x: () => -getScrollAmount(),
+    ease: 'none',
+    scrollTrigger: {
+      trigger: wrapper,
+      start: 'top top',
+      end: () => `+=${getScrollAmount()}`,
+      pin: true,
+      scrub: 1,
+      invalidateOnRefresh: true,
+      onUpdate: (self: any) => {
+        if (progressBar) {
+          progressBar.style.width = `${(self.progress * 100).toFixed(1)}%`;
+        }
+      }
+    }
+  });
 }
 
 export function initSmoothScroll() {
@@ -47,6 +78,9 @@ export function initSmoothScroll() {
           });
         }
       });
+
+      // Lando Norris Pinned Horizontal Track
+      initHorizontalTrack();
     } else {
       const raf = (time: number) => {
         lenis.raf(time);

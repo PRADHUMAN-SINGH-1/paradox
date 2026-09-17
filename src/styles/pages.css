@@ -1462,3 +1462,119 @@
   font-size: 13px;
   line-height: 1.6;
 }
+
+/* ==========================================================================
+   Lando Norris Horizontal Pinned Scroll Track (.horizontal-track-wrapper)
+   ========================================================================== */
+.horizontal-track-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  background: #080808;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.horizontal-track-header {
+  padding: 40px max(24px, 4vw) 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  max-width: var(--max-w-wide);
+  margin: 0 auto;
+}
+
+.horizontal-track-pin {
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.horizontal-track-inner {
+  display: flex;
+  gap: 32px;
+  padding: 0 max(24px, 6vw);
+  width: max-content;
+  will-change: transform;
+}
+
+.horizontal-card {
+  width: clamp(340px, 32vw, 460px);
+  flex-shrink: 0;
+  background: #111112;
+  border: 1px solid var(--border-default);
+  padding: 44px 36px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-brutal);
+}
+
+.horizontal-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.9), 0 0 30px -5px var(--accent-glow);
+}
+
+.horizontal-card-num {
+  font-family: var(--font-mono);
+  font-size: 54px;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.horizontal-card h3 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 14px;
+  letter-spacing: -0.02em;
+}
+
+.horizontal-card p {
+  font-size: 14.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.horizontal-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  width: 0%;
+  box-shadow: 0 0 12px var(--accent);
+  transition: width 0.1s linear;
+}
+
+/* ==========================================================================
+   Self-Drawing SVG Vectors & Hero 3D Stage
+   ========================================================================== */
+.hero-3d-stage {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-3d-canvas {
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.hero-3d-canvas:active {
+  cursor: grabbing;
+}

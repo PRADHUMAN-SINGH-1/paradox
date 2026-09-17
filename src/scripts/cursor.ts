@@ -1,12 +1,35 @@
 /**
- * PARADOX Inverted Difference Cursor — Lusion.co & Lando Norris Production Standard
- * High-performance 120fps hardware-accelerated difference cursor using GSAP quickSetter.
+ * PARADOX Inverted Difference Cursor & Specular Spotlight Engine
+ * Lusion.co & Lando Norris Production Standard
  */
 
 declare global {
   interface Window {
     gsap?: any;
   }
+}
+
+export function initSpotlightCards() {
+  if (typeof window === 'undefined') return;
+
+  document.addEventListener('pointermove', (e) => {
+    const cards = document.querySelectorAll<HTMLElement>('.spotlight-card');
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      // Only compute when near or inside card for optimal 120fps performance
+      if (
+        e.clientX >= rect.left - 40 &&
+        e.clientX <= rect.right + 40 &&
+        e.clientY >= rect.top - 40 &&
+        e.clientY <= rect.bottom + 40
+      ) {
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      }
+    });
+  }, { passive: true });
 }
 
 export class PrecisionCursor {
@@ -63,14 +86,14 @@ export class PrecisionCursor {
 
     // Delegated hover observer for interactive elements
     document.addEventListener('mouseover', (e) => {
-      const target = (e.target as HTMLElement)?.closest('a, button, [data-cursor], .card-interactive, .agent-card, .foundation-card, .tool-brutalist-card, input');
+      const target = (e.target as HTMLElement)?.closest('a, button, [data-cursor], .card-interactive, .agent-card, .foundation-card, .tool-brutalist-card, .spotlight-card, input');
       if (target && this.blob) {
         this.blob.classList.add('is-hovered');
       }
     });
 
     document.addEventListener('mouseout', (e) => {
-      const target = (e.target as HTMLElement)?.closest('a, button, [data-cursor], .card-interactive, .agent-card, .foundation-card, .tool-brutalist-card, input');
+      const target = (e.target as HTMLElement)?.closest('a, button, [data-cursor], .card-interactive, .agent-card, .foundation-card, .tool-brutalist-card, .spotlight-card, input');
       if (target && this.blob) {
         this.blob.classList.remove('is-hovered');
       }
