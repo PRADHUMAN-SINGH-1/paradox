@@ -14,6 +14,7 @@ export type ProductEvent =
   | 'agent_opened'
   | 'compare_started'
   | 'compare_completed'
+  | 'compare_failed'
   | 'save_agent'
   | 'unsave_agent'
   | 'signup_started'
