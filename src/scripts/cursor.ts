@@ -61,12 +61,10 @@ export class PrecisionCursor {
     }, { passive: true });
 
     window.addEventListener('pointerdown', () => {
-      this.isClicking = true;
       this.ring?.classList.add('is-clicking');
     });
 
     window.addEventListener('pointerup', () => {
-      this.isClicking = false;
       this.ring?.classList.remove('is-clicking');
     });
 
@@ -84,7 +82,6 @@ export class PrecisionCursor {
     document.addEventListener('mouseover', (e) => {
       const target = (e.target as HTMLElement)?.closest('a, button, [data-cursor], .card-interactive, .agent-card, input');
       if (target && this.ring) {
-        this.isHovered = true;
         this.ring.classList.add('is-hovered');
 
         const customLabel = (target as HTMLElement).getAttribute('data-cursor');
@@ -98,7 +95,6 @@ export class PrecisionCursor {
     document.addEventListener('mouseout', (e) => {
       const target = (e.target as HTMLElement)?.closest('a, button, [data-cursor], .card-interactive, .agent-card, input');
       if (target && this.ring) {
-        this.isHovered = false;
         this.ring.classList.remove('is-hovered', 'has-label');
         if (this.ringText) this.ringText.textContent = '';
       }
