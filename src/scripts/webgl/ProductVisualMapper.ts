@@ -1,5 +1,6 @@
 // PARADOX Product Visual Mapper
 // Maps normalized repository metrics to Three.js color values, scales, and shader uniforms.
+// Editorial standard: deep carbon obsidian, off-white, pale lavender-grey, and calibrated data cobalt.
 
 import { type NormalizedVisualMetrics } from './ProductDataNormalizer.ts';
 
@@ -13,13 +14,14 @@ export interface VisualRepresentation {
 }
 
 export class ProductVisualMapper {
-  // Brand color constants (linear RGB)
-  public static readonly COLOR_VOID = [0.02, 0.02, 0.02] as const;      // #050505
-  public static readonly COLOR_SURFACE = [0.043, 0.055, 0.067] as const; // #0B0E11
-  public static readonly COLOR_ELECTRIC = [0.427, 0.361, 1.0] as const; // #6D5CFF
-  public static readonly COLOR_CYAN = [0.0, 0.898, 1.0] as const;       // #00E5FF
-  public static readonly COLOR_SUCCESS = [0.349, 1.0, 0.604] as const;  // #59FF9A
-  public static readonly COLOR_DANGER = [1.0, 0.302, 0.31] as const;    // #FF4D4F
+  // Editorial palette constants (linear RGB)
+  public static readonly COLOR_VOID = [0.02, 0.024, 0.03] as const;          // #050608
+  public static readonly COLOR_SURFACE = [0.039, 0.047, 0.063] as const;     // #0A0C10
+  public static readonly COLOR_OFFWHITE = [0.95, 0.96, 0.97] as const;        // #F2F4F7
+  public static readonly COLOR_LAVENDER = [0.65, 0.67, 0.73] as const;        // #A6ACB9
+  public static readonly COLOR_COBALT_DATA = [0.23, 0.36, 0.86] as const;     // #3B5BDB
+  public static readonly COLOR_SUCCESS = [0.22, 0.85, 0.66] as const;         // #38D9A9
+  public static readonly COLOR_DANGER = [1.0, 0.42, 0.42] as const;           // #FF6B6B
 
   /**
    * Maps normalized metrics to shader uniform values and attributes.
@@ -32,29 +34,29 @@ export class ProductVisualMapper {
     } else if (metrics.healthRatio > 0.9) {
       rimColor = [...this.COLOR_SUCCESS];
     } else if (metrics.isVerified) {
-      rimColor = [...this.COLOR_CYAN];
+      rimColor = [...this.COLOR_COBALT_DATA];
     } else {
-      rimColor = [...this.COLOR_ELECTRIC];
+      rimColor = [...this.COLOR_OFFWHITE];
     }
 
-    // 2. Primary body: Deep obsidian with slight status tinting
+    // 2. Primary body: Deep carbon obsidian with subtle status tinting
     const primaryColor: [number, number, number] = [
-      this.COLOR_SURFACE[0] + rimColor[0] * 0.05,
-      this.COLOR_SURFACE[1] + rimColor[1] * 0.05,
-      this.COLOR_SURFACE[2] + rimColor[2] * 0.05
+      this.COLOR_SURFACE[0] + rimColor[0] * 0.03,
+      this.COLOR_SURFACE[1] + rimColor[1] * 0.03,
+      this.COLOR_SURFACE[2] + rimColor[2] * 0.03
     ];
 
     // 3. Physical scale: based on dependency density & MCP tools
-    const scale = 0.8 + metrics.dependencyDensity * 0.4 + metrics.mcpFactor * 0.3;
+    const scale = 0.85 + metrics.dependencyDensity * 0.35 + metrics.mcpFactor * 0.25;
 
     // 4. Vertex displacement: high risk causes turbulent displacement; high health creates serene ripples
-    const displacementFactor = 0.15 + metrics.riskFactor * 0.5 - metrics.healthRatio * 0.05;
+    const displacementFactor = 0.12 + metrics.riskFactor * 0.4 - metrics.healthRatio * 0.04;
 
     // 5. Pulse frequency: commit velocity drives activity rhythm
-    const pulseRate = 0.6 + metrics.velocityPulse * 1.4;
+    const pulseRate = 0.5 + metrics.velocityPulse * 1.2;
 
     // 6. Specular hardness
-    const specularPower = 16.0 + metrics.freshness * 32.0;
+    const specularPower = 20.0 + metrics.freshness * 28.0;
 
     return {
       primaryColor,

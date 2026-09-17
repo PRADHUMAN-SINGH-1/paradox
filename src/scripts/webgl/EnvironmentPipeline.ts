@@ -1,5 +1,5 @@
 // PARADOX Environment Pipeline
-// ACESFilmic Tone Mapping, sRGB color space, synthetic PMREM reflection environment, and surgical lighting.
+// ACESFilmic Tone Mapping, sRGB color space, synthetic PMREM studio reflection, and neutral editorial lighting.
 
 export class EnvironmentPipeline {
   private THREE: any;
@@ -14,79 +14,78 @@ export class EnvironmentPipeline {
   }
 
   /**
-   * Initializes color management, tone mapping, and synthetic studio lighting.
+   * Initializes color management, tone mapping, and neutral architectural studio lighting.
    */
   public setup() {
     // 1. ACESFilmic Tone Mapping & Color Encoding
     if (this.THREE.ACESFilmicToneMapping) {
       this.renderer.toneMapping = this.THREE.ACESFilmicToneMapping;
-      this.renderer.toneMappingExposure = 1.05;
+      this.renderer.toneMappingExposure = 1.0;
     }
 
     if (this.THREE.SRGBColorSpace) {
       this.renderer.outputColorSpace = this.THREE.SRGBColorSpace;
     }
 
-    // 2. Scene Void Background (#050505)
-    this.scene.background = new this.THREE.Color(0x050505);
+    // 2. Scene Carbon Obsidian Background (#050608)
+    this.scene.background = new this.THREE.Color(0x050608);
 
-    // 3. Surgical Lighting Grid
-    // Key directional light: cool white
-    const keyLight = new this.THREE.DirectionalLight(0xF5F7FA, 1.2);
-    keyLight.position.set(30, 45, 40);
+    // 3. Editorial Architectural Lighting (Neutral Restraint)
+    // Key directional light: crisp architectural white
+    const keyLight = new this.THREE.DirectionalLight(0xF2F4F7, 1.1);
+    keyLight.position.set(35, 45, 40);
     this.scene.add(keyLight);
 
-    // Rim light: electric brand / cyan
-    const rimLight = new this.THREE.DirectionalLight(0x00E5FF, 1.8);
+    // Subtle cool rim light: pale lavender-slate
+    const rimLight = new this.THREE.DirectionalLight(0xCFD5E1, 0.85);
     rimLight.position.set(-35, -20, -30);
     this.scene.add(rimLight);
 
-    // Accent light: emerald verification glow
-    const accentLight = new this.THREE.PointLight(0x59FF9A, 1.0, 100);
+    // Data accent light: calibrated cobalt (subtle)
+    const accentLight = new this.THREE.PointLight(0x3B5BDB, 0.5, 120);
     accentLight.position.set(0, -25, 20);
     this.scene.add(accentLight);
 
-    // Soft obsidian ambient
-    const ambientLight = new this.THREE.AmbientLight(0x080B10, 0.6);
+    // Ambient deep charcoal fill
+    const ambientLight = new this.THREE.AmbientLight(0x0A0D12, 0.7);
     this.scene.add(ambientLight);
 
-    // 4. Generate Synthetic HDR Studio Map via PMREMGenerator
+    // 4. Generate Synthetic Neutral Studio Reflection Map via PMREMGenerator
     this.generateSyntheticEnvironment();
   }
 
   /**
-   * Generates a procedural gradient cubemap processed by PMREMGenerator
-   * for realistic obsidian reflections without 10MB HDR downloads.
+   * Generates a neutral grayscale studio map for realistic specular highlights
+   * on metallic and crystalline obsidian surfaces without colorful tinting.
    */
   private generateSyntheticEnvironment() {
     try {
       this.pmremGenerator = new this.THREE.PMREMGenerator(this.renderer);
       this.pmremGenerator.compileEquirectangularShader();
 
-      // Create synthetic high-contrast studio canvas
       const canvas = document.createElement('canvas');
       canvas.width = 512;
       canvas.height = 256;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        // Deep obsidian base
+        // Deep obsidian gradient base
         const grad = ctx.createLinearGradient(0, 0, 0, 256);
-        grad.addColorStop(0.0, '#05070a');
-        grad.addColorStop(0.4, '#0d1117');
-        grad.addColorStop(0.7, '#161b22');
-        grad.addColorStop(1.0, '#030406');
+        grad.addColorStop(0.0, '#040507');
+        grad.addColorStop(0.4, '#0a0d11');
+        grad.addColorStop(0.7, '#13171e');
+        grad.addColorStop(1.0, '#020304');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, 512, 256);
 
-        // Studio softbox highlights (emulating Lusion lighting rig)
-        ctx.fillStyle = 'rgba(109, 92, 255, 0.4)'; // Brand purple glow
+        // Neutral monochrome studio softbox highlights
+        ctx.fillStyle = 'rgba(242, 244, 247, 0.22)';
         ctx.beginPath();
-        ctx.arc(140, 70, 60, 0, Math.PI * 2);
+        ctx.arc(140, 70, 65, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(0, 229, 255, 0.45)'; // Cyan key light
+        ctx.fillStyle = 'rgba(207, 213, 225, 0.2)';
         ctx.beginPath();
-        ctx.arc(380, 80, 50, 0, Math.PI * 2);
+        ctx.arc(380, 80, 55, 0, Math.PI * 2);
         ctx.fill();
 
         const texture = new this.THREE.CanvasTexture(canvas);
@@ -97,7 +96,7 @@ export class EnvironmentPipeline {
         texture.dispose();
       }
     } catch {
-      // Fallback gracefully if PMREM is unsupported
+      // Fallback gracefully
     }
   }
 

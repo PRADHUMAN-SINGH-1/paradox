@@ -1,83 +1,86 @@
 /* ==========================================================================
-   PARADOX 2.0 Design Tokens — Immersive Transition Report Specification
-   Neutral restraint: Void (#050505) + Surface (#0B0E11) + Text (#F5F7FA)
-   Functional meaning: Electric (#6D5CFF) + Signal (#00E5FF) + Success (#59FF9A)
+   PARADOX 2.0 Design Tokens — Lusion-Class Editorial Art Direction
+   Editorial Restraint: Deep Carbon Obsidian + Crisp Off-White + Pale Lavender-Grey
+   Controlled Data Accents: Calibrated Cobalt Blue (Data Only) + Clinical Status
+   Zero Neon Gradients · Zero Holographic Glows · Zero Cyber HUD Borders
    ========================================================================== */
 :root {
   color-scheme: dark;
 
-  /* Section 6 Report Color Specification */
-  --bg-void: #050505;
-  --bg: #050505;
-  --canvas: #050505;
-  --surface: #0B0E11;
-  --surface-1: #0B0E11;
-  --surface-2: #12161B;
-  --surface-hover: #181D24;
-  --surface-active: #1F252E;
-  --surface-elevated: #12161B;
+  /* Editorial Void & Surface Layering */
+  --bg-void: #050608;
+  --bg: #050608;
+  --canvas: #050608;
+  --surface: #090B0E;
+  --surface-1: #090B0E;
+  --surface-2: #11141A;
+  --surface-hover: #161A22;
+  --surface-active: #1D222D;
+  --surface-elevated: #11141A;
 
-  /* Pure High-Contrast Editorial Typography */
-  --text-primary: #F5F7FA;
-  --text-hi: #F5F7FA;
-  --text-secondary: #9BA3AF;
-  --text-muted: #7E8792;
-  --text-lo: #7E8792;
-  --text-faint: #1F252E;
+  /* Architectural High-Contrast Typography */
+  --text-primary: #F2F4F7;
+  --text-hi: #F2F4F7;
+  --text-secondary: #A6ACB9;
+  --text-muted: #686E7C;
+  --text-lo: #686E7C;
+  --text-faint: #1D222D;
 
-  /* Report Saturated Functional Accents (Restraint Principle) */
-  --electric: #6D5CFF;
-  --electric-dim: rgba(109, 92, 255, 0.14);
-  --electric-glow: rgba(109, 92, 255, 0.35);
+  /* Restrained Functional Palette (Data-Specific, Not Decorative) */
+  --cobalt-data: #3B5BDB;
+  --cobalt-dim: rgba(59, 91, 219, 0.12);
+  --accent: #F2F4F7;
+  --accent-rgb: 242, 244, 247;
+  --accent-light: #FFFFFF;
+  --accent-dim: rgba(255, 255, 255, 0.08);
 
-  --signal: #00E5FF;
-  --signal-dim: rgba(0, 229, 255, 0.12);
-  --signal-glow: rgba(0, 229, 255, 0.35);
+  /* Clinical Status Signals (Sparse, Factual) */
+  --status-success: #38D9A9;
+  --status-success-dim: rgba(56, 217, 169, 0.12);
+  --status-danger: #FF6B6B;
+  --status-danger-dim: rgba(255, 107, 107, 0.12);
+  --status-warning: #FCC419;
+  --status-warning-dim: rgba(252, 196, 25, 0.12);
 
-  --warning: #FFB020;
-  --warning-dim: rgba(255, 176, 32, 0.14);
+  /* Legacy mappings directed to restrained tokens */
+  --electric: var(--text-primary);
+  --electric-dim: rgba(255, 255, 255, 0.06);
+  --electric-glow: transparent;
+  --signal: var(--cobalt-data);
+  --signal-dim: var(--cobalt-dim);
+  --signal-glow: transparent;
+  --volt: var(--text-primary);
+  --volt-dim: rgba(255, 255, 255, 0.06);
+  --emerald: var(--status-success);
+  --emerald-glow: transparent;
+  --cobalt: var(--cobalt-data);
+  --cobalt-glow: transparent;
+  --cyan: var(--cobalt-data);
+  --cyan-glow: transparent;
+  --amber: var(--status-warning);
+  --amber-glow: transparent;
+  --rose: var(--status-danger);
+  --rose-glow: transparent;
+  --warning: var(--status-warning);
+  --warning-dim: var(--status-warning-dim);
+  --danger: var(--status-danger);
+  --danger-dim: var(--status-danger-dim);
+  --success: var(--status-success);
+  --success-dim: var(--status-success-dim);
 
-  --danger: #FF4D4F;
-  --danger-dim: rgba(255, 77, 79, 0.14);
-
-  --success: #59FF9A;
-  --success-dim: rgba(89, 255, 154, 0.14);
-
-  /* Primary Brand Accent (Electric Purple-Cobalt) */
-  --accent: #6D5CFF;
-  --accent-rgb: 109, 92, 255;
-  --accent-light: #8B7EFF;
-  --accent-dim: rgba(109, 92, 255, 0.14);
-  --accent-glow: rgba(109, 92, 255, 0.35);
-
-  /* Secondary Signal Accent (High-Velocity Volt / Emerald) */
-  --volt: #D2FF00;
-  --volt-dim: rgba(210, 255, 0, 0.12);
-  --emerald: #59FF9A;
-  --emerald-light: #80FFB4;
-  --emerald-glow: rgba(89, 255, 154, 0.3);
-  --cobalt: #6D5CFF;
-  --cobalt-glow: rgba(109, 92, 255, 0.35);
-  --cyan: #00E5FF;
-  --cyan-glow: rgba(0, 229, 255, 0.35);
-  --amber: #FFB020;
-  --amber-glow: rgba(255, 176, 32, 0.3);
-  --rose: #FF4D4F;
-  --rose-glow: rgba(255, 77, 79, 0.3);
-
-  /* Hairline Precision Borders */
+  /* Hairline Architectural Precision Borders */
   --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-default: rgba(255, 255, 255, 0.14);
-  --border-bright: rgba(255, 255, 255, 0.28);
-  --border-hover: #6D5CFF;
-  --border: rgba(255, 255, 255, 0.1);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-bright: rgba(255, 255, 255, 0.22);
+  --border-hover: rgba(255, 255, 255, 0.35);
+  --border: rgba(255, 255, 255, 0.09);
 
-  /* Architectural Radii */
+  /* Architectural Radii (Strict, Clean Geometry) */
   --radius-none: 0px;
   --radius-sm: 0px;
   --radius-md: 2px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
+  --radius-lg: 3px;
+  --radius-xl: 4px;
   --radius-full: 9999px;
 
   /* Typography Stacks: Mona Sans + Space Grotesk + JetBrains Mono */
@@ -85,15 +88,15 @@
   --font-sans: 'Mona Sans', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'DM Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Motion Curves (Report Asymmetric Easing: Quick Response, Long Settle) */
+  /* Motion Curves (Asymmetric Physics: Rapid Response, Long Settle) */
   --ease-brutal: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-settle: cubic-bezier(0.08, 0.95, 0.15, 1);
-  --duration-fast: 140ms;
-  --duration-normal: 240ms;
-  --duration-slow: 450ms;
+  --duration-fast: 120ms;
+  --duration-normal: 220ms;
+  --duration-slow: 400ms;
 
   /* Layout Boundaries */
-  --max-w-content: 1360px;
-  --max-w-wide: 1540px;
+  --max-w-content: 1380px;
+  --max-w-wide: 1600px;
 }

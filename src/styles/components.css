@@ -1,8 +1,9 @@
-/* PARADOX Brutalist Component Architecture — Lando Norris & Lusion Standards */
-
 /* ==========================================================================
-   Action Buttons (Zero Radius, High-Contrast Volt Flashes)
+   PARADOX Architectural Component Architecture — Editorial Standard
+   Minimalist Restraint · Hairline Precision · Zero Cyber Glows
    ========================================================================== */
+
+/* Action Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -10,60 +11,55 @@
   gap: 10px;
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 12px 22px;
+  padding: 12px 24px;
   border-radius: var(--radius-none);
-  border: 1px solid var(--border-bright);
+  border: 1px solid var(--border-default);
   background: var(--surface-1);
   color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: all var(--duration-fast) var(--ease-brutal);
+  transition: border-color var(--duration-fast), background-color var(--duration-fast), color var(--duration-fast);
   position: relative;
-  overflow: hidden;
   user-select: none;
 }
 
 .btn:hover {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #000000;
-  box-shadow: 0 0 25px var(--accent-glow);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--surface-2);
+  color: #FFFFFF;
 }
 
 .btn:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(1px);
 }
 
 .btn-primary {
-  background: #ffffff;
-  border-color: #ffffff;
-  color: #000000;
+  background: #F2F4F7;
+  border-color: #F2F4F7;
+  color: #050608;
+  font-weight: 700;
 }
 
 .btn-primary:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #FFFFFF;
+  border-color: #FFFFFF;
   color: #000000;
-  box-shadow: 0 0 30px var(--accent-glow);
 }
 
 .btn-emerald {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #000000;
-  box-shadow: 0 0 20px var(--accent-glow);
+  background: #12151B;
+  border-color: var(--border-bright);
+  color: var(--text-primary);
 }
 
 .btn-emerald:hover {
-  background: #ffffff;
-  border-color: #ffffff;
-  color: #000000;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+  background: #F2F4F7;
+  border-color: #F2F4F7;
+  color: #050608;
 }
 
 .btn-ghost {
@@ -74,18 +70,21 @@
 
 .btn-ghost:hover {
   background: var(--surface-2);
-  border-color: var(--border-bright);
-  color: #ffffff;
+  border-color: var(--border-default);
+  color: var(--text-primary);
 }
 
 .btn-sm {
-  padding: 8px 14px;
+  padding: 7px 14px;
   font-size: 10px;
 }
 
-/* ==========================================================================
-   Brutalist Search & Unified Inputs
-   ========================================================================== */
+.btn-lg {
+  padding: 16px 36px;
+  font-size: 12px;
+}
+
+/* Minimalist Search Input */
 .search-bar-unified {
   display: flex;
   align-items: center;
@@ -93,14 +92,13 @@
   background: var(--surface-1);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-none);
-  padding: 8px 12px 8px 20px;
-  transition: all var(--duration-normal) var(--ease-brutal);
+  padding: 6px 10px 6px 18px;
+  transition: border-color var(--duration-normal);
   width: 100%;
 }
 
 .search-bar-unified:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 10px 40px -5px rgba(228, 249, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
   background: var(--surface-2);
 }
 
@@ -109,11 +107,11 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #ffffff;
-  font-size: 15px;
+  color: #FFFFFF;
+  font-size: 14px;
   font-family: var(--font-sans);
-  font-weight: 500;
-  padding: 10px 8px;
+  font-weight: 400;
+  padding: 8px;
 }
 
 .search-bar-unified input::placeholder {
@@ -123,55 +121,53 @@
 .search-bar-unified .shortcut-hint {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: #000000;
+  padding: 3px 6px;
+  background: #050608;
   border: 1px solid var(--border-subtle);
   border-radius: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--accent);
-  margin-right: 10px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 8px;
   pointer-events: none;
 }
 
-/* ==========================================================================
-   Continuous Horizontal Marquee Tickers (Lando Norris Signature)
-   ========================================================================== */
+/* Subtle Architectural Marquee Strip */
 .marquee-strip {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   overflow: hidden;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  background: #0a0a0a;
-  padding: 16px 0;
+  background: #050608;
+  padding: 14px 0;
   white-space: nowrap;
   user-select: none;
 }
 
 .marquee-content {
   display: inline-flex;
-  animation: marqueeRoll 24s linear infinite;
+  animation: marqueeRoll 32s linear infinite;
   will-change: transform;
 }
 
 .marquee-content span {
   display: inline-flex;
   align-items: center;
-  gap: 24px;
-  padding: 0 24px;
+  gap: 28px;
+  padding: 0 28px;
   font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .marquee-content span strong {
-  color: var(--accent);
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 @keyframes marqueeRoll {
@@ -179,9 +175,7 @@
   100% { transform: translateX(-50%); }
 }
 
-/* ==========================================================================
-   Brutalist Agent Cards (Sharp Hairline Cuts + Volt Flash Inversion)
-   ========================================================================== */
+/* Architectural Repository Cards */
 .agent-card,
 .card-glass {
   background: var(--surface-1);
@@ -189,268 +183,61 @@
   border-radius: var(--radius-none);
   padding: 28px;
   position: relative;
-  transition: all var(--duration-fast) var(--ease-brutal);
+  transition: border-color var(--duration-fast), background-color var(--duration-fast);
+  display: flex;
+  flex-direction: column;
 }
 
 .agent-card:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #000000;
-  transform: translateY(-3px);
-  box-shadow: 0 14px 36px -8px var(--accent-glow);
+  background: var(--surface-2);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
-.agent-card:hover h3,
-.agent-card:hover p,
-.agent-card:hover span,
-.agent-card:hover a {
-  color: #000000 !important;
-}
-
-.agent-card:hover .chip {
-  background: #000000 !important;
-  color: var(--accent) !important;
-  border-color: #000000 !important;
-}
-
-.agent-card:hover a {
-  border-color: #000000;
-}
-
-/* ==========================================================================
-   Tactical Corner Crosshairs (+)
-   ========================================================================== */
-.hud-corners {
-  position: relative;
-}
-
-.hud-corners::before,
-.hud-corners::after {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-  line-height: 1;
-  pointer-events: none;
-}
-
-.hud-corners::before {
-  content: '+';
-  top: 6px;
-  left: 8px;
-}
-
-.hud-corners::after {
-  content: '+';
-  bottom: 6px;
-  right: 8px;
-}
-
-/* ==========================================================================
-   CYBER HUD TELEMETRY CONSOLE
-   ========================================================================== */
-.hud-container {
-  background: #0a0a0a;
-  border: 1px solid var(--border-bright);
-  border-radius: var(--radius-none);
-  padding: 20px;
-  font-family: var(--font-mono);
-  position: relative;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
-}
-
-.hud-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--accent);
-}
-
-.hud-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 10px;
-}
-
-.hud-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: #ffffff;
-}
-
-.hud-status-badge {
-  font-size: 9px;
-  color: var(--accent);
-  padding: 3px 8px;
-  background: var(--accent-dim);
-  border: 1px solid rgba(228, 249, 0, 0.35);
-  font-weight: 700;
-}
-
-.hud-waveform {
-  width: 100%;
-  height: 44px;
-  margin-bottom: 16px;
-  background: rgba(14, 14, 14, 0.85);
-  border: 1px solid var(--border-subtle);
-}
-
-.hud-stream {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 11px;
-  min-height: 90px;
-}
-
-.hud-line {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hud-time {
-  color: var(--text-muted);
-  font-size: 10px;
-}
-
-.hud-glyph {
-  color: var(--accent);
-  font-size: 12px;
-}
-
-.hud-msg {
-  color: #f0f0f0;
-}
-
-/* ==========================================================================
-   Badges, Chips & Results Grid
-   ========================================================================== */
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: var(--radius-none);
-  background: var(--surface-2);
-  border: 1px solid var(--border-default);
-  color: var(--text-secondary);
-  transition: all var(--duration-fast);
-}
-
-.chip-verified, .chip-accent {
-  background: var(--accent-dim);
-  border-color: rgba(228, 249, 0, 0.4);
-  color: var(--accent);
-}
-
-.dot-pulse {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-  animation: statusPulse 2s ease-in-out infinite;
-}
-
-.dot-pulse-cyan {
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-}
-
-.results {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.status {
-  padding: 10px 14px;
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
+  padding: 3px 8px;
   border-radius: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.chip-accent {
+  background: rgba(59, 91, 219, 0.1);
+  border-color: rgba(59, 91, 219, 0.25);
+  color: #748FFC;
+}
+
+/* Factual Status stream */
+.hud-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.6;
 }
 
-/* ==========================================================================
-   Radial Specular Spotlight Cards (Linear / Stripe / Lando Norris Standard)
-   ========================================================================== */
-.spotlight-card {
-  position: relative;
-  background: #111112;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+.hud-line {
+  display: flex;
+  gap: 8px;
+  color: var(--text-secondary);
 }
 
-.spotlight-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    380px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
-    rgba(210, 255, 0, 0.18),
-    transparent 65%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
+.hud-time {
+  color: var(--text-muted);
 }
 
-.spotlight-card::after {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border: 1px solid transparent;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    280px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
-    rgba(210, 255, 0, 0.7),
-    transparent 50%
-  ) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 2;
+.hud-glyph {
+  color: var(--text-muted);
 }
 
-.spotlight-card:hover::before,
-.spotlight-card:hover::after {
-  opacity: 1;
-}
-
-.spotlight-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(210, 255, 0, 0.25);
-}
-
-.spotlight-card > * {
-  position: relative;
-  z-index: 3;
+.hud-msg {
+  color: var(--text-primary);
 }
