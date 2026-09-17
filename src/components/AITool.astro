@@ -69,10 +69,14 @@ const Heading = headingLevel === 'h2' ? 'h2' : 'h1';
     if(mode==='llms-txt-generator'){const site=v('site').trim()||'Website',desc=v('desc').trim(),urls=v('urls').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!urls.length)return status('Add at least one URL.');return show(`<h2 class="result-title">llms.txt</h2><pre class="code-block">${esc(`# ${site}\n\n> ${desc||'A concise map of useful pages for AI systems.'}\n\n## Resources\n${urls.map(x=>'- '+x).join('\n')}`)}</pre>`)}
   }
   const copy=async()=>{try{await navigator.clipboard.writeText(out.innerText||'');success('Result copied.')}catch{status('Clipboard access is blocked; select the result and copy it manually.')}};
-  root.querySelector('#run')?.addEventListener('click',run);
-  root.querySelector('#encode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Base64</h2><pre class="code-block">${esc(encode64(v('text')))}</pre>`)}catch{status('Could not encode this text.')}});
-  root.querySelector('#decode')?.addEventListener('click',()=>{try{show(`<h2 class="result-title">Decoded text</h2><pre class="code-block">${esc(decode64(v('text')))}</pre>`)}catch{status('Invalid Base64 data.')}});
-  root.querySelector('#clear')?.addEventListener('click',()=>{root.querySelectorAll('input,textarea').forEach(el=>{if(el.id==='ctx')return;el.value=''});out.hidden=true;empty.hidden=false;status('')});
-  root.querySelector('#copy')?.addEventListener('click',copy);
+  root.addEventListener('click',event=>{
+    const button=event.target instanceof Element?event.target.closest<HTMLButtonElement>('button'):null;
+    if(!button)return;
+    if(button.id==='run')return run();
+    if(button.id==='encode'){try{show(`<h2 class="result-title">Base64</h2><pre class="code-block">${esc(encode64(v('text')))}</pre>`)}catch{status('Could not encode this text.')}return;}
+    if(button.id==='decode'){try{show(`<h2 class="result-title">Decoded text</h2><pre class="code-block">${esc(decode64(v('text')))}</pre>`)}catch{status('Invalid Base64 data.')}return;}
+    if(button.id==='clear'){root.querySelectorAll('input,textarea').forEach(el=>{if(el.id==='ctx')return;el.value=''});out.hidden=true;empty.hidden=false;status('');return;}
+    if(button.id==='copy'){void copy();}
+  });
 })();
 </script>
