@@ -3,7 +3,7 @@ const { mode, title, intro , headingLevel = 'h1' } = Astro.props;
 const Heading = headingLevel === 'h2' ? 'h2' : 'h1';
 ---
 <main class="generator-page ai-page" data-ai-tool={mode}>
-  <div class="generator-breadcrumb"><a href="/">PARADOX MAKERS</a> / <a href="/ai/">AI TOOLKIT</a> / <span>{title}</span></div>
+  <div class="generator-breadcrumb"><a href="/">PARADOX MAKERS</a> / <a href="/ai-studio/?section=toolkit">AI STUDIO / TOOLKIT</a> / <span>{title}</span></div>
   <header class="generator-head"><span class="maker-kicker">FREE · NO ACCOUNT · LOCAL PROCESSING</span><Heading>{title}</Heading><p>{intro}</p><div class="generator-subline">No API key · No upload · No paid model required</div></header>
   <div class="generator-layout">
     <section class="generator-panel"><div class="generator-panel-head"><h2>01 / Input</h2><span>Browser</span></div><div class="generator-fields" id="fields"></div></section>
@@ -36,7 +36,7 @@ const Heading = headingLevel === 'h2' ? 'h2' : 'h1';
     'base64-encoder-decoder':()=>ta('Value','text','','Enter text or Base64...')+'<div class="generator-actions"><button type="button" class="gen-btn" id="encode">Encode</button><button type="button" class="gen-btn" id="decode">Decode</button><button type="button" class="gen-btn alt" id="clear">Clear</button><button type="button" class="gen-btn alt" id="copy">Copy result</button></div><div id="status" aria-live="polite"></div>',
     'jwt-decoder':()=>ta('JWT','text','','Paste a JWT here...')+buttons,
     'text-case-converter':()=>ta('Text','text')+buttons,
-    'llms-txt-generator':()=>inp('Site name','site','PARADOX Makers')+ta('Description','desc','Free browser-first tools.')+ta('URLs, one per line','urls','https://paradox.engineer/\nhttps://paradox.engineer/ai/')+buttons
+    'llms-txt-generator':()=>inp('Site name','site','PARADOX Makers')+ta('Description','desc','Free browser-first tools.')+ta('URLs, one per line','urls','https://paradox.engineer/\nhttps://paradox.engineer/ai-studio/')+buttons
   };
   const renderFields=()=>{fields.innerHTML=(configs[mode]||configs['prompt-formatter'])();};
   renderFields();
