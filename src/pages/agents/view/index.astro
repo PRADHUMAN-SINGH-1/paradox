@@ -1,17 +1,42 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="AI Agent Analysis — PARADOX" description="Inspect a public GitHub AI agent with live repository evidence, freshness, stack and static risk indicators." robots="noindex,nofollow">
+
+<BaseLayout 
+  title="Live AI Agent Analysis — PARADOX" 
+  description="Inspect a public GitHub AI agent with live repository evidence, freshness, stack and static risk indicators." 
+  robots="noindex,nofollow"
+>
   <main class="verify-page">
-    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/agents/">Agents</a> / Live analysis</nav>
-    <header>
-      <span>LIVE AGENT ANALYSIS</span>
+    <nav style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 24px;" aria-label="Breadcrumb">
+      <a href="/" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+      <span>/</span>
+      <a href="/agents/" style="color: var(--text-secondary); text-decoration: none;">Agents</a>
+      <span>/</span>
+      <span style="color: var(--text-primary);">Live Analysis</span>
+    </nav>
+
+    <div class="page-header animate-fade-slide-up">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="dot-pulse"></span>
+        <span>LIVE REPOSITORY INSPECTION</span>
+      </div>
       <h1>Understand the repository.<br /><em>Then decide.</em></h1>
-      <p class="page-lead">This page analyzes the public GitHub repository in the URL and shows the evidence PARADOX can actually observe.</p>
-    </header>
-    <p id="profileStatus" class="status" role="status">Preparing analysis…</p>
+      <p class="page-lead">
+        Deterministic inspection of the public GitHub repository in the URL parameter, reporting observable evidence, health scores, and static risk signals.
+      </p>
+    </div>
+
+    <div id="profileStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-light); margin-bottom: 20px;">
+      Preparing live analysis…
+    </div>
+
     <div id="liveAnalysis"></div>
-    <p class="links" style="margin-top:24px"><a href="/agents/">Back to discovery</a> · <a href="/verify/">Verify another repository</a></p>
+
+    <div style="display: flex; gap: 16px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-subtle);">
+      <a href="/agents/" class="btn btn-ghost btn-sm">← Back to discovery</a>
+      <a href="/verify/" class="btn btn-ghost btn-sm">Verify another repository →</a>
+    </div>
   </main>
   <script>
     import '../../../scripts/profile-page.ts';

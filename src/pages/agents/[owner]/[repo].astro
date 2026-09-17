@@ -42,41 +42,75 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <main class="verify-page" data-agent={fullName}>
-    <nav class="crumbs" aria-label="Breadcrumb">
-      <a href="/">Home</a> / <a href="/agents/">Agents</a>
-      {category && <> / <a href={`/categories/${category.slug}/`}>{category.label}</a></>}
-      / {fullName}
+    <!-- Breadcrumb Navigation -->
+    <nav style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 24px;" aria-label="Breadcrumb">
+      <a href="/" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+      <span>/</span>
+      <a href="/agents/" style="color: var(--text-secondary); text-decoration: none;">Agents</a>
+      {category && (
+        <>
+          <span>/</span>
+          <a href={`/categories/${category.slug}/`} style="color: var(--text-secondary); text-decoration: none;">{category.label}</a>
+        </>
+      )}
+      <span>/</span>
+      <span style="color: var(--text-primary);">{entry.repo}</span>
     </nav>
-    <header>
-      <span>PUBLIC AGENT PROFILE / STATIC ANALYSIS</span>
+
+    <div class="page-header animate-fade-slide-up">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="dot-pulse"></span>
+        <span>PUBLIC AGENT PROFILE / DETERMINISTIC ANALYSIS</span>
+      </div>
       <h1>{entry.repo}</h1>
       <p class="page-lead">{entry.summary}</p>
-      <p class="badge">{fullName} · {category?.label || entry.category}</p>
-    </header>
-    <section>
-      <h2>What it does</h2>
-      <p class="page-lead">{entry.summary} Topics observed in the catalog: {entry.topics.join(', ') || 'Unknown'}.</p>
-    </section>
-    <p id="profileStatus" class="status" role="status">Loading live GitHub evidence…</p>
+      <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
+        <span class="chip chip-accent">{fullName}</span>
+        <span class="chip chip-verified">{category?.label || entry.category}</span>
+        {entry.topics.slice(0, 4).map((topic: string) => (
+          <span class="chip">{topic}</span>
+        ))}
+      </div>
+    </div>
+
+    <!-- Live Analysis Status Indicator -->
+    <div id="profileStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-light); margin-bottom: 20px;">
+      Loading live repository evidence…
+    </div>
+
+    <!-- Live Evidence Output Mount -->
     <div id="liveAnalysis"></div>
-    <section>
-      <h2>Similar agents</h2>
-      <div class="grid-2">
+
+    <!-- Similar Agents Bento -->
+    <section style="margin-top: 60px; border-top: 1px solid var(--border-subtle); padding-top: 40px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 style="font-size: 22px; font-weight: 800; margin: 0;">Similar Catalogued Agents</h2>
+        <a href="/agents/" class="btn btn-ghost btn-sm">Explore All →</a>
+      </div>
+      <div class="grid-agents">
         {related.map((e) => (
           <article class="agent-card">
-            <h3>{e.owner}/{e.repo}</h3>
+            <div class="meta">
+              <span class="chip">{e.category}</span>
+              <span>{e.owner}</span>
+            </div>
+            <h3>{e.repo}</h3>
             <p>{e.summary}</p>
-            <div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open profile</a></div>
+            <div class="links">
+              <a href={`/agents/${e.owner}/${e.repo}/`}>Open Profile →</a>
+              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify ↗</a>
+            </div>
           </article>
         ))}
       </div>
-      {!related.length && <p class="muted">No similar catalogued agents yet.</p>}
+      {!related.length && <p style="color: var(--text-muted); font-family: var(--font-mono); font-size: 12px;">No similar catalogued agents found in this category.</p>}
     </section>
-    <p class="links" style="margin-top:24px">
-      <a href={`/compare/?left=${encodeURIComponent(fullName)}`}>Compare</a>
-      · <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${fullName}`)}`}>Verify again</a>
-      · <a href="/trending/">Trending</a>
-    </p>
+
+    <div style="display: flex; gap: 16px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-subtle);">
+      <a href={`/compare/?left=${encodeURIComponent(fullName)}`} class="btn btn-ghost btn-sm">Compare with another agent →</a>
+      <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${fullName}`)}`} class="btn btn-ghost btn-sm">Fresh verification ↗</a>
+      <a href="/trending/" class="btn btn-ghost btn-sm">Trending agents →</a>
+    </div>
   </main>
   <script>
     import '../../../scripts/profile-page.ts';

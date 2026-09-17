@@ -1,32 +1,128 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Compare AI agent repositories — PARADOX" description="Compare two public AI agent repositories by freshness, health, documentation, stack and static risk indicators." canonical="https://paradox.engineer/compare/">
+
+<BaseLayout 
+  title="Compare AI Agent Repositories — PARADOX" 
+  description="Compare two public AI agent repositories by freshness, health, documentation, stack and static risk indicators side-by-side." 
+  canonical="https://paradox.engineer/compare/"
+>
   <main class="compare-page">
-    <header>
-      <span>COMPARE / SIDE BY SIDE / 01</span>
+    <div class="page-header animate-fade-slide-up">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="dot-pulse"></span>
+        <span>SIDE-BY-SIDE MATRIX / NORMALIZED CRITERIA / 01</span>
+      </div>
       <h1>Two agents.<br /><em>Same evidence.</em></h1>
-      <p class="page-lead">Paste two public GitHub repositories. Missing fields stay Unknown. Nothing is invented.</p>
-    </header>
-    <form id="compareForm">
-      <label class="visually-hidden" for="repoA">First repository</label>
-      <input id="repoA" type="text" placeholder="https://github.com/owner/repo" required />
-      <label class="visually-hidden" for="repoB">Second repository</label>
-      <input id="repoB" type="text" placeholder="https://github.com/owner/repo" required />
-      <button type="submit">Compare</button>
-    </form>
-    <div id="compareStatus" class="status" role="status"></div>
-    <section class="pv-compare-stage" aria-label="Comparison preview">
-      <article class="pv-repo-card"><span>01 / REPOSITORY A</span><h2>Evidence snapshot</h2><p>Freshness, stack, activity, documentation and static risk signals are normalized into comparable evidence.</p><div class="pv-score-row"><div class="pv-score"><span>FRESHNESS</span><b>—</b></div><div class="pv-score"><span>HEALTH</span><b>—</b></div><div class="pv-score"><span>RISK</span><b>—</b></div></div></article>
-      <div class="pv-vs">VS</div>
-      <article class="pv-repo-card"><span>02 / REPOSITORY B</span><h2>Evidence snapshot</h2><p>The comparison remains evidence-first: missing fields stay Unknown instead of being guessed.</p><div class="pv-score-row"><div class="pv-score"><span>FRESHNESS</span><b>—</b></div><div class="pv-score"><span>HEALTH</span><b>—</b></div><div class="pv-score"><span>RISK</span><b>—</b></div></div></article>
+      <p class="page-lead">
+        Paste two public GitHub repositories to compare their maintenance velocity, commit freshness, model/tool detections, and static risk signals side-by-side. Missing fields remain Unknown.
+      </p>
+    </div>
+
+    <!-- Comparison Input Form Card -->
+    <div class="verify-form-card animate-fade-slide-up" style="animation-delay: 100ms;">
+      <form id="compareForm">
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 12px; align-items: center;">
+          <div style="position: relative; width: 100%;">
+            <label class="visually-hidden" for="repoA">First repository</label>
+            <input 
+              id="repoA" 
+              class="input-tech" 
+              type="text" 
+              placeholder="https://github.com/owner/repo-a" 
+              required 
+            />
+          </div>
+
+          <!-- Swap Button -->
+          <button id="swapBtn" type="button" class="btn btn-ghost btn-sm" title="Swap repositories" style="height: 44px; width: 44px; padding: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          </button>
+
+          <div style="position: relative; width: 100%;">
+            <label class="visually-hidden" for="repoB">Second repository</label>
+            <input 
+              id="repoB" 
+              class="input-tech" 
+              type="text" 
+              placeholder="https://github.com/owner/repo-b" 
+              required 
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="height: 44px;">
+            <span>Compare Matrix</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Comparison Presets -->
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 16px;">
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">PRESETS:</span>
+        <button type="button" class="chip compare-preset" data-a="https://github.com/crewAIInc/crewAI" data-b="https://github.com/microsoft/autogen">crewAI vs autogen</button>
+        <button type="button" class="chip compare-preset" data-a="https://github.com/langchain-ai/langchain" data-b="https://github.com/run-llama/llama_index">langchain vs llama_index</button>
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div id="compareStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-light); margin-bottom: 24px;"></div>
+
+    <!-- Initial Comparison Placeholder Preview -->
+    <section class="pp-compare-summary" aria-label="Comparison preview">
+      <article class="pp-score-card">
+        <span class="kicker">01 / CANDIDATE A</span>
+        <h3>Repository A</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.5;">Freshness, stack, activity, documentation and static risk signals are normalized into comparable evidence.</p>
+        <div class="pp-score-bars">
+          <div><span>FRESHNESS</span><i></i><b>—</b></div>
+          <div><span>HEALTH</span><i></i><b>—</b></div>
+          <div><span>RISK</span><i></i><b>—</b></div>
+        </div>
+      </article>
+
+      <div class="pp-vs-core">VS</div>
+
+      <article class="pp-score-card">
+        <span class="kicker">02 / CANDIDATE B</span>
+        <h3>Repository B</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.5;">The comparison remains evidence-first: missing fields stay Unknown instead of being guessed.</p>
+        <div class="pp-score-bars">
+          <div><span>FRESHNESS</span><i></i><b>—</b></div>
+          <div><span>HEALTH</span><i></i><b>—</b></div>
+          <div><span>RISK</span><i></i><b>—</b></div>
+        </div>
+      </article>
     </section>
+
+    <!-- Dynamic Compare Results -->
     <section id="compareResult" hidden></section>
   </main>
+
   <script>
     import '../../scripts/compare-page.ts';
+
+    // Swap inputs
+    const swapBtn = document.querySelector('#swapBtn');
+    const inputA = document.querySelector<HTMLInputElement>('#repoA');
+    const inputB = document.querySelector<HTMLInputElement>('#repoB');
+    swapBtn?.addEventListener('click', () => {
+      if (inputA && inputB) {
+        const temp = inputA.value;
+        inputA.value = inputB.value;
+        inputB.value = temp;
+      }
+    });
+
+    // Presets
+    document.querySelectorAll<HTMLButtonElement>('.compare-preset').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (inputA && inputB) {
+          inputA.value = btn.dataset.a || '';
+          inputB.value = btn.dataset.b || '';
+          const form = document.querySelector<HTMLFormElement>('#compareForm');
+          form?.requestSubmit();
+        }
+      });
+    });
   </script>
 </BaseLayout>
-<style>
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-</style>

@@ -1,42 +1,108 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Verify an AI agent — PARADOX" description="Paste a public GitHub repository URL. PARADOX runs static analysis for freshness, stack, dependencies and risk indicators." canonical="https://paradox.engineer/verify/">
-  <main class="verify-page pp-verify-page">
-    <div class="pp-verify-hero">
-      <header>
-        <span>STATIC ANALYSIS / PUBLIC GITHUB</span>
-        <h1>Verify an agent.<br /><em>See the evidence.</em></h1>
-        <p class="page-lead">Public repositories only. We fetch metadata and selected files, then score health, freshness, documentation, activity and static risk indicators. This is not a security audit.</p>
-      </header>
-      <aside class="pp-analysis-visual" aria-label="PARADOX analysis visualization">
-        <div class="pp-visual-top"><span>PARADOX / ANALYSIS CORE</span><b><i></i>LIVE</b></div>
-        <div class="pp-visual-stage">
-          <div class="pp-ring pp-ring-a"></div>
-          <div class="pp-ring pp-ring-b"></div>
-          <div class="pp-ring pp-ring-c"></div>
-          <div class="pp-core">P</div>
-          <span class="pp-node pp-node-a">META<small>READY</small></span>
-          <span class="pp-node pp-node-b">STACK<small>READY</small></span>
-          <span class="pp-node pp-node-c">RISK<small>READY</small></span>
-          <span class="pp-node pp-node-d">ACTIVITY<small>READY</small></span>
-        </div>
-        <div class="pp-visual-feed"><span>METADATA</span><span>FILES</span><span>SIGNALS</span><strong>WAITING FOR REPOSITORY</strong></div>
-      </aside>
+
+<BaseLayout 
+  title="Verify an AI Agent Repository — PARADOX" 
+  description="Paste a public GitHub repository URL. PARADOX runs deterministic static analysis for freshness, stack, dependencies, health score and static risk indicators." 
+  canonical="https://paradox.engineer/verify/"
+>
+  <main class="verify-page">
+    <div class="page-header animate-fade-slide-up">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="dot-pulse"></span>
+        <span>STATIC VERIFICATION CORE / PUBLIC REPOSITORY</span>
+      </div>
+      <h1>Verify an AI Agent.<br /><em>Inspect the observable evidence.</em></h1>
+      <p class="page-lead">
+        Deterministic inspection of public GitHub repositories. We fetch metadata, analyze dependency manifests, and score health, commit activity, documentation, and potential static risk indicators.
+      </p>
     </div>
-    <form id="verifyForm">
-      <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>
-      <input id="repoUrl" type="url" name="url" autocomplete="url" placeholder="https://github.com/owner/repository" required />
-      <button type="submit">Analyze repository</button>
-    </form>
-    <div id="verifyStatus" class="status" role="status"></div>
+
+    <!-- Interactive Verification Form Card -->
+    <div class="verify-form-card animate-fade-slide-up" style="animation-delay: 100ms;">
+      <form id="verifyForm">
+        <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>
+        <div class="verify-input-row">
+          <div style="position: relative; flex: 1; display: flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; color: var(--text-muted);"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            <input 
+              id="repoUrl" 
+              type="url" 
+              name="url" 
+              autocomplete="url" 
+              placeholder="https://github.com/owner/repository" 
+              style="padding-left: 46px;"
+              required 
+            />
+          </div>
+          <button id="pasteBtn" type="button" class="btn btn-ghost btn-sm" title="Paste from clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span>Paste</span>
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <span>Analyze Repository</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Test Chips -->
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 16px;">
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">QUICK SAMPLES:</span>
+        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/microsoft/autogen">microsoft/autogen</button>
+        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/anthropics/anthropic-quickstarts">anthropics/anthropic-quickstarts</button>
+        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/crewAIInc/crewAI">crewAIInc/crewAI</button>
+      </div>
+    </div>
+
+    <!-- Dynamic Status Banner -->
+    <div id="verifyStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-light); margin-bottom: 24px;"></div>
+
+    <!-- Analysis Output Section (Rendered by renderAnalysis) -->
     <section id="result" class="result" hidden></section>
-    <p class="disclaimer"><b>Important:</b> repository contents are untrusted data. PARADOX never executes cloned code, Dockerfiles, or install scripts.</p>
+
+    <!-- Security Posture Note -->
+    <div class="card-glass" style="margin-top: 40px; display: flex; gap: 16px; align-items: flex-start;">
+      <div style="color: var(--amber); margin-top: 2px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </div>
+      <div>
+        <strong style="font-size: 13px; color: var(--text-primary); display: block; margin-bottom: 4px;">Security & Isolation Guarantee</strong>
+        <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+          Third-party repository contents are treated as untrusted data. PARADOX never runs <code>npm install</code>, execute Dockerfiles, or run target shell scripts. All reported scores and verdicts are static heuristics from public GitHub evidence.
+        </p>
+      </div>
+    </div>
   </main>
+
   <script>
     import '../../scripts/verify-page.ts';
+
+    // Clipboard Paste Helper
+    const pasteBtn = document.querySelector('#pasteBtn');
+    const input = document.querySelector<HTMLInputElement>('#repoUrl');
+    pasteBtn?.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && input) {
+          input.value = text.trim();
+          input.focus();
+        }
+      } catch (err) {
+        console.warn('Clipboard read error', err);
+      }
+    });
+
+    // Sample Repo Click Helper
+    document.querySelectorAll<HTMLButtonElement>('.sample-repo-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const repo = chip.dataset.repo;
+        if (repo && input) {
+          input.value = repo;
+          const form = document.querySelector<HTMLFormElement>('#verifyForm');
+          form?.requestSubmit();
+        }
+      });
+    });
   </script>
 </BaseLayout>
-<style>
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-</style>

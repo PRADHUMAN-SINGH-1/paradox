@@ -1,29 +1,74 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Discover AI agents and skills — PARADOX" description="Search public GitHub AI agents, skills and developer workflows. Inspect freshness and open a profile before you run them." canonical="https://paradox.engineer/agents/">
+
+<BaseLayout 
+  title="Discover AI Agents & Skills — PARADOX" 
+  description="Search public GitHub AI agents, skills and developer workflows. Inspect freshness, stack, and health before depending on them." 
+  canonical="https://paradox.engineer/agents/"
+>
   <main class="agents-page">
-    <header>
-      <span>DISCOVER / GITHUB SEARCH / 01</span>
+    <div class="page-header animate-fade-slide-up">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="dot-pulse"></span>
+        <span>DISCOVERY ENGINE / GITHUB AGENT SEARCH / 01</span>
+      </div>
       <h1>Find something<br /><em>worth inspecting.</em></h1>
-      <p class="page-lead">Search public repositories by name, topic or capability. Results come from GitHub Search. Live health scores appear after you open Verify or a catalogued profile.</p>
-    </header>
-    <div class="pv-results-frame" aria-hidden="true">
-      <div class="pv-results-top"><span><strong>PARADOX DISCOVERY ENGINE</strong> / READY</span><div class="pv-results-dots"><i></i><i></i><i></i></div></div>
-      <div class="pv-results-top"><span>INDEX / PUBLIC GITHUB</span><span>LIVE SEARCH · EVIDENCE FIRST</span></div>
+      <p class="page-lead">
+        Search public repositories by capability, framework, or MCP protocol. Live health scores, commit activity, and risk analysis appear when opening a profile or running the verifier.
+      </p>
     </div>
-    <form id="searchForm">
-      <label class="visually-hidden" for="query">Search query</label>
-      <input id="query" type="search" name="q" placeholder="coding agent, MCP, browser automation, Claude skill…" autocomplete="off" />
-      <button type="submit">Search</button>
-    </form>
-    <div id="searchStatus" class="status" role="status"></div>
-    <section id="results" class="grid-2 results"></section>
+
+    <!-- Omni-Search Form -->
+    <div class="verify-form-card animate-fade-slide-up" style="animation-delay: 100ms; margin-bottom: 24px;">
+      <form id="searchForm" class="search-bar-unified">
+        <label class="visually-hidden" for="query">Search query</label>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); margin-right: 6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input 
+          id="query" 
+          type="search" 
+          name="q" 
+          placeholder="coding agent, MCP server, browser automation, Claude skill, LangChain..." 
+          autocomplete="off" 
+        />
+        <div class="shortcut-hint">
+          <span>⌘K</span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      </form>
+
+      <!-- Quick Category Filter Chips -->
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">SUGGESTIONS:</span>
+        <button type="button" class="chip search-tag" data-val="mcp">MCP Servers</button>
+        <button type="button" class="chip search-tag" data-val="coding agent">Coding Agents</button>
+        <button type="button" class="chip search-tag" data-val="browser automation">Browser Automation</button>
+        <button type="button" class="chip search-tag" data-val="computer use">Computer Use</button>
+        <button type="button" class="chip search-tag" data-val="claude skill">Claude Skills</button>
+      </div>
+    </div>
+
+    <!-- Search Status Message -->
+    <div id="searchStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-light); margin-bottom: 16px;"></div>
+
+    <!-- Dynamic Results Container -->
+    <section id="results" class="results"></section>
   </main>
+
   <script>
     import '../../scripts/search-page.ts';
+
+    // Click quick suggestion chips to populate and submit search
+    document.querySelectorAll<HTMLButtonElement>('.search-tag').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.val;
+        const queryInput = document.querySelector<HTMLInputElement>('#query');
+        if (val && queryInput) {
+          queryInput.value = val;
+          const form = document.querySelector<HTMLFormElement>('#searchForm');
+          form?.requestSubmit();
+        }
+      });
+    });
   </script>
 </BaseLayout>
-<style>
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-</style>

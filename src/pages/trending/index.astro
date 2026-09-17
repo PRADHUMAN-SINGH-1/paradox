@@ -2,16 +2,93 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import catalog from '../../data/catalog.json';
 ---
-<BaseLayout title="Trending AI agents — PARADOX" description="Recently catalogued and active public AI agent repositories. Trends are explained; percentages are not invented." canonical="https://paradox.engineer/trending/">
-  <main class="agents-page pp-trending-page">
-    <header>
-      <span>TRENDING / DISCOVERY / LIVE SIGNAL</span>
+
+<BaseLayout 
+  title="Trending AI Agents — PARADOX" 
+  description="Recently catalogued and active public AI agent repositories. Observable activity signals directly from GitHub." 
+  canonical="https://paradox.engineer/trending/"
+>
+  <main class="agents-page">
+    <div class="page-header animate-fade-slide-up">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="dot-pulse"></span>
+        <span>TRENDING / REPOSITORY ACTIVITY MATRIX</span>
+      </div>
       <h1>What is moving<br /><em>in public GitHub.</em></h1>
-      <p class="page-lead">A curated discovery layer plus live GitHub activity for agent-related projects. PARADOX shows observable signals, not invented popularity scores.</p>
-      <div class="pp-trend-strip" aria-label="Trending signals"><div><span>CATALOGUED</span><strong>{catalog.length}</strong><small>curated projects</small></div><div><span>LIVE SEARCH</span><strong>08</strong><small>recent repositories</small></div><div><span>SORTING</span><strong>UPDATE</strong><small>latest GitHub activity</small></div><div><span>METHOD</span><strong>OBSERVED</strong><small>no search-volume claims</small></div></div>
-    </header>
-    <section><div class="pp-section-head"><div><span>01 / CURATED SIGNAL</span><h2>Catalogued projects.</h2></div><p>Projects selected for relevance to public AI-agent tooling. Each card links to a deeper repository profile.</p></div><div class="grid-2 pp-trend-grid">{catalog.map((e) => (<article class="agent-card"><div class="meta"><span>Recently catalogued</span><span>{e.category}</span></div><h3>{e.owner}/{e.repo}</h3><p>{e.summary}</p><div class="links"><a href={`/agents/${e.owner}/${e.repo}/`}>Open intelligence profile →</a></div></article>))}</div></section>
-    <section><div class="pp-section-head"><div><span>02 / LIVE GITHUB</span><h2>Recently updated.</h2></div><p>Observable public activity, sorted by latest update. PARADOX routes live search through its intelligence proxy when configured and keeps a direct fallback.</p></div><p id="trendStatus" class="muted">Connecting to live intelligence…</p><div id="liveTrend" class="grid-2 pp-trend-grid"><p class="muted">Loading live GitHub activity…</p></div></section>
+      <p class="page-lead">
+        Curated agent architectures and live GitHub commit activity. PARADOX tracks observable signals, release velocity, and health scores—no subjective hype.
+      </p>
+
+      <!-- Metrics Strip -->
+      <div class="bento-grid-4" style="margin-top: 28px;">
+        <div class="bento-cell">
+          <span class="kicker">CATALOGUED</span>
+          <h3>{catalog.length} Curated</h3>
+          <p>Hand-verified AI agent repositories.</p>
+        </div>
+        <div class="bento-cell">
+          <span class="kicker">UPDATE VELOCITY</span>
+          <h3>Live GitHub</h3>
+          <p>Filtered by recent commit activity.</p>
+        </div>
+        <div class="bento-cell">
+          <span class="kicker">METHOD</span>
+          <h3>Deterministic</h3>
+          <p>Zero invented popularity percentages.</p>
+        </div>
+        <div class="bento-cell">
+          <span class="kicker">VERIFICATION</span>
+          <h3>1-Click Audit</h3>
+          <p>Instant static risk and health check.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Curated Signals -->
+    <section style="margin-top: 50px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+        <div>
+          <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--accent-light); text-transform: uppercase;">01 / CURATED SIGNAL</span>
+          <h2 style="font-size: 26px; font-weight: 800; margin: 6px 0 0;">Catalogued Projects</h2>
+        </div>
+      </div>
+      <div class="grid-agents">
+        {catalog.map((e) => (
+          <article class="agent-card">
+            <div class="meta">
+              <span class="chip chip-accent">{e.category}</span>
+              <span>{e.owner}</span>
+            </div>
+            <h3>{e.repo}</h3>
+            <p>{e.summary}</p>
+            <div class="links">
+              <a href={`/agents/${e.owner}/${e.repo}/`}>Open Intelligence Profile →</a>
+              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`}>Verify ↗</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Live GitHub Activity -->
+    <section style="margin-top: 60px; border-top: 1px solid var(--border-subtle); padding-top: 40px;">
+      <div style="margin-bottom: 20px;">
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--cyan); text-transform: uppercase;">02 / LIVE GITHUB</span>
+        <h2 style="font-size: 26px; font-weight: 800; margin: 6px 0 0;">Recently Updated in Public GitHub</h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 6px 0 0;">Observable public activity sorted by latest push.</p>
+      </div>
+
+      <p id="trendStatus" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-light); margin-bottom: 16px;">
+        Connecting to live GitHub intelligence…
+      </p>
+      
+      <div id="liveTrend" class="grid-agents">
+        <p style="color: var(--text-muted); font-family: var(--font-mono); font-size: 12px;">Loading live repository stream…</p>
+      </div>
+    </section>
   </main>
-  <script>import '../../scripts/trending-page.ts';</script>
+
+  <script>
+    import '../../scripts/trending-page.ts';
+  </script>
 </BaseLayout>

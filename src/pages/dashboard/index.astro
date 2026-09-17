@@ -1,190 +1,166 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Your PARADOX dashboard" description="Saved agents and scan history." canonical="https://paradox.engineer/dashboard/" robots="noindex,nofollow">
-  <main class="account-page professional-dashboard">
-    <header class="dashboard-topbar">
+
+<BaseLayout 
+  title="Your PARADOX Workspace — AI Agent Intelligence" 
+  description="Saved agents and scan history tied to your private PARADOX workspace." 
+  canonical="https://paradox.engineer/dashboard/" 
+  robots="noindex,nofollow"
+>
+  <main class="professional-dashboard" style="max-width: var(--max-w-wide); margin: 0 auto; padding: 40px 24px 100px;">
+    <!-- Top Identity Bar -->
+    <header class="dashboard-topbar" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap;">
       <div class="workspace-identity">
-        <span class="dashboard-kicker">PARADOX / PRIVATE WORKSPACE</span>
-        <p id="accountEmail" class="workspace-email">Loading account…</p>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span class="dot-pulse"></span>
+          <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--accent-light); text-transform: uppercase;">PARADOX / PRIVATE WORKSPACE</span>
+        </div>
+        <p id="accountEmail" style="margin: 0; font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);">Loading workspace credentials…</p>
       </div>
-      <div class="account-actions" aria-label="Workspace actions">
-        <a class="dash-primary" href="/verify/">Verify repository <span>↗</span></a>
-        <a class="dash-secondary" href="/ai/">Open AI tools <span>↗</span></a>
-        <button id="clearHistory" type="button">Clear history</button>
-        <button id="signOut" type="button">Sign out</button>
+      <div class="account-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;" aria-label="Workspace actions">
+        <a class="btn btn-emerald btn-sm" href="/verify/">Verify repository <span>↗</span></a>
+        <a class="btn btn-ghost btn-sm" href="/ai/">AI tools <span>↗</span></a>
+        <button id="clearHistory" class="btn btn-ghost btn-sm" type="button">Clear history</button>
+        <button id="signOut" class="btn btn-ghost btn-sm" type="button" style="color: var(--rose-light);">Sign out</button>
       </div>
     </header>
 
-    <section class="dashboard-hero" aria-labelledby="workspace-title">
-      <div class="hero-copy">
-        <span class="dashboard-kicker">YOUR CONTROL CENTER</span>
-        <h1 id="workspace-title">Your workspace<span>.</span></h1>
-        <p>Keep saved agents, review scan evidence, and jump back into the projects you are actively evaluating.</p>
+    <!-- Workspace Hero -->
+    <section class="dashboard-hero" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 36px; align-items: center; padding: 48px 0 40px; border-bottom: 1px solid var(--border-subtle);" aria-labelledby="workspace-title">
+      <div class="hero-copy animate-fade-slide-up">
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--cyan); text-transform: uppercase;">CONTROL CENTER</span>
+        <h1 id="workspace-title" style="font-size: clamp(36px, 4.5vw, 62px); font-weight: 800; letter-spacing: -0.03em; margin: 10px 0 14px; color: var(--text-primary);">
+          Your Intelligence Workspace.
+        </h1>
+        <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin: 0; max-width: 580px;">
+          Keep shortlisted agent candidates, review scan evidence and risk history, and jump back into projects you are actively evaluating.
+        </p>
       </div>
-      <div class="dashboard-metrics" aria-label="Workspace summary">
-        <article class="metric-card">
+
+      <!-- Bento Metrics -->
+      <div class="dashboard-metrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" aria-label="Workspace summary">
+        <article class="metric-box">
           <span>SAVED AGENTS</span>
           <strong id="savedCount">—</strong>
-          <small>repositories kept</small>
+          <small style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">shortlisted</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-box">
           <span>SCAN HISTORY</span>
           <strong id="historyCount">—</strong>
-          <small>analyses available</small>
+          <small style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">analyses</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-box">
           <span>MEDIAN SCORE</span>
           <strong id="avgScore">—</strong>
-          <small id="avgScoreNote">across saved agents</small>
+          <small id="avgScoreNote" style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">across saved</small>
         </article>
-        <article class="metric-card metric-card-accent">
-          <span>WORKSPACE</span>
-          <strong id="workspaceMode">SYNCED</strong>
-          <small>account state</small>
+        <article class="metric-box" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.08);">
+          <span>SYNC STATUS</span>
+          <strong id="workspaceMode" style="color: var(--accent-light); font-size: 16px;">ONLINE</strong>
+          <small style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">cloud synced</small>
         </article>
       </div>
     </section>
 
-    <section class="dashboard-section insight-section" aria-label="Evidence breakdown" id="insightSection" hidden>
-      <div class="section-head">
+    <!-- Evidence Breakdown Section -->
+    <section class="dashboard-section insight-section" style="margin-top: 40px;" aria-label="Evidence breakdown" id="insightSection" hidden>
+      <div class="section-head" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
         <div>
-          <span>01 / SIGNAL</span>
-          <h2>Evidence mix</h2>
-          <p>How your saved repositories break down by verdict.</p>
+          <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--accent-light); text-transform: uppercase;">01 / VERDICT MIX</span>
+          <h2 style="font-size: 24px; font-weight: 800; margin: 6px 0 0;">Evidence distribution</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">How your saved repositories break down by verdict.</p>
         </div>
-        <span class="section-note" id="attentionNote"></span>
+        <span class="section-note" id="attentionNote" style="font-family: var(--font-mono); font-size: 11px; color: var(--amber-light);"></span>
       </div>
-      <div class="verdict-bar" id="verdictBar" role="img" aria-label="Verdict distribution across saved agents"></div>
-      <ul class="verdict-legend" id="verdictLegend"></ul>
+      <div class="verdict-bar" id="verdictBar" role="img" aria-label="Verdict distribution across saved agents" style="display: flex; width: 100%; height: 8px; border-radius: 99px; overflow: hidden; background: rgba(255, 255, 255, 0.05);"></div>
+      <ul class="verdict-legend" id="verdictLegend" style="display: flex; flex-wrap: wrap; gap: 16px; margin: 14px 0 0; padding: 0; list-style: none;"></ul>
     </section>
 
-    <section class="dashboard-section dashboard-section-main" aria-label="Workspace collections">
-      <div class="section-head">
+    <!-- Saved Agents Collection -->
+    <section class="dashboard-section" style="margin-top: 50px;" aria-label="Workspace collections">
+      <div class="section-head" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
         <div>
-          <span>02 / COLLECTION</span>
-          <h2>Saved agents</h2>
-          <p>Shortlisted repositories ready to reopen or remove.</p>
+          <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--cyan); text-transform: uppercase;">02 / SHORTLIST</span>
+          <h2 style="font-size: 24px; font-weight: 800; margin: 6px 0 0;">Saved Agents</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">Shortlisted repositories ready to reopen or compare.</p>
         </div>
-        <a class="section-link" href="/agents/">Discover agents <span>&#8594;</span></a>
+        <a href="/agents/" class="btn btn-ghost btn-sm">Discover more agents →</a>
       </div>
-      <div class="list-toolbar" id="savedToolbar" hidden>
-        <div class="field-inline">
-          <label class="sr-only" for="savedFilter">Filter saved agents</label>
-          <input id="savedFilter" type="search" placeholder="Filter by repository name…" autocomplete="off" />
+
+      <div class="list-toolbar" id="savedToolbar" hidden style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 240px;">
+          <input id="savedFilter" class="input-tech" type="search" placeholder="Filter by repository name…" autocomplete="off" />
         </div>
-        <div class="field-inline field-narrow">
-          <label class="sr-only" for="savedSort">Sort saved agents</label>
-          <select id="savedSort">
+        <div style="width: 200px;">
+          <select id="savedSort" class="input-tech" style="cursor: pointer;">
             <option value="recent">Most recent</option>
             <option value="score-desc">Highest score</option>
             <option value="score-asc">Lowest score</option>
             <option value="name">Name A–Z</option>
           </select>
         </div>
-        <span class="result-count" id="savedShown" aria-live="polite"></span>
+        <span class="result-count" id="savedShown" aria-live="polite" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);"></span>
       </div>
-      <div id="savedAgents" class="dashboard-grid saved-grid" aria-live="polite"></div>
+
+      <div id="savedAgents" class="grid-agents" aria-live="polite"></div>
     </section>
 
-    <section class="dashboard-section" aria-label="Scan activity">
-      <div class="section-head">
+    <!-- Scan History Activity -->
+    <section class="dashboard-section" style="margin-top: 60px; border-top: 1px solid var(--border-subtle); padding-top: 40px;" aria-label="Scan activity">
+      <div class="section-head" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
         <div>
-          <span>03 / ACTIVITY</span>
-          <h2>Scan history</h2>
-          <p>Every completed repository analysis tied to this workspace.</p>
+          <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--emerald-light); text-transform: uppercase;">03 / SCAN ACTIVITY</span>
+          <h2 style="font-size: 24px; font-weight: 800; margin: 6px 0 0;">Scan History</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">Every completed repository analysis tied to this workspace.</p>
         </div>
-        <a class="section-link" href="/verify/">Run a new scan <span>&#8594;</span></a>
+        <a href="/verify/" class="btn btn-emerald btn-sm">Run new verification ↗</a>
       </div>
-      <div class="list-toolbar" id="historyToolbar" hidden>
-        <div class="field-inline">
-          <label class="sr-only" for="historyFilter">Filter scan history</label>
-          <input id="historyFilter" type="search" placeholder="Filter by repository name…" autocomplete="off" />
-        </div>
-        <span class="result-count" id="historyShown" aria-live="polite"></span>
-      </div>
-      <div id="scanHistory" class="dashboard-grid" aria-live="polite"></div>
+
+      <div id="scanHistory" class="grid-agents" aria-live="polite"></div>
     </section>
 
-    <section class="dashboard-section profile-section" aria-label="Account details">
-      <div class="section-head">
-        <div>
-          <span>04 / ACCOUNT</span>
-          <h2>Account details</h2>
-          <p>How PARADOX stores and uses your private workspace data.</p>
-        </div>
+    <!-- Account Details -->
+    <section class="dashboard-section" style="margin-top: 60px; border-top: 1px solid var(--border-subtle); padding-top: 40px;" aria-label="Account details">
+      <div class="section-head" style="margin-bottom: 20px;">
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase;">04 / PRIVACY & DATA</span>
+        <h2 style="font-size: 24px; font-weight: 800; margin: 6px 0 0;">Workspace Security</h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">How PARADOX secures your private evaluation records.</p>
       </div>
-      <div class="profile-grid">
-        <article><span>SESSION</span><strong id="profileEmail">Loading…</strong><p>Your current authenticated identity.</p></article>
-        <article><span>DATA OWNERSHIP</span><strong>Private to you</strong><p>Saved agents and scan history are scoped by database access policies.</p></article>
-        <article><span>NEXT ACTION</span><strong id="nextAction">Keep building evidence</strong><p id="nextActionNote">Verify projects, compare candidates, and save the ones worth revisiting.</p></article>
+
+      <div class="bento-grid-4">
+        <div class="bento-cell">
+          <span class="kicker">SESSION</span>
+          <strong id="profileEmail" style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); word-break: break-all;">Authenticated</strong>
+          <p>Your current secure session identity.</p>
+        </div>
+        <div class="bento-cell">
+          <span class="kicker">DATA ISOLATION</span>
+          <h3>Private Row-Level</h3>
+          <p>All saved agents and history are protected by Postgres Row Level Security (RLS).</p>
+        </div>
+        <div class="bento-cell">
+          <span class="kicker">OFFLINE FALLBACK</span>
+          <h3>Device Local Cache</h3>
+          <p>Saved scans remain accessible locally even when disconnected from Supabase.</p>
+        </div>
+        <div class="bento-cell">
+          <span class="kicker">NEXT STEP</span>
+          <h3 id="nextAction">Build Evidence</h3>
+          <p id="nextActionNote">Verify new repositories and add them to your decision matrix.</p>
+        </div>
       </div>
     </section>
   </main>
+
   <script>
     import '../../scripts/dashboard-page.ts';
   </script>
-  <style>
-    .professional-dashboard{max-width:1440px;margin:0 auto;padding:34px clamp(18px,4vw,58px) 110px;color:#eef3ef}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    .dashboard-kicker,.section-head>div>span,.metric-card>span,.profile-grid>article>span{display:block;color:#87948c;font:800 9px/1 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase}
-    .dashboard-kicker{color:#d9ff3f}
-    .dashboard-topbar{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:14px 0 20px;border-bottom:1px solid rgba(236,245,239,.12)}
-    .workspace-identity{min-width:0}.workspace-email{margin:7px 0 0;overflow-wrap:anywhere;color:#91a099;font:500 12px/1.45 'DM Sans',sans-serif}
-    .account-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-    .account-actions a,.account-actions button{min-height:44px;padding:0 14px;border:1px solid #29352f;border-radius:9px;background:#0b110f;color:#eaf0ec;text-decoration:none;font:700 10px/1 'DM Mono',monospace;letter-spacing:.02em;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;cursor:pointer;transition:border-color .18s ease,color .18s ease,transform .18s ease}
-    .account-actions .dash-primary{background:#d9ff3f;color:#081008;border-color:#d9ff3f}.account-actions .dash-primary span,.account-actions .dash-secondary span{margin-left:6px}
-    .account-actions a:hover,.account-actions button:hover{border-color:#d9ff3f;color:#d9ff3f}.account-actions .dash-primary:hover{color:#081008;transform:translateY(-1px)}
-    .account-actions button.is-confirming{border-color:#ff6a52;color:#ff927e}
-    .dashboard-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(420px,.95fr);gap:28px;align-items:end;padding:62px 0 44px;border-bottom:1px solid rgba(236,245,239,.1)}
-    .hero-copy h1{margin:12px 0 18px;color:#f5f8f5;font:400 clamp(64px,8vw,118px)/.84 'Instrument Serif',Georgia,serif;letter-spacing:-.055em}.hero-copy h1 span{color:#d9ff3f}.hero-copy p{max-width:620px;margin:0;color:#93a097;font:500 14px/1.7 'DM Sans',sans-serif}
-    .dashboard-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .metric-card{min-height:118px;padding:16px;border:1px solid #25312b;border-radius:12px;background:linear-gradient(155deg,#0e1512,#0a100e);display:flex;flex-direction:column;justify-content:space-between}.metric-card strong{color:#edf3ee;font:600 34px/1 'DM Sans',sans-serif;letter-spacing:-.04em}.metric-card small{color:#7f8d85;font:500 10px/1.4 'DM Mono',monospace}.metric-card-accent{border-color:rgba(216,255,67,.32);background:linear-gradient(155deg,rgba(216,255,67,.08),rgba(10,16,14,.96))}.metric-card-accent strong{font-size:18px;color:#d9ff3f;letter-spacing:.02em;text-transform:uppercase}
-    .dashboard-section{margin-top:52px}.dashboard-section-main{margin-top:42px}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:18px}.section-head h2{margin:8px 0 6px;color:#f4f8f5;font:400 clamp(44px,5vw,74px)/.9 'Instrument Serif',Georgia,serif;letter-spacing:-.04em}.section-head p{margin:0;color:#89968f;font:500 12px/1.5 'DM Sans',sans-serif}.section-link{padding-bottom:3px;color:#c2ccc5;font:700 10px 'DM Mono',monospace;text-decoration:none;white-space:nowrap}.section-link span{margin-left:7px}.section-link:hover{color:#d9ff3f}
-    .section-note{color:#8b988f;font:600 10px/1.5 'DM Mono',monospace;text-align:right;white-space:nowrap}
-
-    .insight-section{margin-top:44px}
-    .verdict-bar{display:flex;width:100%;height:12px;border-radius:999px;overflow:hidden;background:#131a16;border:1px solid #25312b}
-    .verdict-bar i{display:block;height:100%;transition:width .5s cubic-bezier(.22,.68,.36,1)}
-    .verdict-legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:14px 0 0;padding:0;list-style:none}
-    .verdict-legend li{display:inline-flex;align-items:center;gap:7px;color:#9daaa2;font:600 10px/1 'DM Mono',monospace;letter-spacing:.04em}
-    .verdict-legend b{width:9px;height:9px;border-radius:3px;display:inline-block}
-    .verdict-legend em{font-style:normal;color:#eef3ef}
-
-    .list-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-    .field-inline{flex:1 1 200px;min-width:0}
-    .field-narrow{flex:0 1 190px}
-    .list-toolbar input,.list-toolbar select{width:100%;min-height:44px;box-sizing:border-box;padding:0 12px;border:1px solid #29352f;border-radius:9px;background:#0b110f;color:#eaf0ec;font:500 12px/1 'DM Sans',sans-serif;transition:border-color .18s ease}
-    .list-toolbar input:focus,.list-toolbar select:focus{outline:none;border-color:#d9ff3f}
-    .list-toolbar input::placeholder{color:#78857d}
-    .result-count{flex:0 0 auto;color:#8b988f;font:600 10px/1 'DM Mono',monospace;letter-spacing:.05em}
-
-    .dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dashboard-grid>.muted{grid-column:1/-1;margin:0;padding:23px;border:1px dashed #2b3630;border-radius:10px;background:#0a100e;color:#89968f;font:500 13px/1.55 'DM Sans',sans-serif}
-    .dashboard-grid>.muted strong{color:#eef3ef;display:block;margin-bottom:6px;font-size:14px}
-    .dashboard-grid>.muted a{color:#d9ff3f}
-    .dashboard-grid>.muted button{margin-left:8px;min-height:34px;padding:0 10px;border:1px solid #303b35;border-radius:7px;background:#101713;color:#e7ede9;font:700 10px 'DM Mono',monospace;cursor:pointer}
-    .professional-dashboard .card{min-width:0;padding:20px;background:linear-gradient(150deg,#0e1512,#0a100e);border:1px solid #27322d;border-radius:12px;box-shadow:none;transition:border-color .2s ease,transform .2s ease}.professional-dashboard .card:hover{border-color:#46534b;transform:translateY(-2px)}
-    .professional-dashboard .card h3{margin:0 0 8px;color:#f1f5f2;font:600 18px/1.25 'DM Sans',sans-serif;overflow-wrap:anywhere}.professional-dashboard .card p{margin:0;color:#98a59e;font:500 12px/1.55 'DM Sans',sans-serif;overflow-wrap:anywhere}
-    .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .score-chip{flex:0 0 auto;min-width:48px;padding:6px 8px;border-radius:8px;text-align:center;font:700 14px/1.1 'DM Mono',monospace;border:1px solid transparent}
-    .score-chip small{display:block;font:600 8px/1 'DM Mono',monospace;opacity:.72;margin-top:3px;letter-spacing:.08em}
-    .verdict-tag{display:inline-block;margin-bottom:8px;padding:3px 8px;border-radius:999px;font:700 9px/1.5 'DM Mono',monospace;letter-spacing:.07em}
-    .stale-flag{display:inline-block;margin-left:6px;color:#ffb26b;font:700 9px/1 'DM Mono',monospace}
-    .professional-dashboard .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.professional-dashboard .links a,.professional-dashboard .links button{min-height:38px;padding:9px 12px;border:1px solid #303b35;border-radius:7px;background:#101713;color:#e7ede9;text-decoration:none;font:700 10px/1 'DM Mono',monospace;display:inline-flex;align-items:center;cursor:pointer;transition:border-color .18s ease,color .18s ease}.professional-dashboard .links a:hover{border-color:#d9ff3f;color:#d9ff3f}.professional-dashboard .links button:hover{border-color:#ff6a52;color:#ff927e}
-    .professional-dashboard .links button.is-confirming{border-color:#ff6a52;color:#ff927e}
-
-    .dash-sk{padding:20px;border:1px solid #27322d;border-radius:12px;background:#0c1210}
-    .dash-sk span{display:block;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.1),rgba(255,255,255,.04));background-size:220% 100%;animation:dash-shimmer 1.25s ease-in-out infinite}
-    .dash-sk .s1{height:18px;width:62%;margin-bottom:12px}.dash-sk .s2{height:11px;width:88%;margin-bottom:8px}.dash-sk .s3{height:11px;width:44%}
-    @keyframes dash-shimmer{0%{background-position:130% 0}100%{background-position:-30% 0}}
-    .card.is-revealing{animation:dash-rise .32s cubic-bezier(.22,.68,.36,1) both;animation-delay:calc(min(var(--i,0),8) * 24ms)}
-    @keyframes dash-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-    .profile-section{padding-top:10px}.profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.profile-grid article{min-width:0;padding:20px;background:#0d1411;border:1px solid #27312c;border-radius:12px}.profile-grid strong{display:block;margin:10px 0 5px;color:#eef3ef;font:700 14px/1.35 'DM Sans',sans-serif;overflow-wrap:anywhere}.profile-grid p{margin:0;color:#909d96;font:500 12px/1.6 'DM Sans',sans-serif}.profile-grid>article:first-child strong{color:#d9ff3f}
-
-    @media(max-width:1050px){.dashboard-hero{grid-template-columns:1fr}.dashboard-metrics{max-width:760px}.account-actions{justify-content:flex-start}.dashboard-topbar{align-items:flex-start;flex-direction:column}}
-    @media(max-width:820px){.professional-dashboard{padding:26px 18px 86px}.dashboard-hero{padding:46px 0 34px}.dashboard-grid,.profile-grid{grid-template-columns:1fr}.dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-card{min-height:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px}.metric-card>span,.metric-card small{grid-column:1}.metric-card strong{grid-column:2;grid-row:1 / span 2}.section-head{align-items:flex-start;flex-direction:column;gap:14px}.section-note{text-align:left;white-space:normal}.section-link{white-space:normal}.dashboard-section{margin-top:42px}}
-    @media(max-width:520px){.professional-dashboard{padding:18px 13px 72px}.dashboard-topbar{padding-top:8px}.account-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.account-actions a,.account-actions button{width:100%;box-sizing:border-box}.account-actions .dash-primary{grid-column:1/-1}.hero-copy h1{font-size:56px}.hero-copy p{font-size:13px}.dashboard-metrics{gap:8px;grid-template-columns:1fr}.metric-card strong{font-size:28px}.section-head h2{font-size:48px}.professional-dashboard .card,.profile-grid article{padding:16px}.professional-dashboard .links a,.professional-dashboard .links button{flex:1 1 110px;justify-content:center;text-align:center}.list-toolbar{gap:8px}.field-inline,.field-narrow{flex:1 1 100%}.result-count{flex:1 1 100%}}
-    @media(prefers-reduced-motion:reduce){.dash-sk span{animation:none;background:rgba(255,255,255,.07)}.card.is-revealing{animation:none}.verdict-bar i{transition:none}.professional-dashboard .card:hover{transform:none}}
-  </style>
 </BaseLayout>
+<style>
+@media (max-width: 900px) {
+  .dashboard-hero {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
