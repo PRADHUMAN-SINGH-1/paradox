@@ -1,7 +1,7 @@
-/* PARADOX High-Tech Reusable UI Components */
+/* PARADOX High-Tech Reusable UI Components — Specular Glass & Tactical HUD */
 
 /* ==========================================================================
-   Base Buttons & Actions
+   Base Buttons & Actions with Magnetic & Kinetic Affordances
    ========================================================================== */
 .btn {
   display: inline-flex;
@@ -25,6 +25,7 @@
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
 .btn:hover {
@@ -40,28 +41,29 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, var(--accent) 0%, #4338ca 100%);
+  border-color: rgba(255, 255, 255, 0.22);
   color: #ffffff;
   box-shadow: 0 2px 14px var(--accent-glow);
 }
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.5), 0 0 12px rgba(0, 229, 255, 0.3);
 }
 
 .btn-emerald {
-  background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, var(--emerald) 0%, #047857 100%);
+  border-color: rgba(255, 255, 255, 0.22);
   color: #ffffff;
   box-shadow: 0 2px 14px var(--emerald-glow);
 }
 
 .btn-emerald:hover {
   background: linear-gradient(135deg, var(--emerald-light) 0%, var(--emerald) 100%);
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.45);
+  border-color: rgba(0, 255, 178, 0.5);
+  box-shadow: 0 4px 24px rgba(0, 223, 114, 0.5), 0 0 12px rgba(0, 255, 178, 0.3);
 }
 
 .btn-ghost {
@@ -83,6 +85,11 @@
   border-radius: var(--radius-sm);
 }
 
+.btn-magnetic {
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
 /* Auth button states */
 .auth-state-pending {
   position: relative;
@@ -96,18 +103,20 @@
   display: flex;
   align-items: center;
   position: relative;
-  background: var(--surface);
+  background: rgba(10, 13, 18, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: 6px 8px 6px 16px;
   transition: all var(--duration-normal) var(--ease-spring);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.7);
   width: 100%;
 }
 
 .search-bar-unified:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow), 0 8px 30px -4px rgba(0, 0, 0, 0.7);
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px var(--cyan-glow), 0 12px 36px -4px rgba(0, 0, 0, 0.85);
   background: var(--surface-elevated);
 }
 
@@ -155,8 +164,8 @@
 }
 
 .input-tech:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px var(--cyan-glow);
   background: var(--surface-elevated);
 }
 
@@ -188,25 +197,25 @@
 }
 
 .chip-verified {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(0, 223, 114, 0.08);
+  border-color: rgba(0, 223, 114, 0.3);
   color: var(--emerald-light);
 }
 
 .chip-warning {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.08);
   border-color: rgba(245, 158, 11, 0.3);
   color: var(--amber-light);
 }
 
 .chip-danger {
-  background: rgba(244, 63, 94, 0.1);
+  background: rgba(244, 63, 94, 0.08);
   border-color: rgba(244, 63, 94, 0.3);
   color: var(--rose-light);
 }
 
 .chip-accent {
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.08);
   border-color: rgba(99, 102, 241, 0.3);
   color: var(--accent-light);
 }
@@ -221,6 +230,11 @@
   animation: statusPulse 2s ease-in-out infinite;
 }
 
+.dot-pulse-cyan {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
 .dot-pulse-amber {
   background: var(--amber);
   box-shadow: 0 0 8px var(--amber);
@@ -232,12 +246,13 @@
 }
 
 /* ==========================================================================
-   Glass & Bento Cards
+   SPECULAR GLASS & BENTO CARDS (Linear / Vercel Precision Architecture)
    ========================================================================== */
-.card-glass {
-  background: rgba(14, 18, 23, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+.card-glass,
+.bento-cell {
+  background: rgba(10, 13, 18, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 24px;
@@ -246,9 +261,57 @@
   transition: all var(--duration-normal) var(--ease-spring);
 }
 
-.card-glass:hover {
-  border-color: var(--border-default);
-  background: rgba(21, 27, 34, 0.8);
+/* Radial ambient lighting from cursor */
+.card-glass::before,
+.bento-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    var(--spotlight-size) circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    var(--spotlight-color),
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  z-index: 1;
+}
+
+/* Gleaming specular border reveal using mask-composite */
+.card-glass::after,
+.bento-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    var(--spotlight-border),
+    transparent 65%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  z-index: 2;
+}
+
+.card-glass.is-illuminated::before,
+.card-glass.is-illuminated::after,
+.bento-cell.is-illuminated::before,
+.bento-cell.is-illuminated::after {
+  opacity: 1;
+}
+
+.card-glass:hover,
+.bento-cell:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(17, 22, 31, 0.85);
   box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
 }
@@ -261,15 +324,126 @@
   transform: translateY(0) scale(0.99);
 }
 
-.card-glass::before {
+/* Tactical Corner Crosshairs (+) */
+.hud-corners {
+  position: relative;
+}
+
+.hud-corners::before,
+.hud-corners::after {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--hud-crosshair);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hud-corners::before {
+  content: '+';
+  top: 6px;
+  left: 8px;
+}
+
+.hud-corners::after {
+  content: '+';
+  bottom: 6px;
+  right: 8px;
+}
+
+/* ==========================================================================
+   CYBER HUD CONSOLE (Live Telemetry & Waveform UI)
+   ========================================================================== */
+.hud-container {
+  background: rgba(7, 9, 13, 0.85);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  font-family: var(--font-mono);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+.hud-container::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-  opacity: 0.6;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+
+.hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 8px;
+}
+
+.hud-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.hud-status-badge {
+  font-size: 9px;
+  color: var(--cyan);
+  padding: 2px 6px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 4px;
+}
+
+.hud-waveform {
+  width: 100%;
+  height: 36px;
+  margin-bottom: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.hud-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 10.5px;
+  min-height: 80px;
+}
+
+.hud-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  animation: fadeSlideUp 0.3s var(--ease-spring) backwards;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud-time {
+  color: var(--text-muted);
+  font-size: 9.5px;
+}
+
+.hud-glyph {
+  color: var(--cyan);
+  font-size: 11px;
+}
+
+.hud-msg {
+  color: #d1d5db;
 }
 
 /* ==========================================================================

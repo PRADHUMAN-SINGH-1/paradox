@@ -1,73 +1,81 @@
-/* PARADOX High-Tech Design Tokens */
+/* PARADOX High-Tech Design Tokens — Obsidian Void & Cyber Architecture */
 :root {
   color-scheme: dark;
 
-  /* Obsidian Palette */
-  --canvas: #06080b;
-  --surface: #0e1217;
-  --surface-elevated: #151b22;
-  --surface-hover: #1c2430;
-  --surface-active: #242f3d;
+  /* True Obsidian Void Palette */
+  --canvas: #030304;
+  --surface: #0a0d12;
+  --surface-elevated: #11161f;
+  --surface-hover: #18202c;
+  --surface-active: #202b3a;
 
   /* Typography Colors */
-  --text-primary: #f0f6fc;
-  --text-secondary: #9aa0a6;
-  --text-muted: #6e7681;
-  --text-faint: #484f58;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a7b1;
+  --text-muted: #6b7280;
+  --text-faint: #3f444e;
 
-  /* Borders & Dividers */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-default: rgba(255, 255, 255, 0.13);
+  /* Architectural Borders & Dividers */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.12);
   --border-bright: rgba(255, 255, 255, 0.25);
-  --border-hover: rgba(99, 102, 241, 0.5);
+  --border-hover: rgba(0, 229, 255, 0.45);
 
-  /* Vivid Accents & Status */
+  /* Laser Precision Accents & Status */
   --accent: #6366f1;
   --accent-light: #818cf8;
-  --accent-glow: rgba(99, 102, 241, 0.25);
+  --accent-glow: rgba(99, 102, 241, 0.3);
 
   --cyan: #00e5ff;
-  --cyan-glow: rgba(0, 229, 255, 0.25);
+  --cyan-glow: rgba(0, 229, 255, 0.35);
 
-  --emerald: #10b981;
+  --emerald: #00df72;
   --emerald-light: #34d399;
-  --emerald-glow: rgba(16, 185, 129, 0.25);
+  --emerald-glow: rgba(0, 223, 114, 0.35);
 
   --amber: #f59e0b;
   --amber-light: #fbbf24;
-  --amber-glow: rgba(245, 158, 11, 0.25);
+  --amber-glow: rgba(245, 158, 11, 0.3);
 
   --rose: #f43f5e;
   --rose-light: #fb7185;
-  --rose-glow: rgba(244, 63, 94, 0.25);
+  --rose-glow: rgba(244, 63, 94, 0.3);
+
+  /* Specular & Tactical HUD Tokens */
+  --spotlight-size: 320px;
+  --spotlight-color: rgba(99, 102, 241, 0.12);
+  --spotlight-border: rgba(0, 229, 255, 0.4);
+  --hud-crosshair: rgba(255, 255, 255, 0.25);
+  --hud-font: 'JetBrains Mono', 'DM Mono', monospace;
 
   /* Font Stacks */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'DM Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Shadows & Glows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
-  --shadow-card-hover: 0 16px 40px -8px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--border-hover), 0 0 25px -5px var(--accent-glow);
-  --shadow-glow: 0 0 30px -4px var(--accent-glow);
-  --shadow-glow-emerald: 0 0 30px -4px var(--emerald-glow);
+  /* High-Tech Shadows & Glows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.7);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 8px 32px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-subtle);
+  --shadow-card-hover: 0 20px 48px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px var(--border-hover), 0 0 30px -5px var(--accent-glow);
+  --shadow-glow: 0 0 32px -4px var(--accent-glow);
+  --shadow-glow-cyan: 0 0 32px -4px var(--cyan-glow);
+  --shadow-glow-emerald: 0 0 32px -4px var(--emerald-glow);
 
   /* Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-xl: 22px;
   --radius-full: 9999px;
 
-  /* Transitions */
+  /* Organic & Spring Transitions */
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 400ms;
 
-  /* Max Widths */
+  /* Grid & Layout Max Widths */
   --max-w-content: 1240px;
   --max-w-wide: 1400px;
 }

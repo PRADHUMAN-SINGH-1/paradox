@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PARADOX Master Application Stylesheet
+   PARADOX Master Application Stylesheet — Cyber Void Architecture
    ========================================================================== */
 
 @import './tokens.css';
@@ -39,17 +39,46 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 60%),
+    radial-gradient(circle at 100% 50%, rgba(0, 229, 255, 0.06) 0%, transparent 40%),
     linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 48px 48px, 48px 48px;
-  z-index: -1;
+  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+  z-index: -2;
 }
 
-/* Custom Scrollbar */
+/* Interactive Neural Particle Canvas */
+.global-neural-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.75;
+}
+
+/* Layering hierarchy */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+main {
+  position: relative;
+  z-index: 2;
+}
+
+.site-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* Custom Tactical Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -63,12 +92,12 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-bright);
+  background: var(--cyan);
 }
 
 /* Focus Visible Accessibility */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--cyan);
   outline-offset: 2px;
 }
 
