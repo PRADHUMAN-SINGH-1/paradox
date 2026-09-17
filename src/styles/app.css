@@ -98,11 +98,17 @@ body {
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.55;
+  text-shadow: 0 0 0.35px currentColor;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
+}
+
+/* Global typography highlight: a restrained same-color halo keeps every text layer crisp on the visual field. */
+body :where(h1, h2, h3, h4, h5, h6, strong, b, a, button, label, .brand-name, .pf-footer-kicker) {
+  text-shadow: 0 0 4px color-mix(in srgb, currentColor 18%, transparent);
 }
 
 /* Tactile Film Grain Texture (Lando Norris & Lusion depth layer) */
