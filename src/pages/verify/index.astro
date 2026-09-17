@@ -8,24 +8,24 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   canonical="https://paradox.engineer/verify/"
 >
   <main class="verify-page">
-    <div class="page-header animate-fade-slide-up">
+    <div class="page-header" style="margin-bottom: 36px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <span class="dot-pulse dot-pulse-cyan"></span>
-        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--cyan);">STATIC VERIFICATION CORE // DETERMINISTIC INSPECTION</span>
+        <span class="dot-pulse"></span>
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--accent); font-weight: 800;">STATIC VERIFICATION CORE // DETERMINISTIC INSPECTION</span>
       </div>
-      <h1>Verify an AI Agent.<br /><em>Inspect the observable evidence.</em></h1>
-      <p class="page-lead">
+      <h1 data-kinetic style="font-family: var(--font-display); font-size: clamp(38px, 6vw, 64px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; margin: 12px 0;">Verify an AI Agent.<br /><em style="color: var(--accent); font-style: normal;">Inspect the observable evidence.</em></h1>
+      <p class="page-lead" style="color: var(--text-secondary); font-size: 16px; line-height: 1.6; max-width: 640px; margin: 0;">
         Deterministic inspection of public GitHub repositories. We fetch metadata, analyze dependency manifests, and score health, commit activity, documentation, and potential static risk indicators.
       </p>
     </div>
 
     <!-- Interactive Verification Form Card -->
-    <div class="verify-form-card card-glass hud-corners animate-fade-slide-up" style="animation-delay: 100ms; margin-bottom: 24px;">
+    <div class="verify-form-card hud-corners" style="margin-bottom: 24px;">
       <form id="verifyForm">
         <label class="visually-hidden" for="repoUrl">GitHub repository URL</label>
         <div class="verify-input-row">
           <div style="position: relative; flex: 1; display: flex; align-items: center;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; color: var(--cyan);"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; color: var(--accent);"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
             <input 
               id="repoUrl" 
               type="url" 
@@ -36,11 +36,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               required 
             />
           </div>
-          <button id="pasteBtn" type="button" class="btn btn-ghost btn-sm" title="Paste from clipboard">
+          <button id="pasteBtn" type="button" class="btn btn-ghost btn-sm" title="Paste from clipboard" data-cursor="PASTE">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
             <span>Paste</span>
           </button>
-          <button type="submit" class="btn btn-primary btn-magnetic">
+          <button type="submit" class="btn btn-emerald" data-cursor="ANALYZE">
             <span>Analyze Repository</span>
           </button>
         </div>
@@ -48,10 +48,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       <!-- Quick Test Chips -->
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 16px;">
-        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">QUICK SAMPLES:</span>
-        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/microsoft/autogen">microsoft/autogen</button>
-        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/anthropics/anthropic-quickstarts">anthropics/anthropic-quickstarts</button>
-        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/crewAIInc/crewAI">crewAIInc/crewAI</button>
+        <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--text-muted);">QUICK SAMPLES:</span>
+        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/microsoft/autogen" data-cursor="SAMPLE">microsoft/autogen</button>
+        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/anthropics/anthropic-quickstarts" data-cursor="SAMPLE">anthropics/anthropic-quickstarts</button>
+        <button type="button" class="chip sample-repo-chip" data-repo="https://github.com/crewAIInc/crewAI" data-cursor="SAMPLE">crewAIInc/crewAI</button>
       </div>
     </div>
 
@@ -59,18 +59,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     <div id="hudTelemetryContainer" style="margin-bottom: 24px;"></div>
 
     <!-- Dynamic Status Banner -->
-    <div id="verifyStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--cyan); margin-bottom: 24px;"></div>
+    <div id="verifyStatus" class="status" role="status" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent); margin-bottom: 24px; font-weight: 700;"></div>
 
     <!-- Analysis Output Section (Rendered by renderAnalysis) -->
     <section id="result" class="result" hidden></section>
 
     <!-- Security Posture Note -->
-    <div class="card-glass hud-corners" style="margin-top: 40px; display: flex; gap: 16px; align-items: flex-start;">
-      <div style="color: var(--cyan); margin-top: 2px;">
+    <div class="hud-container hud-corners" style="margin-top: 40px; display: flex; gap: 16px; align-items: flex-start;">
+      <div style="color: var(--accent); margin-top: 2px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
       </div>
       <div>
-        <strong style="font-size: 13px; color: var(--text-primary); display: block; margin-bottom: 4px;">Security & Isolation Guarantee</strong>
+        <strong style="font-size: 13px; color: #ffffff; display: block; margin-bottom: 4px; font-family: var(--font-mono); letter-spacing: 0.05em;">Security & Isolation Guarantee</strong>
         <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
           Third-party repository contents are treated as untrusted data. PARADOX never runs <code>npm install</code>, executes Dockerfiles, or runs target shell scripts. All reported scores and verdicts are static heuristics from public GitHub evidence.
         </p>

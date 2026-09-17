@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PARADOX Master Application Stylesheet — Cyber Void Architecture
+   PARADOX Master Stylesheet — Cyber Brutalism & Kinetic Void Architecture
    ========================================================================== */
 
 @import './tokens.css';
@@ -7,24 +7,109 @@
 @import './components.css';
 @import './pages.css';
 
-/* Global Resets */
+/* Global Reset */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
 html {
-  scroll-behavior: smooth;
-  background-color: var(--canvas);
+  background-color: var(--bg);
+  color-scheme: dark;
+}
+
+/* Custom Morphing Cursor Styles */
+@media (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+
+  .cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100000;
+    transition: opacity 0.2s, transform 0.05s linear;
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 1.5px solid rgba(200, 255, 0, 0.45);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.25s var(--ease-brutal), height 0.25s var(--ease-brutal), margin 0.25s var(--ease-brutal), background-color 0.25s var(--ease-brutal), border-color 0.25s var(--ease-brutal), opacity 0.2s;
+  }
+
+  .cursor-ring.is-hovered {
+    width: 58px;
+    height: 58px;
+    margin: -29px 0 0 -29px;
+    border-color: var(--accent);
+    background-color: rgba(200, 255, 0, 0.12);
+  }
+
+  .cursor-ring.is-clicking {
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    background-color: var(--accent);
+  }
+
+  .cursor-ring.has-label {
+    width: 68px;
+    height: 68px;
+    margin: -34px 0 0 -34px;
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .cursor-ring-text {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #000000;
+    opacity: 0;
+    text-transform: uppercase;
+    transform: scale(0.8);
+    transition: all 0.2s;
+  }
+
+  .cursor-ring.has-label .cursor-ring-text {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .cursor-dot.is-hidden,
+  .cursor-ring.is-hidden {
+    opacity: 0;
+  }
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--canvas);
+  background-color: var(--bg);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -32,37 +117,36 @@ body {
   min-height: 100vh;
 }
 
-/* Background Cyber Grid Mesh */
-body::before {
+/* Subtle Film Grain Noise Texture */
+body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 60%),
-    radial-gradient(circle at 100% 50%, rgba(0, 229, 255, 0.06) 0%, transparent 40%),
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
-  z-index: -2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+  z-index: 999;
 }
 
-/* Interactive Neural Particle Canvas */
-.global-neural-canvas {
+/* Fluid Distortion Canvas Overlay */
+#fluid-canvas {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: -1;
-  opacity: 0.75;
+  z-index: 1;
+  opacity: 0.8;
 }
 
-/* Layering hierarchy */
+/* Content Stacking Hierarchy */
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 main {
@@ -73,35 +157,15 @@ main {
 .site-footer {
   position: relative;
   z-index: 2;
+  border-top: 1px solid var(--border-subtle);
 }
 
-/* Custom Tactical Scrollbar */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+/* Scroll Velocity Skew Wrapper */
+.skewable {
+  will-change: transform;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--canvas);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--surface-hover);
-  border-radius: 4px;
-  border: 2px solid var(--canvas);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--cyan);
-}
-
-/* Focus Visible Accessibility */
-:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 2px;
-}
-
-/* Screen reader only utility */
+/* Screen reader utility */
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
