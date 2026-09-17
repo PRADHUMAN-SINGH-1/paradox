@@ -17,8 +17,5 @@ const destination = '/ai-studio/?section=toolkit&tool=' + item.slug;
 </head>
 <body>
   <p>Opening {item.label} inside PARADOX Studio…</p>
-  <script is:inline>
-    window.location.replace({JSON.stringify(destination)});
-  </script>
 </body>
 </html>
