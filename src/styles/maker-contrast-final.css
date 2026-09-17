@@ -36,7 +36,7 @@
 .utility-seo-copy h3 {
   color: #111412 !important;
   opacity: 1 !important;
-  text-shadow: none !important;
+  text-shadow: 0 0 5px rgb(17 20 18 / 16%) !important;
 }
 
 .maker-section h2 em,
