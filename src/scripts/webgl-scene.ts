@@ -62,11 +62,17 @@ export class ThreeWebGLScene {
   // Active Dynamic Objects
   private coreMaterial: any = null;
   private coreMesh: any = null;
+  private coreRing: any = null;
   private instanceManager: InstanceManager | null = null;
   private verifyMaterial: any = null;
   private signalsRibbon: any = null;
   private signalsGeo: any = null;
   private tunnelLines: any = null;
+
+  // Dynamic Background Atmosphere
+  private lightBgColor: any = null;
+  private darkBgColor: any = null;
+  private currentBgColor: any = null;
 
   // Interaction State
   private isDragging = false;
@@ -131,6 +137,12 @@ export class ThreeWebGLScene {
     // 3. Setup Environment & Architectural Lighting
     this.envPipeline = new EnvironmentPipeline(THREE, this.renderer, this.scene);
     this.envPipeline.setup();
+
+    // Initialize Dynamic Atmosphere Colors (World A: Light Gallery #EEF0F4)
+    this.lightBgColor = new THREE.Color(0xEEF0F4);
+    this.darkBgColor = new THREE.Color(0x050608);
+    this.currentBgColor = new THREE.Color(0xEEF0F4);
+    this.scene.background = this.currentBgColor;
 
     // 4. Setup Explicit Post-Processing Pipeline
     this.postProcessing = new PostProcessing(THREE, this.renderer, this.scene, this.camera);
@@ -211,8 +223,8 @@ export class ThreeWebGLScene {
         uMouseRadius: { value: 24.0 },
         uMouseStrength: { value: 4.0 },
         uHealth: { value: 0.98 },
-        uColor: { value: new THREE.Color(0x0A0D12) },       // Deep carbon obsidian
-        uRimColor: { value: new THREE.Color(0xCFD5E1) },    // Neutral pale lavender rim
+        uColor: { value: new THREE.Color(0x181C24) },       // Sculptural carbon graphite
+        uRimColor: { value: new THREE.Color(0xFFFFFF) },    // Platinum specular highlight
         uHealthColor: { value: new THREE.Color(0x38D9A9) }, // Muted clinical mint
         uRoughness: { value: 0.25 }
       },
@@ -222,6 +234,18 @@ export class ThreeWebGLScene {
 
     this.coreMesh = new THREE.Mesh(geo, this.coreMaterial);
     this.groupCore.add(this.coreMesh);
+
+    // Architectural satellite meridian ring (representing deterministic AST boundary)
+    const ringGeo = new THREE.TorusGeometry(28, 0.12, 8, 64);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x64748B,
+      transparent: true,
+      opacity: 0.35
+    });
+    this.coreRing = new THREE.Mesh(ringGeo, ringMat);
+    this.coreRing.rotation.x = Math.PI / 3;
+    this.groupCore.add(this.coreRing);
+
     this.scene.add(this.groupCore);
   }
 
@@ -638,6 +662,58 @@ export class ThreeWebGLScene {
   };
 
   /**
+   * World A (Hero): Editorial Light Gallery (#EEF0F4)
+   * Smoothly crossfades on scroll into World B (Deep Obsidian #050608)
+   */
+  private updateAtmosphere(p: number) {
+    if (!this.scene || !this.currentBgColor) return;
+
+    if (this.coreRing) {
+      this.coreRing.rotation.z += 0.003;
+    }
+
+    if (p <= 0.05) {
+      this.currentBgColor.copy(this.lightBgColor);
+      this.scene.background.copy(this.currentBgColor);
+      if (typeof document !== 'undefined' && !document.body.classList.contains('theme-light')) {
+        document.body.classList.add('theme-light');
+      }
+      if (this.coreMaterial && this.coreMaterial.uniforms) {
+        this.coreMaterial.uniforms.uColor.value.setHex(0x181C24);
+        this.coreMaterial.uniforms.uRimColor.value.setHex(0xFFFFFF);
+      }
+    } else if (p < 0.16) {
+      const t = (p - 0.05) / 0.11;
+      const smoothT = t * t * (3 - 2 * t);
+      this.currentBgColor.copy(this.lightBgColor).lerp(this.darkBgColor, smoothT);
+      this.scene.background.copy(this.currentBgColor);
+
+      if (typeof document !== 'undefined') {
+        if (smoothT > 0.45 && document.body.classList.contains('theme-light')) {
+          document.body.classList.remove('theme-light');
+        } else if (smoothT <= 0.45 && !document.body.classList.contains('theme-light')) {
+          document.body.classList.add('theme-light');
+        }
+      }
+
+      if (this.coreMaterial && this.coreMaterial.uniforms) {
+        this.coreMaterial.uniforms.uColor.value.setHex(smoothT > 0.5 ? 0x0A0D12 : 0x181C24);
+        this.coreMaterial.uniforms.uRimColor.value.setHex(smoothT > 0.5 ? 0xCFD5E1 : 0xFFFFFF);
+      }
+    } else {
+      this.currentBgColor.copy(this.darkBgColor);
+      this.scene.background.copy(this.currentBgColor);
+      if (typeof document !== 'undefined' && document.body.classList.contains('theme-light')) {
+        document.body.classList.remove('theme-light');
+      }
+      if (this.coreMaterial && this.coreMaterial.uniforms) {
+        this.coreMaterial.uniforms.uColor.value.setHex(0x0A0D12);
+        this.coreMaterial.uniforms.uRimColor.value.setHex(0xCFD5E1);
+      }
+    }
+  }
+
+  /**
    * Evaluates visibility and opacity weight for each chapter based on scroll position.
    */
   private updateChapterWeights(p: number, _delta: number, elapsed: number, audio: number) {
@@ -814,7 +890,10 @@ export class ThreeWebGLScene {
       this.camera.updateProjectionMatrix();
     }
 
-    // 5. Update Chapter Scene Visibility & Distinct Geometry States
+    // 5. Update Atmosphere Tone & Dynamic Light/Dark Crossfade
+    this.updateAtmosphere(this.scrollProgress);
+
+    // 6. Update Chapter Scene Visibility & Distinct Geometry States
     this.updateChapterWeights(this.scrollProgress, delta, elapsed, audioEnergy);
 
     // 6. Master Post-Processing Pipeline Render

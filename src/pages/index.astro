@@ -2,39 +2,60 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import catalog from '../data/catalog.json';
 import tools from '../data/ai-tools.json';
+import { CATEGORIES } from '../lib/catalog.ts';
 
 const featured = catalog.slice(0, 8);
+const recent = catalog.slice(8, 14);
 const featuredTools = tools.slice(0, 6);
+const cats = CATEGORIES.filter((c) => catalog.some((e) => e.category === c.slug));
 ---
 
 <BaseLayout 
-  title="PARADOX — Observable AI Agent Intelligence & Trust Signals" 
+  title="PARADOX — AI agent intelligence and trust signals" 
   description="Discover, inspect, compare and evaluate public AI agents and GitHub projects using observable repository evidence before you depend on them."
 >
   <main class="editorial-main">
-    <!-- Chapter 01: Full-Viewport Massive Editorial Typography (BOOT / CORE) -->
+    <!-- Chapter 01: Hero / BOOT & PARADOX CORE (World A: Editorial Light Gallery) -->
     <section class="hero-editorial-full" data-chapter="BOOT">
       <div class="hero-top-meta">
         <span class="coord-stamp">45.1094° N, 0.0000° E // ZERO_EXECUTION</span>
-        <span class="meta-label">OBSERVABLE REPOSITORY EVIDENCE</span>
+        <span class="meta-label">AI AGENT INTELLIGENCE / TRUST SIGNALS / 01</span>
       </div>
 
       <div class="hero-headline-massive">
         <h1 class="giant-editorial-title" data-kinetic data-hero-kinetic>
-          OBSERVE WHAT<br />
-          OTHERS ASSUME.
+          Understand the agents you are about to <em>trust.</em>
         </h1>
       </div>
 
       <div class="hero-bottom-grid">
         <p class="hero-statement">
-          Deterministic static analysis for public AI agents, Model Context Protocol tooling, and GitHub repositories. Zero code execution. Mathematical proof.
+          Discover public AI agents and GitHub projects, then inspect observable evidence for activity, health, documentation, stack and static risk signals before you depend on them.
         </p>
 
-        <div class="hero-actions-minimal">
-          <a href="/verify/" class="btn btn-primary" data-cursor="VERIFY">Inspect Repository →</a>
-          <a href="/agents/" class="btn btn-ghost" data-cursor="EXPLORE">Explore Atlas ↗</a>
+        <div class="hero-search-block">
+          <form class="search-row-editorial" method="get" action="/agents/">
+            <label class="visually-hidden" for="homeQuery">Search AI agents</label>
+            <div class="search-input-wrap">
+              <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input id="homeQuery" name="q" type="search" placeholder="Search agents, skills, repositories, MCP…" autocomplete="off" />
+              <kbd class="shortcut-hint">⌘K</kbd>
+            </div>
+            <button type="submit" class="btn btn-primary" data-cursor="EXPLORE"><span>Explore</span></button>
+          </form>
+
+          <div class="hero-sub-actions">
+            <a href="/verify/" class="hero-sub-link" data-cursor="VERIFY">Inspect a GitHub repository →</a>
+            <a href="/compare/" class="hero-sub-link" data-cursor="COMPARE">Compare two agents →</a>
+          </div>
         </div>
+      </div>
+
+      <div class="hero-cats-row" aria-label="Agent categories">
+        <span class="cats-label">INDEX:</span>
+        {cats.map((c) => (
+          <a href={`/categories/${c.slug}/`} class="hero-cat-tag" data-cursor="CAT">{c.label}</a>
+        ))}
       </div>
 
       <div class="hero-scroll-indicator">
@@ -46,12 +67,12 @@ const featuredTools = tools.slice(0, 6);
     <!-- Continuous Architectural Marquee -->
     <div class="marquee-strip" aria-hidden="true">
       <div class="marquee-content">
-        <span>PARADOX <strong>OBSERVABILITY</strong></span>
+        <span>OBSERVABLE <strong>INTELLIGENCE</strong></span>
         <span>STATIC <strong>VERIFICATION</strong></span>
         <span>ZERO <strong>EXECUTION</strong></span>
         <span>DETERMINISTIC <strong>EVIDENCE</strong></span>
         <span>MODEL <strong>CONTEXT PROTOCOL</strong></span>
-        <span>PARADOX <strong>OBSERVABILITY</strong></span>
+        <span>OBSERVABLE <strong>INTELLIGENCE</strong></span>
         <span>STATIC <strong>VERIFICATION</strong></span>
         <span>ZERO <strong>EXECUTION</strong></span>
         <span>DETERMINISTIC <strong>EVIDENCE</strong></span>
@@ -59,49 +80,76 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </div>
 
-    <!-- Chapter 02: Editorial Decision Architecture Rail (OBSERVE) -->
+    <!-- Chapter 02: Platform Principles (OBSERVE) -->
     <section class="editorial-section" data-chapter="OBSERVE">
       <div class="editorial-section-header">
-        <span class="section-num">02 // EVIDENCE_ARCHITECTURE</span>
-        <h2 class="editorial-section-title" data-kinetic>Deterministic signals. Zero guesswork.</h2>
+        <span class="section-num">01 // PLATFORM PRINCIPLES</span>
+        <h2 class="editorial-section-title" data-kinetic>Evidence-based decisions. Zero guesswork.</h2>
+      </div>
+
+      <div class="platform-stats-grid" aria-label="Platform principles">
+        <div class="platform-stat-card spotlight-card" data-cursor="EVIDENCE">
+          <span class="stat-role">Decision model</span>
+          <strong class="stat-main">EVIDENCE FIRST</strong>
+          <em class="stat-sub">NO GUESSING</em>
+        </div>
+
+        <div class="platform-stat-card spotlight-card" data-cursor="ISOLATION">
+          <span class="stat-role">Inspection mode</span>
+          <strong class="stat-main">NO EXECUTION</strong>
+          <em class="stat-sub">DATA ONLY</em>
+        </div>
+
+        <div class="platform-stat-card spotlight-card" data-cursor="SIGNALS">
+          <span class="stat-role">Core signals</span>
+          <strong class="stat-main">HEALTH / ACTIVITY</strong>
+          <em class="stat-sub">LIVE CHECK</em>
+        </div>
+
+        <div class="platform-stat-card spotlight-card" data-cursor="DECIDE">
+          <span class="stat-role">Decision layer</span>
+          <strong class="stat-main">VERIFY / COMPARE</strong>
+          <em class="stat-sub">READY</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 03: What PARADOX Evaluates (EVIDENCE) -->
+    <section class="editorial-section" data-chapter="EVIDENCE">
+      <div class="editorial-section-header">
+        <span class="section-num">02 // WHAT PARADOX EVALUATES</span>
+        <h2 class="editorial-section-title" data-kinetic>Deterministic signals. Ground truth.</h2>
       </div>
 
       <div class="horizontal-track-wrapper">
         <div class="horizontal-track-pin">
           <div class="horizontal-track-inner">
-            <article class="editorial-card spotlight-card" data-cursor="EVIDENCE">
+            <article class="editorial-card spotlight-card" data-cursor="MAINTENANCE">
               <span class="card-num">01</span>
-              <span class="card-category">DECISION ARCHITECTURE</span>
-              <h3>Evidence First</h3>
-              <p>Scores are anchored in public commit histories, release provenance, and manifests. No subjective marketing claims or speculative hype.</p>
+              <span class="card-category">01 / MAINTENANCE</span>
+              <h3>Is it alive?</h3>
+              <p>Freshness, commits, releases and contributor activity help reveal whether a project is still maintained.</p>
             </article>
 
-            <article class="editorial-card spotlight-card" data-cursor="ISOLATION">
+            <article class="editorial-card spotlight-card" data-cursor="ENGINEERING">
               <span class="card-num">02</span>
-              <span class="card-category">ISOLATION CORE</span>
-              <h3>Zero Code Run</h3>
-              <p>Target repository install scripts, Dockerfiles, and binary payloads are never executed. Pure deterministic static AST parsing behind an immutable boundary.</p>
+              <span class="card-category">02 / ENGINEERING</span>
+              <h3>What is inside?</h3>
+              <p>Stack files, languages, models and tools are surfaced from observable repository evidence.</p>
             </article>
 
-            <article class="editorial-card spotlight-card" data-cursor="VELOCITY">
+            <article class="editorial-card spotlight-card" data-cursor="RISK">
               <span class="card-num">03</span>
-              <span class="card-category">SIGNAL VELOCITY</span>
-              <h3>Live Health & Risk</h3>
-              <p>Detection of abandoned codebases, unpinned transitive dependencies, credential access heuristics, and remote shell execution vectors.</p>
+              <span class="card-category">03 / RISK</span>
+              <h3>What stands out?</h3>
+              <p>Static risk indicators expose patterns worth investigating without executing the repository.</p>
             </article>
 
-            <article class="editorial-card spotlight-card" data-cursor="MATRIX">
+            <article class="editorial-card spotlight-card" data-cursor="DECISION">
               <span class="card-num">04</span>
-              <span class="card-category">COMPARISON ENGINE</span>
-              <h3>Side-by-Side Matrix</h3>
-              <p>Direct mathematical alignment of competing frameworks across maintenance freshness, stars, releases, and vulnerability vectors.</p>
-            </article>
-
-            <article class="editorial-card spotlight-card" data-cursor="REASONING">
-              <span class="card-num">05</span>
-              <span class="card-category">PROTOCOL VERIFICATION</span>
-              <h3>Verified Manifests</h3>
-              <p>Comprehensive AST analysis extracting Model Context Protocol (MCP) definitions, tool exports, and agent capabilities in sub-millisecond execution.</p>
+              <span class="card-category">04 / DECISION</span>
+              <h3>Which should I choose?</h3>
+              <p>Compare repositories using the same evidence model instead of relying on popularity alone.</p>
             </article>
           </div>
           <div class="horizontal-progress-bar" id="trackProgress"></div>
@@ -109,28 +157,62 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Chapter 03: Precision Verification Portal (VERIFY) -->
+    <!-- Chapter 04: The Workflow & Live AST Verifier (VERIFY) -->
     <section class="editorial-section" data-chapter="VERIFY">
-      <div class="editorial-section-header">
-        <span class="section-num">03 // VERIFICATION_PORTAL</span>
-        <h2 class="editorial-section-title" data-kinetic>Inspect any public repository.</h2>
+      <div class="editorial-section-header-split">
+        <div>
+          <span class="section-num">03 // THE WORKFLOW</span>
+          <h2 class="editorial-section-title" data-kinetic>From discovery to a defensible decision.</h2>
+          <p class="editorial-section-lead">PARADOX is designed to make an agent understandable before it becomes a dependency. Every step leads back to observable repository evidence.</p>
+        </div>
       </div>
 
-      <div class="verify-terminal-box">
+      <div class="workflow-steps-grid" aria-label="PARADOX workflow">
+        <div class="workflow-step-card spotlight-card" data-cursor="STEP 1">
+          <b class="step-badge">01</b>
+          <strong class="step-action">Discover</strong>
+          <span class="step-desc">find candidates</span>
+          <em class="step-meta">CATALOG + SEARCH</em>
+        </div>
+
+        <div class="workflow-step-card spotlight-card" data-cursor="STEP 2">
+          <b class="step-badge">02</b>
+          <strong class="step-action">Inspect</strong>
+          <span class="step-desc">read the evidence</span>
+          <em class="step-meta">HEALTH + STACK</em>
+        </div>
+
+        <div class="workflow-step-card spotlight-card" data-cursor="STEP 3">
+          <b class="step-badge">03</b>
+          <strong class="step-action">Compare</strong>
+          <span class="step-desc">normalize signals</span>
+          <em class="step-meta">SIDE BY SIDE</em>
+        </div>
+
+        <div class="workflow-step-card spotlight-card" data-cursor="STEP 4">
+          <b class="step-badge">04</b>
+          <strong class="step-action">Decide</strong>
+          <span class="step-desc">keep uncertainty visible</span>
+          <em class="step-meta">UNKNOWN ≠ SAFE</em>
+        </div>
+      </div>
+
+      <!-- Live Static AST Inspection Terminal -->
+      <div class="verify-terminal-box" style="margin-top: 48px;">
         <div class="verify-terminal-header">
           <span>STATIC AST SCANNER // PUBLIC REPOSITORY EVALUATION</span>
-          <span class="status-indicator">READY</span>
+          <span class="status-indicator">STANDBY // ZERO_EXECUTION</span>
         </div>
 
         <form class="verify-input-row" method="get" action="/verify/">
           <input 
             type="text" 
             name="url" 
-            placeholder="Paste GitHub URL (e.g. https://github.com/langchain-ai/langgraph)" 
+            placeholder="Paste GitHub repository URL to inspect (e.g. https://github.com/langchain-ai/langgraph)" 
             autocomplete="off"
             required 
           />
-          <button type="submit" class="btn btn-primary" data-cursor="INSPECT">Verify Now →</button>
+          <button type="submit" class="btn btn-primary" data-cursor="INSPECT">Inspect Repository →</button>
         </form>
 
         <div class="verify-heuristics-grid">
@@ -154,12 +236,28 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Chapter 04: Indexed Agent Atlas (ATLAS) -->
+    <!-- Chapter 05: Ecosystem Integration & Curated Signals (ATLAS) -->
     <section class="editorial-section" data-chapter="ATLAS">
-      <div class="editorial-section-header-split">
+      <div class="profile-band-banner spotlight-card">
+        <div class="profile-band-text">
+          <span class="section-num">04 // ECOSYSTEM INTEGRATION</span>
+          <h3 class="profile-band-title" data-kinetic>Built for the agent ecosystem, not just one scanner.</h3>
+          <p class="profile-band-lead">Security is one signal. PARADOX combines trust, maintenance, engineering and activity signals into one intelligence profile so builders can evaluate an agent before depending on it.</p>
+        </div>
+        <div class="profile-band-pills">
+          <span class="band-pill">Agent registry</span>
+          <span class="band-pill">Repository intelligence</span>
+          <span class="band-pill">Trust signals</span>
+          <span class="band-pill">Evidence graph</span>
+        </div>
+      </div>
+
+      <!-- Curated Signals: Featured Agents -->
+      <div class="editorial-section-header-split" style="margin-top: 72px;">
         <div>
-          <span class="section-num">04 // AGENT_ATLAS</span>
-          <h2 class="editorial-section-title" data-kinetic>Featured Public Agent Repositories</h2>
+          <span class="section-num">05 // CURATED SIGNALS</span>
+          <h2 class="editorial-section-title" data-kinetic>Featured agents.</h2>
+          <p class="editorial-section-lead">Start with public systems already catalogued by PARADOX, then inspect the evidence behind each profile.</p>
         </div>
         <a href="/agents/" class="btn btn-ghost" data-cursor="EXPLORE">Explore Full Atlas →</a>
       </div>
@@ -174,20 +272,50 @@ const featuredTools = tools.slice(0, 6);
             <h3 class="entry-title">{e.repo}</h3>
             <p class="entry-desc">{e.summary}</p>
             <div class="entry-links">
-              <a href={`/agents/${e.owner}/${e.repo}/`} class="entry-link-primary">Inspect Profile →</a>
-              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`} class="entry-link-subtle">Run Verifier ↗</a>
+              <a href={`/agents/${e.owner}/${e.repo}/`} class="entry-link-primary">Open profile →</a>
+              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`} class="entry-link-subtle">Verify ↗</a>
             </div>
           </article>
         ))}
       </div>
     </section>
 
-    <!-- Chapter 05: Practical Developer Studio (STUDIO) -->
+    <!-- Chapter 06: Recent Activity (SIGNALS) -->
+    <section class="editorial-section" data-chapter="SIGNALS">
+      <div class="editorial-section-header-split">
+        <div>
+          <span class="section-num">06 // RECENT ACTIVITY</span>
+          <h2 class="editorial-section-title" data-kinetic>Recently catalogued.</h2>
+          <p class="editorial-section-lead">New repositories enter the catalog as discoverable starting points. Live health signals are checked when you inspect them.</p>
+        </div>
+        <a href="/trending/" class="btn btn-ghost" data-cursor="SIGNALS">View Live Signals →</a>
+      </div>
+
+      <div class="editorial-catalog-grid">
+        {recent.map((e) => (
+          <article class="catalog-entry spotlight-card" data-cursor="INSPECT">
+            <div class="entry-meta">
+              <span class="chip chip-accent">{e.category}</span>
+              <span class="entry-owner">{e.owner}/{e.repo}</span>
+            </div>
+            <h3 class="entry-title">{e.repo}</h3>
+            <p class="entry-desc">{e.summary}</p>
+            <div class="entry-links">
+              <a href={`/agents/${e.owner}/${e.repo}/`} class="entry-link-primary">Open profile →</a>
+              <a href={`/verify/?url=${encodeURIComponent(`https://github.com/${e.owner}/${e.repo}`)}`} class="entry-link-subtle">Verify ↗</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Chapter 07: Practical Developer Studio (STUDIO) -->
     <section class="editorial-section" data-chapter="STUDIO" id="ai-tools">
       <div class="editorial-section-header-split">
         <div>
-          <span class="section-num">05 // DEVELOPER_STUDIO</span>
+          <span class="section-num">07 // DEVELOPER_STUDIO</span>
           <h2 class="editorial-section-title" data-kinetic>Practical Developer AI Tools</h2>
+          <p class="editorial-section-lead">Fast, client-side developer utilities designed for repeatable inspection workflows.</p>
         </div>
         <a href="/ai/" class="btn btn-primary" data-cursor="STUDIO">Open Studio ↗</a>
       </div>
@@ -206,10 +334,10 @@ const featuredTools = tools.slice(0, 6);
       </div>
     </section>
 
-    <!-- Chapter 06: Final Statement — Meditative Void (VOID) -->
+    <!-- Chapter 08: Final Statement — Meditative Void (VOID) -->
     <section class="editorial-void-section" data-chapter="VOID">
       <div class="void-content">
-        <span class="void-kicker">[ 06 // RESOLUTION ]</span>
+        <span class="void-kicker">[ 08 // RESOLUTION ]</span>
         <h2 class="void-title" data-kinetic>
           BETTER EVIDENCE.<br />
           BETTER DECISIONS.
