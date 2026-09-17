@@ -1,6 +1,6 @@
 /**
  * PARADOX Momentum Smooth Scroll & Kinetic Skew Physics — Lando Norris Standard
- * Connects Studio Freight Lenis with GSAP ScrollTrigger and drives velocity skew.
+ * Connects Studio Freight Lenis with GSAP ScrollTrigger, drives velocity skew and marquee racing.
  */
 
 declare global {
@@ -17,9 +17,9 @@ export function initSmoothScroll() {
 
   if (window.Lenis) {
     const lenis = new window.Lenis({
-      lerp: 0.1,
+      lerp: 0.09,
       smoothWheel: true,
-      touchMultiplier: 1.25,
+      touchMultiplier: 1.2,
       infinite: false
     });
     window.lenisInstance = lenis;
@@ -34,7 +34,7 @@ export function initSmoothScroll() {
       });
       window.gsap.ticker.lagSmoothing(0);
 
-      // Lando Norris exact scroll velocity skew technique
+      // Lando Norris scroll velocity skew
       window.ScrollTrigger.create({
         onUpdate: (self: any) => {
           const velocity = self.getVelocity() / 1000;
@@ -53,24 +53,27 @@ export function initSmoothScroll() {
         requestAnimationFrame(raf);
       };
       requestAnimationFrame(raf);
-
-      // Fallback velocity skew
-      let skewTimer: any;
-      lenis.on('scroll', ({ velocity }: { velocity: number }) => {
-        const clamped = Math.max(-5, Math.min(5, velocity * 0.08));
-        const skewEls = document.querySelectorAll<HTMLElement>('.skewable');
-        skewEls.forEach((el) => {
-          el.style.transform = `skewY(${clamped.toFixed(2)}deg)`;
-        });
-        clearTimeout(skewTimer);
-        skewTimer = setTimeout(() => {
-          skewEls.forEach((el) => {
-            el.style.transform = 'skewY(0deg)';
-            el.style.transition = 'transform 350ms cubic-bezier(0.16, 1, 0.3, 1)';
-          });
-        }, 120);
-      });
     }
+
+    // Dynamic Marquee Scroll Velocity Acceleration
+    let marqueeTimeout: any;
+    lenis.on('scroll', ({ velocity }: { velocity: number }) => {
+      const marquees = document.querySelectorAll<HTMLElement>('.marquee-content');
+      if (marquees.length > 0) {
+        const factor = Math.min(6, 1 + Math.abs(velocity) * 0.08);
+        const duration = (24 / factor).toFixed(1);
+        marquees.forEach((m) => {
+          m.style.animationDuration = `${duration}s`;
+        });
+
+        clearTimeout(marqueeTimeout);
+        marqueeTimeout = setTimeout(() => {
+          marquees.forEach((m) => {
+            m.style.animationDuration = '24s';
+          });
+        }, 180);
+      }
+    });
 
     return lenis;
   }

@@ -83,6 +83,16 @@ body::after {
   z-index: 998;
 }
 
+/* 3D WebGL Particle & Fluid Lattice (Lusion.co) */
+#three-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* Fluid Distortion Canvas Overlay */
 #fluid-canvas {
   position: fixed;
@@ -91,7 +101,7 @@ body::after {
   height: 100vh;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.75;
+  opacity: 0.65;
 }
 
 /* Content Stacking Hierarchy */

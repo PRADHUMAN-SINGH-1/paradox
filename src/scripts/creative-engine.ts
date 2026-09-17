@@ -1,17 +1,19 @@
 /**
- * PARADOX Master Creative Engine — Lando Norris & Lusion Production Standard
- * Boots PrecisionCursor, Lenis Smooth Scroll, Kinetic Typography & Cyber HUD.
+ * PARADOX Master Creative Engine — Lusion.co & Lando Norris Production Standard
+ * Boots 3D WebGL Particle Lattice, Precision Difference Cursor, Lenis Momentum Scroll & Kinetic Reveals.
  */
 
 import { PrecisionCursor } from './cursor.ts';
 import { initSmoothScroll } from './scroll.ts';
 import { initKineticText } from './kinetic-text.ts';
+import { ThreeWebGLScene } from './webgl-scene.ts';
 import { FluidCursorCanvas } from './webgl-distortion.ts';
 
 declare global {
   interface Window {
     gsap?: any;
     ScrollTrigger?: any;
+    THREE?: any;
   }
 }
 
@@ -90,7 +92,7 @@ export class CyberHUD {
           ctx.lineTo(x, mid + amp);
         }
 
-        ctx.strokeStyle = '#e4f900';
+        ctx.strokeStyle = '#d2ff00';
         ctx.lineWidth = 1.4;
         ctx.stroke();
 
@@ -116,13 +118,23 @@ export function initCreativeEngine() {
   // 1. Mount Inverted Difference Cursor
   new PrecisionCursor();
 
-  // 2. Initialize Lenis Smooth Scroll
+  // 2. Initialize Lenis Momentum Smooth Scroll & Marquee Speedup
   initSmoothScroll();
 
   // 3. Initialize Kinetic Typography with SplitType
   initKineticText();
 
-  // 4. Fluid Canvas for mouse trail
+  // 4. Initialize Three.js 3D WebGL Particle/Fluid Field (Lusion Tech)
+  const threeCanvas = document.querySelector<HTMLCanvasElement>('#three-canvas');
+  if (threeCanvas && window.THREE) {
+    try {
+      new ThreeWebGLScene(threeCanvas);
+    } catch (err) {
+      console.warn('Three.js scene init skipped:', err);
+    }
+  }
+
+  // 5. Initialize 2D Canvas Fallback / Fluid Ripple Trail
   if (window.matchMedia('(pointer: fine)').matches) {
     const fluidCanvas = document.querySelector<HTMLCanvasElement>('#fluid-canvas');
     if (fluidCanvas) {
@@ -134,15 +146,15 @@ export function initCreativeEngine() {
     }
   }
 
-  // 5. ScrollTrigger Section Reveals
+  // 6. ScrollTrigger Section Reveals
   if (window.gsap && window.ScrollTrigger) {
     document.querySelectorAll<HTMLElement>('.section-brutalist').forEach((sec) => {
       window.gsap.fromTo(sec,
-        { opacity: 0.2, y: 30 },
+        { opacity: 0.15, y: 35 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: 0.85,
           ease: 'power3.out',
           scrollTrigger: {
             trigger: sec,

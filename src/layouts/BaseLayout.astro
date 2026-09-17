@@ -23,9 +23,10 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#0a0a0a" /><meta name="application-name" content="PARADOX" /><meta name="author" content="PARADOX" /><meta name="description" content={description} /><meta name="robots" content={robots} /><meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:url" content={canonical} /><meta property="og:type" content="website" /><meta property="og:site_name" content="PARADOX" /><meta property="og:locale" content="en_US" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content={title} /><meta name="twitter:description" content={description} />
 
 <!-- High-Impact Bebas Neue, Space Grotesk & JetBrains Mono Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" /><link rel="canonical" href={canonical} /><link rel="sitemap" type="application/xml" href="/sitemap.xml" /><script is:inline type="application/ld+json" set:html={websiteLdText}></script><title>{title}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/mona-sans@5.1.0/index.min.css" /><link rel="canonical" href={canonical} /><link rel="sitemap" type="application/xml" href="/sitemap.xml" /><script is:inline type="application/ld+json" set:html={websiteLdText}></script><title>{title}</title>
 
 <!-- Animation & Smooth Scroll Engines (GSAP 3, ScrollTrigger, Lenis, SplitType) -->
+<script is:inline src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script is:inline src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
@@ -33,6 +34,7 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
 </head>
 <body data-scroll-container>
 <div id="cursor-blob" aria-hidden="true"></div>
+<canvas id="three-canvas" aria-hidden="true"></canvas>
 <canvas id="fluid-canvas" aria-hidden="true"></canvas>
 
 <header class="site-header">
