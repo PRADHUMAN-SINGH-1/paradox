@@ -10,12 +10,10 @@
 - https://paradox.engineer/trending/ — discover trending public projects
 
 ## AI
-- https://paradox.engineer/ai/ — AI workflows and developer tools
-- https://paradox.engineer/ai-studio/ — multi-provider AI workbench
-- https://paradox.engineer/ai-radar/ — live AI project and model signals
+- https://paradox.engineer/ai-studio/ — unified AI Studio with five AI workflows, 16 developer tools, and live AI radar signals
 
 ## Browser tools
-- https://paradox.engineer/utilities/ — practical browser utilities
+- https://paradox.engineer/utilities/ — practical browser utilities (separate general-purpose utility library)
 - https://paradox.engineer/use-cases/ — task-focused generators
 - https://paradox.engineer/daily/ — daily browser challenge
 - https://paradox.engineer/world/ — world data utilities
