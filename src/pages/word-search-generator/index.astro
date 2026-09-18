@@ -1,5 +1,5 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
-import GeneratorTool from '../../components/GeneratorTool.astro';
+import GeneratorTool from '../../components/generators/GeneratorTool.astro';
 ---
 <MakerLayout title="Free Word Search Generator — PARADOX Makers" description="Create a custom printable word search puzzle from your own words. Free and no account required."><GeneratorTool mode="words" title="Word Search Generator" intro="Turn vocabulary, names, topics or spelling lists into a clean 12×12 word search you can print from your browser." steps={['Add the words you want hidden in the puzzle.','Generate a fresh grid with horizontal, vertical and diagonal placements.','Print or save the result as a PDF from your browser.']} faq={[["How many words can I add?","The generator uses up to 12 cleaned words so the finished puzzle stays readable."],["Can I use short phrases?","Use compact words or remove spaces and punctuation for the best fit."],["Is the puzzle generated locally?","Yes. The word list is processed in the browser."]]}/></MakerLayout>
