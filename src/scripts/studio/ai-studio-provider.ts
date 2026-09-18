@@ -25,7 +25,7 @@ const setSectionVisibility=(root:HTMLElement,flow:string)=>root.querySelectorAll
 async function extractFile(file:File):Promise<string>{
  const name=file.name.toLowerCase();
  if(name.endsWith('.pdf')){
-   const pdfjs=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm');
+   const pdfjs=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm');
    const buffer=await file.arrayBuffer();
    const pdf=await pdfjs.getDocument({data:buffer}).promise;
    const pages:string[]=[];
@@ -33,7 +33,7 @@ async function extractFile(file:File):Promise<string>{
    return pages.join('\n');
  }
  if(name.endsWith('.docx')){
-   const mammoth=await import('https://cdn.jsdelivr.net/npm/mammoth@1.9.0/+esm');
+   const mammoth=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/mammoth@1.9.0/+esm');
    const buffer=await file.arrayBuffer();
    const result=await mammoth.extractRawText({arrayBuffer:buffer});
    return String(result.value||'');
