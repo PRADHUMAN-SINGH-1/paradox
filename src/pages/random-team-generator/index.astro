@@ -1,4 +1,4 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/GeneratorTool.astro';
+import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/generators/GeneratorTool.astro';
 ---
 <MakerLayout title="Random Team Generator — PARADOX Makers" description="Split names into random balanced teams instantly. Free, private and no account required."><GeneratorTool mode="teams" title="Random Team Generator" intro="Paste a class, staff list, guest list or player roster and split it into random teams in seconds." steps={['Paste one person per line.','Choose the number of teams.','Generate a randomized distribution and print it if needed.']} faq={[["Is the selection random?","The browser uses its cryptographic random source when available to shuffle the list."],["Can I reuse the same list?","Yes. Generate again for a fresh assignment."],["Does it upload names?","No. Names stay in the browser tab."]]}/></MakerLayout>

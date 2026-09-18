@@ -1,7 +1,7 @@
 // PARADOX Visual Engine — Visual Clock
 // High-precision clock driving delta smoothing, elapsed time, pointer inertia, and audio energy analysis.
 
-import { sound } from '../sound-engine.ts';
+import { sound } from '../runtime/sound-engine.ts';
 
 export class VisualClock {
   private lastTime: number = 0;

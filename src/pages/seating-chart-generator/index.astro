@@ -1,4 +1,4 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/GeneratorTool.astro';
+import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/generators/GeneratorTool.astro';
 ---
 <MakerLayout title="Free Seating Chart Generator — PARADOX Makers" description="Arrange names into a simple printable seating chart. Free, browser-side and no account required."><GeneratorTool mode="seating" title="Seating Chart Generator" intro="Paste names and choose how many columns you want. PARADOX Makers turns the list into a clean table you can print for classrooms, meetings, dinners and events." steps={['Enter one name per line.','Choose the number of columns.','Generate the chart and print it.']} faq={[["Can I use classroom names?","Yes. The generator works with students, guests, employees or any list of names."],["Can I randomize seats?","Yes. Generate again to create a new shuffled arrangement."],["Can I save the chart?","Use the browser print dialog and choose Save as PDF."]]}/></MakerLayout>
