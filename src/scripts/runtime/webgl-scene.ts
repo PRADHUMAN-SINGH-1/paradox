@@ -11,7 +11,7 @@
  */
 
 import { CoreVert, CoreFrag, VerifyVert, VerifyFrag } from './shaders/shaderIndex.ts';
-import { PerformanceGovernor } from './webgl/PerformanceGovernor.ts';
+import { PerformanceGovernor } from '../webgl/PerformanceGovernor.ts';
 import { LoadingManager } from './webgl/LoadingManager.ts';
 import { CameraTimeline } from './webgl/CameraTimeline.ts';
 import { InstanceManager } from './webgl/InstanceManager.ts';
