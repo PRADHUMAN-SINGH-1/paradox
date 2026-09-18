@@ -106,6 +106,50 @@ const canonical='https://paradox.engineer/ai-studio/';
 .studio .studio-radar-card strong{display:block!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
 .studio .studio-radar-card span{grid-column:2!important;display:block!important;min-width:0!important}
 .studio .radar-empty-state{min-height:260px!important;display:grid!important;align-content:center!important;gap:6px!important;padding:24px!important}
+
+/* Studio final native tool system */
+.studio .studio-tool{width:100%;min-width:0;color:#edf1f4}
+.studio .studio-tool-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;padding:0 0 22px;border-bottom:1px solid rgba(255,255,255,.1)}
+.studio .studio-tool-head>div{min-width:0}
+.studio .studio-tool-head span{display:block;color:#6578b8;font:800 9px var(--font-mono);letter-spacing:.13em}
+.studio .studio-tool-head h3{margin:8px 0 7px;color:#f4f6f8;font:800 clamp(32px,4vw,52px)/.95 var(--font-display);letter-spacing:-.045em}
+.studio .studio-tool-head p{margin:0;max-width:760px;color:#7e8996;font:500 13px/1.55 var(--font-sans)}
+.studio .studio-tool-head strong{flex:0 0 auto;padding:9px 11px;border:1px solid rgba(255,255,255,.12);color:#707b88;font:800 9px var(--font-mono)}
+.studio .studio-tool-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:16px;min-width:0}
+.studio .studio-tool-input,.studio .studio-tool-output{min-width:0;border:1px solid rgba(255,255,255,.11);background:rgba(8,11,15,.94)}
+.studio .studio-tool-input>header,.studio .studio-tool-output>header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);color:#7b8693;font:800 9px var(--font-mono);letter-spacing:.1em}
+.studio .studio-tool-input>header b,.studio .studio-tool-output>header b{color:#5f7ae9}
+.studio .studio-tool-fields{display:grid;grid-template-columns:1fr;gap:15px;padding:18px;min-width:0}
+.studio .studio-tool-fields label{display:grid;grid-template-columns:1fr;gap:8px;min-width:0}
+.studio .studio-tool-fields label>span{color:#8a95a2;font:800 9px var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.studio .studio-tool-fields input,.studio .studio-tool-fields textarea{width:100%;min-width:0;max-width:none;box-sizing:border-box;padding:13px 14px;border:1px solid rgba(255,255,255,.15);background:#080d13;color:#edf1f4;font:500 14px/1.55 var(--font-sans);border-radius:0}
+.studio .studio-tool-fields textarea{min-height:120px;resize:vertical}
+.studio .studio-tool-fields input:focus,.studio .studio-tool-fields textarea:focus{outline:2px solid rgba(84,112,239,.24);border-color:#5874ee}
+.studio .studio-tool-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 18px}
+.studio .studio-tool-actions button{min-height:42px;padding:11px 13px;border:1px solid rgba(255,255,255,.15);background:#11161d;color:#e7ebef;font:800 9px var(--font-mono);letter-spacing:.08em}
+.studio .studio-tool-actions button.primary{background:#eff1f4;color:#080a0d;border-color:#eff1f4}
+.studio .studio-tool-actions button:disabled{opacity:.55;cursor:wait}
+.studio .studio-tool-input>[data-role="status"]{min-height:24px;padding:0 18px 14px}
+.studio .tool-result-sheet{padding:22px;min-height:340px}
+.studio .tool-result-sheet h3{margin:0 0 12px;color:#f0f3f6;font:800 24px var(--font-display)}
+.studio .tool-result-sheet p{color:#9aa4af;font:500 12px/1.6 var(--font-sans)}
+.studio .tool-result-sheet pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;color:#dfe6ee;font:500 12px/1.7 var(--font-mono)}
+.studio .studio-tool-empty{min-height:420px;display:grid;place-content:center;gap:7px;padding:28px;text-align:center;color:#6f7b88}
+.studio .studio-tool-empty strong{color:#eff2f5;font:800 22px var(--font-display)}
+.studio .studio-tool-empty span{font:500 12px var(--font-sans)}
+.studio .studio-tool-output [data-role="output"]{min-width:0;max-height:620px;overflow:auto}
+.studio .studio-tool-output [hidden]{display:none!important}
+.studio .studio-tool-grid [hidden]{display:none!important}
+.studio[data-active-section="toolkit"] .module,.studio[data-active-section="radar"] .module{padding-top:34px}
+.studio[data-active-section="toolkit"] .module-head,.studio[data-active-section="radar"] .module-head{margin-top:0}
+@media(max-width:1000px){.studio .studio-tool-grid{grid-template-columns:1fr}.studio .studio-tool-empty{min-height:300px}}
+@media(max-width:700px){.studio .studio-tool-head{flex-direction:column}.studio .studio-tool-head h3{font-size:40px}.studio .studio-tool-actions{display:grid;grid-template-columns:1fr}.studio .studio-tool-actions button{width:100%}.studio .studio-tool-empty{min-height:240px}}
+/* Keep Studio UI above the global WebGL layer without killing the site animation */
+:global(body.studio-runtime #three-canvas){z-index:0!important;opacity:.16!important;pointer-events:none!important}
+:global(body.studio-runtime #fluid-canvas){z-index:0!important;opacity:.04!important;pointer-events:none!important}
+.studio{z-index:5!important;background:rgba(5,7,9,.9)!important;isolation:isolate}
+.studio>*{position:relative;z-index:2}
+.studio .switcher{z-index:50}
 </style>
 <script>import '../../scripts/studio/ai-studio-page.ts';</script>
 </BaseLayout>
