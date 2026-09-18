@@ -90,6 +90,11 @@ function init(){
  copy?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(result?.textContent||'');status!.textContent='COPIED';}catch{status!.textContent='Clipboard unavailable.'}});
  download?.addEventListener('click',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([result?.textContent||''],{type:'text/plain'}));a.download=`paradox-${current}-result.txt`;a.click();});
  run?.addEventListener('click',async()=>{
+   if (!supabase) {
+     error!.textContent = 'AI Studio requires Supabase configuration. Contact the site owner.';
+     error!.hidden = false;
+     return;
+   }
    const workflow=W[current];
    const sourceResume=current==='resume'?(resumeText||resumeExample):'';
    if(current==='resume'&&!sourceResume){error!.textContent='Attach your resume before running the tailor.';error!.hidden=false;return;}
@@ -97,7 +102,7 @@ function init(){
    run.disabled=true;run.textContent='RUNNING…';status!.textContent='ROUTING AI';error!.hidden=true;result!.hidden=false;empty!.hidden=true;result!.textContent='Generating structured output…';
    const t=performance.now();
    try{
-     const {data,error:fnError}=await supabase!.functions.invoke('ai-router',{body:{provider:(provider?.value||'auto') as Provider,task:`${current} AI workflow`,prompt:prompts[current](id=>get(root,id),sourceResume),system:'You are PARADOX AI Studio. Be accurate, concrete and transparent. Never invent credentials, metrics, sources or achievements.'}});
+     const {data,error:fnError}=await supabase.functions.invoke('ai-router',{body:{provider:(provider?.value||'auto') as Provider,task:`${current} AI workflow`,prompt:prompts[current](id=>get(root,id),sourceResume),system:'You are PARADOX AI Studio. Be accurate, concrete and transparent. Never invent credentials, metrics, sources or achievements.'}});
      if(fnError)throw new Error(fnError.message||'AI router request failed.');
      if(!data?.text)throw new Error(data?.error||'No AI output returned.');
      result!.textContent=data.text;status!.textContent=`DONE · ${String(data.provider||'AI').toUpperCase()}`;if(metaProvider)metaProvider.textContent=String(data.provider||'AI').toUpperCase();if(metaLatency)metaLatency.textContent=`${Math.round(data.latencyMs||performance.now()-t)}MS`;
