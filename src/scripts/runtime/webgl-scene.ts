@@ -10,7 +10,7 @@
  *  - Real telemetry & frame budget governor (zero fabricated numbers)
  */
 
-import { CoreVert, CoreFrag, VerifyVert, VerifyFrag } from './shaders/shaderIndex.ts';
+import { CoreVert, CoreFrag, VerifyVert, VerifyFrag } from '../shaders/shaderIndex.ts';
 import { PerformanceGovernor } from '../webgl/PerformanceGovernor.ts';
 import { LoadingManager } from './webgl/LoadingManager.ts';
 import { CameraTimeline } from './webgl/CameraTimeline.ts';
