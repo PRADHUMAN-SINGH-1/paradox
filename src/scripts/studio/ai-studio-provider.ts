@@ -22,10 +22,11 @@ const prompts:Record<string,(get:(id:string)=>string,resumeText:string)=>string>
 };
 const get=(root:HTMLElement,id:string)=>root.querySelector<HTMLInputElement|HTMLTextAreaElement>(`[data-field="${id}"]`)?.value.trim()||'';
 const setSectionVisibility=(root:HTMLElement,flow:string)=>root.querySelectorAll<HTMLElement>('[data-workflow-form]').forEach(form=>{form.hidden=form.dataset.workflowForm!==flow;});
+const loadExternal=(url:string)=>new Function('u','return import(u)')(url) as Promise<any>;
 async function extractFile(file:File):Promise<string>{
  const name=file.name.toLowerCase();
  if(name.endsWith('.pdf')){
-   const pdfjs=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm');
+   const pdfjs=await loadExternal('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm');
    const buffer=await file.arrayBuffer();
    const pdf=await pdfjs.getDocument({data:buffer}).promise;
    const pages:string[]=[];
@@ -33,7 +34,7 @@ async function extractFile(file:File):Promise<string>{
    return pages.join('\n');
  }
  if(name.endsWith('.docx')){
-   const mammoth=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/mammoth@1.9.0/+esm');
+   const mammoth=await loadExternal('https://cdn.jsdelivr.net/npm/mammoth@1.9.0/+esm');
    const buffer=await file.arrayBuffer();
    const result=await mammoth.extractRawText({arrayBuffer:buffer});
    return String(result.value||'');
