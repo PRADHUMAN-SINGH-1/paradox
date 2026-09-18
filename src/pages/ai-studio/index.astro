@@ -1,19 +1,19 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import AITool from '../../components/AITool.astro';
 import aiTools from '../../data/ai-tools.json';
 const canonical = 'https://paradox.engineer/ai-studio/';
 const toolkitStart = aiTools[0];
 ---
-<MakerLayout title="PARADOX AI Studio — Multi-Model AI Workbench" description="A practical AI workbench for resumes, interviews, studying, writing and coding, powered by PARADOX's server-side AI provider router." canonical={canonical}>
+<BaseLayout title="PARADOX AI Studio — Multi-Model AI Workbench" description="A practical AI workbench for resumes, interviews, studying, writing and coding, powered by PARADOX's server-side AI provider router." canonical={canonical}>
 <main class="studio">
   <header class="hero">
     <div class="eyebrow"><span>PARADOX / AI STUDIO</span><span>05 WORKFLOWS · MULTI-PROVIDER ROUTER</span></div>
     <div class="hero-grid">
       <div>
-        <p class="signal"><i></i> SERVER-SIDE AI WORKBENCH</p>
-        <h1>Give it a job.<br><em>Get the work.</em></h1>
-        <p class="lead">Five focused workflows share one reliable controller. Switch workflows without losing the interface, load an example, run through the server-side provider router, copy the result or download it.</p>
+        <p class="signal"><i></i> PARADOX / AI WORKBENCH</p>
+        <h1>Make AI<br><em>do the work.</em></h1>
+        <p class="lead">One workbench for five AI workflows, sixteen developer utilities and live AI signals. Everything stays inside the current PARADOX interface.</p>
         <div class="router-card"><div><b>ROUTER ONLINE</b><span>Provider credentials remain server-side. Auto mode falls back through available providers.</span></div><select id="provider" aria-label="AI provider"><option value="auto">AUTO — best available</option><option value="gemini">Gemini</option><option value="groq">Groq</option><option value="cerebras">Cerebras</option><option value="huggingface">Hugging Face</option><option value="ollama">Ollama</option></select></div>
       </div>
       <div class="orbit" aria-hidden="true"><strong>AI</strong><span>PARADOX<br>STUDIO</span></div>
@@ -53,7 +53,7 @@ const toolkitStart = aiTools[0];
 @media(max-width:520px){.eyebrow{flex-direction:column;gap:7px}.studio h1{font-size:clamp(48px,16vw,82px)}.lead{font-size:15px}.orbit{width:72vw}.orbit strong{width:104px;height:104px;font-size:34px}.form-head{align-items:flex-start;flex-direction:column}.studio h2{font-size:clamp(32px,10vw,48px)}.actions>*{flex:1 1 100%;text-align:center}.result{min-height:320px}.result pre{padding:16px;font-size:12px}}
 .studio-switcher{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);position:sticky;top:0;z-index:8;background:var(--paper)}.studio-switcher-btn{border:0;border-right:1px solid var(--line);background:transparent;padding:18px 16px;text-align:left;font:9px 'DM Mono';letter-spacing:.12em;cursor:pointer;color:#6f716b}.studio-switcher-btn:last-child{border-right:0}.studio-switcher-btn.active{background:var(--ink);color:#fff}.studio-switcher-btn span{float:right}.studio-module{padding:30px clamp(18px,4vw,60px);border-top:1px solid var(--ink);min-height:760px}.studio-module-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:20px}.studio-module-head h2{font-size:clamp(44px,6vw,86px);margin:8px 0}.studio-module-head p{max-width:760px;color:#64665f;font:15px/1.6 'DM Sans'}.module-kicker,.module-status,.studio-tool-select b,.radar-head{font:9px 'DM Mono';letter-spacing:.12em;text-transform:uppercase}.module-status{border:1px solid var(--line);padding:8px 10px;white-space:nowrap}.tool-library{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:22px 0}.studio-tool-select{display:grid;grid-template-columns:26px 1fr;gap:10px;text-align:left;border:1px solid var(--line);background:#fffdf7;padding:13px;cursor:pointer;min-height:78px}.studio-tool-select.active{border-color:var(--ink);background:#111;color:#fff}.studio-tool-select b{color:#777}.studio-tool-select.active b{color:#ff593f}.studio-tool-select span{font:700 12px/1.3 'DM Sans'}.studio-tool-select small{display:block;margin-top:5px;color:#777;font:10px/1.35 'DM Sans'}.studio-tool-select.active small{color:#b7b9b3}.studio-tool-host{border-top:1px solid var(--ink);padding-top:22px}.studio-tool-host .generator-breadcrumb,.studio-tool-host .ad-slot,.studio-tool-host .generator-info{display:none}.studio-tool-host .generator-page{min-height:auto;background:transparent;padding:0}.studio-tool-host .generator-head{display:none}.studio-tool-host .generator-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin:0}.studio-tool-host .generator-panel,.studio-tool-host .generator-preview{background:#fffdf7}.studio-tool-host .generator-panel{border:1px solid var(--line)}.studio-tool-host .generator-preview{border:1px solid var(--ink);min-height:420px}.radar-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.radar-grid>section{border:1px solid var(--line);background:#fffdf7;min-width:0}.radar-head{display:flex;justify-content:space-between;gap:10px;padding:14px;border-bottom:1px solid var(--line)}.radar-head b{color:#777}.radar-list{display:grid}.studio-radar-card{display:grid;gap:6px;padding:15px;border-bottom:1px solid #ddd9cf;color:var(--ink);text-decoration:none}.studio-radar-card:hover{background:#fff}.studio-radar-card strong{font:700 13px/1.4 'DM Sans';overflow-wrap:anywhere}.studio-radar-card span{font:10px 'DM Mono';color:#777}.radar-empty{padding:18px;color:#777;font:12px 'DM Mono'}@media(max-width:1050px){.tool-library{grid-template-columns:repeat(3,minmax(0,1fr))}.radar-grid{grid-template-columns:1fr}.studio-tool-host .generator-layout{grid-template-columns:1fr}}@media(max-width:650px){.studio-switcher{grid-template-columns:1fr}.studio-switcher-btn{border-right:0;border-bottom:1px solid var(--line)}.studio-switcher-btn:last-child{border-bottom:0}.studio-module-head{flex-direction:column}.tool-library{grid-template-columns:1fr 1fr}.studio-module{padding:24px 16px}}@media(max-width:430px){.tool-library{grid-template-columns:1fr}}
 </style>
-</MakerLayout>
+</BaseLayout>
 
 <script is:inline>
 (() => {
