@@ -61,7 +61,19 @@ const websiteLd = { '@context':'https://schema.org', '@graph':graph }; const web
   <div class="pf-footer-bottom"><span>© {year} PARADOX INTELLIGENCE</span><span>Static analysis is evidence-based, not a security certification.</span><span style="color: var(--accent);">SECURE_CORE // ZERO_EXECUTION</span></div>
 </footer>
 <script>
-  window.addEventListener('keydown', (e) => { if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName))) { e.preventDefault(); const localSearch = document.querySelector<HTMLInputElement>('#homeQuery, #query, input[type="search"]'); if (localSearch) { localSearch.focus(); localSearch.select(); } else { window.location.href = '/agents/'; } } });
+  window.addEventListener('keydown', (e) => {
+  const target = e.target as HTMLElement | null;
+  const isTyping = !!target && (
+    ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable
+  );
+  if (isTyping) return;
+  if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {
+    e.preventDefault();
+    const localSearch = document.querySelector<HTMLInputElement>('#homeQuery, #query, input[type="search"]');
+    if (localSearch) { localSearch.focus(); localSearch.select(); }
+    else { window.location.href = '/agents/'; }
+  }
+});
 </script>
 <script>import '../scripts/auth/header-auth.ts';</script>
 <script>import '../scripts/runtime/creative-engine.ts';</script>
