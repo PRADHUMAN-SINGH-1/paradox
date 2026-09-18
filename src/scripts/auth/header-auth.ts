@@ -10,12 +10,14 @@ if (siteHeader) {
 }
 
 function normalizeInitialFields() {
-  const selector = 'input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]), textarea';
+  const selector = 'input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([data-preserve-value]), textarea:not([data-preserve-value])';
   document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(selector).forEach((field) => {
+    if (field.dataset.normalized === 'true') return;
     const value = field.value;
     if (!value) return;
     if (!field.getAttribute('placeholder')) field.setAttribute('placeholder', value);
     field.value = '';
+    field.dataset.normalized = 'true';
   });
 }
 
@@ -33,7 +35,10 @@ function repairDashboardSectionLabels() {
 normalizeInitialFields();
 repairDashboardSectionLabels();
 
-const formDefaultObserver = new MutationObserver(() => normalizeInitialFields());
+const formDefaultObserver = new MutationObserver((mutations) => {
+  if (!mutations.some((mutation) => mutation.type === 'childList')) return;
+  normalizeInitialFields();
+});
 formDefaultObserver.observe(document.documentElement, { childList: true, subtree: true });
 
 function revealAuthLinks(links: NodeListOf<HTMLAnchorElement>): void {
