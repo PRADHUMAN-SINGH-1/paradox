@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase.ts';
 type Provider='auto'|'gemini'|'groq'|'cerebras'|'huggingface'|'ollama';
 type Workflow={label:string;title:string;desc:string;fields:string[]};
 const W:Record<string,Workflow>={
- resume:{label:'RESUME TAILOR',title:'Make the application fit.',desc:'Tailor a real resume to a real role without inventing evidence.',fields:['role']},
+ resume:{label:'RESUME TAILOR',title:'Make the application fit.',desc:'Tailor a real resume to a real role without inventing evidence.',fields:['jd','role']},
  interview:{label:'INTERVIEW COACH',title:'Train against the actual role.',desc:'Generate a focused interview plan from the supplied role and background.',fields:['jd','bg','stage']},
  study:{label:'STUDY ENGINE',title:'Turn notes into a revision system.',desc:'Convert source material into explanations, flashcards and exam practice.',fields:['topic','notes','difficulty']},
  content:{label:'CONTENT STUDIO',title:'Go from idea to publishable draft.',desc:'Turn a concrete brief into platform-ready content with a strong hook.',fields:['brief','audience','format']}
