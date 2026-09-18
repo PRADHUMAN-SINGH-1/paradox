@@ -24,11 +24,12 @@ const get=(root:HTMLElement,id:string)=>root.querySelector<HTMLInputElement|HTML
 const setSectionVisibility=(root:HTMLElement,flow:string)=>root.querySelectorAll<HTMLElement>('[data-workflow-form]').forEach(form=>{form.hidden=form.dataset.workflowForm!==flow;});
 const loadExternal=(url:string)=>new Function('u','return import(u)')(url) as Promise<any>;
 async function extractFile(file:File):Promise<string>{
+ if(file.size>15*1024*1024)throw new Error('File is too large. Maximum supported size is 15 MB.');
  const name=file.name.toLowerCase();
  if(name.endsWith('.pdf')){
    const pdfjs=await loadExternal('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/+esm');
    const buffer=await file.arrayBuffer();
-   const pdf=await pdfjs.getDocument({data:buffer}).promise;
+   const pdf=await pdfjs.getDocument({data:buffer,disableWorker:true,useWorkerFetch:false,isOffscreenCanvasSupported:false}).promise;
    const pages:string[]=[];
    for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i);const content=await page.getTextContent();pages.push(content.items.map((item:any)=>item.str||'').join(' '));}
    return pages.join('\n');
@@ -71,10 +72,10 @@ function init(){
    if(resumeNote)resumeNote.hidden=true;
    try{
      resumeText=(await extractFile(file)).trim();
-     if(!resumeText)throw new Error('The document contains no readable text.');
+     if(!resumeText)throw new Error('The document contains no readable text. A scanned/image-only PDF needs OCR before it can be analyzed.');
      if(resumeStatus)resumeStatus.textContent=`${file.name} · ${resumeText.length.toLocaleString()} characters extracted`;
      status!.textContent='RESUME READY';
-   }catch(e){resumeText='';if(resumeStatus)resumeStatus.textContent=e instanceof Error?e.message:'Could not read the file.';if(resumeFile)resumeFile.value='';}
+   }catch(e){resumeText='';if(resumeStatus)resumeStatus.textContent=e instanceof Error?e.message:'Could not read the file.';if(resumeFile)resumeFile.value='';if(error)error.textContent=e instanceof Error?e.message:'Could not read the file.';if(error)error.hidden=false;status!.textContent='FILE ERROR';}
  });
  example?.addEventListener('click',()=>{
    const sample=samples[current]||{};
