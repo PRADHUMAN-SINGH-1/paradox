@@ -160,9 +160,9 @@ const plan = {
   disclaimer: 'This plan optimizes from aggregate public demand and optional first-party Search Console/Bing data. It does not guarantee rankings, traffic or revenue.'
 };
 
-await fs.mkdir('src/data', { recursive: true });
+await fs.mkdir('src/data/seo', { recursive: true });
 await fs.mkdir(STATE_DIR, { recursive: true });
 await fs.writeFile('src/data/seo/seo-opportunities.json', `${JSON.stringify(publishable, null, 2)}\n`);
-await fs.writeFile('src/data/seo-plan.json', `${JSON.stringify(plan, null, 2)}\n`);
+await fs.writeFile('src/data/seo/seo-plan.json', `${JSON.stringify(plan, null, 2)}\n`);
 await fs.writeFile(MEMORY_FILE, `${JSON.stringify({ version: 1, lastRun: today, pages: nextPages }, null, 2)}\n`);
 console.log(`SEO brain: ${publishable.length} active pages, ${plan.retired.length} retired, GSC=${plan.performanceAvailable.googleSearchConsole}, Bing=${plan.performanceAvailable.bing}`);
