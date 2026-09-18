@@ -28,7 +28,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; color: var(--accent);"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
             <input 
               id="repoUrl" 
-              type="text" 
+              type="url" 
               name="url" 
               autocomplete="url" 
               placeholder="https://github.com/owner/repository" 
@@ -88,49 +88,46 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       CyberHUD.createLiveStream(hudContainer, 'OBSERVABLE EVIDENCE TELEMETRY');
     }
 
+    // Cached lookups shared by the handlers below.
+    const form = document.querySelector<HTMLFormElement>('#verifyForm');
+    const input = document.querySelector<HTMLInputElement>('#repoUrl');
+    const statusEl = document.querySelector<HTMLElement>('#verifyStatus');
+
+    // Setting `.value` in JS does not fire an `input`/`change` event, so any
+    // listener verify-page.ts attaches to #repoUrl (validation, enabling the
+    // submit button, sessionStorage sync, etc.) would silently never run for
+    // paste or sample-chip fills. Dispatch the event manually after each one.
+    function setRepoUrl(value: string) {
+      if (!input) return;
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
     // Clipboard Paste Helper
     const pasteBtn = document.querySelector('#pasteBtn');
-    const input = document.querySelector<HTMLInputElement>('#repoUrl');
     pasteBtn?.addEventListener('click', async () => {
       try {
         const text = await navigator.clipboard.readText();
-        if (text && input) {
-          input.value = text.trim();
-          input.focus();
+        if (text) {
+          setRepoUrl(text.trim());
+          input?.focus();
+        } else if (statusEl) {
+          statusEl.textContent = 'Clipboard is empty.';
         }
       } catch (err) {
         console.warn('Clipboard read error', err);
+        if (statusEl) {
+          statusEl.textContent = "Couldn't read the clipboard. Paste the URL manually.";
+        }
       }
     });
-
-    // Keep the repository URL stable even if another runtime touches or replaces the input node.
-    let lastVerifyUrl = input?.value?.trim() || '';
-    const rememberVerifyUrl = () => {
-      if (!input) return;
-      const value = input.value.trim();
-      if (value) {
-        lastVerifyUrl = value;
-        try { sessionStorage.setItem('paradox:verify-url', value); } catch {}
-      }
-    };
-    input?.addEventListener('input', rememberVerifyUrl, { passive: true });
-    window.setInterval(() => {
-      const current = document.querySelector<HTMLInputElement>('#repoUrl');
-      if (!current) return;
-      if (current !== input) {
-        current.value = lastVerifyUrl || (() => { try { return sessionStorage.getItem('paradox:verify-url') || ''; } catch { return ''; } })();
-      } else if (lastVerifyUrl && current.value !== lastVerifyUrl && document.activeElement !== current) {
-        current.value = lastVerifyUrl;
-      }
-    }, 300);
 
     // Sample Repo Click Helper
     document.querySelectorAll<HTMLButtonElement>('.sample-repo-chip').forEach((chip) => {
       chip.addEventListener('click', () => {
         const repo = chip.dataset.repo;
-        if (repo && input) {
-          input.value = repo;
-          const form = document.querySelector<HTMLFormElement>('#verifyForm');
+        if (repo) {
+          setRepoUrl(repo);
           form?.requestSubmit();
         }
       });
