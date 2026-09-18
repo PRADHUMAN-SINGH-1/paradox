@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 // finiteness explicitly. This test reads the component source so the guards
 // cannot silently regress.
 
-const source = readFileSync(new URL('../src/components/UtilityTool.astro', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/components/utilities/UtilityTool.astro', import.meta.url), 'utf8');
 
 function guardFor(name: string): string {
   const start = source.indexOf(`function ${name}(`);

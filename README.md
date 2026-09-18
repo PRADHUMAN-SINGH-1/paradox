@@ -74,7 +74,7 @@ If an older clone has no `package-lock.json`, the deployment workflow creates an
 
 ## Security model
 
-See [SECURITY.md](SECURITY.md). README, source and issues from third-party repositories are untrusted input. PARADOX never executes target repository code and escapes repository-derived text before rendering it.
+See [SECURITY.md](docs/SECURITY.md). README, source and issues from third-party repositories are untrusted input. PARADOX never executes target repository code and escapes repository-derived text before rendering it.
 
 ## SEO
 

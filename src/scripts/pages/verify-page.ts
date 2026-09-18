@@ -1,11 +1,11 @@
-import { fetchAnalysis, GitHubHttpError } from '../lib/analysis/fetch.ts';
-import { allowAnonymousVerify, readCache, writeCache } from '../lib/analysis/cache.ts';
-import { renderAnalysis } from '../lib/analysis/render.ts';
-import type { Analysis } from '../lib/analysis/types.ts';
-import { track } from '../lib/analytics.ts';
-import { parseRepoRef } from '../lib/github-url.ts';
-import { currentUser, supabase } from '../lib/supabase.ts';
-import { saveLocalAgent, saveLocalScan } from '../lib/local-state.ts';
+import { fetchAnalysis, GitHubHttpError } from '../../lib/analysis/fetch.ts';
+import { allowAnonymousVerify, readCache, writeCache } from '../../lib/analysis/cache.ts';
+import { renderAnalysis } from '../../lib/analysis/render.ts';
+import type { Analysis } from '../../lib/analysis/types.ts';
+import { track } from '../../lib/analytics.ts';
+import { parseRepoRef } from '../../lib/github-url.ts';
+import { currentUser, supabase } from '../../lib/supabase.ts';
+import { saveLocalAgent, saveLocalScan } from '../../lib/local-state.ts';
 function statusEl(){return document.querySelector<HTMLElement>('#verifyStatus')}
 function resultEl(){return document.querySelector<HTMLElement>('#result')}
 function setStatus(text:string){const el=statusEl();if(el)el.textContent=text}

@@ -1,4 +1,4 @@
-import { currentUser, supabase } from '../lib/supabase.ts';
+import { currentUser, supabase } from '../../lib/supabase.ts';
 
 type Provider='auto'|'gemini'|'groq'|'cerebras'|'huggingface'|'ollama';
 type Field=[string,string,'text'|'ta',string,string?];

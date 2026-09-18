@@ -1,7 +1,7 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
-import UtilityTool from '../../components/UtilityTool.astro';
-import opportunities from '../../data/utility-opportunities.json';
+import UtilityTool from '../../components/utilities/UtilityTool.astro';
+import opportunities from '../../data/utilities/utility-opportunities.json';
 
 export function getStaticPaths() { return opportunities.map((item) => ({ params: { slug: item.slug }, props: { item } })); }
 const { item } = Astro.props;

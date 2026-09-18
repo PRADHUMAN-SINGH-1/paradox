@@ -1,9 +1,9 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
-import GeneratorTool from '../../components/GeneratorTool.astro';
-import UtilityTool from '../../components/UtilityTool.astro';
-import AdSlot from '../../components/AdSlot.astro';
-import opportunities from '../../data/verified_opportunities.json';
+import GeneratorTool from '../../components/generators/GeneratorTool.astro';
+import UtilityTool from '../../components/utilities/UtilityTool.astro';
+import AdSlot from '../../components/shared/AdSlot.astro';
+import opportunities from '../../data/seo/verified_opportunities.json';
 
 export function getStaticPaths(){return (opportunities.opportunities||[]).map(item=>({params:{slug:item.slug},props:{item}}));}
 const {item}=Astro.props;

@@ -44,7 +44,7 @@ async function boot() {
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link]');
   if (!links.length) return;
   try {
-    const { supabase } = await import('../lib/supabase.ts');
+    const { supabase } = await import('../../lib/supabase.ts');
     const sessionUser = supabase ? (await supabase.auth.getSession()).data.session?.user ?? null : null;
     links.forEach((a) => {
       a.href = sessionUser ? '/dashboard/' : '/auth/';

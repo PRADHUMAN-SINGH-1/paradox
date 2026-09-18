@@ -1,5 +1,5 @@
 ---
-import tools from '../../data/ai-tools.json';
+import tools from '../../data/ai/ai-tools.json';
 
 export function getStaticPaths() {
   return tools.map((item) => ({ params: { slug: item.slug }, props: { item } }));

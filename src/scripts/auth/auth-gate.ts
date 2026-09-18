@@ -1,4 +1,4 @@
-import { currentUser } from '../lib/supabase.ts';
+import { currentUser } from '../../lib/supabase.ts';
 
 function loginUrl() {
   const next = `${location.pathname}${location.search}${location.hash}`;

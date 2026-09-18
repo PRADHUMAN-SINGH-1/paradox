@@ -1,10 +1,10 @@
-import { fetchAnalysis } from '../lib/analysis/fetch.ts';
-import { readCache, writeCache } from '../lib/analysis/cache.ts';
-import { renderAnalysis } from '../lib/analysis/render.ts';
-import { track } from '../lib/analytics.ts';
-import { parseRepoRef } from '../lib/github-url.ts';
-import { currentUser, supabase } from '../lib/supabase.ts';
-import { saveLocalAgent } from '../lib/local-state.ts';
+import { fetchAnalysis } from '../../lib/analysis/fetch.ts';
+import { readCache, writeCache } from '../../lib/analysis/cache.ts';
+import { renderAnalysis } from '../../lib/analysis/render.ts';
+import { track } from '../../lib/analytics.ts';
+import { parseRepoRef } from '../../lib/github-url.ts';
+import { currentUser, supabase } from '../../lib/supabase.ts';
+import { saveLocalAgent } from '../../lib/local-state.ts';
 
 export async function bootProfile(fullName: string) {
   const mount = document.querySelector('#liveAnalysis');

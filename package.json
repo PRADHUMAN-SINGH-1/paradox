@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/fetch-demand.js && node scripts/score-opportunities.mjs && node scripts/build-sitemap.mjs",
+    "prebuild": "node scripts/demand/fetch-demand.js && node scripts/build/score-opportunities.mjs && node scripts/build/build-sitemap.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "validate": "node --check scripts/fetch-demand.js && node --check scripts/score-opportunities.mjs && node --check scripts/prune-routes.mjs && npm test && npx astro check"
+    "validate": "node --check scripts/demand/fetch-demand.js && node --check scripts/build/score-opportunities.mjs && node --check scripts/seo/prune-routes.mjs && npm test && npx astro check"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.57.4",

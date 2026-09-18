@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-const DEMAND = JSON.parse(await fs.readFile('src/data/demand.json', 'utf8'));
+const DEMAND = JSON.parse(await fs.readFile('src/data/demand/demand.json', 'utf8'));
 const trends = Array.isArray(DEMAND.globalTrends) ? DEMAND.globalTrends : [];
 
 const BLUEPRINTS = [
@@ -42,5 +42,5 @@ const active = ranked.slice(0, 8).map(item => ({
 }));
 
 await fs.mkdir('src/data', { recursive:true });
-await fs.writeFile('src/data/utility-opportunities.json', `${JSON.stringify(active, null, 2)}\n`);
+await fs.writeFile('src/data/utilities/utility-opportunities.json', `${JSON.stringify(active, null, 2)}\n`);
 console.log(`Utility factory: ${active.length} blueprints available.`);

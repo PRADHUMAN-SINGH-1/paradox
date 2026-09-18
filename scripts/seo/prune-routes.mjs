@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 
 const PERFORMANCE='.seo-state/performance.json';
-const PLAN='src/data/seo-opportunities.json';
-const BLACKLIST='src/data/blacklist.json';
+const PLAN='src/data/seo/seo-opportunities.json';
+const BLACKLIST='src/data/seo/blacklist.json';
 
 async function read(path,fallback){try{return JSON.parse(await fs.readFile(path,'utf8'));}catch{return fallback;}}
 const performance=await read(PERFORMANCE,{});
@@ -23,6 +23,6 @@ for(const item of candidates){
 }
 
 const output={version:1,updatedAt:new Date().toISOString(),criteria:{ageDays:60,minImpressions:100,maxCtr:0.005},slugs:[...bad].sort()};
-await fs.mkdir('src/data',{recursive:true});
+await fs.mkdir('src/data/seo',{recursive:true});
 await fs.writeFile(BLACKLIST,JSON.stringify(output,null,2)+'\n');
 console.log(`Pruning: ${output.slugs.length} blacklisted routes.`);

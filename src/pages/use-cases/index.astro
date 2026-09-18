@@ -1,7 +1,7 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
-import demand from '../../data/demand.json';
-import seoOpportunities from '../../data/seo-opportunities.json';
+import demand from '../../data/demand/demand.json';
+import seoOpportunities from '../../data/seo/seo-opportunities.json';
 
 const activeOpportunities = Array.isArray(seoOpportunities)
   ? seoOpportunities.filter(item => item.evidence?.fallback !== true)

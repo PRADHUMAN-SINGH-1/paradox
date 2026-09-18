@@ -1,6 +1,6 @@
-import { track } from '../lib/analytics.ts';
-import { supabase } from '../lib/supabase.ts';
-import { readSearchCache, writeSearchCache } from '../lib/analysis/cache.ts';
+import { track } from '../../lib/analytics.ts';
+import { supabase } from '../../lib/supabase.ts';
+import { readSearchCache, writeSearchCache } from '../../lib/analysis/cache.ts';
 
 type SearchPayload = { total_count?: number; items?: Array<Record<string, unknown>> };
 

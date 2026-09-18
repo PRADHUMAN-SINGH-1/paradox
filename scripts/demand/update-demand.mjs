@@ -328,9 +328,11 @@ const output = {
   disclaimer:'PARADOX uses public aggregate signals only. This is not private user data and it is not a guarantee of Google search volume, rankings, traffic or revenue. SEO pages are capped and only created when a real tool can satisfy a detected topic.'
 };
 
-await fs.mkdir('src/data', { recursive:true });
-await fs.writeFile('src/data/raw_demand.json', `${JSON.stringify(rawDemand,null,2)}\n`);\nawait fs.writeFile('src/data/demand.json', `${JSON.stringify(output,null,2)}\n`);
-await fs.writeFile('src/data/seo-opportunities.json', `${JSON.stringify(seoOpportunities,null,2)}\n`);
-await fs.writeFile('src/data/api-sources.json', `${JSON.stringify(catalogs,null,2)}\n`);
+await fs.mkdir('src/data/demand', { recursive:true });
+await fs.mkdir('src/data/seo', { recursive:true });
+await fs.mkdir('src/data/core', { recursive:true });
+await fs.writeFile('src/data/demand/raw_demand.json', `${JSON.stringify(rawDemand,null,2)}\n`);\nawait fs.writeFile('src/data/demand/demand.json', `${JSON.stringify(output,null,2)}\n`);
+await fs.writeFile('src/data/seo/seo-opportunities.json', `${JSON.stringify(seoOpportunities,null,2)}\n`);
+await fs.writeFile('src/data/core/api-sources.json', `${JSON.stringify(catalogs,null,2)}\n`);
 
 console.log(`Demand engine: ${trends.length} Google Trends rows, ${toolStats.length} tool rankings, ${seoOpportunities.length} SEO opportunities.`);
