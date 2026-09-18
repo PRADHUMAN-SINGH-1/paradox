@@ -3,7 +3,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import AITool from '../../components/ai/AITool.astro';
 import aiTools from '../../data/ai/ai-tools.json';
 const canonical='https://paradox.engineer/ai-studio/';
-const first=aiTools[0];
 ---
 <BaseLayout title="PARADOX AI Studio — Multi-Model AI Workbench" description="A unified AI workbench for practical workflows, developer utilities and live AI signals." canonical={canonical}>
 <main class="studio" id="studioPage" data-active-section="workflows">
@@ -14,13 +13,23 @@ const first=aiTools[0];
 <header class="module-head"><div><span>02 / FOCUSED_UTILITIES</span><h2>Developer Toolkit.</h2><p>Sixteen focused browser-first utilities. Select one tool; only that tool occupies the workspace.</p></div><strong>16 TOOLS · LOCAL + AI ASSIST</strong></header>
 <div class="tool-layout">
 <nav class="tool-index" aria-label="Developer tools">
-${aiTools.map((t,i)=><button type="button" class={`studio-tool-select${i===0?' active':''}`} data-tool-select={t.slug} data-tool-mode={t.mode}><b>${String(i+1).padStart(2,'0')}</b><span>${t.label}<small>${t.description}</small></span></button>)}
+{aiTools.map((t, i) => (
+  <button type="button" class:list={['studio-tool-select', i === 0 && 'active']} data-tool-select={t.slug} data-tool-mode={t.mode}>
+    <b>{String(i + 1).padStart(2, '0')}</b>
+    <span>{t.label}<small>{t.description}</small></span>
+  </button>
+))}
 </nav>
 <div class="tool-host" id="toolHost">
-${aiTools.map((t,i)=><div class="studio-tool-instance" data-studio-tool-instance={t.mode} ${i===0?'':'hidden'}><AITool mode={t.mode} title={t.title} intro={t.description} headingLevel="h2" /></div>)}
+{aiTools.map((t, i) => (
+  <div class="studio-tool-instance" data-studio-tool-instance={t.mode} hidden={i !== 0}>
+    <AITool mode={t.mode} title={t.title} intro={t.description} headingLevel="h2" />
+  </div>
+))}
 </div>
 </div>
 </section>
+
 <section id="studioRadar" class="module" hidden><header class="module-head"><div><span>03 / LIVE_OBSERVABILITY</span><h2>AI Radar Station.</h2><p>Live public model, repository and AI-news signals, loaded from this workspace.</p></div><div class="radar-actions"><strong id="radarStatus">READY</strong><button id="radarRefresh" type="button">REFRESH ↻</button></div></header><div class="radar-grid"><section><header><span>TRENDING MODELS</span><b>HUGGING FACE</b></header><div id="radarModels" class="radar-list"><p>Open Radar to fetch live models.</p></div></section><section><header><span>DEVELOPER SIGNALS</span><b>GITHUB</b></header><div id="radarGithub" class="radar-list"><p>Open Radar to fetch repositories.</p></div></section><section><header><span>AI STORIES</span><b>HACKER NEWS</b></header><div id="radarNews" class="radar-list"><p>Open Radar to fetch current stories.</p></div></section></div></section>
 </main>
 <style>
