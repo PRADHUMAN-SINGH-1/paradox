@@ -1,7 +1,6 @@
 import { currentUser, supabase } from '../../lib/supabase.ts';
 
 function init(){
-  const roots=[...document.querySelectorAll<HTMLElement>('.tool-host [data-ai-tool]')];
   const mount=(root:HTMLElement)=>{
     if(root.dataset.aiAssistReady==='true')return;
     root.dataset.aiAssistReady='true';
@@ -26,7 +25,11 @@ function init(){
       }catch(e){const status=root.querySelector<HTMLElement>('#status');if(status)status.innerHTML=`<div class="status-error">${String(e instanceof Error?e.message:e)}</div>`;}finally{button.disabled=false;button.textContent='AI ASSIST ↗';}
     });
   };
-  roots.forEach(mount);
+  document.querySelectorAll<HTMLElement>('.tool-host [data-ai-tool]').forEach(mount);
+  document.addEventListener('paradox:ai-tool-mounted',(event)=>{
+    const root=(event as CustomEvent<{root:HTMLElement}>).detail?.root;
+    if(root) mount(root);
+  });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 export {};
