@@ -8,7 +8,38 @@ const canonical='https://paradox.engineer/ai-studio/';
 <main class="studio" id="studioPage" data-active-section="workflows">
 <section class="studio-hero"><div class="hero-meta"><span>PARADOX / AI STUDIO</span><span>04 WORKFLOWS · 16 UTILITIES · LIVE SIGNALS</span></div><div class="hero-grid"><div><p class="eyebrow"><i></i> SERVER-SIDE AI WORKBENCH</p><h1>Make AI.<br><em>do the work.</em></h1><p class="lead">One workspace for applications, interviews, study and content. Developer utilities and live AI signals stay inside the same interface.</p><div class="router"><div><b>ROUTER ONLINE</b><span>Credentials stay server-side. AUTO falls back through available providers.</span></div><select id="provider" aria-label="AI provider"><option value="auto">AUTO — best available</option><option value="gemini">Gemini</option><option value="groq">Groq</option><option value="cerebras">Cerebras</option><option value="huggingface">Hugging Face</option><option value="ollama">Ollama</option></select></div></div><div class="orbit"><div class="ring one"></div><div class="ring two"></div><strong>AI</strong><span>PARADOX<br>STUDIO</span></div></div></section>
 <nav class="switcher" role="tablist"><button type="button" class="active" data-section-tab="workflows">01 / WORKFLOWS <small>04</small></button><button type="button" data-section-tab="toolkit">02 / DEVELOPER TOOLKIT <small>16</small></button><button type="button" data-section-tab="radar">03 / LIVE RADAR <small>03 FEEDS</small></button></nav>
-<section id="studioWorkflows" class="workbench"><aside class="flow-nav"><div class="nav-head"><span>WORKFLOW</span><span>01—04</span></div><button class="flow active" data-flow="resume" type="button"><b>01</b><span>Resume Tailor<small>Match your resume to a job</small></span><i>↗</i></button><button class="flow" data-flow="interview" type="button"><b>02</b><span>Interview Coach<small>Prepare against the actual role</small></span><i>↗</i></button><button class="flow" data-flow="study" type="button"><b>03</b><span>Study Engine<small>Build a revision system from notes</small></span><i>↗</i></button><button class="flow" data-flow="content" type="button"><b>04</b><span>Content Studio<small>Turn an idea into publishable content</small></span><i>↗</i></button></aside><section class="work-panel"><header class="panel-head"><div><span id="flowLabel">RESUME TAILOR</span><h2 id="flowTitle">Make the application fit.</h2><p id="flowDescription">Turn your actual experience into a role-specific, ATS-aware application without inventing anything.</p></div><strong id="status">READY</strong></header><div id="fields" class="fields"></div><div class="actions"><button id="run" class="primary" type="button">RUN AI ↗</button><button id="example" type="button">TRY EXAMPLE</button><button id="clear" type="button">CLEAR</button><button id="copy" type="button">COPY RESULT</button></div><div id="error" class="error" hidden></div><article class="result"><header><span>02 / OUTPUT</span><button id="download" type="button">DOWNLOAD .TXT</button></header><div class="result-meta"><span class="px-result-provider">AI</span><span class="px-result-latency">READY</span></div><div id="resultEmpty"><strong>Your deliverable will appear here.</strong><span>Choose a workflow, provide context and run AI.</span></div><pre id="result" hidden></pre></article></section></section>
+<section id="studioWorkflows" class="workbench"><aside class="flow-nav"><div class="nav-head"><span>WORKFLOW</span><span>01—04</span></div><button class="flow active" data-flow="resume" type="button"><b>01</b><span>Resume Tailor<small>Match your resume to a job</small></span><i>↗</i></button><button class="flow" data-flow="interview" type="button"><b>02</b><span>Interview Coach<small>Prepare against the actual role</small></span><i>↗</i></button><button class="flow" data-flow="study" type="button"><b>03</b><span>Study Engine<small>Build a revision system from notes</small></span><i>↗</i></button><button class="flow" data-flow="content" type="button"><b>04</b><span>Content Studio<small>Turn an idea into publishable content</small></span><i>↗</i></button></aside><section class="work-panel"><header class="panel-head"><div><span id="flowLabel">RESUME TAILOR</span><h2 id="flowTitle">Make the application fit.</h2><p id="flowDescription">Turn your actual experience into a role-specific, ATS-aware application without inventing anything.</p></div><strong id="status">READY</strong></header><div id="workflowFields" class="workflow-fields">
+  <div class="workflow-form active" data-workflow-form="resume">
+    <div class="resume-dropzone" data-resume-dropzone>
+      <input id="resumeFile" data-field="resume-file" type="file" accept=".pdf,.doc,.docx,.txt,.md,.rtf,.csv,.json" />
+      <div class="resume-dropzone-copy">
+        <strong>ATTACH YOUR RESUME</strong>
+        <span>PDF, Word, text and common document formats</span>
+        <small data-resume-status>No file selected</small>
+      </div>
+      <button type="button" data-resume-browse>CHOOSE FILE ↗</button>
+    </div>
+    <div class="resume-example-note" data-resume-example-note hidden></div>
+    <div class="workflow-form-field compact">
+      <label for="resume-role"><span>Target role</span><input id="resume-role" data-field="role" placeholder="Software Engineer" /></label>
+    </div>
+  </div>
+  <div class="workflow-form" data-workflow-form="interview" hidden>
+    <div class="workflow-form-field"><label for="interview-jd"><span>Job description</span><textarea id="interview-jd" data-field="jd" rows="8" placeholder="Paste the complete job description here..."></textarea></label></div>
+    <div class="workflow-form-field"><label for="interview-bg"><span>Your background</span><textarea id="interview-bg" data-field="bg" rows="8" placeholder="Projects, experience, skills, education..."></textarea></label></div>
+    <div class="workflow-form-field"><label for="interview-stage"><span>Interview stage</span><input id="interview-stage" data-field="stage" placeholder="Technical interview" /></label></div>
+  </div>
+  <div class="workflow-form" data-workflow-form="study" hidden>
+    <div class="workflow-form-field"><label for="study-topic"><span>Topic</span><input id="study-topic" data-field="topic" placeholder="DBMS — normalization" /></label></div>
+    <div class="workflow-form-field"><label for="study-notes"><span>Notes / source material</span><textarea id="study-notes" data-field="notes" rows="10" placeholder="Paste notes or source material..."></textarea></label></div>
+    <div class="workflow-form-field"><label for="study-difficulty"><span>Difficulty / exam</span><input id="study-difficulty" data-field="difficulty" placeholder="University exam" /></label></div>
+  </div>
+  <div class="workflow-form" data-workflow-form="content" hidden>
+    <div class="workflow-form-field"><label for="content-brief"><span>Idea / brief</span><textarea id="content-brief" data-field="brief" rows="8" placeholder="Describe what you want to publish..."></textarea></label></div>
+    <div class="workflow-form-field"><label for="content-audience"><span>Audience</span><input id="content-audience" data-field="audience" placeholder="Developers and students" /></label></div>
+    <div class="workflow-form-field"><label for="content-format"><span>Format / platform</span><input id="content-format" data-field="format" placeholder="LinkedIn post" /></label></div>
+  </div>
+</div><div class="actions"><button id="run" class="primary" type="button">RUN AI ↗</button><button id="example" type="button">TRY EXAMPLE</button><button id="clear" type="button">CLEAR</button><button id="copy" type="button">COPY RESULT</button></div><div id="error" class="error" hidden></div><article class="result"><header><span>02 / OUTPUT</span><button id="download" type="button">DOWNLOAD .TXT</button></header><div class="result-meta"><span class="px-result-provider">AI</span><span class="px-result-latency">READY</span></div><div id="resultEmpty"><strong>Your deliverable will appear here.</strong><span>Choose a workflow, provide context and run AI.</span></div><pre id="result" hidden></pre></article></section></section>
 <section id="studioToolkit" class="module" hidden>
 <header class="module-head"><div><span>02 / FOCUSED_UTILITIES</span><h2>Developer Toolkit.</h2><p>Sixteen focused browser-first utilities. Select one tool; only that tool occupies the workspace.</p></div><strong>16 TOOLS · LOCAL + AI ASSIST</strong></header>
 <div class="tool-layout">
@@ -151,6 +182,35 @@ const canonical='https://paradox.engineer/ai-studio/';
 .studio{z-index:5!important;background:rgba(5,7,9,.9)!important;isolation:isolate}
 .studio>*{position:relative;z-index:2}
 .studio .switcher{z-index:50}
+
+/* Final Studio workflow form system */
+.studio .workflow-fields{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;width:100%!important;min-width:0!important;margin-top:24px!important}
+.studio .workflow-form{width:100%!important;min-width:0!important}
+.studio .workflow-form[hidden]{display:none!important}
+.studio .workflow-form-field{width:100%!important;min-width:0!important;margin:0 0 18px!important}
+.studio .workflow-form-field label{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;width:100%!important;min-width:0!important;color:#87919e!important;font:800 10px var(--font-mono)!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+.studio .workflow-form-field input,.studio .workflow-form-field textarea{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;padding:15px 16px!important;border:1px solid rgba(255,255,255,.15)!important;background:rgba(11,15,20,.94)!important;color:#f1f4f7!important;border-radius:0!important;font:500 15px/1.55 var(--font-sans)!important}
+.studio .workflow-form-field textarea{min-height:180px!important;resize:vertical!important}
+.studio .workflow-form-field.compact{max-width:620px!important}
+.studio .resume-dropzone{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:18px!important;align-items:center!important;width:100%!important;min-height:150px!important;margin-bottom:18px!important;padding:24px!important;border:1px dashed rgba(120,145,255,.5)!important;background:linear-gradient(135deg,rgba(80,110,240,.08),rgba(255,255,255,.02))!important}
+.studio .resume-dropzone>input{position:absolute!important;inline-size:1px!important;block-size:1px!important;opacity:0!important;pointer-events:none!important}
+.studio .resume-dropzone-copy{display:grid!important;gap:6px!important;min-width:0!important}
+.studio .resume-dropzone-copy strong{color:#edf1f5!important;font:800 13px var(--font-mono)!important;letter-spacing:.08em!important}
+.studio .resume-dropzone-copy span{color:#7e8996!important;font:500 12px/1.5 var(--font-sans)!important}
+.studio .resume-dropzone-copy small{color:#5f7ae9!important;font:700 10px var(--font-mono)!important;overflow-wrap:anywhere!important}
+.studio .resume-dropzone button{min-height:44px!important;padding:12px 15px!important;border:1px solid rgba(255,255,255,.18)!important;background:#f0f2f5!important;color:#080a0d!important;font:800 9px var(--font-mono)!important}
+.studio .resume-example-note{margin:0 0 18px!important;padding:11px 13px!important;border-left:2px solid #5f7ae9!important;background:rgba(95,122,233,.08)!important;color:#aab4c1!important;font:500 11px/1.5 var(--font-sans)!important}
+@media(max-width:700px){.studio .resume-dropzone{grid-template-columns:1fr!important}.studio .resume-dropzone button{width:100%!important}.studio .workflow-form-field textarea{min-height:150px!important}}
+/* Keep the global visual engine behind Studio UI */
+:global(body.studio-runtime #three-canvas){z-index:0!important;pointer-events:none!important;opacity:.12!important}
+:global(body.studio-runtime #cursor-blob){z-index:1!important;pointer-events:none!important}
+.studio{position:relative!important;z-index:5!important;background:rgba(5,7,9,.94)!important}
+.studio .studio-hero,.studio .switcher,.studio .workbench,.studio .module{position:relative!important;z-index:3!important}
+.studio .switcher{top:82px!important;z-index:50!important}
+.studio[data-active-section="workflows"] .switcher{margin-bottom:0!important}
+.studio[data-active-section="toolkit"] .switcher,.studio[data-active-section="radar"] .switcher{position:sticky!important;top:82px!important}
+.studio .workbench{scroll-margin-top:110px!important}
+.studio .module{scroll-margin-top:110px!important}
 </style>
 <script>import '../../scripts/studio/ai-studio-page.ts';</script>
 </BaseLayout>
