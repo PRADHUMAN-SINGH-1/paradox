@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-const OUT='src/data/raw_demand.json';
+const OUT='src/data/demand/raw_demand.json';
 const UA='PARADOX-Makers/1.0 (+https://paradox.engineer)';
 const ACTIONABLE_WORDS=['calculator','converter','generator','maker','planner','picker','counter','timer','chart','bracket','bingo','raffle','seating','certificate','random','draw','split','convert','conversion','schedule','deadline','date','time','unit','percentage','percent','age'];
 const safeFetch=async(url,kind='json')=>{
@@ -53,7 +53,7 @@ const actionableCount=rows.filter(s=>ACTIONABLE_WORDS.some(w=>clean(s.query).toL
 if(actionableCount<8){
   console.warn(`[demand] only ${actionableCount} actionable live signals; merging evergreen fallback baseline.`);
   try{
-    const fallback=JSON.parse(await fs.readFile('src/data/fallback_demand.json','utf8'));
+    const fallback=JSON.parse(await fs.readFile('src/data/demand/fallback_demand.json','utf8'));
     if(Array.isArray(fallback.signals)){
       const existing=new Set(rows.map(s=>clean(s.query).toLowerCase()));
       rows.push(...fallback.signals.map(s=>({

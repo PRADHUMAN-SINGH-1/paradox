@@ -8,8 +8,8 @@ import { initPreloader } from './preloader.ts';
 import { PrecisionCursor, initSpotlightCards } from './cursor.ts';
 import { initSmoothScroll } from './scroll.ts';
 import { initKineticText } from './kinetic-text.ts';
-import { VisualDirector } from './visual/VisualDirector.ts';
-import { MediaManager } from './media/MediaManager.ts';
+import { VisualDirector } from '../visual/VisualDirector.ts';
+import { MediaManager } from '../media/MediaManager.ts';
 
 declare global {
   interface Window {

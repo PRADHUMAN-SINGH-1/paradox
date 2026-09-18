@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 const STATE_DIR = '.seo-state';
 const PERFORMANCE_FILE = `${STATE_DIR}/performance.json`;
 const MEMORY_FILE = `${STATE_DIR}/memory.json`;
-const DEMAND = JSON.parse(await fs.readFile('src/data/demand.json', 'utf8'));
-const CANDIDATES = JSON.parse(await fs.readFile('src/data/seo-opportunities.json', 'utf8'));
+const DEMAND = JSON.parse(await fs.readFile('src/data/demand/demand.json', 'utf8'));
+const CANDIDATES = JSON.parse(await fs.readFile('src/data/seo/seo-opportunities.json', 'utf8'));
 
 async function readJson(path, fallback) {
   try { return JSON.parse(await fs.readFile(path, 'utf8')); } catch { return fallback; }
@@ -162,7 +162,7 @@ const plan = {
 
 await fs.mkdir('src/data', { recursive: true });
 await fs.mkdir(STATE_DIR, { recursive: true });
-await fs.writeFile('src/data/seo-opportunities.json', `${JSON.stringify(publishable, null, 2)}\n`);
+await fs.writeFile('src/data/seo/seo-opportunities.json', `${JSON.stringify(publishable, null, 2)}\n`);
 await fs.writeFile('src/data/seo-plan.json', `${JSON.stringify(plan, null, 2)}\n`);
 await fs.writeFile(MEMORY_FILE, `${JSON.stringify({ version: 1, lastRun: today, pages: nextPages }, null, 2)}\n`);
 console.log(`SEO brain: ${publishable.length} active pages, ${plan.retired.length} retired, GSC=${plan.performanceAvailable.googleSearchConsole}, Bing=${plan.performanceAvailable.bing}`);

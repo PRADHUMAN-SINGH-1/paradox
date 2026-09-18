@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
-import catalog from '../src/data/catalog.json' with { type: 'json' };
-import aiTools from '../src/data/ai-tools.json' with { type: 'json' };
-import utilityOpportunities from '../src/data/utility-opportunities.json' with { type: 'json' };
-import seoOpportunities from '../src/data/seo-opportunities.json' with { type: 'json' };
-import blacklist from '../src/data/blacklist.json' with { type: 'json' };
+import catalog from '../../src/data/catalog/catalog.json' with { type: 'json' };
+import aiTools from '../../src/data/ai/ai-tools.json' with { type: 'json' };
+import utilityOpportunities from '../../src/data/utilities/utility-opportunities.json' with { type: 'json' };
+import seoOpportunities from '../../src/data/seo/seo-opportunities.json' with { type: 'json' };
+import blacklist from '../../src/data/seo/blacklist.json' with { type: 'json' };
 
 const base = 'https://paradox.engineer';
 const urls = new Set([

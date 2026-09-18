@@ -1,10 +1,10 @@
 ---
 import MakerLayout from '../../layouts/MakerLayout.astro';
-import GeneratorTool from '../../components/GeneratorTool.astro';
-import AdSlot from '../../components/AdSlot.astro';
-import demand from '../../data/demand.json';
-import seoOpportunities from '../../data/seo-opportunities.json';
-import blacklist from '../../data/blacklist.json';
+import GeneratorTool from '../../components/generators/GeneratorTool.astro';
+import AdSlot from '../../components/shared/AdSlot.astro';
+import demand from '../../data/demand/demand.json';
+import seoOpportunities from '../../data/seo/seo-opportunities.json';
+import blacklist from '../../data/seo/blacklist.json';
 
 const modeById = {'classroom-bingo':'bingo','word-search-puzzles':'words','random-teams':'teams','decision-wheel':'wheel','tournament-brackets':'bracket','raffle-tickets':'raffle','seating-charts':'seating','certificates':'certificate'};
 const stepsByMode = {

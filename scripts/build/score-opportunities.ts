@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 
 type Signal={query:string;traffic?:number;traffic7d?:number[];traffic30d?:number[];utilityIntent?:number;competitionSaturation?:number;toolId?:string;feasible?:boolean;geo?:string;context?:Record<string,unknown>};
 type RawDemand={signals?:Signal[];history?:Signal[]};
-const INPUT="src/data/raw_demand.json", OUTPUT="src/data/verified_opportunities.json", MIN_SCORE=80;
+const INPUT="src/data/demand/raw_demand.json", OUTPUT="src/data/seo/verified_opportunities.json", MIN_SCORE=80;
 const UTILITY=["calculator","generator","converter","maker","planner","picker","counter","timer","chart","bracket","template","checker","formatter","random"];
 const INFO=["what is","meaning","definition","history","who is","why is","how does","news","latest news","biography"];
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));

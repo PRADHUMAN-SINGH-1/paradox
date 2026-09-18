@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 
-const RAW='src/data/raw_demand.json';
-const OUT='src/data/verified_opportunities.json';
-const FALLBACK='src/data/fallback_demand.json';
+const RAW='src/data/demand/raw_demand.json';
+const OUT='src/data/seo/verified_opportunities.json';
+const FALLBACK='src/data/demand/fallback_demand.json';
 const TOOL_MAP=[
 {id:'classroom-bingo',type:'generator',mode:'bingo',route:'/bingo-card-generator/',terms:['bingo','classroom','teacher','school','student','education','icebreaker']},
 {id:'word-search-puzzles',type:'generator',mode:'words',route:'/word-search-generator/',terms:['word search','spelling','vocabulary','literacy','reading','puzzle','worksheet']},

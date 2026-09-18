@@ -1,7 +1,7 @@
-import { fetchAnalysis } from '../lib/analysis/fetch.ts';
-import { readCache, writeCache } from '../lib/analysis/cache.ts';
-import { track } from '../lib/analytics.ts';
-import { parseRepoRef } from '../lib/github-url.ts';
+import { fetchAnalysis } from '../../lib/analysis/fetch.ts';
+import { readCache, writeCache } from '../../lib/analysis/cache.ts';
+import { track } from '../../lib/analytics.ts';
+import { parseRepoRef } from '../../lib/github-url.ts';
 function escapeHtml(value:unknown){return String(value??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]!))}
 function verdictLabel(v:string){switch(v){case'VERIFIED':return'EVIDENCE-SUPPORTED';case'QUESTIONABLE':return'NEEDS REVIEW';case'STALE':return'STALE EVIDENCE';case'HIGH-RISK':return'HIGH-RISK SIGNALS';default:return'UNKNOWN'}}
 function row(label:string,a:unknown,b:unknown){return`<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(a)}</td><td>${escapeHtml(b)}</td></tr>`}
