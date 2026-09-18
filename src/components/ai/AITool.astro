@@ -14,11 +14,11 @@ const Heading = headingLevel === 'h2' ? 'h2' : 'h1';
 </div>
 <script is:inline>
 (() => {
-  const roots=[...document.querySelectorAll<HTMLElement>('[data-ai-tool]')];
+  const roots=[...document.querySelectorAll('[data-ai-tool]')];
   roots.forEach(root=>{
     if(root.dataset.aiToolReady==='true') return;
     root.dataset.aiToolReady='true';
-    let mode=root.dataset.aiTool || 'prompt-formatter', fields=root.querySelector<HTMLElement>('#fields'), out=root.querySelector<HTMLElement>('#output'), empty=root.querySelector<HTMLElement>('#empty');
+    let mode=root.dataset.aiTool || 'prompt-formatter', fields=root.querySelector('#fields'), out=root.querySelector('#output'), empty=root.querySelector('#empty');
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const inp=(label,id,value='',type='text',extra='')=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value)}" ${extra}></div>`;
   const ta=(label,id,value='',placeholder='Paste or type here...')=>`<div class="field"><label for="${id}">${label}</label><textarea id="${id}" placeholder="${esc(placeholder)}">${esc(value)}</textarea></div>`;
@@ -73,7 +73,7 @@ const Heading = headingLevel === 'h2' ? 'h2' : 'h1';
   }
   const copy=async()=>{try{await navigator.clipboard.writeText(out.innerText||'');success('Result copied.')}catch{status('Clipboard access is blocked; select the result and copy it manually.')}};
   root.addEventListener('click',event=>{
-    const button=event.target instanceof Element?event.target.closest<HTMLButtonElement>('button'):null;
+    const button=event.target instanceof Element?event.target.closest('button'):null;
     if(!button)return;
     if(button.id==='run')return run();
     if(button.id==='encode'){try{show(`<h2 class="result-title">Base64</h2><pre class="code-block">${esc(encode64(v('text')))}</pre>`)}catch{status('Could not encode this text.')}return;}
