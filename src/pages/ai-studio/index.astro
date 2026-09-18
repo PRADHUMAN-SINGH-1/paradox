@@ -62,6 +62,16 @@ ${aiTools.map((t,i)=><div class="studio-tool-instance" data-studio-tool-instance
 .studio #fields>label>span{display:block!important;margin:0!important;color:#8b95a2!important;font:800 9px var(--font-mono)!important;letter-spacing:.09em!important;text-transform:uppercase!important}
 .studio #fields>label>input,.studio #fields>label>textarea{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;margin:0!important}
 .studio #fields>label>textarea{min-height:190px!important}
-@media(max-width:700px){.studio #fields>label>textarea{min-height:150px!important}}</style>
+@media(max-width:700px){.studio #fields>label>textarea{min-height:150px!important}}.studio .radar-list{display:grid!important;grid-template-columns:1fr!important;min-width:0!important}
+.studio .studio-radar-card{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;gap:8px 10px!important;align-items:start!important;min-width:0!important;padding:16px!important;border-bottom:1px solid rgba(255,255,255,.08)!important;color:#edf1f5!important;text-decoration:none!important;background:transparent!important}
+.studio .studio-radar-card:hover{background:rgba(255,255,255,.04)!important}
+.studio .studio-radar-card>b{color:#5f79ec!important;font:800 9px var(--font-mono)!important}
+.studio .studio-radar-card strong{min-width:0!important;overflow-wrap:anywhere!important;word-break:break-word!important;color:#eef2f6!important;font:800 13px/1.45 var(--font-sans)!important}
+.studio .studio-radar-card span{grid-column:2;min-width:0!important;color:#737e8c!important;font:500 10px/1.4 var(--font-mono)!important}
+.studio .radar-empty-state{display:grid!important;gap:7px!important;padding:28px 18px!important;color:#737e8c!important}
+.studio .radar-empty-state strong{color:#eef2f5!important;font:800 11px var(--font-mono)!important;letter-spacing:.08em}
+.studio .radar-empty-state span{font:500 11px/1.5 var(--font-sans)!important}
+.studio #radarModels,.studio #radarGithub,.studio #radarNews{min-height:420px!important}
+</style>
 <script>import '../../scripts/studio/ai-studio-page.ts';</script>
 </BaseLayout>
