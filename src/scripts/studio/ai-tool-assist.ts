@@ -23,7 +23,7 @@ function init(){
         const output=root.querySelector<HTMLElement>('#output'),empty=root.querySelector<HTMLElement>('#empty');
         if(output){output.hidden=false;output.textContent=data?.text||'No AI output returned.';}if(empty)empty.hidden=true;
         const status=root.querySelector<HTMLElement>('#status');if(status)status.innerHTML='<div class="status-success">AI ASSIST COMPLETE</div>';
-      }catch(e){const status=host.querySelector<HTMLElement>('#status');if(status)status.innerHTML=`<div class="status-error">${String(e instanceof Error?e.message:e)}</div>`;}finally{button.disabled=false;button.textContent='AI ASSIST ↗';}
+      }catch(e){const status=root.querySelector<HTMLElement>('#status');if(status)status.innerHTML=`<div class="status-error">${String(e instanceof Error?e.message:e)}</div>`;}finally{button.disabled=false;button.textContent='AI ASSIST ↗';}
     });
   };
   roots.forEach(mount);
