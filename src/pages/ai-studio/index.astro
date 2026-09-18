@@ -57,6 +57,11 @@ ${aiTools.map((t,i)=><div class="studio-tool-instance" data-studio-tool-instance
 .studio .tool-host .result-title{margin:0 0 14px!important;color:#f2f4f7!important;font:800 18px var(--font-display)!important}
 @media(max-width:1000px){.studio .tool-host .generator-layout{grid-template-columns:1fr!important}.studio .tool-host .generator-preview{min-height:320px!important}}
 @media(max-width:700px){.studio .tool-host .generator-actions{display:grid!important;grid-template-columns:1fr!important}.studio .tool-host .generator-actions .gen-btn{width:100%!important}.studio .tool-host .field textarea{min-height:130px!important}}
-</style>
+.studio #fields{display:grid!important;grid-template-columns:1fr!important;gap:18px!important;align-items:stretch!important;min-width:0!important;width:100%!important}
+.studio #fields>label{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important}
+.studio #fields>label>span{display:block!important;margin:0!important;color:#8b95a2!important;font:800 9px var(--font-mono)!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+.studio #fields>label>input,.studio #fields>label>textarea{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;margin:0!important}
+.studio #fields>label>textarea{min-height:190px!important}
+@media(max-width:700px){.studio #fields>label>textarea{min-height:150px!important}}</style>
 <script>import '../../scripts/studio/ai-studio-page.ts';</script>
 </BaseLayout>
