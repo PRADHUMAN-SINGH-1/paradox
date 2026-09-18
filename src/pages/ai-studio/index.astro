@@ -81,6 +81,31 @@ const canonical='https://paradox.engineer/ai-studio/';
 .studio .radar-empty-state strong{color:#eef2f5!important;font:800 11px var(--font-mono)!important;letter-spacing:.08em}
 .studio .radar-empty-state span{font:500 11px/1.5 var(--font-sans)!important}
 .studio #radarModels,.studio #radarGithub,.studio #radarNews{min-height:420px!important}
+:global(body.studio-runtime #three-canvas){opacity:.22!important;filter:saturate(.72) contrast(.9)!important}
+:global(body.studio-runtime #fluid-canvas){opacity:.08!important}
+.studio{background:rgba(5,7,9,.82)!important;isolation:isolate}
+.studio-hero,.workbench,.module{position:relative;z-index:3}
+.workbench,.module{background:rgba(5,7,9,.9)!important}
+.switcher{z-index:40!important}
+.fields{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:20px!important;width:100%!important;min-width:0!important}
+.fields>label{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;width:100%!important;min-width:0!important}
+.fields>label>span{display:block!important}
+.fields input,.fields textarea{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box!important}
+.fields textarea{min-height:190px!important}
+.tool-host{background:rgba(8,11,15,.94)!important}
+.studio .studio-tool-instance{width:100%!important;min-width:0!important}
+.studio .studio-tool-instance[hidden]{display:none!important}
+.studio .tool-host .generator-page{width:100%!important}
+.studio .tool-host .generator-layout{width:100%!important}
+.studio .tool-host .generator-panel,.studio .tool-host .generator-preview{width:auto!important;min-width:0!important}
+.studio .tool-host .generator-fields{width:100%!important}
+.studio .radar-grid>section{background:rgba(7,10,14,.94)!important;position:relative;z-index:4}
+.studio .radar-list{overflow:hidden!important}
+.studio .studio-radar-card{display:grid!important;grid-template-columns:30px minmax(0,1fr)!important;gap:8px!important;align-items:start!important;text-decoration:none!important;border-bottom:1px solid rgba(255,255,255,.08)!important;padding:15px 16px!important;color:#eef2f5!important;min-width:0!important}
+.studio .studio-radar-card:hover{text-decoration:none!important;background:rgba(255,255,255,.04)!important}
+.studio .studio-radar-card strong{display:block!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.studio .studio-radar-card span{grid-column:2!important;display:block!important;min-width:0!important}
+.studio .radar-empty-state{min-height:260px!important;display:grid!important;align-content:center!important;gap:6px!important;padding:24px!important}
 </style>
 <script>import '../../scripts/studio/ai-studio-page.ts';</script>
 </BaseLayout>
