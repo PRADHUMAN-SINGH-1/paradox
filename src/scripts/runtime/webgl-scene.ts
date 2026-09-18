@@ -11,13 +11,13 @@
  */
 
 import { CoreVert, CoreFrag, VerifyVert, VerifyFrag } from '../shaders/shaderIndex.ts';
-import { PerformanceGovernor } from '../webgl/PerformanceGovernor.ts';
-import { LoadingManager } from './webgl/LoadingManager.ts';
-import { CameraTimeline } from './webgl/CameraTimeline.ts';
-import { InstanceManager } from './webgl/InstanceManager.ts';
-import { EnvironmentPipeline } from './webgl/EnvironmentPipeline.ts';
-import { PostProcessing } from './webgl/PostProcessing.ts';
-import { DomWebGLSync } from './webgl/DomWebGLSync.ts';
+import { PerformanceGovernor } from '.../webgl/PerformanceGovernor.ts';
+import { LoadingManager } from '../webgl/LoadingManager.ts';
+import { CameraTimeline } from '../webgl/CameraTimeline.ts';
+import { InstanceManager } from '../webgl/InstanceManager.ts';
+import { EnvironmentPipeline } from '../webgl/EnvironmentPipeline.ts';
+import { PostProcessing } from '../webgl/PostProcessing.ts';
+import { DomWebGLSync } from '../webgl/DomWebGLSync.ts';
 import { sound } from './sound-engine.ts';
 
 declare global {
