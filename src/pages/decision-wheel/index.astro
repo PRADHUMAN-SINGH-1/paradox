@@ -1,4 +1,4 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/GeneratorTool.astro';
+import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/generators/GeneratorTool.astro';
 ---
 <MakerLayout title="Free Decision Wheel — PARADOX Makers" description="Spin a custom decision wheel from your own choices. Free, browser-side and no account required."><GeneratorTool mode="wheel" title="Decision Wheel" intro="Paste your choices, generate the wheel result and let chance make the call. Great for classrooms, restaurants, teams, games and tiny arguments." steps={['Enter one choice per line.','Generate to pick one choice at random.','Run it again for a new result whenever you want.']} faq={[["Is it actually random?","The result is selected from the choices in your browser."],["Can I use yes or no?","Yes. Put Yes and No on separate lines."],["Do I need an account?","No. The wheel is available immediately."]]}/></MakerLayout>
