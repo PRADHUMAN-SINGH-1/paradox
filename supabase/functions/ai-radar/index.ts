@@ -7,7 +7,7 @@ function headers(req: Request) {
   return {
     'Access-Control-Allow-Origin': ALLOWED.has(origin) ? origin : 'https://paradox.engineer',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Cache-Control': 'no-store',
     'Vary': 'Origin',
   };
@@ -28,7 +28,7 @@ const fetchJson = async (url: string) => {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: headers(req) });
-  if (req.method !== 'GET') return json(req, { error: 'Method not allowed' }, 405);
+  if (!['GET','POST'].includes(req.method)) return json(req, { error: 'Method not allowed' }, 405);
 
   const results = await Promise.allSettled([
     fetchJson('https://huggingface.co/api/models?sort=trending&direction=-1&limit=12'),
