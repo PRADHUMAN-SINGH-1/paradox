@@ -1,4 +1,4 @@
 ---
-import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/GeneratorTool.astro';
+import MakerLayout from '../../layouts/MakerLayout.astro'; import GeneratorTool from '../../components/generators/GeneratorTool.astro';
 ---
 <MakerLayout title="Free Raffle Ticket Generator — PARADOX Makers" description="Generate numbered printable raffle tickets in your browser. Free, no account and no upload required."><GeneratorTool mode="raffle" title="Raffle Ticket Generator" intro="Create a sheet of numbered raffle tickets for fundraisers, school events, parties, clubs or giveaways. Choose a title and ticket count, then print." steps={['Choose a ticket title.','Set the number of tickets.','Generate numbered tickets and print the sheet.']} faq={[["Can I use a custom title?","Yes. Add your event or raffle title before generating."],["Are ticket numbers repeated?","No. The generated sheet uses one sequential number per ticket."],["Does it upload anything?","No. The tickets are generated in your browser."]]}/></MakerLayout>
