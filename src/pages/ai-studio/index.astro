@@ -203,13 +203,13 @@ const canonical='https://paradox.engineer/ai-studio/';
 .studio .resume-example-note{margin:0 0 18px!important;padding:11px 13px!important;border-left:2px solid #5f7ae9!important;background:rgba(95,122,233,.08)!important;color:#aab4c1!important;font:500 11px/1.5 var(--font-sans)!important}
 @media(max-width:700px){.studio .resume-dropzone{grid-template-columns:1fr!important}.studio .resume-dropzone button{width:100%!important}.studio .workflow-form-field textarea{min-height:150px!important}}
 /* Keep the global visual engine behind Studio UI */
-:global(body.studio-runtime #three-canvas){z-index:0!important;pointer-events:none!important;opacity:.12!important}
+:global(body.studio-runtime #three-canvas){z-index:0!important;pointer-events:none!important;opacity:.08!important}
 :global(body.studio-runtime #cursor-blob){z-index:1!important;pointer-events:none!important}
 .studio{position:relative!important;z-index:5!important;background:rgba(5,7,9,.94)!important}
 .studio .studio-hero,.studio .switcher,.studio .workbench,.studio .module{position:relative!important;z-index:3!important}
-.studio .switcher{top:82px!important;z-index:50!important}
+.studio .switcher{position:relative!important;top:auto!important;z-index:50!important}
 .studio[data-active-section="workflows"] .switcher{margin-bottom:0!important}
-.studio[data-active-section="toolkit"] .switcher,.studio[data-active-section="radar"] .switcher{position:sticky!important;top:82px!important}
+.studio[data-active-section="toolkit"] .switcher,.studio[data-active-section="radar"] .switcher{position:relative!important;top:auto!important}
 .studio .workbench{scroll-margin-top:110px!important}
 .studio .module{scroll-margin-top:110px!important}
 </style>
