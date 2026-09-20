@@ -51,14 +51,14 @@ export function computeScores(input: {
   readmeLength: number;
   structureCount: number;
   risks: RiskIndicator[];
-  contributors: number | null;
-  recentCommitCount: number | null;
+  contributors?: number | null;
+  recentCommitCount?: number | null;
   now?: number;
 }): Scores {
   const days = daysSince(input.meta.pushedAt, input.now);
   const freshness = scoreFreshness(days, input.meta.archived);
   const documentation = scoreDocumentation(input.readmeLength, Boolean(input.meta.license), input.structureCount);
-  const activity = scoreActivity(input.recentCommitCount, input.contributors, days);
+  const activity = scoreActivity(input.recentCommitCount ?? null, input.contributors ?? null, days);
   const risk = scoreRisk(input.risks);
   const health = scoreHealth({ freshness, activity, documentation, risk, archived: input.meta.archived });
   const rest = { health, freshness, documentation, activity, risk };
