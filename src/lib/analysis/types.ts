@@ -22,6 +22,8 @@ export type IntelligenceReview = {
   confirmed: string[];
   needsReview: string[];
   contradictions: string[];
+  provider?: string;
+  status?: 'READY' | 'UNAVAILABLE';
 };
 
 export type FileHit = { path: string; content: string };
