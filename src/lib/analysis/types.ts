@@ -16,6 +16,14 @@ export type RiskIndicator = {
   reason: string;
 };
 
+export type IntelligenceReview = {
+  summary: string;
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  confirmed: string[];
+  needsReview: string[];
+  contradictions: string[];
+};
+
 export type FileHit = { path: string; content: string };
 
 export type RepoMeta = {
@@ -66,9 +74,11 @@ export type Analysis = {
   structure: string[];
   readmeExcerpt: string;
   contributors: number | null;
+  recentCommitCount: number | null;
   latestRelease: string | null;
   latestCommit: string | null;
   analyzedAt: string;
   method: 'static-analysis';
   coverage: AnalysisCoverage;
+  intelligence?: IntelligenceReview;
 };
