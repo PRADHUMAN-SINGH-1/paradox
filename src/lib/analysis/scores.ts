@@ -21,18 +21,20 @@ export function scoreDocumentation(readmeLength: number, hasLicense: boolean, st
   return clamp(Math.round(readme * 0.7 + (hasLicense ? 20 : 0) + Math.min(10, structureCount * 2)));
 }
 
-export function scoreActivity(stars: number, forks: number, openIssues: number, days: number): number {
-  const social = Math.min(70, Math.log10(stars + 1) * 22 + Math.log10(forks + 1) * 12);
-  const issueHealth = openIssues > 400 ? 8 : openIssues > 80 ? 14 : 22;
-  const recency = days <= 45 ? 18 : days <= 180 ? 10 : 2;
-  return clamp(Math.round(social + issueHealth + recency));
+// Activity measures observable engineering activity, not repository popularity.
+// Stars/forks are intentionally excluded because they do not establish code health.
+export function scoreActivity(recentCommitCount: number | null, contributors: number | null, days: number): number {
+  const commits = recentCommitCount == null ? 8 : Math.min(58, Math.log10(recentCommitCount + 1) * 34);
+  const people = contributors == null ? 8 : Math.min(20, Math.log10(contributors + 1) * 18);
+  const recency = days <= 30 ? 22 : days <= 90 ? 16 : days <= 180 ? 10 : days <= 365 ? 5 : 0;
+  return clamp(Math.round(commits + people + recency));
 }
 
 export function scoreRisk(risks: RiskIndicator[]): number {
-  if (!risks.length) return 18;
-  const weight = { HIGH: 28, MODERATE: 12, LOW: 4 };
+  if (!risks.length) return 0;
+  const weight = { HIGH: 32, MODERATE: 12, LOW: 3 };
   const raw = risks.reduce((n, r) => n + weight[r.severity], 0);
-  return clamp(Math.round(Math.min(100, 12 + raw)));
+  return clamp(Math.round(raw));
 }
 
 export function scoreHealth(parts: { freshness: number; activity: number; documentation: number; risk: number; archived: boolean }): number {
@@ -49,12 +51,14 @@ export function computeScores(input: {
   readmeLength: number;
   structureCount: number;
   risks: RiskIndicator[];
+  contributors: number | null;
+  recentCommitCount: number | null;
   now?: number;
 }): Scores {
   const days = daysSince(input.meta.pushedAt, input.now);
   const freshness = scoreFreshness(days, input.meta.archived);
   const documentation = scoreDocumentation(input.readmeLength, Boolean(input.meta.license), input.structureCount);
-  const activity = scoreActivity(input.meta.stars, input.meta.forks, input.meta.openIssues, days);
+  const activity = scoreActivity(input.recentCommitCount, input.contributors, days);
   const risk = scoreRisk(input.risks);
   const health = scoreHealth({ freshness, activity, documentation, risk, archived: input.meta.archived });
   const rest = { health, freshness, documentation, activity, risk };
@@ -72,8 +76,8 @@ export function decideVerdict(analysis: {
   const high = analysis.risks.filter((r) => r.severity === 'HIGH');
   const days = daysSince(analysis.meta.pushedAt);
 
-  if (high.length >= 2 || (high.length >= 1 && analysis.scores.risk >= 70)) {
-    reasons.push(`${high.length} high static risk indicator(s) in repository files.`);
+  if (high.length >= 2 || (high.length >= 1 && analysis.scores.risk >= 65)) {
+    reasons.push(`${high.length} high-severity security indicator(s) were observed in repository files.`);
     return { verdict: 'HIGH-RISK', reasons };
   }
   if (analysis.meta.archived || days > 365) {
@@ -81,20 +85,18 @@ export function decideVerdict(analysis: {
     return { verdict: 'STALE', reasons };
   }
   if (analysis.scores.freshness < 40) {
-    reasons.push('Recent activity is low relative to typical maintained projects.');
+    reasons.push('Recent activity is low relative to maintained-project evidence.');
     return { verdict: 'STALE', reasons };
   }
   const thinDocs = analysis.readmeLength < 300;
-  const weak = thinDocs || !analysis.meta.description || analysis.scores.health < 62;
+  const weak = thinDocs || !analysis.meta.description || analysis.scores.health < 55;
   if (weak) {
     if (thinDocs) reasons.push('Documentation is thin or missing.');
     if (!analysis.meta.description) reasons.push('Repository description is missing.');
-    if (analysis.scores.health < 62) reasons.push('Composite health is below the evidence-supported threshold.');
-    if (analysis.detections === 0) reasons.push('No model/framework/tool evidence matched the current detectors; this is unknown, not proof of absence.');
+    if (analysis.scores.health < 55) reasons.push('Composite health is below the evidence-supported threshold.');
     return { verdict: 'QUESTIONABLE', reasons };
   }
-  reasons.push('Public repository analyzed with documentation, structure, and no high-risk cluster.');
-  if (analysis.detections === 0) reasons.push('No model/framework/tool detector matched; this is unknown, not proof of absence.');
+  reasons.push('Public repository analyzed with documentation, engineering activity, and no high-risk cluster.');
   return { verdict: 'VERIFIED', reasons };
 }
 
@@ -103,5 +105,5 @@ function clamp(n: number): number {
 }
 
 export function explainParadoxScore(): string {
-  return 'PARADOX SCORE is a weighted blend of health (35%), freshness (20%), documentation (15%), activity (15%) and inverted risk (15%). Scores are heuristics from public static evidence, not precision measurements.';
+  return 'PARADOX SCORE is a weighted blend of health (35%), freshness (20%), documentation (15%), activity (15%) and inverted risk (15%). Scores summarize observable public evidence; they are not precision measurements or security certification.';
 }
