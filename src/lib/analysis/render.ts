@@ -21,6 +21,10 @@ function scoreWord(value: number): string {
   return 'Limited';
 }
 
+function list(items: string[]): string {
+  return items.length ? items.map((item) => `<li>${escapeHtml(item)}</li>`).join('') : '<li>None observed from the supplied evidence.</li>';
+}
+
 export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {}): string {
   const langs = Object.keys(x.languages).slice(0, 6).map(escapeHtml).join(', ') || 'Unknown';
   const dets = x.detections.length
@@ -28,7 +32,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     : '<li>No model/tool detectors matched. That is Unknown, not proof of absence.</li>';
   const riskItems = x.risks.length
     ? x.risks.map((r) => `<li><strong>${escapeHtml(r.severity)} · ${escapeHtml(r.category)}</strong><span class="evidence-file">${escapeHtml(r.file)}</span><br/>${escapeHtml(r.reason)}<br/><code>${escapeHtml(r.evidence)}</code></li>`).join('')
-    : '<li>No static risk indicators matched the current rules.</li>';
+    : '<li>No security-relevant static risk indicators matched the current rules.</li>';
   const reasons = x.verdictReasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('');
   const compare = opts.compareHref || `/compare/?left=${encodeURIComponent(x.meta.fullName)}`;
   const liveProfile = `/agents/view/?repo=${encodeURIComponent(x.meta.fullName)}`;
@@ -37,6 +41,17 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
   const selectedFiles = Math.min(x.coverage.selectedFiles, x.coverage.maxFiles);
   const coverageLabel = `${selectedFiles}/${x.coverage.maxFiles}`;
+  const ai = x.intelligence;
+  const aiReview = ai ? `
+  <div class="panel verify-intelligence">
+    <h3>AI EVIDENCE REVIEW</h3>
+    <p><strong>${escapeHtml(ai.confidence)} CONFIDENCE</strong> · ${escapeHtml(ai.summary || 'The supplied repository evidence was cross-checked.')}</p>
+    <div class="columns">
+      <div><h4>CONFIRMED FROM EVIDENCE</h4><ul>${list(ai.confirmed)}</ul></div>
+      <div><h4>NEEDS REVIEW</h4><ul>${list(ai.needsReview)}</ul></div>
+    </div>
+    ${ai.contradictions.length ? `<h4>DOCUMENTATION / EVIDENCE CONTRADICTIONS</h4><ul>${list(ai.contradictions)}</ul>` : ''}
+  </div>` : '';
   return `
   <section class="result-head" aria-label="Analysis summary">
     <div>
@@ -72,6 +87,8 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     <article class="si-trust-card"><span>FILES SAMPLED</span><strong>${coverageLabel}</strong><p>${x.coverage.recursiveTree ? 'Recursive repository tree inspected, then a bounded file sample was analyzed.' : 'Repository tree data was incomplete, so this analysis is based on an incomplete sample.'}</p></article>
   </div>
 
+  ${aiReview}
+
   <div class="columns">
     <div class="panel">
       <h3>WHY THIS EVIDENCE STATUS</h3>
@@ -81,7 +98,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
         <li>Stars: ${x.meta.stars}</li><li>Forks: ${x.meta.forks}</li><li>Open issues: ${x.meta.openIssues}</li>
         <li>License: ${escapeHtml(x.meta.license || 'Unknown')}</li><li>Primary language: ${escapeHtml(x.meta.language || 'Unknown')}</li>
         <li>Last push: ${escapeHtml(x.meta.pushedAt || 'Unknown')}</li><li>Archived: ${x.meta.archived ? 'yes' : 'no'}</li>
-        <li>Latest release: ${escapeHtml(x.latestRelease || 'Unknown')}</li><li>Contributors (sample): ${x.contributors ?? 'Unknown'}</li>
+        <li>Latest release: ${escapeHtml(x.latestRelease || 'Unknown')}</li><li>Contributors (sample): ${x.contributors ?? 'Unknown'}</li><li>Recent commits sampled: ${x.recentCommitCount ?? 'Unknown'}</li>
       </ul>
     </div>
     <div class="panel">
