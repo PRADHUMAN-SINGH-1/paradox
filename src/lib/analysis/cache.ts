@@ -1,10 +1,15 @@
 import type { Analysis } from './types.ts';
 
 const TTL_MS = 30 * 60 * 1000;
+const ANALYSIS_CACHE_VERSION = 'v2';
 const mem = new Map<string, { at: number; value: Analysis }>();
 
 function key(fullName: string): string {
   return fullName.toLowerCase();
+}
+
+function storageKey(fullName: string): string {
+  return `paradox:analysis:${ANALYSIS_CACHE_VERSION}:${key(fullName)}`;
 }
 
 export function readCache(fullName: string): Analysis | null {
@@ -12,7 +17,7 @@ export function readCache(fullName: string): Analysis | null {
   const hit = mem.get(k);
   if (hit && Date.now() - hit.at < TTL_MS) return hit.value;
   try {
-    const raw = localStorage.getItem(`paradox:analysis:${k}`);
+    const raw = localStorage.getItem(storageKey(fullName));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { at: number; value: Analysis };
     if (Date.now() - parsed.at < TTL_MS) {
@@ -29,7 +34,7 @@ export function writeCache(analysis: Analysis): void {
   const entry = { at: Date.now(), value: analysis };
   mem.set(key(analysis.meta.fullName), entry);
   try {
-    localStorage.setItem(`paradox:analysis:${key(analysis.meta.fullName)}`, JSON.stringify(entry));
+    localStorage.setItem(storageKey(analysis.meta.fullName), JSON.stringify(entry));
   } catch {
     /* quota */
   }
@@ -71,7 +76,7 @@ export function writeSearchCache(query: string, value: unknown): void {
   try {
     sessionStorage.setItem(`paradox:search:${k}`, JSON.stringify(entry));
   } catch {
-    /* quota */
+    /* ignore */
   }
 }
 
