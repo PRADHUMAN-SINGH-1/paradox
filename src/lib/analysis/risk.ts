@@ -7,6 +7,9 @@ type Rule = {
   reason: string;
 };
 
+// Risk rules intentionally focus on security-relevant behavior. Ordinary HTTP,
+// browser automation and package-install commands are capabilities, not risks
+// by themselves; context is required before a finding becomes a risk signal.
 const RULES: Rule[] = [
   { category: 'Remote script execution', severity: 'HIGH', test: /(?:curl|wget)[^\n]{0,120}\|\s*(?:ba)?sh\b/i, reason: 'Downloads and executes a remote script.' },
   { category: 'Shell execution', severity: 'HIGH', test: /(?:child_process(?:\.(?:exec|execFile|spawn|spawnSync|execFileSync))|require\s*\(\s*['"]child_process['"]|from\s*['"]child_process['"]|os\.system\s*\(|subprocess\.(?:run|Popen|call|check_call|check_output)\s*\([^)]*shell\s*=\s*True)/i, reason: 'Repository code explicitly exposes process or shell execution primitives.' },
@@ -16,9 +19,6 @@ const RULES: Rule[] = [
   { category: 'Credential access', severity: 'MODERATE', test: /(?:process\.env|os\.(?:getenv|environ))\s*(?:\.|\[)[^\n]*(?:KEY|TOKEN|SECRET|PASSWORD|PRIVATE|CREDENTIAL)/i, reason: 'Code reads an environment value whose name suggests a secret or credential.' },
   { category: 'Credential file access', severity: 'MODERATE', test: /(?:readFile|open|cat|source)\b[^\n]{0,120}(?:\.env|id_rsa|credentials\.json|\.npmrc)/i, reason: 'Code appears to read a local credential/configuration file.' },
   { category: 'SSH / token material', severity: 'HIGH', test: /BEGIN (?:OPENSSH|RSA) PRIVATE KEY|id_rsa\b|github_token\s*[:=]/i, reason: 'Repository contains a strong indicator of credential or private-key material.' },
-  { category: 'Network access', severity: 'LOW', test: /https?:\/\/|\bfetch\s*\(|axios\.|requests\.(?:get|post)|httpx\./i, reason: 'Outbound network access is present.' },
-  { category: 'Browser automation', severity: 'MODERATE', test: /playwright|puppeteer|selenium/i, reason: 'The project can control a browser session.' },
-  { category: 'Install / permission change', severity: 'MODERATE', test: /chmod\s+\+x|(?:^|\s)(?:pip|npm)\s+install(?:\s+-g)?\b/i, reason: 'Install or executable-permission commands were observed.' },
 ];
 
 function snippet(text: string, re: RegExp): string {
@@ -36,7 +36,6 @@ export function detectRisks(files: FileHit[]): RiskIndicator[] {
     for (const rule of RULES) {
       const key = `${rule.category}:${file.path}`;
       if (seen.has(key)) continue;
-      if (rule.category === 'Network access' && /package\.json|pyproject|go\.mod|cargo\.toml/.test(lower)) continue;
       if (rule.test.test(file.content)) {
         seen.add(key);
         out.push({
