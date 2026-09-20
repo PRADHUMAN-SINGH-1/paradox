@@ -31,6 +31,10 @@ export function detectSignals(files: FileHit[]): Detection[] {
   const out: Detection[] = [];
   const seen = new Set<string>();
   for (const file of files) {
+    // README/docs are documentation evidence, not implementation evidence.
+    // A provider/model name appearing only there must not become a detected
+    // implementation signal.
+    if (/^readme(?:\.|$)/i.test(file.path) || /(?:^|\/)docs?(?:\/|$)/i.test(file.path)) continue;
     for (const rule of RULES) {
       if (seen.has(rule.name)) continue;
       if (rule.test.test(file.content) || rule.test.test(file.path)) {
