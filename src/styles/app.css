@@ -181,3 +181,87 @@ main {
   white-space: nowrap !important;
   border: 0 !important;
 }
+
+
+/* ==========================================================================
+   Global Typography Lock — one system across every PARADOX page
+   Sora = display hierarchy | Mona Sans = readable UI/body | JetBrains Mono = technical
+   ========================================================================== */
+body,
+body button,
+body input,
+body textarea,
+body select {
+  font-family: var(--font-sans) !important;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6,
+body h1 em,
+body h2 em,
+body h3 em,
+body h4 em,
+body h5 em,
+body h6 em,
+body .hero-copy h1,
+body .section-intro h2,
+body .simple-section h2,
+body .generator-head h1,
+body .feature-body h2,
+body .live-intro h2,
+body .signal-main h2,
+body .ai-home h2,
+body .giant-editorial-title,
+body .section-title {
+  font-family: var(--font-display) !important;
+}
+
+body code,
+body pre,
+body kbd,
+body samp,
+body .eyebrow,
+body .brand,
+body .site-nav,
+body .site-footer,
+body .generator-breadcrumb,
+body .generator-subline,
+body .maker-kicker,
+body .tool-number,
+body .feature-label,
+body .feature-meta,
+body .header-search,
+body .header-search-btn,
+body .workspace-kicker,
+body .dashboard-label,
+body .metric-box > span,
+body .metric-box > small,
+body .result-count,
+body .section-note {
+  font-family: var(--font-mono) !important;
+}
+
+/* Prevent legacy inline serif/display declarations from creating a second typography system. */
+body [style*="font-family: 'Instrument Serif'"],
+body [style*="font-family:'Instrument Serif'"],
+body [style*='font-family: "Instrument Serif"'],
+body [style*='font-family:"Instrument Serif"'],
+body [style*="font-family: 'DM Sans'"],
+body [style*="font-family:'DM Sans'"],
+body [style*='font-family: "DM Sans"'],
+body [style*='font-family:"DM Sans"'] {
+  font-family: var(--font-sans) !important;
+}
+
+body h1[style*="Instrument Serif"],
+body h2[style*="Instrument Serif"],
+body h3[style*="Instrument Serif"],
+body h4[style*="Instrument Serif"],
+body h5[style*="Instrument Serif"],
+body h6[style*="Instrument Serif"] {
+  font-family: var(--font-display) !important;
+}
