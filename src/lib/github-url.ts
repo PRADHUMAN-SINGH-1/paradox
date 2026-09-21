@@ -33,7 +33,7 @@ export function parseGitHubRepo(value: string): RepoRef {
   }
 
   const parts = url.pathname.split('/').filter(Boolean);
-  if (parts.length < 2) throw new Error('Enter a public GitHub repository URL.');
+  if (parts.length !== 2) throw new Error('Enter a public GitHub repository URL.');
   const owner = parts[0];
   const repo = parts[1].replace(/\.git$/i, '');
   if (owner === '.' || owner === '..' || repo === '.' || repo === '..') {
