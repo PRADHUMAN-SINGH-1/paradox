@@ -300,6 +300,8 @@ The server also applies bounded request, file, evidence, rate-limit and cache co
 
 The Edge Function includes a checked-in `deno.json` runtime configuration and is deployed as the public Verify execution boundary. The function remains intentionally unauthenticated because Verify analyzes public repositories; abuse controls are implemented at the endpoint rather than relying on a user session.
 
+Verify also uses a shared Supabase-backed rate-limit bucket in addition to an in-memory per-runtime limiter. Client identifiers are SHA-256-derived before storage, and the shared limiter is protected by RLS plus a service-role-only mutation function.
+
 ### Security analysis scope
 
 - GitHub Actions injection surfaces
@@ -544,7 +546,7 @@ Search caching uses a shorter **5-minute TTL**.
 
 Anonymous Verify usage is locally rate-limited to **8 attempts per 10-minute window** before another attempt is permitted.
 
-The server-side Verify Edge Function has its own rate limit and short-lived cache; client-side limits are therefore not the only protection.
+The server-side Verify Edge Function has both a bounded local limiter and a shared database-backed limiter, plus a short-lived commit-keyed cache; client-side limits are therefore not the only protection.
 
 Caches are performance mechanisms. They should never be treated as permanent truth about a repository.
 
@@ -605,6 +607,8 @@ The sitemap is generated during the build process.
 # 13. Deployment
 
 Production frontend deployment is handled by GitHub Actions and GitHub Pages.
+
+Pull requests are also validated before merge through dedicated CI and dependency-review workflows. CodeQL analyzes the protected main branch on every push and on a weekly schedule, while Dependabot tracks npm and GitHub Actions updates.
 
 Workflow:
 
@@ -841,6 +845,7 @@ PARADOX is intentionally bounded.
 - Dynamic verification results are not the same thing as prebuilt catalog pages.
 - GitHub API availability/rate limits can affect degraded fallback behavior.
 - AI provider availability can affect whether an LLM investigation is available for a specific run.
+- The shared Verify rate limiter falls back to the bounded in-memory limiter when the database path is temporarily unavailable.
 - Cached results can be older than the repository's current state until a fresh analysis is requested.
 
 These limitations are part of the product's trust model rather than hidden behavior.
