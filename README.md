@@ -542,6 +542,8 @@ Account routes redirect users into the dashboard experience where appropriate.
 
 The browser analysis cache uses a versioned local cache with a **30-minute TTL**.
 
+The current Verify analysis cache revision is **v5** so security/evidence-boundary changes invalidate older browser results.
+
 Search caching uses a shorter **5-minute TTL**.
 
 Anonymous Verify usage is locally rate-limited to **8 attempts per 10-minute window** before another attempt is permitted.
@@ -646,6 +648,14 @@ The Supabase Edge Function requires server-side secrets such as:
 - `GITHUB_TOKEN`
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL` (optional override)
+
+The Verify rate-limit migration is:
+
+```text
+supabase/migrations/20260921_verify_rate_limit.sql
+```
+
+It creates a service-role-only RPC for a shared, hashed client bucket. The Edge Function uses that shared limiter when the Supabase service-role environment is available and retains a bounded in-memory limiter as an availability fallback.
 
 Secrets must never be committed to the repository or bundled into browser code.
 
@@ -920,6 +930,8 @@ For production troubleshooting, verify:
 6. The configured Gemini model is available to the project.
 7. Supabase Auth redirect URLs match the production domain.
 8. RLS policies are applied from the current migration.
+9. The Verify rate-limit migration is applied.
+10. The deployed `analyze-repo` Edge Function uses the checked-in runtime configuration.
 
 ---
 
