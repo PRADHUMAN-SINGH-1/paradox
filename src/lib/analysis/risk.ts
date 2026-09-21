@@ -1,4 +1,5 @@
 import type { FileHit, RiskIndicator } from './types.ts';
+import { redactSensitiveText } from './sanitize.ts';
 
 type Rule = {
   category: string;
@@ -27,7 +28,7 @@ const RULES: Rule[] = [
 function snippet(text: string, re: RegExp): string {
   const m = text.match(re);
   if (!m || m.index == null) return '';
-  return text.slice(Math.max(0, m.index - 24), m.index + 140).replace(/\s+/g, ' ').trim();
+  return redactSensitiveText(text.slice(Math.max(0, m.index - 24), m.index + 140).replace(/\s+/g, ' ').trim());
 }
 
 export function detectRisks(files: FileHit[]): RiskIndicator[] {
