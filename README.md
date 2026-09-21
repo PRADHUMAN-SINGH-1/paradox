@@ -248,6 +248,20 @@ Verify results can expose claims with:
 
 Evidence quotes are checked against the inspected repository files before claims are accepted into the evidence result.
 
+Evidence validation is revision-aware: the production analyzer resolves the repository's default branch to an immutable commit SHA before collecting repository files, and the initial and targeted investigation reads are pinned to that same revision. This prevents a moving branch from changing the evidence between reads.
+
+The Verify LLM path uses three distinct reasoning stages:
+
+1. **Investigation planning** — selects exact additional repository paths and focus questions from the repository inventory.
+2. **Evidence review** — produces the structured claim ledger from the inspected implementation/configuration.
+3. **Adversarial adjudication** — audits the draft ledger and can downgrade unsupported, dependency-only, README-only, overbroad or quote-mismatched claims.
+
+The model never has authority to override deterministic source-of-truth checks. A claim must survive evidence-quote validation before it can remain CONFIRMED or CONTRADICTED.
+
+Before returning a result, deterministic security rules are run again across the complete initial + targeted evidence set. The final verdict still remains constrained by deterministic risk and freshness gates.
+
+Evidence quotes are redacted before they are returned to the browser, and the analyzer treats repository content as untrusted data rather than instructions.
+
 A model statement without repository evidence is not treated as confirmed evidence.
 
 ## Verdicts
@@ -260,6 +274,32 @@ The current adjudication vocabulary is:
 - **HIGH-RISK SIGNALS** — deterministic security gates identify a high-risk cluster.
 
 A verdict is an analytical product result, not a certification of the target software.
+
+### Reproducibility and coverage gates
+
+Every production Verify run records the analyzed commit SHA and branch ref. The frontend displays the abbreviated commit used for evidence collection.
+
+A repository is not allowed to receive an evidence-supported verdict when the recursive Git tree is incomplete. In that case Verify returns a review state rather than implying that an incomplete repository view is exhaustive.
+
+The server also applies bounded request, file, evidence, rate-limit and cache controls. Server caches are keyed by repository + immutable commit SHA rather than by repository name alone, and the cache has an explicit entry bound.
+
+The Edge Function includes a checked-in `deno.json` runtime configuration and is deployed as the public Verify execution boundary. The function remains intentionally unauthenticated because Verify analyzes public repositories; abuse controls are implemented at the endpoint rather than relying on a user session.
+
+### Security analysis scope
+
+- GitHub Actions injection surfaces
+- Docker socket exposure
+- host network mode
+- privileged container configuration
+- broad host filesystem mounts
+- remote script execution
+- shell/process execution
+- dynamic code execution
+- credential/environment access
+- credential-file access
+- strong private-key/token material indicators
+
+These are static risk indicators, not proof of malicious intent. Context and the evidence ledger remain important.
 
 ---
 
@@ -779,6 +819,8 @@ PARADOX is intentionally bounded.
 - It does not guarantee that a repository is safe or malicious-free.
 - Large files can be skipped by the analyzer.
 - Analysis is bounded to a ranked subset of repository files plus targeted investigation files.
+- A partial or truncated repository tree cannot produce an evidence-supported verification verdict.
+- Verification is reproducible only for the immutable commit revision captured by the run; a later repository commit is a different evidence state.
 - Dynamic verification results are not the same thing as prebuilt catalog pages.
 - GitHub API availability/rate limits can affect degraded fallback behavior.
 - AI provider availability can affect whether an LLM investigation is available for a specific run.
