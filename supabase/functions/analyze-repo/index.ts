@@ -383,8 +383,10 @@ const reviewSchema = {
       },
     },
     contradictions: { type: "array", items: { type: "string" }, maxItems: 8 },
+    recommendedVerdict: { type: "string", enum: ["VERIFIED", "QUESTIONABLE", "STALE", "HIGH-RISK"] },
+    decisionReason: { type: "string" },
   },
-  required: ["summary", "confidence", "claims", "contradictions"],
+  required: ["summary", "confidence", "claims", "contradictions", "recommendedVerdict", "decisionReason"],
 };
 
 async function requestGemini(provider: Provider, system: string, prompt: string, schema: Record<string, unknown>) {
@@ -509,6 +511,10 @@ function sanitizeReview(
   return {
     summary: String(raw.summary || meta.summaryFallback).slice(0, 800),
     confidence,
+    recommendedVerdict: ["VERIFIED", "QUESTIONABLE", "STALE", "HIGH-RISK"].includes(String(raw.recommendedVerdict))
+      ? String(raw.recommendedVerdict) as "VERIFIED" | "QUESTIONABLE" | "STALE" | "HIGH-RISK"
+      : "QUESTIONABLE",
+    decisionReason: String(raw.decisionReason || "Decision derived from the validated evidence ledger.").slice(0, 700),
     confirmed,
     needsReview,
     contradictions,
@@ -600,6 +606,8 @@ async function intelligence(
     "Use UNCONFIRMED when evidence is incomplete. " +
     "Do not invent file paths, lines, symbols or quotes. " +
     "Before returning, adversarially check every claim against its cited evidence and remove unsupported claims. " +
+    "recommendedVerdict is only an evidence-backed recommendation; never claim security certification. " +
+    "HIGH-RISK requires corroborating deterministic security evidence; otherwise choose QUESTIONABLE. " +
     "Return only the requested JSON schema.";
 
   const finalPrompt =
@@ -614,7 +622,7 @@ async function intelligence(
     "\n\nEVIDENCE:\n" + evidence.text;
 
   const raw = await requestGemini(provider, finalSystem, finalPrompt, reviewSchema);
-  return sanitizeReview(raw, fileMap, {
+  const review = sanitizeReview(raw, fileMap, {
     summaryFallback: "Evidence review completed from inspected repository files.",
     provider: provider.name,
     model: provider.model,
@@ -623,6 +631,7 @@ async function intelligence(
     targetedFiles: targeted.length,
     evidenceChars: evidence.chars,
   });
+  return { review, targeted };
 }
 
 async function analyze(owner: string, repo: string, fresh = false) {
@@ -672,7 +681,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
     repo: rr.data,
     languages: languages.ok ? languages.data : {},
     root: rootItems.slice(0, 120),
-    files: initialFiles,
+    files: allFiles,
     contributors: Array.isArray(contributors.data) ? Math.min(contributors.data.length, 100) : null,
     recentCommitCount: Array.isArray(commits.data) ? commits.data.length : null,
     latestRelease: Array.isArray(releases.data) ? releases.data[0]?.tag_name || null : null,
@@ -681,11 +690,11 @@ async function analyze(owner: string, repo: string, fresh = false) {
     method: aiReview ? "static-analysis+agent-review" : "static-analysis",
     intelligence: aiReview,
     coverage: {
-      selectedFiles: initialFiles.length,
-      maxFiles: INITIAL_FILES,
+      selectedFiles: allFiles.length,
+      maxFiles: MAX_FILES,
       recursiveTree: Boolean(tree.ok && tree.data?.truncated !== true),
       treeFiles: treeItems.filter((x: { type?: string }) => x.type === "blob").length,
-      targetedFiles: Number(aiReview?.coverage?.targetedFiles || 0),
+      targetedFiles: Number(aiReview?.coverage?.targetedFiles || targetedFiles.length),
       evidenceChars: Number(aiReview?.coverage?.evidenceChars || 0),
     },
   };
