@@ -91,6 +91,9 @@ export type AnalysisCoverage = {
   treeFiles?: number;
   targetedFiles?: number;
   evidenceChars?: number;
+  analysisVersion?: string;
+  commitSha?: string;
+  ref?: string;
 };
 
 export type Analysis = {
@@ -109,6 +112,9 @@ export type Analysis = {
   latestRelease: string | null;
   latestCommit: string | null;
   analyzedAt: string;
+  analysisVersion?: string;
+  analyzedCommitSha?: string;
+  analyzedRef?: string;
   method: 'static-analysis' | 'static-analysis+agent-review';
   coverage: AnalysisCoverage;
   intelligence?: IntelligenceReview;
