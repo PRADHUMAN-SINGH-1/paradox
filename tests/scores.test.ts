@@ -45,3 +45,43 @@ test('incomplete repository coverage cannot receive a verified verdict', () => {
   });
   assert.equal(result.verdict, 'QUESTIONABLE');
 });
+
+
+test('evidence-aware scoring materially reflects a validated agent review', () => {
+  const deterministic = computeScores({
+    meta,
+    readmeLength: 2000,
+    structureCount: 4,
+    risks: [],
+    now: Date.parse('2026-09-15T00:00:00Z'),
+  });
+
+  const intelligence = {
+    status: 'READY' as const,
+    confidence: 'HIGH' as const,
+    summary: 'validated',
+    confirmed: ['claim one', 'claim two', 'claim three', 'claim four'],
+    needsReview: [],
+    contradictions: [],
+    recommendedVerdict: 'VERIFIED' as const,
+    claims: [
+      { id: '1', claim: 'one', status: 'CONFIRMED' as const, confidence: 'HIGH' as const, evidence: [{ file: 'src/index.ts', line: 10, quote: 'one' }] },
+      { id: '2', claim: 'two', status: 'CONFIRMED' as const, confidence: 'HIGH' as const, evidence: [{ file: 'src/index.ts', line: 20, quote: 'two' }] },
+      { id: '3', claim: 'three', status: 'CONFIRMED' as const, confidence: 'HIGH' as const, evidence: [{ file: 'src/index.ts', line: 30, quote: 'three' }] },
+      { id: '4', claim: 'four', status: 'CONFIRMED' as const, confidence: 'HIGH' as const, evidence: [{ file: 'src/index.ts', line: 40, quote: 'four' }] },
+    ],
+  };
+
+  const evidenceAware = computeScores({
+    meta,
+    readmeLength: 2000,
+    structureCount: 4,
+    risks: [],
+    now: Date.parse('2026-09-15T00:00:00Z'),
+    intelligence,
+    coverage: { selectedFiles: 40, maxFiles: 40, targetedFiles: 20, treeFiles: 100 },
+  });
+
+  assert.notEqual(evidenceAware.paradox, deterministic.paradox);
+  assert.ok(evidenceAware.paradox > deterministic.paradox);
+});
