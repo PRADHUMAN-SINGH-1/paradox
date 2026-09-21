@@ -671,11 +671,18 @@ async function analyze(owner: string, repo: string, fresh = false) {
   const riskFindings = deterministicFindings(initialFiles);
 
   let aiReview = null;
+  let targetedFiles: Array<{ path: string; content: string; size?: number }> = [];
   try {
-    aiReview = await intelligence(owner, repo, rr.data, treeItems, initialFiles, riskFindings);
+    const agentResult = await intelligence(owner, repo, rr.data, treeItems, initialFiles, riskFindings);
+    aiReview = agentResult.review;
+    targetedFiles = agentResult.targeted;
   } catch {
     aiReview = null;
   }
+
+  const allFiles = [...initialFiles, ...targetedFiles].filter((file, index, arr) =>
+    arr.findIndex(x => x.path === file.path) === index
+  );
 
   const data = {
     repo: rr.data,
@@ -694,7 +701,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
       maxFiles: MAX_FILES,
       recursiveTree: Boolean(tree.ok && tree.data?.truncated !== true),
       treeFiles: treeItems.filter((x: { type?: string }) => x.type === "blob").length,
-      targetedFiles: Number(aiReview?.coverage?.targetedFiles || targetedFiles.length),
+      targetedFiles: targetedFiles.length,
       evidenceChars: Number(aiReview?.coverage?.evidenceChars || 0),
     },
   };
