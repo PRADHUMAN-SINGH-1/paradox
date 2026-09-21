@@ -36,6 +36,9 @@ function downloadAnalysis(a: Analysis) {
       detections: a.detections,
       risks: a.risks,
       verdictReasons: a.verdictReasons,
+      intelligence: a.intelligence,
+      coverage: a.coverage,
+      method: a.method,
       analyzedAt: a.analyzedAt,
     },
     null,
@@ -73,6 +76,9 @@ async function persist(a: Analysis) {
         verdict: a.verdict,
         detections: a.detections,
         risks: a.risks.map((r) => ({ category: r.category, severity: r.severity, file: r.file })),
+        intelligence: a.intelligence,
+        coverage: a.coverage,
+        method: a.method,
       },
     });
   } catch {
@@ -227,7 +233,7 @@ export async function runVerify(url: string, fresh = false, submitButton?: HTMLB
     if (isStale()) return;
 
     setStatus(
-      fresh ? 'Fresh static analysis complete.' : 'Cached static analysis complete. Run Analyze Repository to refresh evidence.'
+      fresh ? 'Fresh evidence investigation complete.' : 'Cached evidence investigation loaded. Run Analyze Repository to refresh evidence.'
     );
     track('verify_completed', {
       repository: analysis.meta.fullName,
