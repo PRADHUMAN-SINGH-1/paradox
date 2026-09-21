@@ -1,4 +1,5 @@
 import type { Detection, FileHit } from './types.ts';
+import { redactSensitiveText } from './sanitize.ts';
 
 const RULES: Array<{ name: string; category: Detection['category']; test: RegExp }> = [
   { name: 'OpenAI', category: 'model', test: /openai|gpt-4|gpt-3\.5|text-embedding-3/i },
@@ -24,7 +25,7 @@ function snippet(text: string, re: RegExp): string {
   const m = text.match(re);
   if (!m || m.index == null) return '';
   const start = Math.max(0, m.index - 40);
-  return text.slice(start, start + 120).replace(/\s+/g, ' ').trim();
+  return redactSensitiveText(text.slice(start, start + 120).replace(/\s+/g, ' ').trim());
 }
 
 export function detectSignals(files: FileHit[]): Detection[] {

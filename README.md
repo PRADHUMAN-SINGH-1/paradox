@@ -300,6 +300,8 @@ The server also applies bounded request, file, evidence, rate-limit and cache co
 
 The Edge Function includes a checked-in `deno.json` runtime configuration and is deployed as the public Verify execution boundary. The function remains intentionally unauthenticated because Verify analyzes public repositories; abuse controls are implemented at the endpoint rather than relying on a user session.
 
+Verify also uses a shared Supabase-backed rate-limit bucket in addition to an in-memory per-runtime limiter. Client identifiers are SHA-256-derived before storage, and the shared limiter is protected by RLS plus a service-role-only mutation function.
+
 ### Security analysis scope
 
 - GitHub Actions injection surfaces
@@ -540,11 +542,13 @@ Account routes redirect users into the dashboard experience where appropriate.
 
 The browser analysis cache uses a versioned local cache with a **30-minute TTL**.
 
+The current Verify analysis cache revision is **v5** so security/evidence-boundary changes invalidate older browser results.
+
 Search caching uses a shorter **5-minute TTL**.
 
 Anonymous Verify usage is locally rate-limited to **8 attempts per 10-minute window** before another attempt is permitted.
 
-The server-side Verify Edge Function has its own rate limit and short-lived cache; client-side limits are therefore not the only protection.
+The server-side Verify Edge Function has both a bounded local limiter and a shared database-backed limiter, plus a short-lived commit-keyed cache; client-side limits are therefore not the only protection.
 
 Caches are performance mechanisms. They should never be treated as permanent truth about a repository.
 
@@ -606,6 +610,8 @@ The sitemap is generated during the build process.
 
 Production frontend deployment is handled by GitHub Actions and GitHub Pages.
 
+Pull requests are validated by the dedicated CI workflow, including the full validation/build path and an npm vulnerability audit. CodeQL analyzes the protected main branch on every push and on a weekly schedule, while Dependabot tracks npm and GitHub Actions updates.
+
 Workflow:
 
 ```text
@@ -642,6 +648,14 @@ The Supabase Edge Function requires server-side secrets such as:
 - `GITHUB_TOKEN`
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL` (optional override)
+
+The Verify rate-limit migration is:
+
+```text
+supabase/migrations/20260921_verify_rate_limit.sql
+```
+
+It creates a service-role-only RPC for a shared, hashed client bucket. The Edge Function uses that shared limiter when the Supabase service-role environment is available and retains a bounded in-memory limiter as an availability fallback.
 
 Secrets must never be committed to the repository or bundled into browser code.
 
@@ -758,6 +772,11 @@ The repository contains automated tests covering core analysis behavior, includi
 - Security-risk detection
 - Score calculations
 - Utility/guard behavior
+- Strict public-GitHub URL validation
+- Sensitive evidence redaction across risk and implementation signals
+- Verify security-boundary regression cases
+
+CI also runs `npm audit --audit-level=high` before production build.
 
 Run all tests:
 
@@ -841,6 +860,7 @@ PARADOX is intentionally bounded.
 - Dynamic verification results are not the same thing as prebuilt catalog pages.
 - GitHub API availability/rate limits can affect degraded fallback behavior.
 - AI provider availability can affect whether an LLM investigation is available for a specific run.
+- The shared Verify rate limiter falls back to the bounded in-memory limiter when the database path is temporarily unavailable.
 - Cached results can be older than the repository's current state until a fresh analysis is requested.
 
 These limitations are part of the product's trust model rather than hidden behavior.
@@ -915,6 +935,8 @@ For production troubleshooting, verify:
 6. The configured Gemini model is available to the project.
 7. Supabase Auth redirect URLs match the production domain.
 8. RLS policies are applied from the current migration.
+9. The Verify rate-limit migration is applied.
+10. The deployed `analyze-repo` Edge Function uses the checked-in runtime configuration.
 
 ---
 

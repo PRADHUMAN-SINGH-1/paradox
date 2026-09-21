@@ -4,18 +4,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout 
   title="Verify an AI Agent Repository — PARADOX" 
-  description="Paste a public GitHub repository URL. PARADOX runs deterministic static analysis for freshness, stack, dependencies, health score and static risk indicators." 
+  description="Paste a public GitHub repository URL. PARADOX combines deterministic repository evidence with an optional LLM investigation, targeted file review, validated claims and static security signals." 
   canonical="https://paradox.engineer/verify/"
 >
   <main class="verify-page">
     <div class="page-header" style="margin-bottom: 36px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
         <span class="dot-pulse"></span>
-        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--accent); font-weight: 800;">STATIC VERIFICATION CORE // DETERMINISTIC INSPECTION</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--accent); font-weight: 800;">EVIDENCE VERIFICATION CORE // DETERMINISTIC + AI INVESTIGATION</span>
       </div>
       <h1 data-kinetic style="font-family: var(--font-display); font-size: clamp(38px, 6vw, 64px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; margin: 12px 0;">Verify an AI Agent.<br /><em style="color: var(--accent); font-style: normal;">Inspect the observable evidence.</em></h1>
       <p class="page-lead" style="color: var(--text-secondary); font-size: 16px; line-height: 1.6; max-width: 640px; margin: 0;">
-        Deterministic inspection of public GitHub repositories. We fetch metadata, analyze dependency manifests, and score health, commit activity, documentation, and potential static risk indicators.
+        Inspect a public GitHub repository at an immutable commit. PARADOX collects deterministic evidence, investigates important implementation paths, validates model claims against source lines, and reports security-relevant static signals without executing the target code.
       </p>
     </div>
 
@@ -72,7 +72,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div>
         <strong style="font-size: 13px; color: #ffffff; display: block; margin-bottom: 4px; font-family: var(--font-mono); letter-spacing: 0.05em;">Security & Isolation Guarantee</strong>
         <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
-          Third-party repository contents are treated as untrusted data. PARADOX never runs <code>npm install</code>, executes Dockerfiles, or runs target shell scripts. All reported scores and verdicts are static heuristics from public GitHub evidence.
+          Third-party repository contents are treated as untrusted data. PARADOX never runs <code>npm install</code>, executes Dockerfiles, or runs target shell scripts. Deterministic checks remain the source of truth for repository facts and evidence validation; the LLM is used for bounded investigation and adjudication, not certification.
         </p>
       </div>
     </div>
