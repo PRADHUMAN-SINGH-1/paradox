@@ -43,6 +43,8 @@ export type IntelligenceReview = {
   confirmed: string[];
   needsReview: string[];
   contradictions: string[];
+  recommendedVerdict?: 'VERIFIED' | 'QUESTIONABLE' | 'STALE' | 'HIGH-RISK';
+  decisionReason?: string;
   claims?: EvidenceClaim[];
   provider?: string;
   model?: string;
