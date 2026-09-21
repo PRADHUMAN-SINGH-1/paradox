@@ -11,6 +11,9 @@ type Rule = {
 // browser automation and package-install commands are capabilities, not risks
 // by themselves; context is required before a finding becomes a risk signal.
 const RULES: Rule[] = [
+  { category: 'GitHub Actions injection surface', severity: 'MODERATE', test: /(?:^|\n)\s*run:\s*[^\n]*\$\{\{\s*github\.event\.(?:issue|pull_request|comment|discussion|review|review_comment)/im, reason: 'A GitHub Actions workflow interpolates attacker-influenced event data directly into a shell command.' },
+  { category: 'Docker socket exposure', severity: 'HIGH', test: /(?:docker\.sock|\/var\/run\/docker\.sock)/i, reason: 'A container can access the host Docker daemon socket.' },
+  { category: 'Host network mode', severity: 'MODERATE', test: /network_mode:\s*host|--network(?:=|\s+)host\b/i, reason: 'Container configuration shares the host network namespace.' },
   { category: 'Remote script execution', severity: 'HIGH', test: /(?:curl|wget)[^\n]{0,120}\|\s*(?:ba)?sh\b/i, reason: 'Downloads and executes a remote script.' },
   { category: 'Shell execution', severity: 'HIGH', test: /(?:child_process(?:\.(?:exec|execFile|spawn|spawnSync|execFileSync))|require\s*\(\s*['"]child_process['"]|from\s*['"]child_process['"]|os\.system\s*\(|subprocess\.(?:run|Popen|call|check_call|check_output)\s*\([^)]*shell\s*=\s*True)/i, reason: 'Repository code explicitly exposes process or shell execution primitives.' },
   { category: 'Dynamic code execution', severity: 'HIGH', test: /\beval\s*\(|new Function\s*\(/i, reason: 'Dynamic code evaluation can execute untrusted input.' },
