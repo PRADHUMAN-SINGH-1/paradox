@@ -12,7 +12,7 @@
     "validate": "node --check scripts/demand/fetch-demand.js && node --check scripts/build/score-opportunities.mjs && node --check scripts/seo/prune-routes.mjs && npm test && npx astro check"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.57.4",
+    "@supabase/supabase-js": "2.116.0",
     "astro": "7.3.2"
   },
   "devDependencies": {
