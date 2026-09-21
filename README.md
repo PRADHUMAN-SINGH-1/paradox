@@ -266,7 +266,7 @@ A model statement without repository evidence is not treated as confirmed eviden
 
 ### Verify result interface
 
-The Verify result page uses an evidence-first investigation hierarchy:
+The Verify result page uses an evidence-first investigation hierarchy with a syntax-safe renderer:
 
 1. **Verdict header** — repository identity, evidence-supported verdict, PARADOX Score, analyzed commit, agent-review state and repository-tree completeness.
 2. **Evidence summary** — confirmed, contradicted, unconfirmed, high-risk, inspected-file count and evidence-quality metrics.
