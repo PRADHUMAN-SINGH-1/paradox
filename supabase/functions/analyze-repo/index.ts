@@ -11,9 +11,11 @@ const RATE_LIMIT = 24;
 const REQUEST_TIMEOUT_MS = 12_000;
 const AI_TIMEOUT_MS = 18_000;
 const MAX_REQUEST_BYTES = 16_384;
+const MAX_URL_LENGTH = 512;
+const MAX_QUERY_LENGTH = 120;
 const MAX_CACHE_ENTRIES = 160;
 const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
-const ANALYSIS_VERSION = "2026-09-21.1";
+const ANALYSIS_VERSION = "2026-09-21.2";
 
 const searchCache = new Map<string, { at: number; data: unknown }>();
 const analysisCache = new Map<string, { at: number; data: unknown }>();
@@ -42,13 +44,24 @@ const INTERESTING = [
   ".env.example", "Makefile", "Justfile",
 ];
 
+function originAllowed(req: Request) {
+  const origin = req.headers.get("origin");
+  return !origin || ALLOWED_ORIGINS.has(origin);
+}
+
 function cors(req: Request) {
   const origin = req.headers.get("origin") || "";
   return {
-    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : "https://paradox.engineer",
+    "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://paradox.engineer",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Max-Age": "600",
     Vary: "Origin",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "X-Frame-Options": "DENY",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
   };
 }
 
@@ -60,6 +73,19 @@ function json(data: unknown, status: number, headers: Record<string, string>, ca
       "Content-Type": "application/json",
       "Cache-Control": cache ? "public,max-age=" + Math.floor(cache / 1000) : "no-store",
     },
+  });
+}
+
+function requestBody(req: Request) {
+  return req.text().then(raw => {
+    if (new TextEncoder().encode(raw).byteLength > MAX_REQUEST_BYTES) {
+      throw new ResponseError("Request is too large.", 413);
+    }
+    try {
+      return JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      throw new ResponseError("Request body must be valid JSON.", 400);
+    }
   });
 }
 
@@ -103,9 +129,12 @@ function parseRepo(raw: string) {
   } catch {
     throw new Error("github-repo");
   }
+  if (url.username || url.password) throw new Error("github-repo");
+  if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("github-repo");
+  if (url.port && url.port !== "443" && url.port !== "80") throw new Error("github-repo");
   if (!["github.com", "www.github.com"].includes(url.hostname.toLowerCase())) throw new Error("github-host");
   const p = url.pathname.split("/").filter(Boolean);
-  if (p.length < 2) throw new Error("github-repo");
+  if (p.length !== 2) throw new Error("github-repo");
   const owner = p[0];
   const repo = p[1].replace(/\.git$/i, "");
   if (
@@ -120,6 +149,7 @@ const token = Deno.env.get("GITHUB_TOKEN") || "";
 const ghHeaders: Record<string, string> = {
   Accept: "application/vnd.github+json",
   "X-GitHub-Api-Version": "2022-11-28",
+  "User-Agent": "PARADOX-Verify/3.0 (+https://paradox.engineer/verify/)",
 };
 if (token) ghHeaders.Authorization = "Bearer " + token;
 
@@ -212,7 +242,9 @@ function evidenceMatches(content: string, quote: string, line: number) {
   const window = lines.slice(Math.max(0, safeLine - 3), Math.min(lines.length, safeLine + 2)).join("\n");
   const normalizedQuote = normalize(quote);
   if (!normalizedQuote) return false;
-  return normalize(window).includes(normalizedQuote) || normalize(safe).includes(normalizedQuote.slice(0, Math.min(180, normalizedQuote.length)));
+  const boundedQuote = normalizedQuote.slice(0, 240);
+  if (boundedQuote.length < 8) return false;
+  return normalize(window).includes(boundedQuote);
 }
 
 function redact(text: string) {
@@ -327,7 +359,7 @@ function deterministicFindings(files: Array<{ path: string; content: string }>) 
         severity: rule.severity,
         file: file.path,
         line: lineNumber(file.content, match.index),
-        evidence: evidenceSnippet(file.content, rule.test),
+        evidence: redact(evidenceSnippet(file.content, rule.test)),
         reason: rule.reason,
       });
     }
@@ -577,7 +609,7 @@ function sanitizeReview(
     claims,
     provider: meta.provider,
     model: meta.model,
-    status: "READY" as const,
+    status: validated ? "READY" as const : "UNAVAILABLE" as const,
     coverage: {
       treeFiles: meta.treeFiles,
       selectedFiles: meta.selectedFiles,
@@ -761,12 +793,23 @@ async function analyze(owner: string, repo: string, fresh = false) {
   const commits = results[4];
   const tree = results[5];
 
+  if (!tree.ok || !Array.isArray(tree.data?.tree)) {
+    throw new ResponseError("GitHub could not provide the repository tree. Try again shortly.", 502);
+  }
+
   const rootItems = Array.isArray(root.data) ? root.data : [];
-  const rootNames = rootItems.map((x: { name?: string }) => String(x.name || ""));
-  const treeItems = tree.ok && Array.isArray(tree.data?.tree) ? tree.data.tree : [];
+  const treeItems = tree.data.tree;
+  const rootNames = rootItems.length
+    ? rootItems.map((x: { name?: string }) => String(x.name || ""))
+    : [...new Set(treeItems.map((x: { path?: string }) => String(x.path || "").split("/")[0]).filter(Boolean))];
   const selectedPaths = selectPaths(rootNames, treeItems, INITIAL_FILES);
   const initialFiles = (await Promise.all(selectedPaths.map(path => readFile(owner, repo, path, commitSha))))
     .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
+
+  const treeFileCount = treeItems.filter((x: { type?: string }) => x.type === "blob").length;
+  if (treeFileCount > 0 && initialFiles.length === 0) {
+    throw new ResponseError("GitHub could not return repository files for inspection. Try again shortly.", 502);
+  }
 
   const riskFindings = deterministicFindings(initialFiles);
 
@@ -797,7 +840,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
     latestRelease: Array.isArray(releases.data) ? releases.data[0]?.tag_name || null : null,
     latestCommit: Array.isArray(commits.data) ? commits.data[0]?.commit?.committer?.date || null : null,
     analyzedAt: new Date().toISOString(),
-    method: aiReview ? "static-analysis+agent-review" : "static-analysis",
+    method: aiReview?.status === "READY" ? "static-analysis+agent-review" : "static-analysis",
     intelligence: aiReview,
     deterministicFindings: finalRiskFindings,
     analyzedCommitSha: commitSha,
@@ -818,7 +861,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
 }
 
 async function search(query: string) {
-  const q = query.trim().slice(0, 120) || "ai agent";
+  const q = query.trim().slice(0, MAX_QUERY_LENGTH) || "ai agent";
   const key = q.toLowerCase();
   const hit = searchCache.get(key);
   if (hit && Date.now() - hit.at < CACHE_MS) return hit.data;
@@ -842,23 +885,54 @@ class ResponseError extends Error {
 }
 
 Deno.serve(async req => {
-  const h = cors(req);
+  const requestId = crypto.randomUUID();
+  const startedAt = Date.now();
+  const h = { ...cors(req), "X-Request-ID": requestId };
+
+  if (!originAllowed(req)) {
+    console.warn(JSON.stringify({ requestId, event: "blocked-origin" }));
+    return json({ error: "Origin is not allowed.", requestId }, 403, h);
+  }
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: h });
-  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, h);
-  if (!allowed(req)) return json({ error: "Too many analysis requests. Please wait a minute." }, 429, h);
+  if (req.method !== "POST") return json({ error: "Method not allowed", requestId }, 405, h);
+  if (!allowed(req)) return json({ error: "Too many analysis requests. Please wait a minute.", requestId }, 429, h);
 
   try {
-    const contentLength = Number(req.headers.get("content-length") || 0);
-    if (contentLength > MAX_REQUEST_BYTES) return json({ error: "Request is too large." }, 413, h);
-    const body = await req.json();
-    if (body.mode === "search") return json(await search(String(body.query || "")), 200, h, 20_000);
-    const ref = parseRepo(String(body.url || ""));
-    return json(await analyze(ref.owner, ref.repo, Boolean(body.fresh)), 200, h, 60_000);
+    const body = await requestBody(req);
+    const mode = typeof body.mode === "string" ? body.mode : "analyze";
+
+    if (mode === "search") {
+      const query = typeof body.query === "string" ? body.query : "";
+      if (query.length > MAX_QUERY_LENGTH) return json({ error: "Search query is too long.", requestId }, 400, h);
+      const result = await search(query);
+      console.info(JSON.stringify({ requestId, mode, status: 200, durationMs: Date.now() - startedAt }));
+      return json(result, 200, h, 20_000);
+    }
+
+    if (mode !== "analyze") {
+      return json({ error: "Unsupported request mode.", requestId }, 400, h);
+    }
+
+    const url = typeof body.url === "string" ? body.url.trim() : "";
+    if (!url || url.length > MAX_URL_LENGTH) {
+      return json({ error: "Enter a public GitHub repository URL.", requestId }, 400, h);
+    }
+
+    const ref = parseRepo(url);
+    const result = await analyze(ref.owner, ref.repo, body.fresh === true);
+    console.info(JSON.stringify({ requestId, mode, status: 200, durationMs: Date.now() - startedAt }));
+    return json(result, 200, h);
   } catch (e) {
-    if (e instanceof ResponseError) return json({ error: e.message }, e.status, h);
+    if (e instanceof ResponseError) {
+      console.warn(JSON.stringify({ requestId, event: "request-error", status: e.status, durationMs: Date.now() - startedAt }));
+      return json({ error: e.message, requestId }, e.status, h);
+    }
+
     const badInput = e instanceof Error && ["github-host", "github-repo"].includes(e.message);
+    console.error(JSON.stringify({ requestId, event: "unexpected-error", error: e instanceof Error ? e.name : "unknown", durationMs: Date.now() - startedAt }));
     return json(
-      { error: badInput ? "Enter a public GitHub repository URL." : "We couldn't complete this request. Try again." },
+      { error: badInput ? "Enter a public GitHub repository URL." : "We couldn't complete this request. Try again.", requestId },
       badInput ? 400 : 500,
       h,
     );
