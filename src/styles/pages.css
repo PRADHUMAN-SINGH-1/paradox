@@ -3290,3 +3290,167 @@ body.theme-light .marquee-content strong {
     justify-content: center;
   }
 }
+
+
+/* ==========================================================================
+   Verify Evidence Ledger — scoped to Verify result only
+   ========================================================================== */
+.verify-page #result .vx-card--ledger {
+  margin-top: 18px;
+}
+.verify-page #result .vx-ledger-intro {
+  margin: 0 0 18px;
+  max-width: 900px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.verify-page #result .vx-ledger {
+  display: grid;
+  gap: 10px;
+}
+.verify-page #result .vx-claim {
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.018);
+  padding: 16px;
+}
+.verify-page #result .vx-claim--good {
+  border-color: rgba(191, 255, 66, 0.22);
+}
+.verify-page #result .vx-claim--risk {
+  border-color: rgba(255, 100, 100, 0.28);
+}
+.verify-page #result .vx-claim-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.verify-page #result .vx-claim-head h4 {
+  margin: 4px 0 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.verify-page #result .vx-claim-id {
+  display: inline-block;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.verify-page #result .vx-claim-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.verify-page #result .vx-evidence-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.verify-page #result .vx-evidence-ref {
+  border-left: 2px solid var(--border-default);
+  padding: 8px 10px 8px 12px;
+  background: rgba(0,0,0,0.18);
+}
+.verify-page #result .vx-evidence-ref--empty {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.verify-page #result .vx-evidence-ref > div {
+  display: grid;
+  gap: 6px;
+}
+.verify-page #result .vx-evidence-ref code {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.verify-page #result .vx-evidence-ref span {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.verify-page #result .vx-agent-facts {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0;
+}
+.verify-page #result .vx-agent-facts span {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.015);
+}
+.verify-page #result .vx-agent-facts b,
+.verify-page #result .vx-agent-facts strong {
+  display: block;
+}
+.verify-page #result .vx-agent-facts b {
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.verify-page #result .vx-agent-facts strong {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.verify-page #result .vx-decision-callout {
+  margin: 14px 0 18px;
+  padding: 14px 16px;
+  border-left: 2px solid var(--accent);
+  background: rgba(191,255,66,0.045);
+}
+.verify-page #result .vx-decision-callout span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+}
+.verify-page #result .vx-decision-callout p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.verify-page #result .vx-engine small {
+  line-height: 1.45;
+}
+@media (max-width: 980px) {
+  .verify-page #result .vx-agent-facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .verify-page #result .vx-claim-head {
+    flex-direction: column;
+  }
+  .verify-page #result .vx-claim-badges {
+    justify-content: flex-start;
+  }
+  .verify-page #result .vx-agent-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .verify-page #result .vx-agent-facts {
+    grid-template-columns: 1fr;
+  }
+}
