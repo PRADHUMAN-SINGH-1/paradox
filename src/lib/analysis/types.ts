@@ -16,14 +16,38 @@ export type RiskIndicator = {
   reason: string;
 };
 
+export type EvidenceReference = {
+  file: string;
+  line: number;
+  quote: string;
+};
+
+export type EvidenceClaim = {
+  id: string;
+  claim: string;
+  status: 'CONFIRMED' | 'CONTRADICTED' | 'UNCONFIRMED';
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  evidence: EvidenceReference[];
+};
+
+export type IntelligenceCoverage = {
+  treeFiles?: number;
+  selectedFiles?: number;
+  targetedFiles?: number;
+  evidenceChars?: number;
+};
+
 export type IntelligenceReview = {
   summary: string;
   confidence: 'HIGH' | 'MEDIUM' | 'LOW';
   confirmed: string[];
   needsReview: string[];
   contradictions: string[];
+  claims?: EvidenceClaim[];
   provider?: string;
+  model?: string;
   status?: 'READY' | 'UNAVAILABLE';
+  coverage?: IntelligenceCoverage;
 };
 
 export type FileHit = { path: string; content: string };
@@ -62,6 +86,9 @@ export type AnalysisCoverage = {
   selectedFiles: number;
   maxFiles: number;
   recursiveTree: boolean;
+  treeFiles?: number;
+  targetedFiles?: number;
+  evidenceChars?: number;
 };
 
 export type Analysis = {
@@ -80,7 +107,7 @@ export type Analysis = {
   latestRelease: string | null;
   latestCommit: string | null;
   analyzedAt: string;
-  method: 'static-analysis';
+  method: 'static-analysis' | 'static-analysis+agent-review';
   coverage: AnalysisCoverage;
   intelligence?: IntelligenceReview;
 };
