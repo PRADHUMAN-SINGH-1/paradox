@@ -31,3 +31,17 @@ test('archived and dangerous projects are classified correctly', () => {
   const riskyScores = computeScores({ meta, readmeLength: 2000, structureCount: 4, risks });
   assert.equal(decideVerdict({ meta, scores: riskyScores, risks, readmeLength: 2000, detections: 2 }).verdict, 'HIGH-RISK');
 });
+
+
+test('incomplete repository coverage cannot receive a verified verdict', () => {
+  const scores = computeScores({ meta, readmeLength: 2000, structureCount: 8, risks: [] });
+  const result = decideVerdict({
+    meta,
+    scores,
+    risks: [],
+    readmeLength: 2000,
+    detections: 2,
+    coverage: { recursiveTree: false },
+  });
+  assert.equal(result.verdict, 'QUESTIONABLE');
+});
