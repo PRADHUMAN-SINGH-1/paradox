@@ -112,7 +112,7 @@ function pruneCaches() {
   }
 }
 
-function allowed(req: Request) {
+function localAllowed(req: Request) {
   pruneCaches();
   const key = requestKey(req);
   const now = Date.now();
@@ -123,6 +123,43 @@ function allowed(req: Request) {
   }
   row.count += 1;
   return row.count <= RATE_LIMIT;
+}
+
+async function hashRateKey(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function sharedAllowed(req: Request, mode: string) {
+  if (!localAllowed(req)) return false;
+
+  const baseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!baseUrl || !serviceKey) return true;
+
+  try {
+    const bucket = await hashRateKey("verify:" + mode + ":" + requestKey(req));
+    const r = await fetch(baseUrl.replace(/\/$/, "") + "/rest/v1/rpc/consume_verify_rate_limit", {
+      method: "POST",
+      headers: {
+        apikey: serviceKey,
+        Authorization: "Bearer " + serviceKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_bucket_key: bucket,
+        p_limit: RATE_LIMIT,
+        p_window_seconds: Math.floor(RATE_WINDOW_MS / 1000),
+      }),
+      signal: AbortSignal.timeout(2_500),
+    });
+    if (!r.ok) return true;
+    return (await r.json()) === true;
+  } catch {
+    // Availability first: retain the bounded in-memory limiter if the shared store is unavailable.
+    return true;
+  }
 }
 
 function parseRepo(raw: string) {
@@ -900,11 +937,16 @@ Deno.serve(async req => {
 
   if (req.method === "OPTIONS") return new Response("ok", { headers: h });
   if (req.method !== "POST") return json({ error: "Method not allowed", requestId }, 405, h);
-  if (!allowed(req)) return json({ error: "Too many analysis requests. Please wait a minute.", requestId }, 429, h);
 
   try {
     const body = await requestBody(req);
     const mode = typeof body.mode === "string" ? body.mode : "analyze";
+    if (mode !== "search" && mode !== "analyze") {
+      return json({ error: "Unsupported request mode.", requestId }, 400, h);
+    }
+    if (!await sharedAllowed(req, mode)) {
+      return json({ error: "Too many analysis requests. Please wait a minute.", requestId }, 429, h);
+    }
 
     if (mode === "search") {
       const query = typeof body.query === "string" ? body.query : "";
@@ -912,10 +954,6 @@ Deno.serve(async req => {
       const result = await search(query);
       console.info(JSON.stringify({ requestId, mode, status: 200, durationMs: Date.now() - startedAt }));
       return json(result, 200, h, 20_000);
-    }
-
-    if (mode !== "analyze") {
-      return json({ error: "Unsupported request mode.", requestId }, 400, h);
     }
 
     const url = typeof body.url === "string" ? body.url.trim() : "";
