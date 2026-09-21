@@ -82,7 +82,11 @@ function requestBody(req: Request) {
       throw new ResponseError("Request is too large.", 413);
     }
     try {
-      return JSON.parse(raw) as Record<string, unknown>;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new ResponseError("Request body must be a JSON object.", 400);
+      }
+      return parsed as Record<string, unknown>;
     } catch {
       throw new ResponseError("Request body must be valid JSON.", 400);
     }
@@ -583,10 +587,7 @@ function sanitizeReview(
 
   const confirmed = claims.filter(c => c.status === "CONFIRMED").map(c => c.claim).slice(0, 8);
   const needsReview = claims.filter(c => c.status === "UNCONFIRMED").map(c => c.claim).slice(0, 8);
-  const contradictions = [
-    ...claims.filter(c => c.status === "CONTRADICTED").map(c => c.claim),
-    ...(Array.isArray(raw.contradictions) ? raw.contradictions.map(String) : []),
-  ].slice(0, 8);
+  const contradictions = claims.filter(c => c.status === "CONTRADICTED").map(c => c.claim).slice(0, 8);
 
   const confirmedCount = claims.filter(c => c.status === "CONFIRMED").length;
   const contradictedCount = claims.filter(c => c.status === "CONTRADICTED").length;
@@ -596,12 +597,15 @@ function sanitizeReview(
   if (claims.length && confirmedCount >= Math.max(2, Math.ceil(claims.length * 0.55)) && evidenceBacked >= 2) confidence = "HIGH";
   else if (evidenceBacked >= 1 || contradictedCount > 0) confidence = "MEDIUM";
 
+  const validated = evidenceBacked > 0;
+  const modelVerdict = ["VERIFIED", "QUESTIONABLE", "STALE", "HIGH-RISK"].includes(String(raw.recommendedVerdict))
+    ? String(raw.recommendedVerdict) as "VERIFIED" | "QUESTIONABLE" | "STALE" | "HIGH-RISK"
+    : "QUESTIONABLE";
+
   return {
     summary: String(raw.summary || meta.summaryFallback).slice(0, 800),
     confidence,
-    recommendedVerdict: ["VERIFIED", "QUESTIONABLE", "STALE", "HIGH-RISK"].includes(String(raw.recommendedVerdict))
-      ? String(raw.recommendedVerdict) as "VERIFIED" | "QUESTIONABLE" | "STALE" | "HIGH-RISK"
-      : "QUESTIONABLE",
+    recommendedVerdict: validated ? modelVerdict : "QUESTIONABLE",
     decisionReason: String(raw.decisionReason || "Decision derived from the validated evidence ledger.").slice(0, 700),
     confirmed,
     needsReview,
