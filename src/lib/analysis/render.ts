@@ -71,11 +71,11 @@ function claimCard(claim: EvidenceClaim): string {
 
 
 export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {}): string {
-  const compare = opts.compareHref || \`/compare/?left=\${encodeURIComponent(x.meta.fullName)}\`;
-  const liveProfile = \`/agents/view/?repo=\${encodeURIComponent(x.meta.fullName)}\`;
+  const compare = opts.compareHref || \`/compare/?left=${encodeURIComponent(x.meta.fullName)}\`;
+  const liveProfile = \`/agents/view/?repo=${encodeURIComponent(x.meta.fullName)}\`;
   const selectedFiles = Math.min(x.coverage.selectedFiles, x.coverage.maxFiles || 64);
   const maxFiles = x.coverage.maxFiles || 64;
-  const coverageLabel = \`\${selectedFiles}/\${maxFiles}\`;
+  const coverageLabel = \`${selectedFiles}/${maxFiles}\`;
   const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
   const moderateRisks = x.risks.filter((r) => r.severity === 'MODERATE').length;
   const ai = x.intelligence;
@@ -95,17 +95,17 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
 
   const detections = x.detections.map((d) => \`
     <li class="vx-finding">
-      <div><strong>\${escapeHtml(d.name)}</strong><span class="vx-tag">\${escapeHtml(d.category)}</span></div>
-      <small>\${escapeHtml(d.file)}</small>
-      <code>\${escapeHtml(d.evidence)}</code>
+      <div><strong>${escapeHtml(d.name)}</strong><span class="vx-tag">${escapeHtml(d.category)}</span></div>
+      <small>${escapeHtml(d.file)}</small>
+      <code>${escapeHtml(d.evidence)}</code>
     </li>\`).join('');
 
   const risks = x.risks.map((r) => \`
-    <li class="vx-finding vx-finding--risk vx-risk--\${r.severity.toLowerCase()}">
-      <div><strong>\${escapeHtml(r.category)}</strong><span class="vx-tag">\${escapeHtml(r.severity)}</span></div>
-      <small>\${escapeHtml(r.file)}</small>
-      <p>\${escapeHtml(r.reason)}</p>
-      <code>\${escapeHtml(r.evidence)}</code>
+    <li class="vx-finding vx-finding--risk vx-risk--${r.severity.toLowerCase()}">
+      <div><strong>${escapeHtml(r.category)}</strong><span class="vx-tag">${escapeHtml(r.severity)}</span></div>
+      <small>${escapeHtml(r.file)}</small>
+      <p>${escapeHtml(r.reason)}</p>
+      <code>${escapeHtml(r.evidence)}</code>
     </li>\`).join('');
 
   const ledger = claims.length
@@ -120,31 +120,31 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
             <span class="vx-eyebrow">AGENT INVESTIGATION</span>
             <h3>How the evidence was adjudicated</h3>
           </div>
-          <div class="vx-status vx-status--\${aiReady ? 'live' : 'idle'}"><i></i>\${aiStatus}</div>
+          <div class="vx-status vx-status--${aiReady ? 'live' : 'idle'}"><i></i>${aiStatus}</div>
         </div>
         <div class="vx-ai-summary">
-          <strong>\${escapeHtml(ai.confidence)} CONFIDENCE · \${escapeHtml(ai.recommendedVerdict || x.verdict)}</strong>
-          <p>\${escapeHtml(ai.summary || 'The evidence investigator completed a repository-focused review.')}</p>
+          <strong>${escapeHtml(ai.confidence)} CONFIDENCE · ${escapeHtml(ai.recommendedVerdict || x.verdict)}</strong>
+          <p>${escapeHtml(ai.summary || 'The evidence investigator completed a repository-focused review.')}</p>
         </div>
         <div class="vx-agent-facts">
-          <span><b>Model</b><strong>\${escapeHtml(aiModel)}</strong></span>
-          <span><b>Evidence quality</b><strong>\${evidencePct}/100</strong></span>
-          <span><b>Confirmed</b><strong>\${confirmed}</strong></span>
-          <span><b>Contradicted</b><strong>\${contradicted}</strong></span>
-          <span><b>Unconfirmed</b><strong>\${unconfirmed}</strong></span>
-          <span><b>Targeted files</b><strong>\${targetedFiles}</strong></span>
+          <span><b>Model</b><strong>${escapeHtml(aiModel)}</strong></span>
+          <span><b>Evidence quality</b><strong>${evidencePct}/100</strong></span>
+          <span><b>Confirmed</b><strong>${confirmed}</strong></span>
+          <span><b>Contradicted</b><strong>${contradicted}</strong></span>
+          <span><b>Unconfirmed</b><strong>${unconfirmed}</strong></span>
+          <span><b>Targeted files</b><strong>${targetedFiles}</strong></span>
         </div>
         <div class="vx-decision-callout">
           <span>ADJUDICATION</span>
-          <p>\${escapeHtml(ai.decisionReason || 'The final verdict is constrained by deterministic risk and freshness gates plus validated evidence claims.')}</p>
+          <p>${escapeHtml(ai.decisionReason || 'The final verdict is constrained by deterministic risk and freshness gates plus validated evidence claims.')}</p>
         </div>
         <div class="vx-three-col">
-          <div><span class="vx-mini-label">CONFIRMED</span><ul>\${list(ai.confirmed)}</ul></div>
-          <div><span class="vx-mini-label">NEEDS REVIEW</span><ul>\${list(ai.needsReview)}</ul></div>
-          <div><span class="vx-mini-label">CONTRADICTIONS</span><ul>\${list(ai.contradictions, 'No evidence contradiction recorded.')}</ul></div>
+          <div><span class="vx-mini-label">CONFIRMED</span><ul>${list(ai.confirmed)}</ul></div>
+          <div><span class="vx-mini-label">NEEDS REVIEW</span><ul>${list(ai.needsReview)}</ul></div>
+          <div><span class="vx-mini-label">CONTRADICTIONS</span><ul>${list(ai.contradictions, 'No evidence contradiction recorded.')}</ul></div>
         </div>
         <footer class="vx-card-foot">
-          <span>Provider: \${escapeHtml(aiProvider)} · \${escapeHtml(aiModel)}</span>
+          <span>Provider: ${escapeHtml(aiProvider)} · ${escapeHtml(aiModel)}</span>
           <span>Adversarial evidence pass · no repository execution</span>
         </footer>
       </section>\`
@@ -171,49 +171,49 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
       <div class="vx-identity">
         <div class="vx-kicker">
           <span>PARADOX VERIFY</span>
-          <span>ANALYSIS \${escapeHtml(x.analyzedAt.replace('T', ' ').replace('Z', ' UTC'))}</span>
+          <span>ANALYSIS ${escapeHtml(x.analyzedAt.replace('T', ' ').replace('Z', ' UTC'))}</span>
         </div>
         <div class="vx-title-row">
           <div>
-            <p class="vx-repo">\${escapeHtml(x.meta.fullName)}</p>
-            <h2>\${escapeHtml(x.meta.name)}</h2>
+            <p class="vx-repo">${escapeHtml(x.meta.fullName)}</p>
+            <h2>${escapeHtml(x.meta.name)}</h2>
           </div>
-          <span class="vx-verdict vx-verdict--\${verdictTone(x.verdict)}">\${escapeHtml(verdictLabel(x.verdict))}</span>
+          <span class="vx-verdict vx-verdict--${verdictTone(x.verdict)}">${escapeHtml(verdictLabel(x.verdict))}</span>
         </div>
-        <p class="vx-description">\${escapeHtml(x.meta.description || 'No repository description provided.')}</p>
+        <p class="vx-description">${escapeHtml(x.meta.description || 'No repository description provided.')}</p>
         <div class="vx-inline-meta">
-          <span>\${escapeHtml(x.meta.language || 'Unknown')}</span>
-          <span>\${x.meta.archived ? 'ARCHIVED' : 'ACTIVE'}</span>
-          <span>\${x.method === 'static-analysis+agent-review' ? 'AGENT-REVIEWED' : 'DETERMINISTIC'}</span>
-          <span>\${x.coverage.recursiveTree ? 'COMPLETE TREE' : 'PARTIAL TREE'}</span>
-          <span>COMMIT \${escapeHtml((x.analyzedCommitSha || '').slice(0, 12) || 'UNKNOWN')}</span>
+          <span>${escapeHtml(x.meta.language || 'Unknown')}</span>
+          <span>${x.meta.archived ? 'ARCHIVED' : 'ACTIVE'}</span>
+          <span>${x.method === 'static-analysis+agent-review' ? 'AGENT-REVIEWED' : 'DETERMINISTIC'}</span>
+          <span>${x.coverage.recursiveTree ? 'COMPLETE TREE' : 'PARTIAL TREE'}</span>
+          <span>COMMIT ${escapeHtml((x.analyzedCommitSha || '').slice(0, 12) || 'UNKNOWN')}</span>
         </div>
       </div>
       <aside class="vx-score-box vx-score-box--hero">
         <span>PARADOX SCORE</span>
-        <strong>\${x.scores.paradox}</strong><small>/ 100</small>
+        <strong>${x.scores.paradox}</strong><small>/ 100</small>
         <p>Supporting context, not a security certification.</p>
       </aside>
     </header>
 
     <section class="vx-summary-strip" aria-label="Evidence summary">
       <article class="vx-summary-item vx-summary-item--confirmed">
-        <span>CONFIRMED</span><strong>\${confirmed}</strong><small>claims with validated evidence</small>
+        <span>CONFIRMED</span><strong>${confirmed}</strong><small>claims with validated evidence</small>
       </article>
       <article class="vx-summary-item vx-summary-item--contradicted">
-        <span>CONTRADICTED</span><strong>\${contradicted}</strong><small>claims rejected by evidence</small>
+        <span>CONTRADICTED</span><strong>${contradicted}</strong><small>claims rejected by evidence</small>
       </article>
       <article class="vx-summary-item vx-summary-item--unconfirmed">
-        <span>UNCONFIRMED</span><strong>\${unconfirmed}</strong><small>claims needing review</small>
+        <span>UNCONFIRMED</span><strong>${unconfirmed}</strong><small>claims needing review</small>
       </article>
-      <article class="vx-summary-item \${highRisks ? 'vx-summary-item--danger' : 'vx-summary-item--confirmed'}">
-        <span>HIGH-RISK</span><strong>\${highRisks}</strong><small>deterministic security indicators</small>
-      </article>
-      <article class="vx-summary-item">
-        <span>FILES</span><strong>\${selectedFiles}</strong><small>inspected in this run</small>
+      <article class="vx-summary-item ${highRisks ? 'vx-summary-item--danger' : 'vx-summary-item--confirmed'}">
+        <span>HIGH-RISK</span><strong>${highRisks}</strong><small>deterministic security indicators</small>
       </article>
       <article class="vx-summary-item">
-        <span>EVIDENCE</span><strong>\${evidencePct}</strong><small>evidence quality / 100</small>
+        <span>FILES</span><strong>${selectedFiles}</strong><small>inspected in this run</small>
+      </article>
+      <article class="vx-summary-item">
+        <span>EVIDENCE</span><strong>${evidencePct}</strong><small>evidence quality / 100</small>
       </article>
     </section>
 
@@ -221,13 +221,13 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
       <article class="vx-card vx-decision-card">
         <div class="vx-card-head">
           <div><span class="vx-eyebrow">FINAL ADJUDICATION</span><h3>Why Verify reached this result</h3></div>
-          <span class="vx-decision-verdict">\${escapeHtml(verdictLabel(x.verdict))}</span>
+          <span class="vx-decision-verdict">${escapeHtml(verdictLabel(x.verdict))}</span>
         </div>
-        <ul class="vx-reasons">\${list(x.verdictReasons, 'No additional verdict reasons were produced.')}</ul>
+        <ul class="vx-reasons">${list(x.verdictReasons, 'No additional verdict reasons were produced.')}</ul>
         <div class="vx-adjudication-steps">
-          <div><i>01</i><span>Repository revision locked</span><strong>\${escapeHtml((x.analyzedCommitSha || '').slice(0, 12) || 'UNKNOWN')}</strong></div>
-          <div><i>02</i><span>Evidence collected and validated</span><strong>\${x.coverage.recursiveTree ? 'COMPLETE TREE' : 'PARTIAL TREE'}</strong></div>
-          <div><i>03</i><span>LLM recommendation constrained by deterministic gates</span><strong>\${x.method === 'static-analysis+agent-review' ? 'AGENT REVIEW' : 'DETERMINISTIC'}</strong></div>
+          <div><i>01</i><span>Repository revision locked</span><strong>${escapeHtml((x.analyzedCommitSha || '').slice(0, 12) || 'UNKNOWN')}</strong></div>
+          <div><i>02</i><span>Evidence collected and validated</span><strong>${x.coverage.recursiveTree ? 'COMPLETE TREE' : 'PARTIAL TREE'}</strong></div>
+          <div><i>03</i><span>LLM recommendation constrained by deterministic gates</span><strong>${x.method === 'static-analysis+agent-review' ? 'AGENT REVIEW' : 'DETERMINISTIC'}</strong></div>
         </div>
       </article>
 
@@ -236,12 +236,12 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           <div><span class="vx-eyebrow">RUN CONTEXT</span><h3>Observable facts</h3></div>
         </div>
         <div class="vx-facts">
-          <span><b>Tree files</b><strong>\${treeFiles || 'Unknown'}</strong></span>
-          <span><b>Targeted files</b><strong>\${targetedFiles}</strong></span>
-          <span><b>Last push</b><strong>\${escapeHtml(x.meta.pushedAt || 'Unknown')}</strong></span>
-          <span><b>Recent commits</b><strong>\${x.recentCommitCount ?? 'Unknown'}</strong></span>
-          <span><b>License</b><strong>\${escapeHtml(x.meta.license || 'Unknown')}</strong></span>
-          <span><b>Inspected chars</b><strong>\${inspectedChars.toLocaleString()}</strong></span>
+          <span><b>Tree files</b><strong>${treeFiles || 'Unknown'}</strong></span>
+          <span><b>Targeted files</b><strong>${targetedFiles}</strong></span>
+          <span><b>Last push</b><strong>${escapeHtml(x.meta.pushedAt || 'Unknown')}</strong></span>
+          <span><b>Recent commits</b><strong>${x.recentCommitCount ?? 'Unknown'}</strong></span>
+          <span><b>License</b><strong>${escapeHtml(x.meta.license || 'Unknown')}</strong></span>
+          <span><b>Inspected chars</b><strong>${inspectedChars.toLocaleString()}</strong></span>
         </div>
       </aside>
     </section>
@@ -253,33 +253,33 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           <h3>Claim → file → evidence</h3>
           <p>The evidence ledger is the primary verification surface. Every confirmed or contradicted claim must survive repository quote validation.</p>
         </div>
-        <strong class="vx-count vx-count--large">\${claims.length}</strong>
+        <strong class="vx-count vx-count--large">${claims.length}</strong>
       </div>
-      <div class="vx-ledger vx-ledger--primary">\${ledger}</div>
+      <div class="vx-ledger vx-ledger--primary">${ledger}</div>
     </section>
 
-    \${aiPanel}
+    ${aiPanel}
 
     <section class="vx-grid vx-grid--findings" aria-label="Security and implementation findings">
       <article class="vx-card vx-card--security">
         <div class="vx-card-head">
           <div><span class="vx-eyebrow">SECURITY SURFACE</span><h3>Risk indicators</h3></div>
-          <strong class="vx-count vx-count--\${highRisks ? 'risk' : 'good'}">\${x.risks.length}</strong>
+          <strong class="vx-count vx-count--${highRisks ? 'risk' : 'good'}">${x.risks.length}</strong>
         </div>
         <div class="vx-risk-summary">
-          <span><b>\${highRisks}</b> HIGH</span>
-          <span><b>\${moderateRisks}</b> MODERATE</span>
-          <span><b>\${x.risks.length - highRisks - moderateRisks}</b> LOW</span>
+          <span><b>${highRisks}</b> HIGH</span>
+          <span><b>${moderateRisks}</b> MODERATE</span>
+          <span><b>${x.risks.length - highRisks - moderateRisks}</b> LOW</span>
         </div>
-        <ul class="vx-findings">\${risks || '<li class="vx-empty vx-empty--good">No security-relevant static risk indicators matched the current rules.</li>'}</ul>
+        <ul class="vx-findings">${risks || '<li class="vx-empty vx-empty--good">No security-relevant static risk indicators matched the current rules.</li>'}</ul>
       </article>
 
       <article class="vx-card">
         <div class="vx-card-head">
           <div><span class="vx-eyebrow">IMPLEMENTATION SIGNALS</span><h3>Models & tools</h3></div>
-          <strong class="vx-count">\${x.detections.length}</strong>
+          <strong class="vx-count">${x.detections.length}</strong>
         </div>
-        <ul class="vx-findings">\${detections || '<li class="vx-empty">No model/tool implementation signals were confirmed in the inspected files.</li>'}</ul>
+        <ul class="vx-findings">${detections || '<li class="vx-empty">No model/tool implementation signals were confirmed in the inspected files.</li>'}</ul>
       </article>
     </section>
 
@@ -287,42 +287,42 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
       <article class="vx-card">
         <div class="vx-card-head"><div><span class="vx-eyebrow">REPOSITORY HEALTH</span><h3>Supporting metrics</h3></div></div>
         <div class="vx-metrics vx-metrics--embedded">
-          \${metric('HEALTH', x.scores.health, x.scores.health >= 70 ? 'good' : 'neutral')}
-          \${metric('FRESHNESS', x.scores.freshness)}
-          \${metric('DOCUMENTATION', x.scores.documentation, x.scores.documentation >= 70 ? 'good' : 'neutral')}
-          \${metric('ACTIVITY', x.scores.activity, x.scores.activity >= 60 ? 'good' : 'neutral')}
-          \${metric('RISK', x.scores.risk, x.scores.risk === 0 ? 'good' : 'risk')}
+          ${metric('HEALTH', x.scores.health, x.scores.health >= 70 ? 'good' : 'neutral')}
+          ${metric('FRESHNESS', x.scores.freshness)}
+          ${metric('DOCUMENTATION', x.scores.documentation, x.scores.documentation >= 70 ? 'good' : 'neutral')}
+          ${metric('ACTIVITY', x.scores.activity, x.scores.activity >= 60 ? 'good' : 'neutral')}
+          ${metric('RISK', x.scores.risk, x.scores.risk === 0 ? 'good' : 'risk')}
         </div>
       </article>
       <article class="vx-card">
         <div class="vx-card-head"><div><span class="vx-eyebrow">PROJECT PROFILE</span><h3>Repository context</h3></div></div>
         <div class="vx-facts">
-          <span><b>Stars</b><strong>\${x.meta.stars}</strong></span>
-          <span><b>Forks</b><strong>\${x.meta.forks}</strong></span>
-          <span><b>Open issues</b><strong>\${x.meta.openIssues}</strong></span>
-          <span><b>Contributors</b><strong>\${x.contributors ?? 'Unknown'}</strong></span>
-          <span><b>Release</b><strong>\${escapeHtml(x.latestRelease || 'Unknown')}</strong></span>
-          <span><b>Languages</b><strong>\${langs}</strong></span>
+          <span><b>Stars</b><strong>${x.meta.stars}</strong></span>
+          <span><b>Forks</b><strong>${x.meta.forks}</strong></span>
+          <span><b>Open issues</b><strong>${x.meta.openIssues}</strong></span>
+          <span><b>Contributors</b><strong>${x.contributors ?? 'Unknown'}</strong></span>
+          <span><b>Release</b><strong>${escapeHtml(x.latestRelease || 'Unknown')}</strong></span>
+          <span><b>Languages</b><strong>${langs}</strong></span>
         </div>
       </article>
     </section>
 
     <details class="vx-drawer">
-      <summary><span>INSPECTED FILES</span><b>\${x.structure.length}</b><i>OPEN</i></summary>
-      <div class="vx-file-grid">\${x.structure.map((p) => \`<code>\${escapeHtml(p)}</code>\`).join('') || '<span class="vx-empty">No file paths were returned.</span>'}</div>
+      <summary><span>INSPECTED FILES</span><b>${x.structure.length}</b><i>OPEN</i></summary>
+      <div class="vx-file-grid">${x.structure.map((p) => \`<code>${escapeHtml(p)}</code>\`).join('') || '<span class="vx-empty">No file paths were returned.</span>'}</div>
     </details>
 
     <details class="vx-drawer">
       <summary><span>README / PROJECT CONTEXT</span><b>UNTRUSTED TEXT</b><i>OPEN</i></summary>
-      <div class="vx-readme"><p>\${escapeHtml(x.readmeExcerpt || 'Unknown')}</p><span>Languages: \${langs}</span></div>
+      <div class="vx-readme"><p>${escapeHtml(x.readmeExcerpt || 'Unknown')}</p><span>Languages: ${langs}</span></div>
     </details>
 
     <footer class="vx-actions">
       <button class="save" type="button" data-save>Save analysis</button>
-      <a href="\${escapeHtml(x.meta.htmlUrl)}" target="_blank" rel="noopener noreferrer" data-github>Open GitHub ↗</a>
-      <a href="\${compare}">Compare</a>
-      <a href="\${liveProfile}">Agent page</a>
-      <a href="/verify/?url=\${encodeURIComponent(x.meta.htmlUrl)}">Run fresh analysis</a>
+      <a href="${escapeHtml(x.meta.htmlUrl)}" target="_blank" rel="noopener noreferrer" data-github>Open GitHub ↗</a>
+      <a href="${compare}">Compare</a>
+      <a href="${liveProfile}">Agent page</a>
+      <a href="/verify/?url=${encodeURIComponent(x.meta.htmlUrl)}">Run fresh analysis</a>
     </footer>
   </section>\`;
 }
