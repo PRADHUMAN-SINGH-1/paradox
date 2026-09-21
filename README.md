@@ -340,7 +340,9 @@ Evidence quality considers factors such as:
 - Targeted investigation depth
 - Contradictions
 
-The evidence contribution is intentionally bounded. A model cannot simply return a high score and override deterministic risk or freshness gates.
+When the LLM evidence investigator is unavailable, the PARADOX Score uses the deterministic repository baseline. When a validated agent review is available, the score blends **70% deterministic repository quality + 30% validated evidence quality**. Evidence quality includes evidence-backed claim coverage, confirmed/contradicted/unconfirmed status, model confidence, repository coverage and targeted investigation depth.
+
+The evidence component is applied only after file/quote validation. A model cannot simply return a high score and override deterministic risk, freshness or incomplete-tree gates. Cache versioning is bumped whenever the scoring contract changes so an older browser result is not reused.
 
 **The score is not a security score and should not be interpreted as a guarantee of software safety.**
 
