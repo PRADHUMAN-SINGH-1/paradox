@@ -143,7 +143,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
         </div>
         <footer class="vx-card-foot">
           <span>Provider: ${escapeHtml(aiProvider)} · ${escapeHtml(aiModel)}</span>
-          <span>No repository execution</span>
+          <span>Adversarial evidence pass · no repository execution</span>
         </footer>
       </section>`
     : `
@@ -175,7 +175,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           <span class="vx-verdict vx-verdict--${verdictTone(x.verdict)}">${escapeHtml(verdictLabel(x.verdict))}</span>
         </div>
         <p class="vx-description">${escapeHtml(x.meta.description || 'No repository description provided.')}</p>
-        <div class="vx-inline-meta"><span>${escapeHtml(x.meta.language || 'Unknown')}</span><span>${x.meta.archived ? 'ARCHIVED' : 'ACTIVE'}</span><span>${scoreWord(x.scores.health)} health</span><span>${scoreWord(x.scores.documentation)} documentation</span><span>${x.method === 'static-analysis+agent-review' ? 'AGENT-REVIEWED' : 'DETERMINISTIC'}</span></div>
+        <div class="vx-inline-meta"><span>${escapeHtml(x.meta.language || 'Unknown')}</span><span>${x.meta.archived ? 'ARCHIVED' : 'ACTIVE'}</span><span>${scoreWord(x.scores.health)} health</span><span>${scoreWord(x.scores.documentation)} documentation</span><span>${x.method === 'static-analysis+agent-review' ? 'AGENT-REVIEWED' : 'DETERMINISTIC'}</span><span>${x.coverage.recursiveTree ? 'COMPLETE TREE' : 'PARTIAL TREE'}</span></div>
       </div>
       <aside class="vx-score-box">
         <span>PARADOX SCORE</span>
@@ -187,7 +187,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
     <section class="vx-engine-grid" aria-label="Analysis engines">
       <article class="vx-engine"><span>DETERMINISTIC CORE</span><strong>READY</strong><small>Metadata, structure, risk rules and gates</small></article>
       <article class="vx-engine"><span>LLM INVESTIGATOR</span><strong>${escapeHtml(aiStatus)}</strong><small>${escapeHtml(aiProvider)} · high-reasoning evidence pass</small></article>
-      <article class="vx-engine"><span>REPOSITORY COVERAGE</span><strong>${escapeHtml(String(treeFiles || selectedFiles))}</strong><small>${escapeHtml(coverageLabel)} files inspected in the active run</small></article>
+      <article class="vx-engine"><span>REPOSITORY COVERAGE</span><strong>${escapeHtml(String(treeFiles || selectedFiles))}</strong><small>${escapeHtml(coverageLabel)} files inspected · ${x.coverage.recursiveTree ? 'complete tree' : 'partial tree'}</small></article>
       <article class="vx-engine"><span>HIGH-RISK</span><strong>${highRisks}</strong><small>Deterministic security indicators</small></article>
     </section>
 
@@ -217,6 +217,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           <span><b>License</b><strong>${escapeHtml(x.meta.license || 'Unknown')}</strong></span>
           <span><b>Last push</b><strong>${escapeHtml(x.meta.pushedAt || 'Unknown')}</strong></span>
           <span><b>Release</b><strong>${escapeHtml(x.latestRelease || 'Unknown')}</strong></span>
+          <span><b>Analyzed commit</b><strong><code>${escapeHtml((x.analyzedCommitSha || '').slice(0, 12) || 'Unknown')}</code></strong></span>
           <span><b>Inspected chars</b><strong>${inspectedChars.toLocaleString()}</strong></span>
         </div>
       </article>
