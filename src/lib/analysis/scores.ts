@@ -105,6 +105,7 @@ export function decideVerdict(analysis: {
   readmeLength: number;
   detections: number;
   intelligence?: IntelligenceReview | null;
+  coverage?: { recursiveTree?: boolean };
 }): { verdict: Verdict; reasons: string[] } {
   const reasons: string[] = [];
   const high = analysis.risks.filter((r) => r.severity === 'HIGH');
@@ -120,6 +121,10 @@ export function decideVerdict(analysis: {
     reasons.push(`${high.length} high-severity security indicator(s) were observed in repository files.`);
     if (ai?.recommendedVerdict === 'HIGH-RISK') reasons.push('The evidence investigator independently reached the same risk category.');
     return { verdict: 'HIGH-RISK', reasons };
+  }
+  if (analysis.coverage?.recursiveTree === false) {
+    reasons.push('Repository tree inspection was incomplete; a current evidence verdict cannot be issued safely.');
+    return { verdict: 'QUESTIONABLE', reasons };
   }
   if (analysis.meta.archived || days > 365 || analysis.scores.freshness < 40) {
     reasons.push(analysis.meta.archived ? 'Repository is archived.' : 'Recent activity is too old for a current evidence status.');
