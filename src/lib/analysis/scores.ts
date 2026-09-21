@@ -71,9 +71,14 @@ export function scoreHealth(parts: { freshness: number; activity: number; docume
 }
 
 export function paradoxScore(s: Omit<Scores, 'paradox'>, evidence = 0): number {
-  const base = s.health * 0.35 + s.freshness * 0.2 + s.documentation * 0.15 + s.activity * 0.15 + (100 - s.risk) * 0.15;
-  const evidenceLift = evidence > 0 ? (evidence - 50) * 0.18 : 0;
-  return clamp(Math.round(base + evidenceLift));
+  const deterministic = s.health * 0.35 + s.freshness * 0.2 + s.documentation * 0.15 + s.activity * 0.15 + (100 - s.risk) * 0.15;
+  if (evidence <= 0) return clamp(Math.round(deterministic));
+
+  // Once the agent evidence pass is ready, the score becomes evidence-aware
+  // rather than receiving a tiny cosmetic lift. The deterministic baseline
+  // remains the majority signal so model output cannot dominate the result.
+  const blended = deterministic * 0.70 + evidence * 0.30;
+  return clamp(Math.round(blended));
 }
 
 export function computeScores(input: {
@@ -174,5 +179,5 @@ function clamp(n: number): number {
 }
 
 export function explainParadoxScore(): string {
-  return 'PARADOX SCORE combines repository health signals with a bounded evidence-quality lift when the evidence investigator produces validated, file-backed claims. It is a summary metric, not a security certification.';
+  return 'PARADOX SCORE uses the deterministic repository baseline by default. When the evidence investigator is ready, 70% remains deterministic repository quality and 30% comes from validated evidence quality, including confirmed, contradicted and unconfirmed claims. It is a summary metric, not a security certification.';
 }
