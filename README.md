@@ -772,6 +772,11 @@ The repository contains automated tests covering core analysis behavior, includi
 - Security-risk detection
 - Score calculations
 - Utility/guard behavior
+- Strict public-GitHub URL validation
+- Sensitive evidence redaction
+- Verify security-boundary regression cases
+
+CI also runs `npm audit --audit-level=high` before production build.
 
 Run all tests:
 
