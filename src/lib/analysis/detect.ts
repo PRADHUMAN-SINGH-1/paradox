@@ -1,4 +1,5 @@
 import type { Detection, FileHit } from './types.ts';
+import { redactSensitiveText } from './sanitize.ts';
 
 const RULES: Array<{ name: string; category: Detection['category']; test: RegExp }> = [
   { name: 'OpenAI', category: 'model', test: /openai|gpt-4|gpt-3\.5|text-embedding-3/i },
