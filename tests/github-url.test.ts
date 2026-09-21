@@ -14,6 +14,8 @@ test('rejects non-GitHub and unsafe references', () => {
     'https://github.com.evil.tld/x/y',
     'https://user:pass@github.com/x/y',
     'https://github.com/x',
+    'https://github.com/x/y/issues/1',
+    'https://github.com/x/y/pulls/1',
     'file:///etc/passwd',
   ]) assert.throws(() => parseGitHubRepo(value));
 });
