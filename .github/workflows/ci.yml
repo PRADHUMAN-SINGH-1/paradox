@@ -34,6 +34,9 @@ jobs:
       - name: Validate project
         run: npm run validate
 
+      - name: Audit production dependencies
+        run: npm audit --audit-level=high
+
       - name: Build production site
         env:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
