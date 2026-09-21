@@ -264,6 +264,21 @@ Evidence quotes are redacted before they are returned to the browser, and the an
 
 A model statement without repository evidence is not treated as confirmed evidence.
 
+### Verify result interface
+
+The Verify result page uses an evidence-first investigation hierarchy:
+
+1. **Verdict header** — repository identity, evidence-supported verdict, PARADOX Score, analyzed commit, agent-review state and repository-tree completeness.
+2. **Evidence summary** — confirmed, contradicted, unconfirmed, high-risk, inspected-file count and evidence-quality metrics.
+3. **Final adjudication** — concise explanation of why the result was reached, including revision locking, evidence validation and deterministic constraints.
+4. **Primary evidence ledger** — the main result surface for claim → file → evidence.
+5. **Agent adjudication** — model, confidence, targeted investigation and adversarial evidence pass.
+6. **Security surface and implementation signals** — security indicators and observable model/tool implementation evidence.
+7. **Repository health and profile** — freshness, activity, documentation and repository metadata as supporting context.
+8. **Deep context** — inspected files and README/project context remain available as expandable sections.
+
+This ordering deliberately puts evidence and adjudication ahead of secondary repository statistics so the result reads like an investigation report rather than a general-purpose dashboard.
+
 ## Verdicts
 
 The current adjudication vocabulary is:
