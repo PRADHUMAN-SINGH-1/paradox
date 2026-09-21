@@ -250,6 +250,24 @@ function deterministicFindings(files: Array<{ path: string; content: string }>) 
     reason: string;
   }> = [
     {
+      category: "GitHub Actions injection surface",
+      severity: "MODERATE",
+      test: /(?:^|\n)\s*run:\s*[^\n]*\$\{\{\s*github\.event\.(?:issue|pull_request|comment|discussion|review|review_comment)/im,
+      reason: "A GitHub Actions workflow interpolates attacker-influenced event data directly into a shell command.",
+    },
+    {
+      category: "Docker socket exposure",
+      severity: "HIGH",
+      test: /(?:docker\.sock|\/var\/run\/docker\.sock)/i,
+      reason: "A container can access the host Docker daemon socket.",
+    },
+    {
+      category: "Host network mode",
+      severity: "MODERATE",
+      test: /network_mode:\s*host|--network(?:=|\s+)host\b/i,
+      reason: "Container configuration shares the host network namespace.",
+    },
+    {
       category: "Remote script execution",
       severity: "HIGH",
       test: /(?:curl|wget)[^\n]{0,160}\|\s*(?:ba)?sh\b/i,
