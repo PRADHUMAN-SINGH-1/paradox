@@ -25,7 +25,7 @@ function snippet(text: string, re: RegExp): string {
   const m = text.match(re);
   if (!m || m.index == null) return '';
   const start = Math.max(0, m.index - 40);
-  return text.slice(start, start + 120).replace(/\s+/g, ' ').trim();
+  return redactSensitiveText(text.slice(start, start + 120).replace(/\s+/g, ' ').trim());
 }
 
 export function detectSignals(files: FileHit[]): Detection[] {
