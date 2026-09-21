@@ -610,7 +610,7 @@ The sitemap is generated during the build process.
 
 Production frontend deployment is handled by GitHub Actions and GitHub Pages.
 
-Pull requests are also validated before merge through dedicated CI and dependency-review workflows. CodeQL analyzes the protected main branch on every push and on a weekly schedule, while Dependabot tracks npm and GitHub Actions updates.
+Pull requests are validated by the dedicated CI workflow, including the full validation/build path and an npm vulnerability audit. CodeQL analyzes the protected main branch on every push and on a weekly schedule, while Dependabot tracks npm and GitHub Actions updates.
 
 Workflow:
 
