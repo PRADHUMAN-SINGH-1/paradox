@@ -68,40 +68,31 @@ async function compatible(
 
   const modelId = model(p);
   const instruction = structured
-    ? system + "\nReturn ONLY one valid JSON object. Do not use markdown fences or commentary."
+    ? system + "\\nReturn ONLY one valid JSON object. Do not use markdown fences or commentary."
     : system;
 
   const body:any = {
     model:modelId,
     temperature:p === "nvidia" ? 0.2 : 0.1,
+    stream:false,
     messages:[
       {role:"system",content:instruction},
-      {role:"user",content:prompt}
+      {role:"user",content:prompt},
     ],
   };
 
   if(p === "groq"){
     body.max_completion_tokens = 2400;
-    body.stream = false;
     if(structured){
       body.response_format = {type:"json_object"};
       body.reasoning_effort = "medium";
       body.reasoning_format = "hidden";
     }
-  } else if(p === "nvidia"){
-    body.max_tokens = 2400;
-    body.stream = false;
-  } else if(p === "openrouter"){
-    body.max_tokens = 2400;
-    body.stream = false;
-    if(structured) body.response_format = {type:"json_object"};
-  } else if(p === "mistral"){
-    body.max_tokens = 2400;
-    body.stream = false;
-    if(structured) body.response_format = {type:"json_object"};
   } else {
     body.max_tokens = 2400;
-    body.stream = false;
+    if(structured && (p === "openrouter" || p === "mistral")){
+      body.response_format = {type:"json_object"};
+    }
   }
 
   const headers:Record<string,string> = {
@@ -114,7 +105,7 @@ async function compatible(
   }
 
   const r=await fetch(
-    base.replace(/\/$/,"")+"/chat/completions",
+    base.replace(/\\/$/,"")+"/chat/completions",
     {
       method:"POST",
       headers,
@@ -134,13 +125,12 @@ async function compatible(
     typeof message?.content === "string"
       ? message.content
       : Array.isArray(message?.content)
-        ? message.content.map((x:any)=>typeof x?.text === "string" ? x.text : "").join("\n")
+        ? message.content.map((x:any)=>typeof x?.text === "string" ? x.text : "").join("\\n")
         : String(message?.text || d?.output_text || "");
 
   if(!content.trim()) throw new Error("Provider returned no text");
   return structured ? parseJson(content) : content;
 }
-
 async function run(p:Provider,system:string,prompt:string,structured:boolean,timeout:number){if(p==="gemini"){const k=env("GEMINI_API_KEY");if(!k)throw new Error("credential");const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model(p))+":generateContent?key="+encodeURIComponent(k),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4200,...(structured?{responseMimeType:"application/json"}:{})}}),signal:AbortSignal.timeout(timeout)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(String(d?.error?.message||"Gemini returned "+r.status));const c=d?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text&&!x.thought?x.text:"").filter(Boolean).join("\n")||"";if(!c)throw new Error("Gemini returned no text");return structured?parseJson(c):c;}if(p==="cohere"){
     const key=env("COHERE_API_KEY");
     if(!key) throw new Error("credential");
@@ -157,7 +147,7 @@ async function run(p:Provider,system:string,prompt:string,structured:boolean,tim
         temperature:0.1,
         max_tokens:2400,
         messages:[
-          {role:"system",content:structured ? system+"\nGenerate a JSON object only." : system},
+          {role:"system",content:structured ? system+"\\nGenerate a JSON object only." : system},
           {role:"user",content:prompt},
         ],
         ...(structured ? {response_format:{type:"json_object"}} : {}),
@@ -170,7 +160,7 @@ async function run(p:Provider,system:string,prompt:string,structured:boolean,tim
       throw new Error("Cohere returned "+r.status+(detail?": "+String(detail).slice(0,220):""));
     }
     const content=Array.isArray(d?.message?.content)
-      ? d.message.content.filter((x:any)=>x?.type==="text").map((x:any)=>x.text||"").join("\n")
+      ? d.message.content.filter((x:any)=>x?.type==="text").map((x:any)=>x.text||"").join("\\n")
       : "";
     if(!content.trim()) throw new Error("Cohere returned no text");
     return structured ? parseJson(content) : content;
