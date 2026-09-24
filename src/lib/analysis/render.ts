@@ -71,8 +71,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const compare = opts.compareHref || '/compare/?left=' + encodeURIComponent(x.meta.fullName);
   const liveProfile = '/agents/view/?repo=' + encodeURIComponent(x.meta.fullName);
   const selectedFiles = Math.min(x.coverage.selectedFiles, x.coverage.maxFiles || 64);
-  const maxFiles = x.coverage.maxFiles || 64;
-  const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
+   const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
   const moderateRisks = x.risks.filter((r) => r.severity === 'MODERATE').length;
   const ai = x.intelligence;
   const aiReady = Boolean(ai && ai.status === 'READY');
