@@ -151,6 +151,23 @@ The model can be overridden through the `GEMINI_MODEL` Edge Function environment
 
 The investigator receives repository metadata, the repository tree, initial file evidence, and deterministic findings. It can request targeted repository files for deeper investigation within bounded limits.
 
+When Gemini is exhausted, rate-limited, unavailable, times out, or returns invalid structured output, Verify can fail over through a server-side provider cascade. The default order for repository/security work is:
+
+```text
+Gemini
+  -> Cerebras
+  -> Groq
+  -> Mistral
+  -> NVIDIA NIM
+  -> Cloudflare Workers AI
+  -> OpenRouter free
+  -> Cohere
+  -> Hugging Face
+  -> Ollama (optional self-hosted)
+```
+
+Only providers with configured server-side credentials are attempted. Failed providers enter a short cooldown so an exhausted endpoint is not repeatedly hit. The successful provider, model, and attempted provider path are returned as analysis metadata. Verify uses sequential failover rather than sending the same request to every provider.
+
 Current Verify investigation limits include:
 
 - Maximum individual file size: **100,000 bytes**
@@ -448,21 +465,26 @@ The repository contains Edge Functions for:
 - `ai-radar` — AI radar data workflow
 - `ai-router` — normalized server-side AI provider routing for AI Studio
 
-The `ai-router` keeps model-provider credentials server-side and supports provider routing/fallback configuration for AI Studio.
+The `ai-router` keeps model-provider credentials server-side and supports provider routing/fallback configuration for AI Studio and Verify.
 
-Supported AI-router configuration includes providers/models for:
+Supported Verify fallback targets are:
 
 - Gemini
-- Groq
 - Cerebras
-- Hugging Face
-- Ollama
+- Groq
+- Mistral
+- NVIDIA NIM
+- Cloudflare Workers AI
+- OpenRouter
+- Cohere
+- Hugging Face Inference Providers
+- Ollama for optional self-hosted development
 
-The Verify analyzer uses its own repository-investigation path and defaults to Gemini through `GEMINI_MODEL`, but it now supports bounded provider failover through the AI Router. Supported provider targets are Gemini, Groq, Cerebras, Mistral, Cloudflare Workers AI, OpenRouter, Hugging Face Inference Providers, and optional Ollama for self-hosted development.
+The Verify analyzer uses its own repository-investigation path and defaults to Gemini through `GEMINI_MODEL`, but it now supports bounded provider failover through the AI Router. Provider failover is sequential rather than multi-model voting: Verify keeps its deterministic evidence rules authoritative, and falls through to the next configured provider when a provider is unavailable, rate-limited, times out, or returns invalid structured output. The successful provider, model and attempted provider path are returned in the analysis metadata. Providers that fail are placed on a short server-side cooldown.
 
-Provider failover is sequential rather than multi-model voting: Verify keeps its deterministic evidence rules authoritative, and falls through to the next configured provider when a provider is unavailable, rate-limited, times out, or returns invalid structured output. The successful provider, model and attempted provider path are returned in the analysis metadata. Providers that fail are placed on a short server-side cooldown to avoid repeatedly spending latency on an exhausted endpoint.
+The current provider ecosystem has several free or free-access options, but their quotas are provider- and account-specific and can change. Examples include Groq free limits for supported models, Cerebras free-tier access, Mistral Studio free mode without a credit card, NVIDIA hosted NIM/free endpoints for eligible developer access, Cloudflare Workers AI's daily free allocation, OpenRouter's free plan with 50 requests/day and 25+ free models, Cohere trial/evaluation limits, and Hugging Face's monthly free Inference Provider credits. Ollama is the local/self-hosted escape hatch rather than a hosted free quota.
 
-Current free/freemium availability varies by account and provider. Groq, Cerebras and Mistral expose free modes/tiers with provider-specific limits; Cloudflare Workers AI currently includes a 10,000-Neuron-per-day free allocation; OpenRouter documents 25+ free models and a 50-requests/day free-plan limit; Hugging Face currently gives free users $0.10/month of Inference Provider credits. These quotas can change independently of PARADOX.
+Compare inherits the same cascade because both repositories are analyzed through the same Verify `fetchAnalysis` and `analyze-repo` backend path.
 
 ---
 
@@ -660,8 +682,19 @@ GitHub Actions requires the public Supabase build-time secrets:
 The Supabase Edge Function requires server-side secrets such as:
 
 - `GITHUB_TOKEN`
-- `GEMINI_API_KEY`
-- `GEMINI_MODEL` (optional override)
+- `GEMINI_API_KEY` / `GEMINI_MODEL`
+- `CEREBRAS_API_KEY` / `CEREBRAS_MODEL`
+- `GROQ_API_KEY` / `GROQ_MODEL`
+- `MISTRAL_API_KEY` / `MISTRAL_MODEL`
+- `NVIDIA_API_KEY` / `NVIDIA_MODEL`
+- `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_MODEL`
+- `OPENROUTER_API_KEY` / `OPENROUTER_MODEL`
+- `COHERE_API_KEY` / `COHERE_MODEL`
+- `HF_API_KEY` / `HF_MODEL`
+- `OLLAMA_BASE_URL` / `OLLAMA_MODEL`
+- `AI_PROVIDER_ORDER`
+
+Only configure providers that are actually required by the deployment. Never expose these secrets through Astro public variables.
 
 The Verify rate-limit migration is:
 
@@ -891,7 +924,8 @@ PARADOX is intentionally bounded.
 - Dynamic verification results are not the same thing as prebuilt catalog pages.
 - GitHub API availability/rate limits can affect degraded fallback behavior.
 - AI provider availability can affect whether an LLM investigation is available for a specific run; configured failover reduces single-provider dependency but does not guarantee that another provider has capacity.
-- Free-provider quotas are external service limits and can change independently of PARADOX.
+- Free/freemium provider quotas are external service limits and can change independently of PARADOX.
+- Provider failover is not the same as multi-model consensus; PARADOX does not claim that a result was independently confirmed by every configured model.
 - Full static coverage is bounded to scannable-file safety ceilings; very large repositories can therefore receive a partial static scan.
 - The shared Verify rate limiter falls back to the bounded in-memory limiter when the database path is temporarily unavailable.
 - Cached results can be older than the repository's current state until a fresh analysis is requested.
@@ -944,7 +978,8 @@ This distinction is important: **PARADOX reports what the available repository e
 
 - Gemini for Verify investigation
 - AI Router for AI Studio provider routing
-- Optional provider integrations for Gemini, Groq, Cerebras, Hugging Face, and Ollama
+- AI Router for server-side provider routing and failover
+- Optional provider integrations for Gemini, Cerebras, Groq, Mistral, NVIDIA NIM, Cloudflare Workers AI, OpenRouter, Cohere, Hugging Face, and Ollama
 
 ### Deployment
 
