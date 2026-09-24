@@ -718,7 +718,7 @@ async function requestGemini(provider: Provider, system: string, prompt: string,
           Authorization: "Bearer " + serviceKey,
           "x-paradox-internal-key": serviceKey,
         },
-        body: JSON.stringify({ prompt, system: contract, task: "repository security verification", provider: "auto" }),
+        body: JSON.stringify({ prompt, system: contract, task: "repository security verification", provider: "auto", json: true }),
         signal: AbortSignal.timeout(45_000),
       });
       const payload = await routed.json().catch(() => null);
