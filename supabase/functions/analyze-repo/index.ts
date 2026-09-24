@@ -364,7 +364,7 @@ async function runFullStaticScan(owner: string, repo: string, commitSha: string,
   const files = await mapStatic(selected, STATIC_CONCURRENCY, async (file) => {
     try {
       const raw = await fetchRawStatic(owner, repo, commitSha, file.path);
-      return { ...file, content: raw.slice(0, STATIC_FILE_BYTES), truncated: raw.length > STATIC_FILE_BYTES };
+      return { ...file, content: raw.slice(0, STATIC_FILE_BYTES), truncated: raw.length > STATIC_FILE_BYTES, fetchError: "" };
     } catch (error) {
       return { ...file, content: "", truncated: false, fetchError: error instanceof Error ? error.message : "fetch failed" };
     }
