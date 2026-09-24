@@ -155,7 +155,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           '<div class="vx-status vx-status--idle"><i></i>UNAVAILABLE</div>' +
         '</div>' +
         '<div class="vx-ai-empty"><strong>Deterministic verification only.</strong>' +
-          '<p>' + escapeHtml(ai?.summary || 'The AI investigator was unavailable for this run, so no model-derived conclusion was used.') + '</p>' +
+          '<p>The AI investigator was unavailable for this run, so no model-derived conclusion was used.</p>' +
           (attemptedProviders !== aiProvider ? '<p>Provider attempts: ' + escapeHtml(attemptedProviders) + '</p>' : '') +
           (failureCodes ? '<p>Failure diagnostics: ' + escapeHtml(failureCodes) + '</p>' : '') +
           '</div>' +
