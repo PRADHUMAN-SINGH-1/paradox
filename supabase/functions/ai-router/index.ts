@@ -109,11 +109,11 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
       const fallback = providers.filter((provider) => !preferredSet.has(provider));
       order = (
         /repository security verification|planner|routing|critic/i.test(task)
-          ? [...new Set(['gemini', 'openrouter', ...configuredOrder, ...fallback])]
+          ? [...new Set(['gemini', 'huggingface', 'openrouter', ...configuredOrder, ...fallback])]
           : [...configuredOrder, ...fallback]
       ) as Provider[];
     } else if (/planner|routing|critic/i.test(task)) {
-      order = ['groq','cerebras','gemini','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
+      order = ['gemini','huggingface','openrouter','groq','cerebras','mistral','nvidia','cohere','cloudflare','ollama'];
     } else if (/code|debug|program|technical|repo|security/i.test(task)) {
       order = ['gemini','cerebras','groq','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/resume|interview|study|research|content/i.test(task)) {

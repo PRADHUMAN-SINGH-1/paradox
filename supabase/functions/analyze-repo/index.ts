@@ -743,15 +743,37 @@ async function requestGemini(
     schema === criticSchema ? "repository adversarial evidence critic" :
     "repository security verification";
 
-  const normalizeProvider = (value: string) => {
-    const allowed = ["gemini", "groq", "cerebras", "mistral", "nvidia", "cloudflare", "openrouter", "cohere", "huggingface", "ollama"];
-    return allowed.includes(value) ? value : "gemini";
-  };
-
-  const preferred = normalizeProvider(preferredProvider);
+  const allowed = new Set([
+    "gemini",
+    "groq",
+    "cerebras",
+    "mistral",
+    "nvidia",
+    "cloudflare",
+    "openrouter",
+    "cohere",
+    "huggingface",
+    "ollama",
+  ]);
+  const preferred = allowed.has(preferredProvider) ? preferredProvider : "gemini";
   const contract = system + "\nReturn ONLY valid JSON matching this schema:\n" + JSON.stringify(schema);
-  const geminiKey = Deno.env.get("GEMINI_API_KEY") || "";
 
+  function parseRouterPayload(payload: Record<string, unknown>, fallbackProvider: string, fallbackModel: string) {
+    if (typeof payload.text !== "string") throw new Error("AI router returned no text");
+    const raw = payload.text.trim();
+    const first = raw.indexOf("{");
+    const last = raw.lastIndexOf("}");
+    const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
+    const parsed = JSON.parse(jsonText);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
+    return Object.assign(parsed as Record<string, unknown>, {
+      __aiProvider: String(payload.provider || fallbackProvider),
+      __aiModel: String(payload.model || fallbackModel),
+      __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+    });
+  }
+
+  const geminiKey = Deno.env.get("GEMINI_API_KEY") || "";
   if (preferred === "gemini" && geminiKey) {
     try {
       const model = Deno.env.get("GEMINI_MODEL") || GEMINI_MODEL;
@@ -763,12 +785,18 @@ async function requestGemini(
         "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": geminiKey,
+          },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: system }] },
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig: {
-              maxOutputTokens: schema === investigationSchema ? 1800 : schema === criticSchema ? 2400 : 5200,
+              maxOutputTokens:
+                schema === investigationSchema ? 1800 :
+                schema === criticSchema ? 2400 :
+                5200,
               responseFormat: { text: { mimeType: "application/json", schema } },
               thinkingConfig: { thinkingLevel },
             },
@@ -776,31 +804,39 @@ async function requestGemini(
           signal: AbortSignal.timeout(12_000),
         },
       );
-      const d = await r.json().catch(() => null);
+      const data = await r.json().catch(() => null);
       if (r.ok) {
-        const text = d?.candidates?.[0]?.content?.parts
+        const text = data?.candidates?.[0]?.content?.parts
           ?.filter((p: { text?: string; thought?: boolean }) => p.text && !p.thought)
           .map((p: { text?: string }) => p.text || "")
           .join("") || "";
-        if (!text) throw new Error("Gemini returned no text");
-        const parsed = JSON.parse(text);
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Gemini returned invalid JSON");
-        return Object.assign(parsed as Record<string, unknown>, {
-          __aiProvider: "gemini",
-          __aiModel: model,
-          __aiAttempted: ["gemini"],
-        });
+        if (text) {
+          const parsed = JSON.parse(text);
+          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+            throw new Error("Gemini returned invalid JSON");
+          }
+          return Object.assign(parsed as Record<string, unknown>, {
+            __aiProvider: "gemini",
+            __aiModel: model,
+            __aiAttempted: ["gemini"],
+          });
+        }
       }
     } catch {
-      // Continue into routed fallback.
+      // Continue to the routed provider path.
     }
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  if (supabaseUrl && serviceKey) {
-    try {
-      const routed = await fetch(supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router", {
+  if (!supabaseUrl || !serviceKey) {
+    throw new Error("AI router is not configured");
+  }
+
+  async function callRouter(requested: string, excludeProviders: string[], timeoutMs: number) {
+    const routed = await fetch(
+      supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -812,83 +848,45 @@ async function requestGemini(
           prompt,
           system: contract,
           task,
-          provider: preferred === "gemini" ? "auto" : preferred,
-          excludeProviders: preferred === "gemini" ? ["gemini"] : [preferred],
+          provider: requested,
+          excludeProviders,
           json: true,
         }),
-        signal: AbortSignal.timeout(25_000),
-      });
-      const payload = await routed.json().catch(() => null);
-      if (routed.ok && typeof payload?.text === "string") {
-        const raw = payload.text.trim();
-        const first = raw.indexOf("{");
-        const last = raw.lastIndexOf("}");
-        const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
-        const parsed = JSON.parse(jsonText);
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
-        return Object.assign(parsed as Record<string, unknown>, {
-          __aiProvider: String(payload.provider || preferred),
-          __aiModel: String(payload.model || provider.model),
-          __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-        });
-      }
-      if (routed.status === 503) {
-        throw new AIUnavailableError(
-          String(payload?.error || "No configured AI provider is currently available."),
-          Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-          Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [],
-        );
-      }
-    } catch (error) {
-      if (error instanceof AIUnavailableError) {
-        throw error;
-      }
-      if (error instanceof Error && /No configured AI provider|currently unavailable/i.test(error.message)) {
-        // A selected fallback provider can fail independently; try the remaining configured providers once.
-        if (preferred !== "gemini" && supabaseUrl && serviceKey) {
-          try {
-            const retry = await fetch(supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                apikey: serviceKey,
-                Authorization: "Bearer " + serviceKey,
-                "x-paradox-internal-key": serviceKey,
-              },
-              body: JSON.stringify({
-                prompt,
-                system: contract,
-                task,
-                provider: "auto",
-                excludeProviders: [preferred],
-                json: true,
-              }),
-              signal: AbortSignal.timeout(15_000),
-            });
-            const retryPayload = await retry.json().catch(() => null);
-            if (retry.ok && typeof retryPayload?.text === "string") {
-              const raw = retryPayload.text.trim();
-              const first = raw.indexOf("{");
-              const last = raw.lastIndexOf("}");
-              const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
-              const parsed = JSON.parse(jsonText);
-              if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
-              return Object.assign(parsed as Record<string, unknown>, {
-                __aiProvider: String(retryPayload.provider || preferred),
-                __aiModel: String(retryPayload.model || provider.model),
-                __aiAttempted: Array.isArray(retryPayload.attempted) ? retryPayload.attempted.map(String).slice(0, 10) : [],
-              });
-            }
-          } catch {
-            // Continue to the final unavailable state.
-          }
-        }
-        throw error;
-      }
+        signal: AbortSignal.timeout(timeoutMs),
+      },
+    );
+    const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
+    if (routed.ok && payload) {
+      return parseRouterPayload(payload, requested === "auto" ? "auto" : requested, preferred);
     }
+    const attempted = Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [];
+    const failureCodes = Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [];
+    const message = String(payload?.error || "No configured AI provider is currently available.");
+    throw new AIUnavailableError(message, attempted, failureCodes);
   }
 
-  throw new Error("No configured AI provider is available");
+  try {
+    if (preferred === "gemini") {
+      return await callRouter("auto", ["gemini"], 22_000);
+    }
+
+    try {
+      // Continue using the successful fallback provider for later stages.
+      return await callRouter(preferred, [], 14_000);
+    } catch (error) {
+      if (!(error instanceof AIUnavailableError)) throw error;
+      // The preferred fallback itself failed. Try another configured provider,
+      // explicitly excluding the known-failed provider and Gemini.
+      return await callRouter("auto", [preferred, "gemini"], 22_000);
+    }
+  } catch (error) {
+    if (error instanceof AIUnavailableError) throw error;
+    throw new AIUnavailableError(
+      error instanceof Error ? error.message : "AI provider request failed.",
+      [],
+      [],
+    );
+  }
 }
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
