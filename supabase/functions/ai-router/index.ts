@@ -88,22 +88,29 @@ async function requestGemini(system: string, prompt: string) {
   if (!text) throw new Error('Gemini returned no text');
   return text;
 }
+async function providerModel(provider: Provider): string {
+  switch (provider) {
+    case 'gemini': return env('GEMINI_MODEL') || 'gemini-3.8-flash';
+    case 'groq': return env('GROQ_MODEL') || 'openai/gpt-oss-20b';
+    case 'cerebras': return env('CEREBRAS_MODEL') || 'gpt-oss-120b';
+    case 'mistral': return env('MISTRAL_MODEL') || 'mistral-small-latest';
+    case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+    case 'openrouter': return env('OPENROUTER_MODEL') || 'openrouter/free';
+    case 'huggingface': return env('HF_MODEL') || 'meta-llama/Llama-3.3-70B-Instruct';
+    case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
+  }
+}
+
 async function runProvider(provider: Provider, system: string, prompt: string) {
   switch (provider) {
     case 'gemini': return requestGemini(system, prompt);
-    case 'groq': return requestOpenAICompatible('https://api.groq.com/openai/v1', env('GROQ_API_KEY'), env('GROQ_MODEL') || 'openai/gpt-oss-20b', system, prompt);
-    case 'cerebras': return requestOpenAICompatible(env('CEREBRAS_BASE_URL') || 'https://api.cerebras.ai/v1', env('CEREBRAS_API_KEY'), env('CEREBRAS_MODEL') || 'gpt-oss-120b', system, prompt);
-    case 'mistral': return requestOpenAICompatible('https://api.mistral.ai/v1', env('MISTRAL_API_KEY'), env('MISTRAL_MODEL') || 'mistral-small-latest', system, prompt);
-    case 'cloudflare': return requestOpenAICompatible('https://api.cloudflare.com/client/v4/accounts/' + encodeURIComponent(env('CLOUDFLARE_ACCOUNT_ID')) + '/ai/v1', env('CLOUDFLARE_API_TOKEN'), env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast', system, prompt);
-    case 'openrouter': return requestOpenAICompatible(
-      'https://openrouter.ai/api/v1',
-      env('OPENROUTER_API_KEY'),
-      env('OPENROUTER_MODEL') || 'openrouter/free',
-      system,
-      prompt,
-    );
-    case 'huggingface': return requestOpenAICompatible('https://router.huggingface.co/v1', env('HF_API_KEY'), env('HF_MODEL') || 'meta-llama/Llama-3.3-70B-Instruct', system, prompt);
-    case 'ollama': return requestOpenAICompatible(env('OLLAMA_BASE_URL'), env('OLLAMA_API_KEY'), env('OLLAMA_MODEL') || 'llama3.2', system, prompt);
+    case 'groq': return requestOpenAICompatible('https://api.groq.com/openai/v1', env('GROQ_API_KEY'), providerModel(provider), system, prompt);
+    case 'cerebras': return requestOpenAICompatible(env('CEREBRAS_BASE_URL') || 'https://api.cerebras.ai/v1', env('CEREBRAS_API_KEY'), providerModel(provider), system, prompt);
+    case 'mistral': return requestOpenAICompatible('https://api.mistral.ai/v1', env('MISTRAL_API_KEY'), providerModel(provider), system, prompt);
+    case 'cloudflare': return requestOpenAICompatible('https://api.cloudflare.com/client/v4/accounts/' + encodeURIComponent(env('CLOUDFLARE_ACCOUNT_ID')) + '/ai/v1', env('CLOUDFLARE_API_TOKEN'), providerModel(provider), system, prompt);
+    case 'openrouter': return requestOpenAICompatible('https://openrouter.ai/api/v1', env('OPENROUTER_API_KEY'), providerModel(provider), system, prompt);
+    case 'huggingface': return requestOpenAICompatible('https://router.huggingface.co/v1', env('HF_API_KEY'), providerModel(provider), system, prompt);
+    case 'ollama': return requestOpenAICompatible(env('OLLAMA_BASE_URL'), env('OLLAMA_API_KEY'), providerModel(provider), system, prompt);
   }
 }
 Deno.serve(async (req) => {
@@ -126,7 +133,13 @@ Deno.serve(async (req) => {
       try {
         const started = Date.now();
         const text = await runProvider(provider, system, prompt);
-        return json({ text, provider, latencyMs: Date.now() - started, attempted: order.slice(0, order.indexOf(provider) + 1) }, 200, h);
+        return json({
+          text,
+          provider,
+          model: providerModel(provider),
+          latencyMs: Date.now() - started,
+          attempted: order.slice(0, order.indexOf(provider) + 1),
+        }, 200, h);
       } catch (e) {
         failures.push(`${provider}: ${e instanceof Error ? e.message : 'failed'}`);
       }
