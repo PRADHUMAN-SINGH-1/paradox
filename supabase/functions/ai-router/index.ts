@@ -3,6 +3,8 @@ const MAX_PROMPT = 400_000;
 const MINUTE = 60_000;
 const hits = new Map<string, { at: number; count: number }>();
 const PROVIDER_TIMEOUT_MS = 9_000;
+const PROVIDER_COOLDOWN_MS = 60_000;
+const providerCooldowns = new Map<string, number>();
 function cors(req: Request) {
   const origin = req.headers.get('origin') || '';
   return {
@@ -160,13 +162,14 @@ Deno.serve(async (req) => {
     const task = String(body.task || 'general').slice(0, 100);
     const requested = String(body.provider || 'auto') as Provider;
     const structured = body.json === true;
-    const order = candidates(providers.includes(requested) || requested === 'auto' ? requested : 'auto', task);
+    const order = candidates(providers.includes(requested) || requested === 'auto' ? requested : 'auto', task).filter((provider) => (providerCooldowns.get(provider) || 0) <= Date.now());
     if (!prompt.trim()) return json({ error: 'Prompt is required.' }, 400, h);
     const failures: string[] = [];
     for (const provider of order) {
       try {
         const started = Date.now();
         const text = await runProvider(provider, system, prompt, structured);
+        providerCooldowns.delete(provider);
         return json({
           text,
           provider,
@@ -175,6 +178,7 @@ Deno.serve(async (req) => {
           attempted: order.slice(0, order.indexOf(provider) + 1),
         }, 200, h);
       } catch (e) {
+        providerCooldowns.set(provider, Date.now() + PROVIDER_COOLDOWN_MS);
         failures.push(`${provider}: ${e instanceof Error ? e.message : 'failed'}`);
       }
     }
