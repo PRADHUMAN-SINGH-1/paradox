@@ -238,7 +238,7 @@ async function requestGemini(system: string, prompt: string, structured: boolean
           : {}),
       },
     }),
-    signal: AbortSignal.timeout(providerTimeoutMs('cohere')),
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
 
   const data = await res.json().catch(() => null);
@@ -276,7 +276,7 @@ async function requestCohere(system: string, prompt: string, structured: boolean
         { role: 'user', content: prompt },
       ],
     }),
-    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
+    signal: AbortSignal.timeout(providerTimeoutMs('cohere')),
   });
 
   const data = await res.json().catch(() => null);
