@@ -302,8 +302,18 @@ function providerModel(provider: Provider): string {
     case 'cerebras': return env('CEREBRAS_MODEL') || 'gpt-oss-120b';
     case 'mistral': return env('MISTRAL_MODEL') || 'mistral-small-latest';
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
-    case 'openrouter': return env('OPENROUTER_MODEL') || 'openai/gpt-oss-120b:free';
-    case 'huggingface': return env('HF_MODEL') || 'openai/gpt-oss-120b:fastest';
+    case 'openrouter': {
+      const configuredModel = env('OPENROUTER_MODEL');
+      return !configuredModel || configuredModel === 'openrouter/free'
+        ? 'openai/gpt-oss-120b:free'
+        : configuredModel;
+    }
+    case 'huggingface': {
+      const configuredModel = env('HF_MODEL');
+      return !configuredModel || configuredModel === 'meta-llama/Llama-3.3-70B-Instruct'
+        ? 'openai/gpt-oss-120b:fastest'
+        : configuredModel;
+    }
     case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
     case 'cohere': return env('COHERE_MODEL') || 'command-a-plus-05-2026';
     case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
@@ -339,7 +349,7 @@ async function runProvider(provider: Provider, system: string, prompt: string, s
         prompt,
         structured,
         { 'HTTP-Referer': 'https://paradox.engineer', 'X-Title': 'PARADOX' },
-        true,
+        false,
         providerTimeoutMs(provider),
       );
     case 'huggingface':
