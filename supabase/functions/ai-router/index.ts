@@ -133,6 +133,7 @@ function providerModel(provider: Provider): string {
     case 'openrouter': return env('OPENROUTER_MODEL') || 'openrouter/free';
     case 'huggingface': return env('HF_MODEL') || 'meta-llama/Llama-3.3-70B-Instruct';
     case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
+    default: return '';
   }
 }
 
