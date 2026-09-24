@@ -239,9 +239,8 @@ async function readFile(owner: string, repo: string, path: string, ref?: string)
 function staticScannable(path: string, size: number) {
   const binary = /\.(?:png|jpe?g|gif|webp|ico|bmp|tiff|woff2?|ttf|eot|zip|tar|gz|bz2|xz|7z|rar|mp3|mp4|mov|avi|mkv|pdf|exe|dll|so|dylib|class|jar|wasm|bin|db|sqlite)$/i;
   const skip = /(?:^|\/)(?:node_modules|\.git|dist|build|coverage|vendor|target|\.next|\.astro|out|bin|obj|third_party)(?:\/|$)/i;
-  const metadata = /^(?:README(?:\\..*)?|CHANGELOG(?:\\..*)?|LICENSE(?:\\..*)?)(?:\/|$)/i.test(path);
-  const analyzable = CODE_EXT.test(path) || CONFIG_EXT.test(path) || /(?:^|\\/)(?:Dockerfile|Makefile|Justfile|\.github\\/workflows\\/)/i.test(path);
-  return Boolean(path) && size >= 0 && size <= STATIC_FILE_BYTES && !binary.test(path) && !skip.test(path) && (analyzable || !metadata && /\\.(?:md|mdx)$/i.test(path));
+  const analyzable = CODE_EXT.test(path) || CONFIG_EXT.test(path) || /(?:^|\/)(?:Dockerfile|Makefile|Justfile|\.github\/workflows\/)/i.test(path);
+  return Boolean(path) && size >= 0 && size <= STATIC_FILE_BYTES && !binary.test(path) && !skip.test(path) && analyzable;
 }
 
 async function fetchRawStatic(owner: string, repo: string, commitSha: string, path: string) {
