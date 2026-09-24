@@ -764,58 +764,77 @@ async function requestGemini(
     throw new AIUnavailableError("AI router is not configured");
   }
 
-  const routed = await fetch(
-    supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: serviceKey,
-        Authorization: "Bearer " + serviceKey,
-        "x-paradox-internal-key": serviceKey,
+  async function callRouter(requested: "auto" | Provider, excludeProviders: string[]) {
+    const routed = await fetch(
+      supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: serviceKey,
+          Authorization: "Bearer " + serviceKey,
+          "x-paradox-internal-key": serviceKey,
+        },
+        body: JSON.stringify({
+          prompt,
+          system: contract,
+          task,
+          provider: requested,
+          excludeProviders,
+          json: true,
+        }),
+        signal: AbortSignal.timeout(22_000),
       },
-      body: JSON.stringify({
-        prompt,
-        system: contract,
-        task,
-        // Let the router own Gemini selection and provider health state.
-        // For a later stage, explicitly prefer the provider that already succeeded.
-        provider: preferred === "gemini" || !preferred ? "auto" : preferred,
-        excludeProviders: preferred === "gemini" ? [] : [preferred],
-        json: true,
-      }),
-      // The router has a bounded two-provider Verify budget. Keep enough time for
-      // one primary + one fallback attempt without stretching the entire analysis.
-      signal: AbortSignal.timeout(22_000),
-    },
-  );
+    );
 
-  const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
-  if (routed.ok && payload && typeof payload.text === "string") {
-    const raw = payload.text.trim();
-    const first = raw.indexOf("{");
-    const last = raw.lastIndexOf("}");
-    const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
-    const parsed = JSON.parse(jsonText);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new AIUnavailableError(
-        "AI provider returned invalid JSON",
-        Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-        ["OUTPUT"],
-      );
+    const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
+
+    if (routed.ok && payload && typeof payload.text === "string") {
+      const raw = payload.text.trim();
+      const first = raw.indexOf("{");
+      const last = raw.lastIndexOf("}");
+      const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
+      try {
+        const parsed = JSON.parse(jsonText);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+          throw new Error("invalid JSON object");
+        }
+        return Object.assign(parsed as Record<string, unknown>, {
+          __aiProvider: String(payload.provider || requested),
+          __aiModel: String(payload.model || requested),
+          __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+        });
+      } catch {
+        throw new AIUnavailableError(
+          "AI provider returned invalid JSON",
+          Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+          ["OUTPUT"],
+        );
+      }
     }
-    return Object.assign(parsed as Record<string, unknown>, {
-      __aiProvider: String(payload.provider || preferred),
-      __aiModel: String(payload.model || preferred),
-      __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-    });
+
+    throw new AIUnavailableError(
+      String(payload?.error || "No configured AI provider is currently available."),
+      Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+      Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [],
+    );
   }
 
-  throw new AIUnavailableError(
-    String(payload?.error || "No configured AI provider is currently available."),
-    Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-    Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [],
-  );
+  if (preferred === "gemini") {
+    return callRouter("auto", []);
+  }
+
+  try {
+    // The provider already succeeded on a previous stage; use it directly first.
+    // Do NOT exclude the selected provider from its own request.
+    return await callRouter(preferred as Provider, []);
+  } catch (error) {
+    if (!(error instanceof AIUnavailableError)) throw error;
+
+    // On failure, move to the remaining providers and suppress Gemini if it is
+    // still known to be exhausted for this investigation.
+    return callRouter("auto", [preferred, "gemini"]);
+  }
 }
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
