@@ -97,7 +97,12 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
       .filter((value) => providers.includes(value as Provider)) as Provider[];
 
     if (configuredOrder.length) {
-      order = configuredOrder;
+      // Treat AI_PROVIDER_ORDER as a preference, not an allowlist. Any configured
+      // provider omitted from the preference still remains eligible for fallback.
+      const preferred = configuredOrder;
+      const preferredSet = new Set(preferred);
+      const fallback = providers.filter((provider) => !preferredSet.has(provider));
+      order = [...preferred, ...fallback];
     } else if (/planner|routing|critic/i.test(task)) {
       order = ['groq','cerebras','gemini','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/code|debug|program|technical|repo|security/i.test(task)) {
