@@ -31,6 +31,14 @@ const providers: Provider[] = ['gemini', 'groq', 'cerebras', 'mistral', 'cloudfl
 function env(name: string) { return Deno.env.get(name) || ''; }
 function candidates(requested: Provider, task: string): Provider[] {
   if (requested !== 'auto') return [requested];
+
+  const configured = env('AI_PROVIDER_ORDER')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => providers.includes(value as Provider)) as Provider[];
+
+  if (configured.length) return configured;
+
   if (/code|debug|program|technical|repo|security/i.test(task)) {
     return ['groq', 'cerebras', 'mistral', 'cloudflare', 'gemini', 'openrouter', 'huggingface', 'ollama'];
   }
