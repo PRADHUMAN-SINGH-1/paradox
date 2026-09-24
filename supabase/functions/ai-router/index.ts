@@ -310,12 +310,8 @@ function providerModel(provider: Provider): string {
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
     case 'openrouter':
       return 'openai/gpt-oss-120b:free';
-    case 'huggingface': {
-      const configuredModel = env('HF_MODEL');
-      return !configuredModel || configuredModel === 'meta-llama/Llama-3.3-70B-Instruct'
-        ? 'openai/gpt-oss-120b:fastest'
-        : configuredModel;
-    }
+    case 'huggingface':
+      return 'openai/gpt-oss-120b:fastest';
     case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
     case 'cohere': return env('COHERE_MODEL') || 'command-a-plus-05-2026';
     case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
