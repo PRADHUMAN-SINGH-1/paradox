@@ -178,7 +178,7 @@ async function requestOpenAICompatible(
     body: JSON.stringify({
       model,
       temperature: 0.1,
-      max_tokens: /repository investigation planner/i.test(prompt) ? 1200 : /adversarial evidence critic/i.test(system) ? 1800 : 3200,
+      max_tokens: /repository investigation planner/i.test(system) ? 1200 : /adversarial evidence critic/i.test(system) ? 1800 : 3200,
       ...(structured && useJsonMode ? { response_format: { type: 'json_object' } } : {}),
       messages: [
         { role: 'system', content: system },
