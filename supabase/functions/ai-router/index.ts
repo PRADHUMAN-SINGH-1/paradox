@@ -10,7 +10,7 @@ function providerTimeoutMs(provider: Provider): number {
   if (provider === 'openrouter') return 8_000;
   return PROVIDER_TIMEOUT_MS;
 }
-const VERIFY_AUTO_MAX_PROVIDERS = 2;
+const VERIFY_AUTO_MAX_PROVIDERS = 3;
 const GENERAL_AUTO_MAX_PROVIDERS = 6;
 const providerCooldowns = new Map<string, number>();
 
@@ -210,7 +210,8 @@ async function requestOpenAICompatible(
 
   const data = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error(String(data?.error?.message || data?.message || 'Provider returned ' + res.status));
+    const detail = String(data?.error?.message || data?.message || '').trim();
+    throw new Error('Provider returned ' + res.status + (detail ? ': ' + detail.slice(0, 240) : ''));
   }
 
   const message = data?.choices?.[0]?.message;
@@ -312,7 +313,7 @@ function providerModel(provider: Provider): string {
     case 'mistral': return env('MISTRAL_MODEL') || 'mistral-small-latest';
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
     case 'openrouter':
-      return 'openai/gpt-oss-120b:free';
+      return 'openrouter/free';
     case 'huggingface':
       return 'openai/gpt-oss-120b:fastest';
     case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
@@ -394,11 +395,12 @@ function publicFailureCodes(failures: Array<{ provider: Provider; error: unknown
   return failures.map(({ provider, error }) => {
     const message = error instanceof Error ? error.message.toLowerCase() : '';
     const code =
-      /401|403|api key|credential|unauthori/i.test(message) ? 'AUTH' :
-      /429|rate limit|quota|capacity/i.test(message) ? 'QUOTA' :
-      /timeout|timed out/i.test(message) ? 'TIMEOUT' :
+      /returned (401|403)|api key|credential|unauthori|forbidden|authentication/i.test(message) ? 'AUTH' :
+      /returned 429|rate limit|quota|capacity/i.test(message) ? 'QUOTA' :
+      /timeout|timed out|aborted/i.test(message) ? 'TIMEOUT' :
       /invalid json|no text/i.test(message) ? 'OUTPUT' :
       /returned 404/i.test(message) ? 'HTTP_404' :
+      /returned 4\d\d/i.test(message) ? 'HTTP_4XX' :
       /returned 5\d\d/i.test(message) ? 'HTTP_5XX' :
       'UNAVAILABLE';
     return provider + ':' + code;
