@@ -30,9 +30,13 @@ const providers: Provider[] = ['gemini', 'groq', 'cerebras', 'mistral', 'cloudfl
 function env(name: string) { return Deno.env.get(name) || ''; }
 function candidates(requested: Provider, task: string): Provider[] {
   if (requested !== 'auto') return [requested];
-  if (/code|debug|program|technical/i.test(task)) return ['groq', 'cerebras', 'gemini', 'huggingface', 'ollama'];
-  if (/resume|interview|study|research|content/i.test(task)) return ['gemini', 'groq', 'cerebras', 'huggingface', 'ollama'];
-  return ['cerebras', 'groq', 'gemini', 'huggingface', 'ollama'];
+  if (/code|debug|program|technical|repo|security/i.test(task)) {
+    return ['groq', 'cerebras', 'mistral', 'cloudflare', 'gemini', 'openrouter', 'huggingface', 'ollama'];
+  }
+  if (/resume|interview|study|research|content/i.test(task)) {
+    return ['gemini', 'mistral', 'groq', 'cerebras', 'cloudflare', 'openrouter', 'huggingface', 'ollama'];
+  }
+  return ['gemini', 'groq', 'cerebras', 'mistral', 'cloudflare', 'openrouter', 'huggingface', 'ollama'];
 }
 async function requireAuthenticatedUser(req: Request) {
   const authorization = req.headers.get('authorization');
