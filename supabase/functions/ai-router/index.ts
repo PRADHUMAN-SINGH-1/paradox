@@ -127,11 +127,12 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
     ? VERIFY_AUTO_MAX_PROVIDERS
     : GENERAL_AUTO_MAX_PROVIDERS;
 
+  const verifyTask = /repository security verification|repository investigation planner|repository adversarial evidence critic/i.test(task);
   return order
     .filter((provider) => !excluded.includes(provider))
     .filter((provider) => configured(provider))
     .filter((provider, index, all) => all.indexOf(provider) === index)
-    .filter((provider) => (providerCooldowns.get(provider) || 0) <= Date.now())
+    .filter((provider) => verifyTask || (providerCooldowns.get(provider) || 0) <= Date.now())
     .slice(0, requested === 'auto' ? autoBudget : 1);
 }
 
