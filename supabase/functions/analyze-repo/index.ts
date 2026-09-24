@@ -540,16 +540,54 @@ const reviewSchema = {
 };
 
 async function requestGemini(provider: Provider, system: string, prompt: string, schema: Record<string, unknown>) {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  if (supabaseUrl && serviceKey) {
+    try {
+      const contract = system + "\nReturn ONLY valid JSON matching this schema:\n" + JSON.stringify(schema);
+      const routed = await fetch(supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: serviceKey,
+          Authorization: "Bearer " + serviceKey,
+          "x-paradox-internal-key": serviceKey,
+        },
+        body: JSON.stringify({ prompt, system: contract, task: "repository security verification", provider: "auto" }),
+        signal: AbortSignal.timeout(45_000),
+      });
+      const payload = await routed.json().catch(() => null);
+      if (routed.ok && typeof payload?.text === "string") {
+        const raw = payload.text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+        const first = raw.indexOf("{");
+        const last = raw.lastIndexOf("}");
+        const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
+        const parsed = JSON.parse(jsonText);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
+        return Object.assign(parsed as Record<string, unknown>, {
+          __aiProvider: String(payload.provider || provider.name),
+          __aiModel: String(payload.model || provider.model),
+          __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String) : [],
+        });
+      }
+    } catch {
+      // Fall through to a direct Gemini attempt when the router itself is unavailable.
+    }
+  }
+
+  const key = Deno.env.get("GEMINI_API_KEY");
+  if (!key) throw new Error("No configured AI provider is available");
   const r = await fetch(
     "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(provider.model) + ":generateContent",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": provider.key },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
           maxOutputTokens: 4200,
+          temperature: 0.1,
           responseFormat: { text: { mimeType: "application/json", schema } },
           thinkingConfig: { thinkingLevel: "high" },
         },
@@ -557,21 +595,14 @@ async function requestGemini(provider: Provider, system: string, prompt: string,
       signal: AbortSignal.timeout(AI_TIMEOUT_MS),
     },
   );
-
   const d = await r.json().catch(() => null);
-  if (!r.ok) throw new Error(d?.error?.message || "Gemini request failed");
-
-  const text = d?.candidates?.[0]?.content?.parts
-    ?.filter((p: { text?: string; thought?: boolean }) => p.text && !p.thought)
-    .map((p: { text?: string }) => p.text || "")
-    .join("") || "";
-
-  if (!text) throw new Error("Gemini returned no review");
+  if (!r.ok) throw new Error(d?.error?.message || "AI provider request failed");
+  const text = d?.candidates?.[0]?.content?.parts?.filter((p: { text?: string; thought?: boolean }) => p.text && !p.thought).map((p: { text?: string }) => p.text || "").join("") || "";
+  if (!text) throw new Error("AI provider returned no review");
   const parsed = JSON.parse(text);
-  if (!parsed || typeof parsed !== "object") throw new Error("Gemini returned invalid structured output");
-  return parsed as Record<string, unknown>;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI provider returned invalid JSON");
+  return Object.assign(parsed as Record<string, unknown>, { __aiProvider: provider.name, __aiModel: provider.model, __aiAttempted: [provider.name] });
 }
-
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
     treeItems.filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path)).map(x => x.path as string),
