@@ -466,6 +466,7 @@ The repository contains Edge Functions for:
 - `ai-router` — normalized server-side AI provider routing for AI Studio
 
 The `ai-router` keeps model-provider credentials server-side and supports provider routing/fallback configuration for AI Studio and Verify. AI Studio's provider selector exposes every router-backed provider explicitly, while `AUTO` retains the configured failover order; unavailable providers are rejected server-side without exposing their credentials.
+Verify uses latency-bounded provider routing: automatic repository investigation is capped to a small fast fallback set per request, provider calls have short timeouts, planning/final/critic prompts use bounded token and evidence budgets, and Cloudflare queued-capacity requests can fail fast. This prevents a single verification run from serially waiting on every configured provider while preserving deterministic evidence validation and the multi-provider fallback path.
 
 Supported Verify fallback targets are:
 
