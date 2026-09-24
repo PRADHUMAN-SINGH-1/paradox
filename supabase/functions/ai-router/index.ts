@@ -30,7 +30,40 @@ function candidates(requested:Provider,task:string,excluded:Provider[]){
 }
 async function auth(req:Request){const a=req.headers.get("authorization");if(!a?.startsWith("Bearer "))throw new Error("Authentication required");const u=env("SUPABASE_URL"),k=env("SUPABASE_ANON_KEY")||env("SB_PUBLISHABLE_KEY");if(!u||!k)throw new Error("Authentication service is not configured");const r=await fetch(u.replace(/\/$/,"")+"/auth/v1/user",{headers:{Authorization:a,apikey:k},signal:AbortSignal.timeout(2500)});if(!r.ok)throw new Error("Authentication required");const user=await r.json().catch(()=>null);if(!user?.id)throw new Error("Authentication required");}
 function internal(req:Request){const k=req.headers.get("x-paradox-internal-key");return !!k&&!!env("SUPABASE_SERVICE_ROLE_KEY")&&k===env("SUPABASE_SERVICE_ROLE_KEY");}
-function parseJson(text:string){const s=text.trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/i,"").trim(),a=s.indexOf("{"),b=s.lastIndexOf("}"),c=a>=0&&b>a?s.slice(a,b+1):s,x=JSON.parse(c);if(!x||typeof x!=="object"||Array.isArray(x))throw new Error("Provider returned invalid JSON");return c;}
+function parseJson(text:string){
+  const s=text.trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/i,"").trim();
+  try{
+    const direct=JSON.parse(s);
+    if(direct&&typeof direct==="object"&&!Array.isArray(direct))return JSON.stringify(direct);
+  }catch{}
+  for(let start=0;start<s.length;start++){
+    if(s[start]!=="{")continue;
+    let depth=0,inString=false,escaped=false;
+    for(let i=start;i<s.length;i++){
+      const ch=s[i];
+      if(inString){
+        if(escaped){escaped=false;continue;}
+        if(ch==="\\"){escaped=true;continue;}
+        if(ch==='"'){inString=false;}
+        continue;
+      }
+      if(ch==='"'){inString=true;continue;}
+      if(ch==="{")depth++;
+      else if(ch==="}"){
+        depth--;
+        if(depth===0){
+          const candidate=s.slice(start,i+1);
+          try{
+            const value=JSON.parse(candidate);
+            if(value&&typeof value==="object"&&!Array.isArray(value))return candidate;
+          }catch{}
+          break;
+        }
+      }
+    }
+  }
+  throw new Error("Provider returned invalid JSON");
+}
 function model(p:Provider){
   switch(p){
     case "gemini": return env("GEMINI_MODEL") || "gemini-3.8-flash";
