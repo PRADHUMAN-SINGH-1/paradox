@@ -248,8 +248,8 @@ async function fetchRawStatic(owner: string, repo: string, commitSha: string, pa
   return r.text();
 }
 
-async function mapStatic<T>(items: T[], limit: number, fn: (item: T) => Promise<T>) {
-  const results: T[] = new Array(items.length);
+async function mapStatic<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
   let cursor = 0;
   async function worker() {
     while (true) {
@@ -262,8 +262,97 @@ async function mapStatic<T>(items: T[], limit: number, fn: (item: T) => Promise<
   return results;
 }
 
+function staticRank(path: string, size: number) {
+  let score = 0;
+  if (/^\.github\/workflows\//i.test(path)) score += 140;
+  if (/^(?:package-lock\.json|pnpm-lock\.yaml|yarn\.lock|requirements[^/]*\.txt|pyproject\.toml|poetry\.lock|cargo\.lock|pom\.xml|build\.gradle(?:\.kts)?|go\.mod|go\.sum|composer\.json|gemfile(?:\.lock)?|dockerfile|(?:docker-)?compose\.ya?ml|makefile|justfile)$/i.test(path.split("/").pop() || "")) score += 120;
+  if (/^(?:src|app|lib|server|api|cmd|internal)\//i.test(path)) score += 90;
+  if (/(?:^|\/)(?:main|index|app|server|api|cli)\.(?:ts|tsx|js|jsx|mjs|cjs|py|java|kt|go|rs|php|cs|rb|swift)$/i.test(path)) score += 100;
+  if (/test|spec|e2e/i.test(path)) score += 45;
+  if (/docs?\//i.test(path)) score += 25;
+  score -= Math.min(35, path.split("/").length * 2);
+  score -= Math.min(20, Math.floor(size / 500_000));
+  return score;
+}
+
+async function queryOsvDependencyVulnerabilities(files: Array<{ path: string; content: string }>) {
+  const pairs: Array<{ name: string; ecosystem: string; version: string; file: string }> = [];
+  const add = (name: string, ecosystem: string, version: string, file: string) => {
+    const n = name.trim();
+    const v = version.trim();
+    if (!n || !v || v === "*" || /[<>=~^*|]/.test(v)) return;
+    pairs.push({ name: n, ecosystem, version: v, file });
+  };
+
+  for (const file of files) {
+    if (file.path === "package-lock.json") {
+      try {
+        const pkg = JSON.parse(file.content);
+        const packages = pkg?.packages;
+        if (packages && typeof packages === "object") {
+          for (const [namePath, value] of Object.entries(packages as Record<string, unknown>)) {
+            if (!namePath.startsWith("node_modules/") || !value || typeof value !== "object") continue;
+            add(namePath.slice("node_modules/".length), "npm", String((value as Record<string, unknown>).version || ""), file.path);
+          }
+        }
+      } catch {}
+    }
+
+    if (/^requirements(?:[-._].*)?\.txt$/i.test(file.path)) {
+      for (const line of file.content.split("\n")) {
+        const match = line.trim().match(/^([A-Za-z0-9_.-]+)==([0-9A-Za-z.+-]+)$/);
+        if (match) add(match[1], "PyPI", match[2], file.path);
+      }
+    }
+
+    if (/^poetry\.lock$/i.test(file.path) || /^Cargo\.lock$/i.test(file.path)) {
+      const blocks = file.content.split(/\n\[\[package\]\]\n/).slice(1);
+      const ecosystem = /^Cargo\.lock$/i.test(file.path) ? "crates.io" : "PyPI";
+      for (const block of blocks) {
+        const name = block.match(/^name\s*=\s*"([^"]+)"/m)?.[1] || "";
+        const version = block.match(/^version\s*=\s*"([^"]+)"/m)?.[1] || "";
+        add(name, ecosystem, version, file.path);
+      }
+    }
+  }
+
+  const unique = [...new Map(pairs.map((pair) => [
+    pair.ecosystem + ":" + pair.name + ":" + pair.version,
+    pair,
+  ])).values()].slice(0, 350);
+
+  if (!unique.length) return { count: 0, findings: [] as Array<{ file: string; name: string; version: string; ids: string[] }> };
+
+  try {
+    const response = await fetch("https://api.osv.dev/v1/querybatch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        queries: unique.map((pair) => ({
+          package: { name: pair.name, ecosystem: pair.ecosystem },
+          version: pair.version,
+        })),
+      }),
+      signal: AbortSignal.timeout(9_000),
+    });
+    if (!response.ok) return { count: 0, findings: [] };
+    const body = await response.json().catch(() => null);
+    const results = Array.isArray(body?.results) ? body.results : [];
+    const findings: Array<{ file: string; name: string; version: string; ids: string[] }> = [];
+    results.forEach((result: { vulns?: Array<{ id?: string }> }, index: number) => {
+      const vulns = Array.isArray(result?.vulns) ? result.vulns : [];
+      if (!vulns.length) return;
+      const pair = unique[index];
+      findings.push({ file: pair.file, name: pair.name, version: pair.version, ids: vulns.slice(0, 8).map((v) => String(v.id || "unknown")) });
+    });
+    return { count: findings.length, findings };
+  } catch {
+    return { count: 0, findings: [] };
+  }
+}
+
 async function runFullStaticScan(owner: string, repo: string, commitSha: string, treeItems: Array<{ path?: string; type?: string; size?: number }>) {
-  const candidates = treeItems.filter((x) => x.type === "blob" && x.path && staticScannable(x.path, Number(x.size || 0))).map((x) => ({ path: x.path as string, size: Number(x.size || 0) })).sort((a, b) => a.path.localeCompare(b.path));
+  const candidates = treeItems.filter((x) => x.type === "blob" && x.path && staticScannable(x.path, Number(x.size || 0))).map((x) => ({ path: x.path as string, size: Number(x.size || 0) })).sort((a, b) => staticRank(b.path, b.size) - staticRank(a.path, a.size) || a.path.localeCompare(b.path));
   const limited = candidates.slice(0, STATIC_MAX_FILES);
   const selected: typeof limited = [];
   let bytes = 0;
@@ -281,12 +370,15 @@ async function runFullStaticScan(owner: string, repo: string, commitSha: string,
     }
   });
   const successful = files.filter((file) => Boolean(file.content));
+  const dependency = await queryOsvDependencyVulnerabilities(successful);
   return {
     files: successful,
     candidates: candidates.length,
     scanned: successful.length,
     complete: candidates.length === selected.length && !byteLimited && files.every((file) => !file.fetchError) && limited.length === candidates.length,
     bytes: successful.reduce((sum, file) => sum + file.content.length, 0),
+    dependencyVulnerabilities: dependency.count,
+    dependencyFindings: dependency.findings,
   };
 }
 
