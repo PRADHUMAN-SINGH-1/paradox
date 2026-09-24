@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          jq '{status:.intelligence.status,provider:.intelligence.provider,model:.intelligence.model,claims:(.intelligence.claims|length),targetedFiles:.coverage.targetedFiles,evidenceChars:.coverage.evidenceChars,method:.method}' response.json
+          jq '{status:.intelligence.status,provider:.intelligence.provider,model:.intelligence.model,claims:(.intelligence.claims|length),targetedFiles:.coverage.targetedFiles,evidenceChars:.coverage.evidenceChars,method:.method,attemptedProviders:.intelligence.attemptedProviders,failureCodes:.intelligence.failureCodes,decisionReason:.intelligence.decisionReason}' response.json
           test "$(jq -r '.intelligence.status // ""' response.json)" = "READY"
           test "$(jq -r '.intelligence.provider // ""' response.json)" != "UNAVAILABLE"
           test "$(jq -r '(.intelligence.claims // []) | length' response.json)" -gt 0
