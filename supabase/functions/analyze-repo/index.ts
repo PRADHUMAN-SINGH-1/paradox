@@ -1088,8 +1088,8 @@ async function intelligence(
   activeProvider = String(raw.__aiProvider || activeProvider).toLowerCase();
   const review = sanitizeReview(raw, fileMap, {
     summaryFallback: "Evidence review completed from inspected repository files.",
-    provider: provider.name,
-    model: provider.model,
+    provider: activeProvider,
+    model: String(raw.__aiModel || ps.find((p) => p.name === activeProvider)?.model || activeProvider),
     treeFiles: treeItems.filter(x => x.type === "blob").length,
     selectedFiles: initialFiles.length,
     targetedFiles: targeted.length,
