@@ -335,11 +335,11 @@ async function runProvider(provider: Provider, system: string, prompt: string, s
         'https://openrouter.ai/api/v1',
         env('OPENROUTER_API_KEY'),
         providerModel(provider),
-        system,
+        system + '\nReturn only a single valid JSON object. Do not wrap it in markdown or add commentary.',
         prompt,
         structured,
         { 'HTTP-Referer': 'https://paradox.engineer', 'X-Title': 'PARADOX' },
-        true,
+        false,
         providerTimeoutMs(provider),
       );
     case 'huggingface':
