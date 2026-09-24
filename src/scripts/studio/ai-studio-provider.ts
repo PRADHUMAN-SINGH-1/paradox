@@ -1,6 +1,6 @@
 import { supabase } from '../../lib/supabase.ts';
 
-type Provider='auto'|'gemini'|'groq'|'cerebras'|'huggingface'|'ollama';
+type Provider='auto'|'gemini'|'cerebras'|'groq'|'mistral'|'nvidia'|'cloudflare'|'openrouter'|'cohere'|'huggingface'|'ollama';
 type Workflow={label:string;title:string;desc:string;fields:string[]};
 const W:Record<string,Workflow>={
  resume:{label:'RESUME TAILOR',title:'Make the application fit.',desc:'Tailor a real resume to a real role without inventing evidence.',fields:['jd','role']},
