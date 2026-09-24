@@ -93,6 +93,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const staticComplete = x.coverage.staticComplete !== false;
   const staticBytes = x.coverage.staticBytes ?? 0;
   const dependencyVulnerabilities = x.coverage.dependencyVulnerabilities ?? 0;
+  const dependencyCheck = x.coverage.dependencyCheckAvailable === false ? 'OSV UNAVAILABLE' : 'OSV READY';
   const langs = Object.keys(x.languages).slice(0, 6).map(escapeHtml).join(', ') || 'Unknown';
 
   const detections = x.detections.map((d) =>
@@ -200,7 +201,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
       '<article class="vx-summary-item"><span>FILES</span><strong>' + selectedFiles + '</strong><small>inspected in this run</small></article>' +
       '<article class="vx-summary-item"><span>EVIDENCE</span><strong>' + evidencePct + '</strong><small>evidence quality / 100</small></article>' +
       '<article class="vx-summary-item"><span>STATIC COVERAGE</span><strong>' + staticScannedFiles + '/' + staticCandidates + '</strong><small>' + (staticComplete ? 'scannable files inspected' : 'partial scannable coverage') + '</small></article>' +
-      '<article class="vx-summary-item"><span>DEPENDENCIES</span><strong>' + dependencyVulnerabilities + '</strong><small>known OSV records</small></article>' +
+      '<article class="vx-summary-item"><span>DEPENDENCIES</span><strong>' + dependencyVulnerabilities + '</strong><small>' + escapeHtml(dependencyCheck) + '</small></article>' +
     '</section>' +
 
     '<section class="vx-decision-grid" aria-label="Verification decision">' +
