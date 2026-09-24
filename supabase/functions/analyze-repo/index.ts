@@ -958,7 +958,7 @@ async function intelligence(
       fallback = treeItems
         .filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path) && !initialMap.has(x.path))
         .map(x => x.path as string)
-        .filter(p => CODE_EXT.test(p) || /(?:^|\\/)(?:src|app|server|backend|api|lib|services|agents?|tools?)(?:\\/|$)/i.test(p))
+        .filter(p => CODE_EXT.test(p) || /(?:^|\/)(?:src|app|server|backend|api|lib|services|agents?|tools?)(?:\/|$)/i.test(p))
         .slice(0, TARGETED_FILES);
     }
     targeted = (await Promise.all(fallback.map(async (p) => scannedMap.get(p) || await readFile(owner, repo, p, commitSha))))
