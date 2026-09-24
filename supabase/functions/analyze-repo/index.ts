@@ -743,22 +743,10 @@ async function requestGemini(
     schema === criticSchema ? "repository adversarial evidence critic" :
     "repository security verification";
 
-  const allowed = new Set([
-    "gemini",
-    "groq",
-    "cerebras",
-    "mistral",
-    "nvidia",
-    "cloudflare",
-    "openrouter",
-    "cohere",
-    "huggingface",
-    "ollama",
-  ]);
-  const preferred = allowed.has(preferredProvider) ? preferredProvider : "gemini";
-  const contract = system + "\nReturn ONLY valid JSON matching this schema:\n" + JSON.stringify(schema);
+  const contract = system + "\nReturn ONLY one valid JSON object matching this schema:\n" + JSON.stringify(schema);
   const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const geminiKey = Deno.env.get("GEMINI_API_KEY") || "";
   const openRouterKey = Deno.env.get("OPENROUTER_API_KEY") || "";
 
   if (!supabaseUrl || !serviceKey) {
@@ -777,62 +765,166 @@ async function requestGemini(
     return Object.assign(parsed as Record<string, unknown>, {
       __aiProvider: String(payload.provider || fallbackProvider),
       __aiModel: String(payload.model || fallbackProvider),
-      __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [fallbackProvider],
+      __aiAttempted: Array.isArray(payload.attempted)
+        ? payload.attempted.map(String).slice(0, 10)
+        : [fallbackProvider],
     });
   }
 
-  async function callDirectOpenRouter() {
-    if (!openRouterKey) throw new AIUnavailableError("OpenRouter is not configured");
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + openRouterKey,
-        "HTTP-Referer": "https://paradox.engineer",
-        "X-Title": "PARADOX",
-      },
-      body: JSON.stringify({
-        model: "openrouter/free",
-        temperature: 0.1,
-        max_tokens: schema === investigationSchema ? 1200 : schema === criticSchema ? 1800 : 3200,
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "paradox_verify",
-            strict: true,
-            schema,
-          },
-        },
-        messages: [
-          { role: "system", content: contract },
-          { role: "user", content: prompt },
-        ],
-      }),
-      signal: AbortSignal.timeout(10_000),
-    });
+  async function callGeminiDirect() {
+    if (!geminiKey) throw new AIUnavailableError("Gemini is not configured");
+    const model =
+      Deno.env.get("GEMINI_MODEL") ||
+      GEMINI_MODEL ||
+      "gemini-3.8-flash";
 
-    const payload = await res.json().catch(() => null) as Record<string, unknown> | null;
-    if (!res.ok) {
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/" +
+        encodeURIComponent(model) +
+        ":generateContent?key=" +
+        encodeURIComponent(geminiKey),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            maxOutputTokens:
+              schema === investigationSchema ? 1600 :
+              schema === criticSchema ? 2200 :
+              4200,
+            responseMimeType: "application/json",
+          },
+        }),
+        signal: AbortSignal.timeout(8_000),
+      },
+    );
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
       const message = String(
-        (payload?.error && typeof payload.error === "object" ? (payload.error as Record<string, unknown>).message : "") ||
-        payload?.message ||
-        "OpenRouter returned " + res.status,
+        data?.error?.message || "Gemini returned " + response.status,
+      );
+      throw new AIUnavailableError(
+        message,
+        ["gemini"],
+        [
+          response.status === 429
+            ? "gemini:QUOTA"
+            : response.status === 401 || response.status === 403
+              ? "gemini:AUTH"
+              : response.status === 404
+                ? "gemini:HTTP_404"
+                : response.status >= 500
+                  ? "gemini:HTTP_5XX"
+                  : "gemini:UNAVAILABLE",
+        ],
+      );
+    }
+
+    const text = Array.isArray(data?.candidates?.[0]?.content?.parts)
+      ? data.candidates[0].content.parts
+          .filter((part: { text?: string; thought?: boolean }) => part?.text && !part?.thought)
+          .map((part: { text?: string }) => String(part.text))
+          .join("\n")
+      : "";
+
+    if (!text.trim()) throw new AIUnavailableError(
+      "Gemini returned no text",
+      ["gemini"],
+      ["gemini:OUTPUT"],
+    );
+
+    return parsePayload(
+      { text, provider: "gemini", model, attempted: ["gemini"] },
+      "gemini",
+    );
+  }
+
+  async function callOpenRouterDirect() {
+    if (!openRouterKey) throw new AIUnavailableError("OpenRouter is not configured");
+
+    const model = "openai/gpt-oss-120b:free";
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + openRouterKey,
+          "HTTP-Referer": "https://paradox.engineer",
+          "X-Title": "PARADOX",
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.1,
+          max_tokens:
+            schema === investigationSchema ? 1600 :
+            schema === criticSchema ? 2200 :
+            4200,
+          messages: [
+            {
+              role: "system",
+              content:
+                contract +
+                "\nReturn ONLY one valid JSON object. Do not use markdown fences. Do not add commentary.",
+            },
+            { role: "user", content: prompt },
+          ],
+        }),
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      const message = String(
+        data?.error?.message ||
+        data?.message ||
+        "OpenRouter returned " + response.status,
       );
       throw new AIUnavailableError(
         message,
         ["openrouter"],
-        ["openrouter:" + (res.status === 429 ? "QUOTA" : res.status === 401 || res.status === 403 ? "AUTH" : "HTTP_" + res.status)],
+        [
+          response.status === 429
+            ? "openrouter:QUOTA"
+            : response.status === 401 || response.status === 403
+              ? "openrouter:AUTH"
+              : response.status === 404
+                ? "openrouter:HTTP_404"
+                : response.status >= 500
+                  ? "openrouter:HTTP_5XX"
+                  : "openrouter:UNAVAILABLE",
+        ],
       );
     }
 
-    const content = payload?.choices && Array.isArray(payload.choices)
-      ? (payload.choices[0] as Record<string, unknown>)?.message
-      : null;
-    const text = content && typeof content === "object" ? String((content as Record<string, unknown>).content || "") : "";
-    return parsePayload({ text, provider: "openrouter", model: "openrouter/free", attempted: ["openrouter"] }, "openrouter");
+    const message = data?.choices?.[0]?.message;
+    const text = typeof message?.content === "string"
+      ? message.content
+      : Array.isArray(message?.content)
+        ? message.content
+            .map((part: { text?: string }) => part?.text || "")
+            .join("\n")
+        : String(message?.text || data?.output_text || "");
+
+    if (!text.trim()) {
+      throw new AIUnavailableError(
+        "OpenRouter returned no text",
+        ["openrouter"],
+        ["openrouter:OUTPUT"],
+      );
+    }
+
+    return parsePayload(
+      { text, provider: "openrouter", model, attempted: ["openrouter"] },
+      "openrouter",
+    );
   }
 
-  async function callRouter(requested: "auto" | Provider, excludeProviders: string[]) {
+  async function callRouter(excludeProviders: string[]) {
     const routed = await fetch(
       supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
       {
@@ -847,23 +939,23 @@ async function requestGemini(
           prompt,
           system: contract,
           task,
-          provider: requested,
+          provider: "auto",
           excludeProviders,
           json: true,
         }),
-        signal: AbortSignal.timeout(22_000),
+        signal: AbortSignal.timeout(25_000),
       },
     );
 
-    const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
+    const payload = await routed.json().catch(() => null);
     if (routed.ok && payload && typeof payload.text === "string") {
       try {
-        return parsePayload(payload, String(payload.provider || requested));
+        return parsePayload(payload, String(payload.provider || "auto"));
       } catch {
         throw new AIUnavailableError(
           "AI provider returned invalid JSON",
           Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-          ["OUTPUT"],
+          ["router:OUTPUT"],
         );
       }
     }
@@ -875,22 +967,60 @@ async function requestGemini(
     );
   }
 
-  if (preferred === "gemini") {
+  const failures: string[] = [];
+
+  // Real primary: use Gemini directly. If its quota is exhausted, move to
+  // OpenRouter, then let the central router try the remaining providers.
+  if (preferredProvider === "gemini") {
     try {
-      return await callDirectOpenRouter();
+      return await callGeminiDirect();
     } catch (error) {
-      if (!(error instanceof AIUnavailableError)) throw error;
-      return callRouter("auto", ["gemini", "openrouter"]);
+      if (error instanceof AIUnavailableError) {
+        failures.push(...error.failureCodes);
+      } else {
+        failures.push("gemini:UNAVAILABLE");
+      }
+    }
+
+    try {
+      return await callOpenRouterDirect();
+    } catch (error) {
+      if (error instanceof AIUnavailableError) {
+        failures.push(...error.failureCodes);
+      } else {
+        failures.push("openrouter:UNAVAILABLE");
+      }
+    }
+
+    try {
+      return await callRouter(["gemini", "openrouter"]);
+    } catch (error) {
+      if (error instanceof AIUnavailableError) {
+        failures.push(...error.failureCodes);
+        throw new AIUnavailableError(
+          "AI providers were exhausted for this Verify stage.",
+          error.attemptedProviders.length ? error.attemptedProviders : ["gemini", "openrouter"],
+          [...new Set([...failures, ...error.failureCodes])].slice(0, 10),
+        );
+      }
+      throw error;
     }
   }
 
   try {
-    return await callRouter(preferred as unknown as Provider, []);
+    return await callRouter([preferredProvider, "gemini"]);
   } catch (error) {
-    if (!(error instanceof AIUnavailableError)) throw error;
-    return callRouter("auto", [preferred, "gemini"]);
+    if (error instanceof AIUnavailableError) {
+      throw new AIUnavailableError(
+        "AI providers were exhausted for this Verify stage.",
+        error.attemptedProviders,
+        [...new Set([...failures, ...error.failureCodes])].slice(0, 10),
+      );
+    }
+    throw error;
   }
 }
+
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
     treeItems.filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path)).map(x => x.path as string),
