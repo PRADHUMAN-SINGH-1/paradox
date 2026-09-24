@@ -1,0 +1,42 @@
+name: Production AI Smoke
+
+on:
+  push:
+    branches:
+      - test/prod-ai-smoke
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call production Verify API
+        shell: bash
+        env:
+          SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3emJ4d3JnYWh1dmVpYWlicWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NTY0MjUsImV4cCI6MjEwNTAzMjQyNX0.OcPK7kPyoXBEs38joajoe1fbGJIjtJj7YdZG-xeJw5g"
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            --max-time 120 \
+            -H "Origin: https://paradox.engineer" \
+            -H "apikey: \${SUPABASE_ANON_KEY}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "https://swzbxwrgahuveiaibqhq.supabase.co/functions/v1/analyze-repo" \
+            --data '{"mode":"analyze","url":"https://github.com/PRADHUMAN-SINGH-1/NeighbourhoodFit","fresh":true}' \
+            > response.json
+
+      - name: Assert real AI investigation
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq '{status:.intelligence.status,provider:.intelligence.provider,model:.intelligence.model,claims:(.intelligence.claims|length),targetedFiles:.coverage.targetedFiles,evidenceChars:.coverage.evidenceChars,method:.method}' response.json
+          test "$(jq -r '.intelligence.status // ""' response.json)" = "READY"
+          test "$(jq -r '.intelligence.provider // ""' response.json)" != "UNAVAILABLE"
+          test "$(jq -r '(.intelligence.claims // []) | length' response.json)" -gt 0
+          test "$(jq -r '.coverage.evidenceChars // 0' response.json)" -gt 0
+          test "$(jq -r '.coverage.targetedFiles // 0' response.json)" -gt 0
+          test "$(jq -r '.method // ""' response.json)" = "static-analysis+agent-review"
