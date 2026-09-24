@@ -953,7 +953,14 @@ async function intelligence(
     for (const file of initialFiles) {
       for (const path of extractLocalImports(file, pathSet)) pathCandidates.add(path);
     }
-    const fallback = [...pathCandidates].filter(p => !initialMap.has(p)).slice(0, TARGETED_FILES);
+    let fallback = [...pathCandidates].filter(p => !initialMap.has(p)).slice(0, TARGETED_FILES);
+    if (!fallback.length) {
+      fallback = treeItems
+        .filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path) && !initialMap.has(x.path))
+        .map(x => x.path as string)
+        .filter(p => CODE_EXT.test(p) || /(?:^|\\/)(?:src|app|server|backend|api|lib|services|agents?|tools?)(?:\\/|$)/i.test(p))
+        .slice(0, TARGETED_FILES);
+    }
     targeted = (await Promise.all(fallback.map(async (p) => scannedMap.get(p) || await readFile(owner, repo, p, commitSha))))
       .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
     focus = ["Validate central implementation paths and security-sensitive code against repository evidence."];
