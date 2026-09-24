@@ -2,6 +2,7 @@ const ALLOWED_ORIGINS = new Set(['https://paradox.engineer','http://localhost:43
 const MAX_PROMPT = 400_000;
 const MINUTE = 60_000;
 const hits = new Map<string, { at: number; count: number }>();
+const PROVIDER_TIMEOUT_MS = 9_000;
 function cors(req: Request) {
   const origin = req.headers.get('origin') || '';
   return {
