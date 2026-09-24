@@ -50,6 +50,7 @@ export type IntelligenceReview = {
   model?: string;
   status?: 'READY' | 'UNAVAILABLE';
   attemptedProviders?: string[];
+  failureCodes?: string[];
   coverage?: IntelligenceCoverage;
 };
 

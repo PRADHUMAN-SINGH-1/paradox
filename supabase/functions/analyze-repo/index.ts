@@ -628,6 +628,17 @@ function buildEvidence(files: Array<{ path: string; content: string }>, maxChars
   return { text: pieces.join("\n\n"), chars: total };
 }
 
+class AIUnavailableError extends Error {
+  attemptedProviders: string[];
+  failureCodes: string[];
+  constructor(message: string, attemptedProviders: string[] = [], failureCodes: string[] = []) {
+    super(message);
+    this.name = "AIUnavailableError";
+    this.attemptedProviders = attemptedProviders;
+    this.failureCodes = failureCodes;
+  }
+}
+
 type Provider = { name: string; model: string; key: string };
 
 function providers(): Provider[] {
@@ -822,9 +833,16 @@ async function requestGemini(
         });
       }
       if (routed.status === 503) {
-        throw new Error(String(payload?.error || "No configured AI provider is currently available."));
+        throw new AIUnavailableError(
+          String(payload?.error || "No configured AI provider is currently available."),
+          Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+          Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [],
+        );
       }
     } catch (error) {
+      if (error instanceof AIUnavailableError) {
+        throw error;
+      }
       if (error instanceof Error && /No configured AI provider|currently unavailable/i.test(error.message)) {
         // A selected fallback provider can fail independently; try the remaining configured providers once.
         if (preferred !== "gemini" && supabaseUrl && serviceKey) {
@@ -1210,8 +1228,34 @@ async function analyze(owner: string, repo: string, fresh = false) {
       aiReview = agentResult.review;
       targetedFiles = agentResult.targeted;
     }
-  } catch {
-    aiReview = null;
+  } catch (error) {
+    if (error instanceof AIUnavailableError) {
+      aiReview = {
+        summary: "AI providers were unavailable for this run.",
+        confidence: "LOW",
+        confirmed: [],
+        needsReview: [],
+        contradictions: [],
+        recommendedVerdict: "QUESTIONABLE",
+        decisionReason: error.failureCodes.length
+          ? "Provider attempts failed: " + error.failureCodes.join(", ") + ". Deterministic verification remained authoritative."
+          : "No provider completed the investigation. Deterministic verification remained authoritative.",
+        claims: [],
+        provider: "AI ROUTER",
+        model: "No provider response",
+        status: "UNAVAILABLE",
+        attemptedProviders: error.attemptedProviders,
+        failureCodes: error.failureCodes,
+        coverage: {
+          treeFiles: treeItems.filter((x: { type?: string }) => x.type === "blob").length,
+          selectedFiles: initialFiles.length,
+          targetedFiles: targetedFiles.length,
+          evidenceChars: 0,
+        },
+      };
+    } else {
+      aiReview = null;
+    }
   }
 
   const allFiles = [...initialFiles, ...targetedFiles].filter((file, index, arr) =>

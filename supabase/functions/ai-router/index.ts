@@ -4,7 +4,7 @@ const MINUTE = 60_000;
 const hits = new Map<string, { at: number; count: number }>();
 const PROVIDER_TIMEOUT_MS = 5_500;
 const PROVIDER_COOLDOWN_MS = 60_000;
-const VERIFY_AUTO_MAX_PROVIDERS = 4;
+const VERIFY_AUTO_MAX_PROVIDERS = 10;
 const GENERAL_AUTO_MAX_PROVIDERS = 6;
 const providerCooldowns = new Map<string, number>();
 
@@ -435,12 +435,20 @@ Deno.serve(async (req) => {
       }
     }
 
+    const failureCodes = publicFailureCodes(failures);
+    console.warn(JSON.stringify({
+      event: 'provider-exhausted',
+      task,
+      requested,
+      attempted: order,
+      failureCodes,
+    }));
     return json({
       error: requested === 'auto'
         ? 'No configured AI provider is currently available.'
         : 'The selected provider (' + requested + ') is currently unavailable.',
       attempted: order,
-      failureCodes: publicFailureCodes(failures),
+      failureCodes,
     }, 503, h);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Invalid AI request.';
