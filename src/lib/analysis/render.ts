@@ -79,6 +79,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const aiProvider = ai?.provider ? ai.provider.toUpperCase() : 'NO PROVIDER';
   const aiModel = ai?.model || 'Evidence engine unavailable';
   const attemptedProviders = ai?.attemptedProviders?.length ? ai.attemptedProviders.join(' → ').toUpperCase() : aiProvider;
+  const failureCodes = ai?.failureCodes?.length ? ai.failureCodes.join(' · ').toUpperCase() : '';
   const claims = ai?.claims || [];
   const evidencePct = aiReady ? evidenceQuality(ai, x.coverage) : 0;
   const confirmed = claims.filter((c) => c.status === 'CONFIRMED').length;
@@ -134,6 +135,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           '<span><b>Unconfirmed</b><strong>' + unconfirmed + '</strong></span>' +
           '<span><b>Targeted files</b><strong>' + targetedFiles + '</strong></span>' +
           '<span><b>Provider path</b><strong>' + escapeHtml(attemptedProviders) + '</strong></span>' +
+          (failureCodes ? '<span><b>Provider failures</b><strong>' + escapeHtml(failureCodes) + '</strong></span>' : '') +
           '<span><b>Static bytes</b><strong>' + Math.round(staticBytes / 1024) + ' KB</strong></span>' +
         '</div>' +
         '<div class="vx-decision-callout"><span>ADJUDICATION</span>' +
@@ -153,7 +155,10 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           '<div class="vx-status vx-status--idle"><i></i>UNAVAILABLE</div>' +
         '</div>' +
         '<div class="vx-ai-empty"><strong>Deterministic verification only.</strong>' +
-          '<p>The AI investigator was unavailable for this run, so no model-derived conclusion was used.</p></div>' +
+          '<p>' + escapeHtml(ai?.summary || 'The AI investigator was unavailable for this run, so no model-derived conclusion was used.') + '</p>' +
+          (attemptedProviders !== aiProvider ? '<p>Provider attempts: ' + escapeHtml(attemptedProviders) + '</p>' : '') +
+          (failureCodes ? '<p>Failure diagnostics: ' + escapeHtml(failureCodes) + '</p>' : '') +
+          '</div>' +
         '<footer class="vx-card-foot"><span>Provider: unavailable</span><span>Deterministic fallback active</span></footer>' +
       '</section>';
 
