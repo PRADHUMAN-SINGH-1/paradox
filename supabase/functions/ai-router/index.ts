@@ -107,9 +107,11 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
       // provider omitted from the preference still remains eligible for fallback.
       const preferredSet = new Set(configuredOrder);
       const fallback = providers.filter((provider) => !preferredSet.has(provider));
-      order = /repository security verification|planner|routing|critic/i.test(task)
-        ? [...new Set(['gemini', 'openrouter', ...configuredOrder, ...fallback])]
-        : [...configuredOrder, ...fallback];
+      order = (
+        /repository security verification|planner|routing|critic/i.test(task)
+          ? [...new Set(['gemini', 'openrouter', ...configuredOrder, ...fallback])]
+          : [...configuredOrder, ...fallback]
+      ) as Provider[];
     } else if (/planner|routing|critic/i.test(task)) {
       order = ['groq','cerebras','gemini','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/code|debug|program|technical|repo|security/i.test(task)) {
