@@ -105,7 +105,7 @@ async function compatible(
   }
 
   const r=await fetch(
-    base.replace(/\\/$/,"")+"/chat/completions",
+    base.replace(/\/$/,"")+"/chat/completions",
     {
       method:"POST",
       headers,
