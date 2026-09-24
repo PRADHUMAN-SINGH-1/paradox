@@ -742,8 +742,9 @@ async function requestGemini(provider: Provider, system: string, prompt: string,
 
   const key = Deno.env.get("GEMINI_API_KEY");
   if (!key) throw new Error("No configured AI provider is available");
+  const model = Deno.env.get("GEMINI_MODEL") || GEMINI_MODEL;
   const r = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(provider.model) + ":generateContent",
+    "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
     {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
@@ -766,7 +767,7 @@ async function requestGemini(provider: Provider, system: string, prompt: string,
   if (!text) throw new Error("AI provider returned no review");
   const parsed = JSON.parse(text);
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI provider returned invalid JSON");
-  return Object.assign(parsed as Record<string, unknown>, { __aiProvider: provider.name, __aiModel: provider.model, __aiAttempted: [provider.name] });
+  return Object.assign(parsed as Record<string, unknown>, { __aiProvider: "gemini", __aiModel: model, __aiAttempted: ["gemini"] });
 }
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
