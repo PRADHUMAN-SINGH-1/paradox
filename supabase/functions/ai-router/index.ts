@@ -114,6 +114,8 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
       ) as Provider[];
     } else if (/planner|routing|critic/i.test(task)) {
       order = ['gemini','openrouter','huggingface','groq','cerebras','mistral','nvidia','cohere','cloudflare','ollama'];
+    } else if (/repository security verification|repository investigation/i.test(task)) {
+      order = ['gemini','openrouter','huggingface','groq','cerebras','mistral','nvidia','cohere','cloudflare','ollama'];
     } else if (/code|debug|program|technical|repo|security/i.test(task)) {
       order = ['gemini','cerebras','groq','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/resume|interview|study|research|content/i.test(task)) {
@@ -123,7 +125,8 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
     }
   }
 
-  const autoBudget = /repository security verification/i.test(task)
+  const verifyTask = /repository security verification|repository investigation planner|repository adversarial evidence critic/i.test(task);
+  const autoBudget = verifyTask
     ? VERIFY_AUTO_MAX_PROVIDERS
     : GENERAL_AUTO_MAX_PROVIDERS;
 
