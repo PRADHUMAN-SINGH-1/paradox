@@ -537,8 +537,20 @@ function deterministicFindings(files: Array<{ path: string; content: string }>) 
     {
       category: "Credential material",
       severity: "HIGH",
-      test: /BEGIN (?:OPENSSH|RSA) PRIVATE KEY|github_token\s*[:=]|-----BEGIN PRIVATE KEY-----/i,
-      reason: "A strong private-key or credential-material indicator is present in source.",
+      test: /BEGIN (?:OPENSSH|RSA) PRIVATE KEY|github_token\s*[:=]|-----BEGIN PRIVATE KEY-----|(?:ghp|gho|ghs|github_pat)_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/i,
+      reason: "A strong private-key, token, access-key, or JWT-like credential indicator is present in source.",
+    },
+    {
+      category: "Dynamic module loading",
+      severity: "MODERATE",
+      test: /require\s*\(\s*[A-Za-z_$][\w$]*\s*\)|import\s*\(\s*[A-Za-z_$][\w$]*\s*\)/i,
+      reason: "The code dynamically constructs a module load from a variable, which deserves contextual review.",
+    },
+    {
+      category: "Prompt injection content",
+      severity: "LOW",
+      test: /\b(?:ignore|disregard)\s+(?:all|any|the|previous|prior)\s+(?:instructions|rules|system prompt)\b/i,
+      reason: "Repository content contains instruction-like text commonly associated with prompt-injection attempts.",
     },
   ];
 
@@ -1062,7 +1074,17 @@ async function analyze(owner: string, repo: string, fresh = false) {
   const allStaticFindings = [...staticRiskFindings, ...dependencyRiskFindings];
 
   const preferred = new Set(selectPaths(rootNames, treeItems, INITIAL_FILES));
-  let initialFiles = fullScan.files.filter((file) => preferred.has(file.path)).slice(0, INITIAL_FILES);
+  const rankMap = new Map(allStaticFindings.map((finding) => [
+    finding.file,
+    finding.severity === "HIGH" ? 90 : finding.severity === "MODERATE" ? 45 : 10,
+  ]));
+  const rankedInitial = [...fullScan.files]
+    .map((file) => ({
+      file,
+      score: fileScore(file.path, Number(file.size || 0)) + (preferred.has(file.path) ? 55 : 0) + (rankMap.get(file.path) || 0),
+    }))
+    .sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
+  let initialFiles = rankedInitial.slice(0, INITIAL_FILES).map((entry) => entry.file);
   if (!initialFiles.length && fullScan.files.length) initialFiles = fullScan.files.slice(0, INITIAL_FILES);
 
   const treeFileCount = treeItems.filter((x: { type?: string }) => x.type === "blob").length;
