@@ -465,7 +465,7 @@ The repository contains Edge Functions for:
 - `ai-radar` — AI radar data workflow
 - `ai-router` — normalized server-side AI provider routing for AI Studio
 
-The `ai-router` keeps model-provider credentials server-side and supports provider routing/fallback configuration for AI Studio and Verify.
+The `ai-router` keeps model-provider credentials server-side and supports provider routing/fallback configuration for AI Studio and Verify. AI Studio's provider selector exposes every router-backed provider explicitly, while `AUTO` retains the configured failover order; unavailable providers are rejected server-side without exposing their credentials.
 
 Supported Verify fallback targets are:
 
