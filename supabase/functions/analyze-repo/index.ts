@@ -456,8 +456,27 @@ function buildEvidence(files: Array<{ path: string; content: string }>, maxChars
 type Provider = { name: string; model: string; key: string };
 
 function providers(): Provider[] {
-  const key = Deno.env.get("GEMINI_API_KEY");
-  return key ? [{ name: "gemini", model: GEMINI_MODEL, key }] : [];
+  const env = (name: string) => Deno.env.get(name) || "";
+  const out: Provider[] = [];
+  const gemini = env("GEMINI_API_KEY");
+  const groq = env("GROQ_API_KEY");
+  const cerebras = env("CEREBRAS_API_KEY");
+  const mistral = env("MISTRAL_API_KEY");
+  const cfToken = env("CLOUDFLARE_API_TOKEN");
+  const cfAccount = env("CLOUDFLARE_ACCOUNT_ID");
+  const openrouter = env("OPENROUTER_API_KEY");
+  const hf = env("HF_API_KEY");
+  if (gemini) out.push({ name: "gemini", model: env("GEMINI_MODEL") || GEMINI_MODEL, key: gemini });
+  if (groq) out.push({ name: "groq", model: env("GROQ_MODEL") || "openai/gpt-oss-20b", key: groq });
+  if (cerebras) out.push({ name: "cerebras", model: env("CEREBRAS_MODEL") || "gpt-oss-120b", key: cerebras });
+  if (mistral) out.push({ name: "mistral", model: env("MISTRAL_MODEL") || "mistral-small-latest", key: mistral });
+  if (cfToken && cfAccount) out.push({ name: "cloudflare", model: env("CLOUDFLARE_MODEL") || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", key: cfToken });
+  if (openrouter) out.push({ name: "openrouter", model: env("OPENROUTER_MODEL") || "openrouter/free", key: openrouter });
+  if (hf) out.push({ name: "huggingface", model: env("HF_MODEL") || "meta-llama/Llama-3.3-70B-Instruct", key: hf });
+  const requested = env("AI_PROVIDER_ORDER").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+  if (!requested.length) return out;
+  const rank = new Map(requested.map((id, i) => [id, i]));
+  return out.sort((a, b) => (rank.has(a.name) ? rank.get(a.name)! : requested.length + 1) - (rank.has(b.name) ? rank.get(b.name)! : requested.length + 1));
 }
 
 const investigationSchema = {
