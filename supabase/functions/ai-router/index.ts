@@ -1,7 +1,7 @@
 const ALLOWED_ORIGINS = new Set(["https://paradox.engineer","http://localhost:4321","http://127.0.0.1:4321"]);
 const MAX_PROMPT = 400_000;
 const DEFAULT_TIMEOUT = 5_000;
-const VERIFY_TIMEOUT = 3_000;
+const VERIFY_TIMEOUT = 10_000;
 const VERIFY_MAX = 7;
 const GENERAL_MAX = 8;
 const cooldowns = new Map<string, number>();
@@ -31,8 +31,149 @@ function candidates(requested:Provider,task:string,excluded:Provider[]){
 async function auth(req:Request){const a=req.headers.get("authorization");if(!a?.startsWith("Bearer "))throw new Error("Authentication required");const u=env("SUPABASE_URL"),k=env("SUPABASE_ANON_KEY")||env("SB_PUBLISHABLE_KEY");if(!u||!k)throw new Error("Authentication service is not configured");const r=await fetch(u.replace(/\/$/,"")+"/auth/v1/user",{headers:{Authorization:a,apikey:k},signal:AbortSignal.timeout(2500)});if(!r.ok)throw new Error("Authentication required");const user=await r.json().catch(()=>null);if(!user?.id)throw new Error("Authentication required");}
 function internal(req:Request){const k=req.headers.get("x-paradox-internal-key");return !!k&&!!env("SUPABASE_SERVICE_ROLE_KEY")&&k===env("SUPABASE_SERVICE_ROLE_KEY");}
 function parseJson(text:string){const s=text.trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/i,"").trim(),a=s.indexOf("{"),b=s.lastIndexOf("}"),c=a>=0&&b>a?s.slice(a,b+1):s,x=JSON.parse(c);if(!x||typeof x!=="object"||Array.isArray(x))throw new Error("Provider returned invalid JSON");return c;}
-function model(p:Provider){switch(p){case "gemini":return env("GEMINI_MODEL")||"gemini-3.8-flash";case "groq":return env("GROQ_MODEL")||"openai/gpt-oss-20b";case "cerebras":return env("CEREBRAS_MODEL")||"gpt-oss-120b";case "mistral":return env("MISTRAL_MODEL")||"mistral-small-latest";case "nvidia":return env("NVIDIA_MODEL")||"openai/gpt-oss-20b";case "cohere":return env("COHERE_MODEL")||"command-a-03-2025";case "openrouter":return env("OPENROUTER_MODEL")||"openrouter/free";case "huggingface":return env("HF_MODEL")||"openai/gpt-oss-120b:fastest";case "cloudflare":return env("CLOUDFLARE_MODEL")||"@cf/meta/llama-3.3-70b-instruct-fp8-fast";case "ollama":return env("OLLAMA_MODEL")||"llama3.2";default:return "";}}
-async function compatible(base:string,key:string,p:Provider,system:string,prompt:string,structured:boolean,timeout:number){if(!base||!key)throw new Error("credential");const r=await fetch(base.replace(/\/$/,"")+"/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+key,...(p==="openrouter"?{"HTTP-Referer":"https://paradox.engineer","X-Title":"PARADOX"}:{})},body:JSON.stringify({model:model(p),temperature:.1,max_tokens:/repository investigation planner/i.test(system)?1200:/adversarial evidence critic/i.test(system)?1800:3200,messages:[{role:"system",content:system+(structured?"\nReturn ONLY one valid JSON object. No markdown or commentary.":"")},{role:"user",content:prompt}]}),signal:AbortSignal.timeout(timeout)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error("Provider returned "+r.status+(d?.error?.message?": "+String(d.error.message).slice(0,180):""));const m=d?.choices?.[0]?.message,c=typeof m?.content==="string"?m.content:Array.isArray(m?.content)?m.content.map((x:any)=>x?.text||"").join("\n"):String(m?.text||d?.output_text||"");if(!c.trim())throw new Error("Provider returned no text");return structured?parseJson(c):c;}
-async function run(p:Provider,system:string,prompt:string,structured:boolean,timeout:number){if(p==="gemini"){const k=env("GEMINI_API_KEY");if(!k)throw new Error("credential");const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model(p))+":generateContent?key="+encodeURIComponent(k),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4200,...(structured?{responseMimeType:"application/json"}:{})}}),signal:AbortSignal.timeout(timeout)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(String(d?.error?.message||"Gemini returned "+r.status));const c=d?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text&&!x.thought?x.text:"").filter(Boolean).join("\n")||"";if(!c)throw new Error("Gemini returned no text");return structured?parseJson(c):c;}if(p==="cohere"){const r=await fetch("https://api.cohere.com/v2/chat",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+env("COHERE_API_KEY"),"X-Client-Name":"PARADOX"},body:JSON.stringify({model:model(p),stream:false,temperature:.1,max_tokens:3200,messages:[{role:"system",content:system+(structured?"\nReturn ONLY one valid JSON object.":"")},{role:"user",content:prompt}]}),signal:AbortSignal.timeout(timeout)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(String(d?.message||"Cohere returned "+r.status));const c=Array.isArray(d?.message?.content)?d.message.content.filter((x:any)=>x.type==="text").map((x:any)=>x.text||"").join("\n"):"";if(!c)throw new Error("Cohere returned no text");return structured?parseJson(c):c;}if(p==="cloudflare")return compatible("https://api.cloudflare.com/client/v4/accounts/"+encodeURIComponent(env("CLOUDFLARE_ACCOUNT_ID"))+"/ai/v1",env("CLOUDFLARE_API_TOKEN"),p,system,prompt,structured,timeout);if(p==="groq")return compatible("https://api.groq.com/openai/v1",env("GROQ_API_KEY"),p,system,prompt,structured,timeout);if(p==="cerebras")return compatible(env("CEREBRAS_BASE_URL")||"https://api.cerebras.ai/v1",env("CEREBRAS_API_KEY"),p,system,prompt,structured,timeout);if(p==="mistral")return compatible("https://api.mistral.ai/v1",env("MISTRAL_API_KEY"),p,system,prompt,structured,timeout);if(p==="openrouter")return compatible("https://openrouter.ai/api/v1",env("OPENROUTER_API_KEY"),p,system,prompt,structured,timeout);if(p==="huggingface")return compatible("https://router.huggingface.co/v1",env("HF_API_KEY"),p,system,prompt,structured,timeout);if(p==="nvidia")return compatible("https://integrate.api.nvidia.com/v1",env("NVIDIA_API_KEY"),p,system,prompt,structured,timeout);if(p==="ollama")return compatible(env("OLLAMA_BASE_URL"),env("OLLAMA_API_KEY")||"ollama-local",p,system,prompt,structured,timeout);throw new Error("Unsupported provider");}
+function model(p:Provider){
+  switch(p){
+    case "gemini": return env("GEMINI_MODEL") || "gemini-3.8-flash";
+    case "groq": return env("GROQ_MODEL") || "openai/gpt-oss-20b";
+    case "cerebras": return env("CEREBRAS_MODEL") || "gpt-oss-120b";
+    case "mistral": return env("MISTRAL_MODEL") || "mistral-small-latest";
+    case "nvidia": return env("NVIDIA_MODEL") || "openai/gpt-oss-20b";
+    case "cohere": {
+      const m = env("COHERE_MODEL");
+      return !m || m === "command-a-03-2025" ? "command-a-plus-05-2026" : m;
+    }
+    case "openrouter": {
+      const m = env("OPENROUTER_MODEL");
+      return !m || m === "openrouter/free" ? "openai/gpt-oss-120b:free" : m;
+    }
+    case "huggingface": {
+      const m = env("HF_MODEL");
+      return !m || m === "meta-llama/Llama-3.3-70B-Instruct" ? "openai/gpt-oss-120b:fastest" : m;
+    }
+    case "cloudflare": return env("CLOUDFLARE_MODEL") || "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+    case "ollama": return env("OLLAMA_MODEL") || "llama3.2";
+    default: return "";
+  }
+}
+async function compatible(
+  base:string,
+  key:string,
+  p:Provider,
+  system:string,
+  prompt:string,
+  structured:boolean,
+  timeout:number,
+){
+  if(!base||!key) throw new Error("credential");
+
+  const modelId = model(p);
+  const instruction = structured
+    ? system + "\nReturn ONLY one valid JSON object. Do not use markdown fences or commentary."
+    : system;
+
+  const body:any = {
+    model:modelId,
+    temperature:p === "nvidia" ? 0.2 : 0.1,
+    messages:[
+      {role:"system",content:instruction},
+      {role:"user",content:prompt}
+    ],
+  };
+
+  if(p === "groq"){
+    body.max_completion_tokens = 2400;
+    body.stream = false;
+    if(structured){
+      body.response_format = {type:"json_object"};
+      body.reasoning_effort = "medium";
+      body.reasoning_format = "hidden";
+    }
+  } else if(p === "nvidia"){
+    body.max_tokens = 2400;
+    body.stream = false;
+  } else if(p === "openrouter"){
+    body.max_tokens = 2400;
+    body.stream = false;
+    if(structured) body.response_format = {type:"json_object"};
+  } else if(p === "mistral"){
+    body.max_tokens = 2400;
+    body.stream = false;
+    if(structured) body.response_format = {type:"json_object"};
+  } else {
+    body.max_tokens = 2400;
+    body.stream = false;
+  }
+
+  const headers:Record<string,string> = {
+    "Content-Type":"application/json",
+    Authorization:"Bearer "+key,
+  };
+  if(p === "openrouter"){
+    headers["HTTP-Referer"]="https://paradox.engineer";
+    headers["X-Title"]="PARADOX";
+  }
+
+  const r=await fetch(
+    base.replace(/\/$/,"")+"/chat/completions",
+    {
+      method:"POST",
+      headers,
+      body:JSON.stringify(body),
+      signal:AbortSignal.timeout(timeout),
+    },
+  );
+
+  const d=await r.json().catch(()=>null);
+  if(!r.ok){
+    const detail = d?.error?.message || d?.message || d?.detail || "";
+    throw new Error("Provider returned "+r.status+(detail?": "+String(detail).slice(0,220):""));
+  }
+
+  const message=d?.choices?.[0]?.message;
+  const content =
+    typeof message?.content === "string"
+      ? message.content
+      : Array.isArray(message?.content)
+        ? message.content.map((x:any)=>typeof x?.text === "string" ? x.text : "").join("\n")
+        : String(message?.text || d?.output_text || "");
+
+  if(!content.trim()) throw new Error("Provider returned no text");
+  return structured ? parseJson(content) : content;
+}
+
+async function run(p:Provider,system:string,prompt:string,structured:boolean,timeout:number){if(p==="gemini"){const k=env("GEMINI_API_KEY");if(!k)throw new Error("credential");const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model(p))+":generateContent?key="+encodeURIComponent(k),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4200,...(structured?{responseMimeType:"application/json"}:{})}}),signal:AbortSignal.timeout(timeout)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(String(d?.error?.message||"Gemini returned "+r.status));const c=d?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text&&!x.thought?x.text:"").filter(Boolean).join("\n")||"";if(!c)throw new Error("Gemini returned no text");return structured?parseJson(c):c;}if(p==="cohere"){
+    const key=env("COHERE_API_KEY");
+    if(!key) throw new Error("credential");
+    const r=await fetch("https://api.cohere.com/v2/chat",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:"Bearer "+key,
+        "X-Client-Name":"PARADOX",
+      },
+      body:JSON.stringify({
+        model:model(p),
+        stream:false,
+        temperature:0.1,
+        max_tokens:2400,
+        messages:[
+          {role:"system",content:structured ? system+"\nGenerate a JSON object only." : system},
+          {role:"user",content:prompt},
+        ],
+        ...(structured ? {response_format:{type:"json_object"}} : {}),
+      }),
+      signal:AbortSignal.timeout(timeout),
+    });
+    const d=await r.json().catch(()=>null);
+    if(!r.ok){
+      const detail=d?.message||d?.error?.message||"";
+      throw new Error("Cohere returned "+r.status+(detail?": "+String(detail).slice(0,220):""));
+    }
+    const content=Array.isArray(d?.message?.content)
+      ? d.message.content.filter((x:any)=>x?.type==="text").map((x:any)=>x.text||"").join("\n")
+      : "";
+    if(!content.trim()) throw new Error("Cohere returned no text");
+    return structured ? parseJson(content) : content;
+  }if(p==="cloudflare")return compatible("https://api.cloudflare.com/client/v4/accounts/"+encodeURIComponent(env("CLOUDFLARE_ACCOUNT_ID"))+"/ai/v1",env("CLOUDFLARE_API_TOKEN"),p,system,prompt,structured,timeout);if(p==="groq")return compatible("https://api.groq.com/openai/v1",env("GROQ_API_KEY"),p,system,prompt,structured,timeout);if(p==="cerebras")return compatible(env("CEREBRAS_BASE_URL")||"https://api.cerebras.ai/v1",env("CEREBRAS_API_KEY"),p,system,prompt,structured,timeout);if(p==="mistral")return compatible("https://api.mistral.ai/v1",env("MISTRAL_API_KEY"),p,system,prompt,structured,timeout);if(p==="openrouter")return compatible("https://openrouter.ai/api/v1",env("OPENROUTER_API_KEY"),p,system,prompt,structured,timeout);if(p==="huggingface")return compatible("https://router.huggingface.co/v1",env("HF_API_KEY"),p,system,prompt,structured,timeout);if(p==="nvidia")return compatible("https://integrate.api.nvidia.com/v1",env("NVIDIA_API_KEY"),p,system,prompt,structured,timeout);if(p==="ollama")return compatible(env("OLLAMA_BASE_URL"),env("OLLAMA_API_KEY")||"ollama-local",p,system,prompt,structured,timeout);throw new Error("Unsupported provider");}
 function code(e:unknown){const s=e instanceof Error?e.message.toLowerCase():"";return /401|403|credential|unauthor|forbidden/.test(s)?"AUTH":/429|quota|rate limit|capacity/.test(s)?"QUOTA":/timeout|aborted/.test(s)?"TIMEOUT":/invalid json|no text/.test(s)?"OUTPUT":/404/.test(s)?"HTTP_404":/4\d\d/.test(s)?"HTTP_4XX":/5\d\d/.test(s)?"HTTP_5XX":"UNAVAILABLE";}
 Deno.serve(async req=>{const h=cors(req);if(req.method==="OPTIONS")return new Response("ok",{headers:h});if(req.method!=="POST")return out({error:"Method not allowed"},405,h);const isInternal=internal(req);if(!isInternal&&!limited(req))return out({error:"Too many AI requests. Please wait a minute."},429,h);try{if(!isInternal)await auth(req);const b=await req.json(),prompt=String(b.prompt||"").slice(0,MAX_PROMPT),system=String(b.system||"You are PARADOX AI. Be accurate and never invent facts.").slice(0,10000),task=String(b.task||"general").slice(0,120),requested=String(b.provider||"auto") as Provider,structured=b.json===true;if(!prompt.trim())return out({error:"Prompt is required."},400,h);const ex=(Array.isArray(b.excludeProviders)?b.excludeProviders:[]).map((x:any)=>String(x).toLowerCase()).filter((x:string)=>PROVIDERS.includes(x as Provider)) as Provider[];const order=candidates(PROVIDERS.includes(requested)||requested==="auto"?requested:"auto",task,ex),failures:any[]=[];for(const p of order)try{const started=Date.now(),text=await run(p,system,prompt,structured,verifyTask(task)?VERIFY_TIMEOUT:DEFAULT_TIMEOUT);cooldowns.delete(p);return out({text,provider:p,model:model(p),latencyMs:Date.now()-started,attempted:order.slice(0,order.indexOf(p)+1)},200,h);}catch(e){cooldowns.set(p,Date.now()+(/429|quota|rate limit/.test(String(e))?45000:60000));failures.push({provider:p,error:e});}return out({error:"No configured AI provider is currently available.",attempted:order,failureCodes:failures.map(x=>x.provider+":"+code(x.error)).slice(0,10)},503,h);}catch(e){const m=e instanceof Error?e.message:"Invalid AI request.";return out({error:m},m==="Authentication required"||m==="Authentication service is not configured"?401:400,h);}});
