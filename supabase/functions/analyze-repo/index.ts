@@ -15,7 +15,12 @@ const MAX_URL_LENGTH = 512;
 const MAX_QUERY_LENGTH = 120;
 const MAX_CACHE_ENTRIES = 160;
 const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
-const ANALYSIS_VERSION = "2026-09-21.2";
+const ANALYSIS_VERSION = "2026-09-24.1";
+const STATIC_FILE_BYTES = 200_000;
+const STATIC_MAX_FILES = 2_500;
+const STATIC_MAX_TOTAL_BYTES = 24 * 1024 * 1024;
+const STATIC_CONCURRENCY = 12;
+const STATIC_TIMEOUT_MS = 7_000;
 
 const searchCache = new Map<string, { at: number; data: unknown }>();
 const analysisCache = new Map<string, { at: number; data: unknown }>();
@@ -230,6 +235,154 @@ async function readFile(owner: string, repo: string, path: string, ref?: string)
   return { path, content: raw.slice(0, MAX_FILE), size, skipped: false };
 }
 
+function staticScannable(path: string, size: number) {
+  const binary = /\.(?:png|jpe?g|gif|webp|ico|bmp|tiff|woff2?|ttf|eot|zip|tar|gz|bz2|xz|7z|rar|mp3|mp4|mov|avi|mkv|pdf|exe|dll|so|dylib|class|jar|wasm|bin|db|sqlite)$/i;
+  const skip = /(?:^|\/)(?:node_modules|\.git|dist|build|coverage|vendor|target|\.next|\.astro|out|bin|obj|third_party)(?:\/|$)/i;
+  return Boolean(path) && size >= 0 && size <= STATIC_FILE_BYTES && !binary.test(path) && !skip.test(path);
+}
+
+async function fetchRawStatic(owner: string, repo: string, commitSha: string, path: string) {
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
+  const r = await fetch("https://raw.githubusercontent.com/" + owner + "/" + repo + "/" + commitSha + "/" + encoded, { signal: AbortSignal.timeout(STATIC_TIMEOUT_MS) });
+  if (!r.ok) throw new Error("raw fetch " + r.status);
+  return r.text();
+}
+
+async function mapStatic<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let cursor = 0;
+  async function worker() {
+    while (true) {
+      const index = cursor++;
+      if (index >= items.length) return;
+      results[index] = await fn(items[index]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+function staticRank(path: string, size: number) {
+  let score = 0;
+  if (/^\.github\/workflows\//i.test(path)) score += 140;
+  if (/^(?:package-lock\.json|pnpm-lock\.yaml|yarn\.lock|requirements[^/]*\.txt|pyproject\.toml|poetry\.lock|cargo\.lock|pom\.xml|build\.gradle(?:\.kts)?|go\.mod|go\.sum|composer\.json|gemfile(?:\.lock)?|dockerfile|(?:docker-)?compose\.ya?ml|makefile|justfile)$/i.test(path.split("/").pop() || "")) score += 120;
+  if (/^(?:src|app|lib|server|api|cmd|internal)\//i.test(path)) score += 90;
+  if (/(?:^|\/)(?:main|index|app|server|api|cli)\.(?:ts|tsx|js|jsx|mjs|cjs|py|java|kt|go|rs|php|cs|rb|swift)$/i.test(path)) score += 100;
+  if (/test|spec|e2e/i.test(path)) score += 45;
+  if (/docs?\//i.test(path)) score += 25;
+  score -= Math.min(35, path.split("/").length * 2);
+  score -= Math.min(20, Math.floor(size / 500_000));
+  return score;
+}
+
+async function queryOsvDependencyVulnerabilities(files: Array<{ path: string; content: string }>) {
+  const pairs: Array<{ name: string; ecosystem: string; version: string; file: string }> = [];
+  const add = (name: string, ecosystem: string, version: string, file: string) => {
+    const n = name.trim();
+    const v = version.trim();
+    if (!n || !v || v === "*" || /[<>=~^*|]/.test(v)) return;
+    pairs.push({ name: n, ecosystem, version: v, file });
+  };
+
+  for (const file of files) {
+    if (file.path === "package-lock.json") {
+      try {
+        const pkg = JSON.parse(file.content);
+        const packages = pkg?.packages;
+        if (packages && typeof packages === "object") {
+          for (const [namePath, value] of Object.entries(packages as Record<string, unknown>)) {
+            if (!namePath.startsWith("node_modules/") || !value || typeof value !== "object") continue;
+            add(namePath.slice("node_modules/".length), "npm", String((value as Record<string, unknown>).version || ""), file.path);
+          }
+        }
+      } catch {}
+    }
+
+    if (/^requirements(?:[-._].*)?\.txt$/i.test(file.path)) {
+      for (const line of file.content.split("\n")) {
+        const match = line.trim().match(/^([A-Za-z0-9_.-]+)==([0-9A-Za-z.+-]+)$/);
+        if (match) add(match[1], "PyPI", match[2], file.path);
+      }
+    }
+
+    if (/^poetry\.lock$/i.test(file.path) || /^Cargo\.lock$/i.test(file.path)) {
+      const blocks = file.content.split(/\n\[\[package\]\]\n/).slice(1);
+      const ecosystem = /^Cargo\.lock$/i.test(file.path) ? "crates.io" : "PyPI";
+      for (const block of blocks) {
+        const name = block.match(/^name\s*=\s*"([^"]+)"/m)?.[1] || "";
+        const version = block.match(/^version\s*=\s*"([^"]+)"/m)?.[1] || "";
+        add(name, ecosystem, version, file.path);
+      }
+    }
+  }
+
+  const unique = [...new Map(pairs.map((pair) => [
+    pair.ecosystem + ":" + pair.name + ":" + pair.version,
+    pair,
+  ])).values()].slice(0, 350);
+
+  if (!unique.length) return { count: 0, available: true, findings: [] as Array<{ file: string; name: string; version: string; ids: string[] }> };
+
+  try {
+    const response = await fetch("https://api.osv.dev/v1/querybatch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        queries: unique.map((pair) => ({
+          package: { name: pair.name, ecosystem: pair.ecosystem },
+          version: pair.version,
+        })),
+      }),
+      signal: AbortSignal.timeout(9_000),
+    });
+    if (!response.ok) return { count: 0, available: false, findings: [] };
+    const body = await response.json().catch(() => null);
+    const results = Array.isArray(body?.results) ? body.results : [];
+    const findings: Array<{ file: string; name: string; version: string; ids: string[] }> = [];
+    results.forEach((result: { vulns?: Array<{ id?: string }> }, index: number) => {
+      const vulns = Array.isArray(result?.vulns) ? result.vulns : [];
+      if (!vulns.length) return;
+      const pair = unique[index];
+      findings.push({ file: pair.file, name: pair.name, version: pair.version, ids: vulns.slice(0, 8).map((v) => String(v.id || "unknown")) });
+    });
+    return { count: findings.length, available: true, findings };
+  } catch {
+    return { count: 0, available: false, findings: [] };
+  }
+}
+
+async function runFullStaticScan(owner: string, repo: string, commitSha: string, treeItems: Array<{ path?: string; type?: string; size?: number }>) {
+  const candidates = treeItems.filter((x) => x.type === "blob" && x.path && staticScannable(x.path, Number(x.size || 0))).map((x) => ({ path: x.path as string, size: Number(x.size || 0) })).sort((a, b) => staticRank(b.path, b.size) - staticRank(a.path, a.size) || a.path.localeCompare(b.path));
+  const limited = candidates.slice(0, STATIC_MAX_FILES);
+  const selected: typeof limited = [];
+  let bytes = 0;
+  let byteLimited = false;
+  for (const file of limited) {
+    if (bytes + file.size > STATIC_MAX_TOTAL_BYTES) { byteLimited = true; continue; }
+    selected.push(file); bytes += file.size;
+  }
+  const files = await mapStatic(selected, STATIC_CONCURRENCY, async (file) => {
+    try {
+      const raw = await fetchRawStatic(owner, repo, commitSha, file.path);
+      return { ...file, content: raw.slice(0, STATIC_FILE_BYTES), truncated: raw.length > STATIC_FILE_BYTES, fetchError: "" };
+    } catch (error) {
+      return { ...file, content: "", truncated: false, fetchError: error instanceof Error ? error.message : "fetch failed" };
+    }
+  });
+  const successful = files.filter((file) => Boolean(file.content));
+  const dependency = await queryOsvDependencyVulnerabilities(successful);
+  return {
+    files: successful,
+    candidates: candidates.length,
+    scanned: successful.length,
+    complete: candidates.length === selected.length && !byteLimited && files.every((file) => !file.fetchError) && limited.length === candidates.length,
+    bytes: successful.reduce((sum, file) => sum + file.content.length, 0),
+    dependencyVulnerabilities: dependency.count,
+    dependencyCheckAvailable: dependency.available,
+    dependencyFindings: dependency.findings,
+  };
+}
+
 function fileScore(path: string, size: number, treeType = "blob") {
   if (treeType !== "blob" || !path || SKIP_PATH.test(path)) return -1;
   const p = path.toLowerCase();
@@ -385,8 +538,20 @@ function deterministicFindings(files: Array<{ path: string; content: string }>) 
     {
       category: "Credential material",
       severity: "HIGH",
-      test: /BEGIN (?:OPENSSH|RSA) PRIVATE KEY|github_token\s*[:=]|-----BEGIN PRIVATE KEY-----/i,
-      reason: "A strong private-key or credential-material indicator is present in source.",
+      test: /BEGIN (?:OPENSSH|RSA) PRIVATE KEY|github_token\s*[:=]|-----BEGIN PRIVATE KEY-----|(?:ghp|gho|ghs|github_pat)_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/i,
+      reason: "A strong private-key, token, access-key, or JWT-like credential indicator is present in source.",
+    },
+    {
+      category: "Dynamic module loading",
+      severity: "MODERATE",
+      test: /require\s*\(\s*[A-Za-z_$][\w$]*\s*\)|import\s*\(\s*[A-Za-z_$][\w$]*\s*\)/i,
+      reason: "The code dynamically constructs a module load from a variable, which deserves contextual review.",
+    },
+    {
+      category: "Prompt injection content",
+      severity: "LOW",
+      test: /\b(?:ignore|disregard)\s+(?:all|any|the|previous|prior)\s+(?:instructions|rules|system prompt)\b/i,
+      reason: "Repository content contains instruction-like text commonly associated with prompt-injection attempts.",
     },
   ];
 
@@ -456,8 +621,27 @@ function buildEvidence(files: Array<{ path: string; content: string }>, maxChars
 type Provider = { name: string; model: string; key: string };
 
 function providers(): Provider[] {
-  const key = Deno.env.get("GEMINI_API_KEY");
-  return key ? [{ name: "gemini", model: GEMINI_MODEL, key }] : [];
+  const env = (name: string) => Deno.env.get(name) || "";
+  const out: Provider[] = [];
+  const gemini = env("GEMINI_API_KEY");
+  const groq = env("GROQ_API_KEY");
+  const cerebras = env("CEREBRAS_API_KEY");
+  const mistral = env("MISTRAL_API_KEY");
+  const cfToken = env("CLOUDFLARE_API_TOKEN");
+  const cfAccount = env("CLOUDFLARE_ACCOUNT_ID");
+  const openrouter = env("OPENROUTER_API_KEY");
+  const hf = env("HF_API_KEY");
+  if (gemini) out.push({ name: "gemini", model: env("GEMINI_MODEL") || GEMINI_MODEL, key: gemini });
+  if (groq) out.push({ name: "groq", model: env("GROQ_MODEL") || "openai/gpt-oss-20b", key: groq });
+  if (cerebras) out.push({ name: "cerebras", model: env("CEREBRAS_MODEL") || "gpt-oss-120b", key: cerebras });
+  if (mistral) out.push({ name: "mistral", model: env("MISTRAL_MODEL") || "mistral-small-latest", key: mistral });
+  if (cfToken && cfAccount) out.push({ name: "cloudflare", model: env("CLOUDFLARE_MODEL") || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", key: cfToken });
+  if (openrouter) out.push({ name: "openrouter", model: env("OPENROUTER_MODEL") || "openrouter/free", key: openrouter });
+  if (hf) out.push({ name: "huggingface", model: env("HF_MODEL") || "meta-llama/Llama-3.3-70B-Instruct", key: hf });
+  const requested = env("AI_PROVIDER_ORDER").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+  if (!requested.length) return out;
+  const rank = new Map(requested.map((id, i) => [id, i]));
+  return out.sort((a, b) => (rank.has(a.name) ? rank.get(a.name)! : requested.length + 1) - (rank.has(b.name) ? rank.get(b.name)! : requested.length + 1));
 }
 
 const investigationSchema = {
@@ -521,16 +705,55 @@ const reviewSchema = {
 };
 
 async function requestGemini(provider: Provider, system: string, prompt: string, schema: Record<string, unknown>) {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  if (supabaseUrl && serviceKey) {
+    try {
+      const contract = system + "\nReturn ONLY valid JSON matching this schema:\n" + JSON.stringify(schema);
+      const routed = await fetch(supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: serviceKey,
+          Authorization: "Bearer " + serviceKey,
+          "x-paradox-internal-key": serviceKey,
+        },
+        body: JSON.stringify({ prompt, system: contract, task: "repository security verification", provider: "auto", json: true }),
+        signal: AbortSignal.timeout(45_000),
+      });
+      const payload = await routed.json().catch(() => null);
+      if (routed.ok && typeof payload?.text === "string") {
+        const raw = payload.text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+        const first = raw.indexOf("{");
+        const last = raw.lastIndexOf("}");
+        const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
+        const parsed = JSON.parse(jsonText);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
+        return Object.assign(parsed as Record<string, unknown>, {
+          __aiProvider: String(payload.provider || provider.name),
+          __aiModel: String(payload.model || provider.model),
+          __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String) : [],
+        });
+      }
+    } catch {
+      // Fall through to a direct Gemini attempt when the router itself is unavailable.
+    }
+  }
+
+  const key = Deno.env.get("GEMINI_API_KEY");
+  if (!key) throw new Error("No configured AI provider is available");
+  const model = Deno.env.get("GEMINI_MODEL") || GEMINI_MODEL;
   const r = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(provider.model) + ":generateContent",
+    "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": provider.key },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
           maxOutputTokens: 4200,
+          temperature: 0.1,
           responseFormat: { text: { mimeType: "application/json", schema } },
           thinkingConfig: { thinkingLevel: "high" },
         },
@@ -538,21 +761,14 @@ async function requestGemini(provider: Provider, system: string, prompt: string,
       signal: AbortSignal.timeout(AI_TIMEOUT_MS),
     },
   );
-
   const d = await r.json().catch(() => null);
-  if (!r.ok) throw new Error(d?.error?.message || "Gemini request failed");
-
-  const text = d?.candidates?.[0]?.content?.parts
-    ?.filter((p: { text?: string; thought?: boolean }) => p.text && !p.thought)
-    .map((p: { text?: string }) => p.text || "")
-    .join("") || "";
-
-  if (!text) throw new Error("Gemini returned no review");
+  if (!r.ok) throw new Error(d?.error?.message || "AI provider request failed");
+  const text = d?.candidates?.[0]?.content?.parts?.filter((p: { text?: string; thought?: boolean }) => p.text && !p.thought).map((p: { text?: string }) => p.text || "").join("") || "";
+  if (!text) throw new Error("AI provider returned no review");
   const parsed = JSON.parse(text);
-  if (!parsed || typeof parsed !== "object") throw new Error("Gemini returned invalid structured output");
-  return parsed as Record<string, unknown>;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI provider returned invalid JSON");
+  return Object.assign(parsed as Record<string, unknown>, { __aiProvider: "gemini", __aiModel: model, __aiAttempted: ["gemini"] });
 }
-
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
     treeItems.filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path)).map(x => x.path as string),
@@ -648,8 +864,9 @@ function sanitizeReview(
     needsReview,
     contradictions,
     claims,
-    provider: meta.provider,
-    model: meta.model,
+    provider: String(raw.__aiProvider || meta.provider),
+    model: String(raw.__aiModel || meta.model),
+    attemptedProviders: Array.isArray(raw.__aiAttempted) ? raw.__aiAttempted.map(String).slice(0, 8) : [String(raw.__aiProvider || meta.provider)],
     status: validated ? "READY" as const : "UNAVAILABLE" as const,
     coverage: {
       treeFiles: meta.treeFiles,
@@ -668,6 +885,7 @@ async function intelligence(
   treeItems: Array<{ path?: string; type?: string; size?: number }>,
   initialFiles: Array<{ path: string; content: string; size?: number }>,
   riskFindings: Array<{ category: string; severity: string; file: string; line: number; evidence: string; reason: string }>,
+  scannedFiles: Array<{ path: string; content: string; size?: number }> = initialFiles,
 ) {
   const ps = providers();
   if (!ps.length) return null;
@@ -675,6 +893,7 @@ async function intelligence(
   const provider = ps[0];
   const pathSet = safePathSet(treeItems);
   const initialMap = new Map(initialFiles.map(f => [f.path, f.content]));
+  const scannedMap = new Map(scannedFiles.map(f => [f.path, f]));
   const inventory = treeItems
     .filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path))
     .slice(0, 2500)
@@ -709,7 +928,7 @@ async function intelligence(
     focus = Array.isArray(plan.focus) ? plan.focus.map(String).slice(0, 8) : [];
     const unique = [...new Set(requested)].filter(p => pathSet.has(p) && !initialMap.has(p)).slice(0, TARGETED_FILES);
 
-    targeted = (await Promise.all(unique.map(p => readFile(owner, repo, p, commitSha))))
+    targeted = (await Promise.all(unique.map(async (p) => scannedMap.get(p) || await readFile(owner, repo, p, commitSha))))
       .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
   } catch {
     const pathCandidates = new Set<string>();
@@ -717,7 +936,7 @@ async function intelligence(
       for (const path of extractLocalImports(file, pathSet)) pathCandidates.add(path);
     }
     const fallback = [...pathCandidates].filter(p => !initialMap.has(p)).slice(0, TARGETED_FILES);
-    targeted = (await Promise.all(fallback.map(p => readFile(owner, repo, p, commitSha))))
+    targeted = (await Promise.all(fallback.map(async (p) => scannedMap.get(p) || await readFile(owner, repo, p, commitSha))))
       .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
     focus = ["Validate central implementation paths and security-sensitive code against repository evidence."];
   }
@@ -842,24 +1061,49 @@ async function analyze(owner: string, repo: string, fresh = false) {
   const treeItems = tree.data.tree;
   const rootNames = rootItems.length
     ? rootItems.map((x: { name?: string }) => String(x.name || ""))
-    : [...new Set(treeItems.map((x: { path?: string }) => String(x.path || "").split("/")[0]).filter(Boolean))];
-  const selectedPaths = selectPaths(rootNames, treeItems, INITIAL_FILES);
-  const initialFiles = (await Promise.all(selectedPaths.map(path => readFile(owner, repo, path, commitSha))))
-    .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
+    : [...new Set(treeItems.map((x: { path?: string }) => String(x.path || "").split("/")[0]).filter(Boolean))] as string[];
+
+  const fullScan = await runFullStaticScan(owner, repo, commitSha, treeItems);
+  const staticRiskFindings = deterministicFindings(fullScan.files);
+  const dependencyRiskFindings = (fullScan.dependencyFindings || []).map((finding) => ({
+    category: "Known dependency vulnerability",
+    severity: "MODERATE" as const,
+    file: finding.file,
+    line: 1,
+    evidence: redact(finding.name + "@" + finding.version + " -> " + finding.ids.join(", ")),
+    reason: "OSV.dev reported one or more vulnerability records for this exact dependency version.",
+  }));
+  const allStaticFindings = [...staticRiskFindings, ...dependencyRiskFindings];
+
+  const preferred = new Set(selectPaths(rootNames, treeItems, INITIAL_FILES));
+  const rankMap = new Map(allStaticFindings.map((finding) => [
+    finding.file,
+    finding.severity === "HIGH" ? 90 : finding.severity === "MODERATE" ? 45 : 10,
+  ]));
+  const rankedInitial = [...fullScan.files]
+    .map((file) => ({
+      file,
+      score: fileScore(file.path, Number(file.size || 0)) + (preferred.has(file.path) ? 55 : 0) + (rankMap.get(file.path) || 0),
+    }))
+    .sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
+  let initialFiles = rankedInitial.slice(0, INITIAL_FILES).map((entry) => entry.file);
+  if (!initialFiles.length && fullScan.files.length) initialFiles = fullScan.files.slice(0, INITIAL_FILES);
 
   const treeFileCount = treeItems.filter((x: { type?: string }) => x.type === "blob").length;
-  if (treeFileCount > 0 && initialFiles.length === 0) {
+  if (treeFileCount > 0 && fullScan.files.length === 0) {
     throw new ResponseError("GitHub could not return repository files for inspection. Try again shortly.", 502);
   }
 
-  const riskFindings = deterministicFindings(initialFiles);
+  const riskFindings = allStaticFindings;
 
   let aiReview = null;
   let targetedFiles: Array<{ path: string; content: string; size?: number }> = [];
   try {
-    const agentResult = await intelligence(owner, repo, rr.data, commitSha, treeItems, initialFiles, riskFindings);
-    aiReview = agentResult.review;
-    targetedFiles = agentResult.targeted;
+    const agentResult = await intelligence(owner, repo, rr.data, commitSha, treeItems, initialFiles, riskFindings, fullScan.files);
+    if (agentResult) {
+      aiReview = agentResult.review;
+      targetedFiles = agentResult.targeted;
+    }
   } catch {
     aiReview = null;
   }
@@ -868,7 +1112,13 @@ async function analyze(owner: string, repo: string, fresh = false) {
     arr.findIndex(x => x.path === file.path) === index
   );
 
-  const finalRiskFindings = deterministicFindings(allFiles);
+  const finalRiskFindings = [...deterministicFindings(fullScan.files), ...((fullScan.dependencyFindings || []).map((finding) => ({
+    category: "Known dependency vulnerability",
+    severity: "MODERATE" as const,
+    file: finding.file,
+    evidence: redact(finding.name + "@" + finding.version + " -> " + finding.ids.join(", ")),
+    reason: "OSV.dev reported one or more vulnerability records for this exact dependency version.",
+  })))].slice(0, 96);
   const treeComplete = Boolean(tree.ok && tree.data?.truncated !== true);
   const data = {
     repo: { ...rr.data, analyzed_commit_sha: commitSha, analyzed_ref: branch },
@@ -893,6 +1143,11 @@ async function analyze(owner: string, repo: string, fresh = false) {
       treeFiles: treeItems.filter((x: { type?: string }) => x.type === "blob").length,
       targetedFiles: targetedFiles.length,
       evidenceChars: Number(aiReview?.coverage?.evidenceChars || 0),
+      staticCandidates: fullScan.candidates,
+      staticScannedFiles: fullScan.scanned,
+      staticComplete: fullScan.complete,
+      staticBytes: fullScan.bytes,
+      dependencyVulnerabilities: fullScan.dependencyVulnerabilities || 0,
     },
   };
 

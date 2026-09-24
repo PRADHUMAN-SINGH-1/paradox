@@ -10,6 +10,7 @@ Email pradhumansingh196@gmail.com. Do not file public issues that include secret
 - Browser code may contain the Supabase publishable key.
 - The Supabase service role key, GITHUB_TOKEN, and GEMINI_API_KEY stay server-side.
 - The Verify Edge Function keeps provider credentials outside browser code and exposes only bounded analysis results.
+- Verify can fail over across multiple configured server-side providers (Gemini, Groq, Cerebras, Mistral, Cloudflare Workers AI, OpenRouter, Hugging Face and optional Ollama) without exposing any provider key to the browser.
 
 ## Analysis boundary
 
@@ -18,6 +19,7 @@ Email pradhumansingh196@gmail.com. Do not file public issues that include secret
 - URL intake is limited to GitHub repository URLs and the backend calls a fixed GitHub API origin, preventing arbitrary SSRF targets.
 - Repository tree analysis is pinned to an immutable commit SHA.
 - Evidence claims are accepted only when the cited file exists in the inspected revision and the quoted text matches the cited line window.
+- Static scanning and LLM investigation are separate trust layers: the static layer can cover every eligible file within explicit ceilings, while the LLM receives only bounded ranked evidence.
 - Model-reported contradictions are not trusted as standalone facts; the evidence ledger derives contradiction lists from validated claim states.
 
 ## Sensitive-data handling

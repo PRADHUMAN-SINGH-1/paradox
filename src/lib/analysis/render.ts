@@ -71,14 +71,14 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const compare = opts.compareHref || '/compare/?left=' + encodeURIComponent(x.meta.fullName);
   const liveProfile = '/agents/view/?repo=' + encodeURIComponent(x.meta.fullName);
   const selectedFiles = Math.min(x.coverage.selectedFiles, x.coverage.maxFiles || 64);
-  const maxFiles = x.coverage.maxFiles || 64;
-  const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
+   const highRisks = x.risks.filter((r) => r.severity === 'HIGH').length;
   const moderateRisks = x.risks.filter((r) => r.severity === 'MODERATE').length;
   const ai = x.intelligence;
   const aiReady = Boolean(ai && ai.status === 'READY');
   const aiStatus = aiReady ? 'LIVE' : 'UNAVAILABLE';
   const aiProvider = ai?.provider ? ai.provider.toUpperCase() : 'NO PROVIDER';
   const aiModel = ai?.model || 'Evidence engine unavailable';
+  const attemptedProviders = ai?.attemptedProviders?.length ? ai.attemptedProviders.join(' → ').toUpperCase() : aiProvider;
   const claims = ai?.claims || [];
   const evidencePct = aiReady ? evidenceQuality(ai, x.coverage) : 0;
   const confirmed = claims.filter((c) => c.status === 'CONFIRMED').length;
@@ -87,6 +87,12 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
   const treeFiles = x.coverage.treeFiles ?? ai?.coverage?.treeFiles ?? 0;
   const targetedFiles = x.coverage.targetedFiles ?? ai?.coverage?.targetedFiles ?? 0;
   const inspectedChars = x.coverage.evidenceChars ?? ai?.coverage?.evidenceChars ?? 0;
+  const staticCandidates = x.coverage.staticCandidates ?? 0;
+  const staticScannedFiles = x.coverage.staticScannedFiles ?? 0;
+  const staticComplete = x.coverage.staticComplete !== false;
+  const staticBytes = x.coverage.staticBytes ?? 0;
+  const dependencyVulnerabilities = x.coverage.dependencyVulnerabilities ?? 0;
+  const dependencyCheck = x.coverage.dependencyCheckAvailable === false ? 'OSV UNAVAILABLE' : 'OSV READY';
   const langs = Object.keys(x.languages).slice(0, 6).map(escapeHtml).join(', ') || 'Unknown';
 
   const detections = x.detections.map((d) =>
@@ -127,6 +133,8 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           '<span><b>Contradicted</b><strong>' + contradicted + '</strong></span>' +
           '<span><b>Unconfirmed</b><strong>' + unconfirmed + '</strong></span>' +
           '<span><b>Targeted files</b><strong>' + targetedFiles + '</strong></span>' +
+          '<span><b>Provider path</b><strong>' + escapeHtml(attemptedProviders) + '</strong></span>' +
+          '<span><b>Static bytes</b><strong>' + Math.round(staticBytes / 1024) + ' KB</strong></span>' +
         '</div>' +
         '<div class="vx-decision-callout"><span>ADJUDICATION</span>' +
           '<p>' + escapeHtml(ai.decisionReason || 'The final verdict is constrained by deterministic risk and freshness gates plus validated evidence claims.') + '</p>' +
@@ -176,6 +184,7 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
           '<span>' + (x.method === 'static-analysis+agent-review' ? 'AGENT-REVIEWED' : 'DETERMINISTIC') + '</span>' +
           '<span>' + (x.coverage.recursiveTree ? 'COMPLETE TREE' : 'PARTIAL TREE') + '</span>' +
           '<span>COMMIT ' + escapeHtml((x.analyzedCommitSha || '').slice(0, 12) || 'UNKNOWN') + '</span>' +
+          '<span>' + escapeHtml(staticComplete ? 'STATIC SCAN COMPLETE' : 'STATIC SCAN PARTIAL') + '</span>' +
         '</div>' +
       '</div>' +
       '<aside class="vx-score-box vx-score-box--hero"><span>PARADOX SCORE</span>' +
@@ -190,6 +199,8 @@ export function renderAnalysis(x: Analysis, opts: { compareHref?: string } = {})
       '<article class="vx-summary-item ' + (highRisks ? 'vx-summary-item--danger' : 'vx-summary-item--confirmed') + '"><span>HIGH-RISK</span><strong>' + highRisks + '</strong><small>deterministic security indicators</small></article>' +
       '<article class="vx-summary-item"><span>FILES</span><strong>' + selectedFiles + '</strong><small>inspected in this run</small></article>' +
       '<article class="vx-summary-item"><span>EVIDENCE</span><strong>' + evidencePct + '</strong><small>evidence quality / 100</small></article>' +
+      '<article class="vx-summary-item"><span>STATIC COVERAGE</span><strong>' + staticScannedFiles + '/' + staticCandidates + '</strong><small>' + (staticComplete ? 'scannable files inspected' : 'partial scannable coverage') + '</small></article>' +
+      '<article class="vx-summary-item"><span>DEPENDENCIES</span><strong>' + dependencyVulnerabilities + '</strong><small>' + escapeHtml(dependencyCheck) + '</small></article>' +
     '</section>' +
 
     '<section class="vx-decision-grid" aria-label="Verification decision">' +

@@ -1,7 +1,7 @@
 import type { Analysis } from './types.ts';
 
 const TTL_MS = 30 * 60 * 1000;
-const ANALYSIS_CACHE_VERSION = 'v5';
+const ANALYSIS_CACHE_VERSION = 'v6';
 const mem = new Map<string, { at: number; value: Analysis }>();
 
 function key(fullName: string): string {
