@@ -7,14 +7,27 @@ const GENERAL_MAX = 8;
 const cooldowns = new Map<string, number>();
 const hits = new Map<string, {at:number; count:number}>();
 type Provider = "auto"|"gemini"|"groq"|"cerebras"|"mistral"|"cloudflare"|"openrouter"|"huggingface"|"nvidia"|"cohere"|"ollama";
-const PROVIDERS: Provider[] = ["gemini","openrouter","huggingface","groq","cerebras","mistral","nvidia","cohere","cloudflare","ollama"];
+const PROVIDERS: Provider[] = ["openrouter","groq","cerebras","mistral","nvidia","cohere","huggingface","cloudflare","ollama","gemini"];
 const env=(n:string)=>Deno.env.get(n)||"";
 const cors=(req:Request)=>({"Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(req.headers.get("origin")||"") ? req.headers.get("origin")! : "https://paradox.engineer","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type, x-paradox-internal-key","Access-Control-Allow-Methods":"POST, OPTIONS","Vary":"Origin","X-Content-Type-Options":"nosniff"});
 const out=(d:unknown,s:number,h:Record<string,string>)=>new Response(JSON.stringify(d),{status:s,headers:{...h,"Content-Type":"application/json"}});
 function limited(req:Request){const ip=req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()||"unknown",now=Date.now(),r=hits.get(ip);if(!r||now-r.at>60_000){hits.set(ip,{at:now,count:1});return true;}r.count++;return r.count<=20;}
 function configured(p:Provider){return p==="gemini"?!!env("GEMINI_API_KEY"):p==="groq"?!!env("GROQ_API_KEY"):p==="cerebras"?!!env("CEREBRAS_API_KEY"):p==="mistral"?!!env("MISTRAL_API_KEY"):p==="nvidia"?!!env("NVIDIA_API_KEY"):p==="cohere"?!!env("COHERE_API_KEY"):p==="openrouter"?!!env("OPENROUTER_API_KEY"):p==="huggingface"?!!env("HF_API_KEY"):p==="cloudflare"?!!env("CLOUDFLARE_API_TOKEN")&&!!env("CLOUDFLARE_ACCOUNT_ID"):p==="ollama"?!!env("OLLAMA_BASE_URL"):false;}
 function verifyTask(task:string){return /repository security verification|repository investigation planner|repository adversarial evidence critic/i.test(task);}
-function candidates(requested:Provider,task:string,excluded:Provider[]){const v=verifyTask(task),max=v?VERIFY_MAX:GENERAL_MAX;const order=requested!=="auto"?[requested]:PROVIDERS;return order.filter(p=>!excluded.includes(p)&&configured(p)).filter((p,i,a)=>a.indexOf(p)===i).filter(p=>v||(cooldowns.get(p)||0)<=Date.now()).slice(0,requested==="auto"?max:1);}
+let providerCursor = 0;
+function candidates(requested:Provider,task:string,excluded:Provider[]){
+  const v=verifyTask(task),max=v?VERIFY_MAX:GENERAL_MAX;
+  if(requested!=="auto"){
+    return [requested].filter(p=>!excluded.includes(p)&&configured(p)).filter(p=>v||(cooldowns.get(p)||0)<=Date.now()).slice(0,1);
+  }
+  const start = providerCursor++ % PROVIDERS.length;
+  const rotated = [...PROVIDERS.slice(start), ...PROVIDERS.slice(0,start)];
+  return rotated
+    .filter(p=>!excluded.includes(p)&&configured(p))
+    .filter((p,i,a)=>a.indexOf(p)===i)
+    .filter(p=>v||(cooldowns.get(p)||0)<=Date.now())
+    .slice(0,max);
+}
 async function auth(req:Request){const a=req.headers.get("authorization");if(!a?.startsWith("Bearer "))throw new Error("Authentication required");const u=env("SUPABASE_URL"),k=env("SUPABASE_ANON_KEY")||env("SB_PUBLISHABLE_KEY");if(!u||!k)throw new Error("Authentication service is not configured");const r=await fetch(u.replace(/\/$/,"")+"/auth/v1/user",{headers:{Authorization:a,apikey:k},signal:AbortSignal.timeout(2500)});if(!r.ok)throw new Error("Authentication required");const user=await r.json().catch(()=>null);if(!user?.id)throw new Error("Authentication required");}
 function internal(req:Request){const k=req.headers.get("x-paradox-internal-key");return !!k&&!!env("SUPABASE_SERVICE_ROLE_KEY")&&k===env("SUPABASE_SERVICE_ROLE_KEY");}
 function parseJson(text:string){const s=text.trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/i,"").trim(),a=s.indexOf("{"),b=s.lastIndexOf("}"),c=a>=0&&b>a?s.slice(a,b+1):s,x=JSON.parse(c);if(!x||typeof x!=="object"||Array.isArray(x))throw new Error("Provider returned invalid JSON");return c;}
