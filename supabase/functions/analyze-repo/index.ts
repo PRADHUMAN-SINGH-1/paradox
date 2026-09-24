@@ -850,8 +850,9 @@ function sanitizeReview(
     needsReview,
     contradictions,
     claims,
-    provider: meta.provider,
-    model: meta.model,
+    provider: String(raw.__aiProvider || meta.provider),
+    model: String(raw.__aiModel || meta.model),
+    attemptedProviders: Array.isArray(raw.__aiAttempted) ? raw.__aiAttempted.map(String).slice(0, 8) : [String(raw.__aiProvider || meta.provider)],
     status: validated ? "READY" as const : "UNAVAILABLE" as const,
     coverage: {
       treeFiles: meta.treeFiles,
@@ -870,6 +871,7 @@ async function intelligence(
   treeItems: Array<{ path?: string; type?: string; size?: number }>,
   initialFiles: Array<{ path: string; content: string; size?: number }>,
   riskFindings: Array<{ category: string; severity: string; file: string; line: number; evidence: string; reason: string }>,
+  scannedFiles: Array<{ path: string; content: string; size?: number }> = initialFiles,
 ) {
   const ps = providers();
   if (!ps.length) return null;
@@ -877,6 +879,7 @@ async function intelligence(
   const provider = ps[0];
   const pathSet = safePathSet(treeItems);
   const initialMap = new Map(initialFiles.map(f => [f.path, f.content]));
+  const scannedMap = new Map(scannedFiles.map(f => [f.path, f]));
   const inventory = treeItems
     .filter(x => x.type === "blob" && x.path && !SKIP_PATH.test(x.path))
     .slice(0, 2500)
@@ -911,7 +914,7 @@ async function intelligence(
     focus = Array.isArray(plan.focus) ? plan.focus.map(String).slice(0, 8) : [];
     const unique = [...new Set(requested)].filter(p => pathSet.has(p) && !initialMap.has(p)).slice(0, TARGETED_FILES);
 
-    targeted = (await Promise.all(unique.map(p => readFile(owner, repo, p, commitSha))))
+    targeted = (await Promise.all(unique.map(async (p) => scannedMap.get(p) || await readFile(owner, repo, p, commitSha))))
       .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
   } catch {
     const pathCandidates = new Set<string>();
@@ -919,7 +922,7 @@ async function intelligence(
       for (const path of extractLocalImports(file, pathSet)) pathCandidates.add(path);
     }
     const fallback = [...pathCandidates].filter(p => !initialMap.has(p)).slice(0, TARGETED_FILES);
-    targeted = (await Promise.all(fallback.map(p => readFile(owner, repo, p, commitSha))))
+    targeted = (await Promise.all(fallback.map(async (p) => scannedMap.get(p) || await readFile(owner, repo, p, commitSha))))
       .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
     focus = ["Validate central implementation paths and security-sensitive code against repository evidence."];
   }
@@ -1045,21 +1048,34 @@ async function analyze(owner: string, repo: string, fresh = false) {
   const rootNames = rootItems.length
     ? rootItems.map((x: { name?: string }) => String(x.name || ""))
     : [...new Set(treeItems.map((x: { path?: string }) => String(x.path || "").split("/")[0]).filter(Boolean))];
-  const selectedPaths = selectPaths(rootNames, treeItems, INITIAL_FILES);
-  const initialFiles = (await Promise.all(selectedPaths.map(path => readFile(owner, repo, path, commitSha))))
-    .filter(Boolean) as Array<{ path: string; content: string; size?: number }>;
+
+  const fullScan = await runFullStaticScan(owner, repo, commitSha, treeItems);
+  const staticRiskFindings = deterministicFindings(fullScan.files);
+  const dependencyRiskFindings = (fullScan.dependencyFindings || []).map((finding) => ({
+    category: "Known dependency vulnerability",
+    severity: "MODERATE" as const,
+    file: finding.file,
+    line: 1,
+    evidence: redact(finding.name + "@" + finding.version + " -> " + finding.ids.join(", ")),
+    reason: "OSV.dev reported one or more vulnerability records for this exact dependency version.",
+  }));
+  const allStaticFindings = [...staticRiskFindings, ...dependencyRiskFindings];
+
+  const preferred = new Set(selectPaths(rootNames, treeItems, INITIAL_FILES));
+  let initialFiles = fullScan.files.filter((file) => preferred.has(file.path)).slice(0, INITIAL_FILES);
+  if (!initialFiles.length && fullScan.files.length) initialFiles = fullScan.files.slice(0, INITIAL_FILES);
 
   const treeFileCount = treeItems.filter((x: { type?: string }) => x.type === "blob").length;
-  if (treeFileCount > 0 && initialFiles.length === 0) {
+  if (treeFileCount > 0 && fullScan.files.length === 0) {
     throw new ResponseError("GitHub could not return repository files for inspection. Try again shortly.", 502);
   }
 
-  const riskFindings = deterministicFindings(initialFiles);
+  const riskFindings = allStaticFindings;
 
   let aiReview = null;
   let targetedFiles: Array<{ path: string; content: string; size?: number }> = [];
   try {
-    const agentResult = await intelligence(owner, repo, rr.data, commitSha, treeItems, initialFiles, riskFindings);
+    const agentResult = await intelligence(owner, repo, rr.data, commitSha, treeItems, initialFiles, riskFindings, fullScan.files);
     aiReview = agentResult.review;
     targetedFiles = agentResult.targeted;
   } catch {
@@ -1070,7 +1086,13 @@ async function analyze(owner: string, repo: string, fresh = false) {
     arr.findIndex(x => x.path === file.path) === index
   );
 
-  const finalRiskFindings = deterministicFindings(allFiles);
+  const finalRiskFindings = [...deterministicFindings(fullScan.files), ...((fullScan.dependencyFindings || []).map((finding) => ({
+    category: "Known dependency vulnerability",
+    severity: "MODERATE" as const,
+    file: finding.file,
+    evidence: redact(finding.name + "@" + finding.version + " -> " + finding.ids.join(", ")),
+    reason: "OSV.dev reported one or more vulnerability records for this exact dependency version.",
+  })))].slice(0, 96);
   const treeComplete = Boolean(tree.ok && tree.data?.truncated !== true);
   const data = {
     repo: { ...rr.data, analyzed_commit_sha: commitSha, analyzed_ref: branch },
@@ -1095,6 +1117,11 @@ async function analyze(owner: string, repo: string, fresh = false) {
       treeFiles: treeItems.filter((x: { type?: string }) => x.type === "blob").length,
       targetedFiles: targetedFiles.length,
       evidenceChars: Number(aiReview?.coverage?.evidenceChars || 0),
+      staticCandidates: fullScan.candidates,
+      staticScannedFiles: fullScan.scanned,
+      staticComplete: fullScan.complete,
+      staticBytes: fullScan.bytes,
+      dependencyVulnerabilities: fullScan.dependencyVulnerabilities || 0,
     },
   };
 
