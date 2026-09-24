@@ -927,6 +927,7 @@ PARADOX is intentionally bounded.
 - Free/freemium provider quotas are external service limits and can change independently of PARADOX.
 - Provider failover is not the same as multi-model consensus; PARADOX does not claim that a result was independently confirmed by every configured model.
 - Full static coverage is bounded to scannable-file safety ceilings; very large repositories can therefore receive a partial static scan.
+- Verify uses a latency-bounded static pre-scan: up to 350 high-value code/config/workflow files, a 12 MB content budget and a 10-second scan budget, while the recursive Git tree remains the repository inventory. This keeps the LLM investigation responsive on large repositories instead of waiting for thousands of raw-file fetches.
 - The shared Verify rate limiter falls back to the bounded in-memory limiter when the database path is temporarily unavailable.
 - Cached results can be older than the repository's current state until a fresh analysis is requested.
 

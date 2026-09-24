@@ -15,12 +15,13 @@ const MAX_URL_LENGTH = 512;
 const MAX_QUERY_LENGTH = 120;
 const MAX_CACHE_ENTRIES = 160;
 const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
-const ANALYSIS_VERSION = "2026-09-24.2";
+const ANALYSIS_VERSION = "2026-09-24.3";
 const STATIC_FILE_BYTES = 200_000;
-const STATIC_MAX_FILES = 2_500;
-const STATIC_MAX_TOTAL_BYTES = 24 * 1024 * 1024;
-const STATIC_CONCURRENCY = 12;
-const STATIC_TIMEOUT_MS = 7_000;
+const STATIC_MAX_FILES = 350;
+const STATIC_MAX_TOTAL_BYTES = 12 * 1024 * 1024;
+const STATIC_CONCURRENCY = 24;
+const STATIC_TIMEOUT_MS = 3_500;
+const STATIC_BUDGET_MS = 10_000;
 
 const searchCache = new Map<string, { at: number; data: unknown }>();
 const analysisCache = new Map<string, { at: number; data: unknown }>();
@@ -238,7 +239,8 @@ async function readFile(owner: string, repo: string, path: string, ref?: string)
 function staticScannable(path: string, size: number) {
   const binary = /\.(?:png|jpe?g|gif|webp|ico|bmp|tiff|woff2?|ttf|eot|zip|tar|gz|bz2|xz|7z|rar|mp3|mp4|mov|avi|mkv|pdf|exe|dll|so|dylib|class|jar|wasm|bin|db|sqlite)$/i;
   const skip = /(?:^|\/)(?:node_modules|\.git|dist|build|coverage|vendor|target|\.next|\.astro|out|bin|obj|third_party)(?:\/|$)/i;
-  return Boolean(path) && size >= 0 && size <= STATIC_FILE_BYTES && !binary.test(path) && !skip.test(path);
+  const analyzable = CODE_EXT.test(path) || CONFIG_EXT.test(path) || /(?:^|\/)(?:Dockerfile|Makefile|Justfile|\.github\/workflows\/)/i.test(path);
+  return Boolean(path) && size >= 0 && size <= STATIC_FILE_BYTES && !binary.test(path) && !skip.test(path) && analyzable;
 }
 
 async function fetchRawStatic(owner: string, repo: string, commitSha: string, path: string) {
@@ -352,16 +354,25 @@ async function queryOsvDependencyVulnerabilities(files: Array<{ path: string; co
 }
 
 async function runFullStaticScan(owner: string, repo: string, commitSha: string, treeItems: Array<{ path?: string; type?: string; size?: number }>) {
-  const candidates = treeItems.filter((x) => x.type === "blob" && x.path && staticScannable(x.path, Number(x.size || 0))).map((x) => ({ path: x.path as string, size: Number(x.size || 0) })).sort((a, b) => staticRank(b.path, b.size) - staticRank(a.path, a.size) || a.path.localeCompare(b.path));
+  const candidates = treeItems
+    .filter((x) => x.type === "blob" && x.path && staticScannable(x.path, Number(x.size || 0)))
+    .map((x) => ({ path: x.path as string, size: Number(x.size || 0) }))
+    .sort((a, b) => staticRank(b.path, b.size) - staticRank(a.path, a.size) || a.path.localeCompare(b.path));
   const limited = candidates.slice(0, STATIC_MAX_FILES);
   const selected: typeof limited = [];
   let bytes = 0;
   let byteLimited = false;
   for (const file of limited) {
     if (bytes + file.size > STATIC_MAX_TOTAL_BYTES) { byteLimited = true; continue; }
-    selected.push(file); bytes += file.size;
+    selected.push(file);
+    bytes += file.size;
   }
+
+  const deadline = Date.now() + STATIC_BUDGET_MS;
   const files = await mapStatic(selected, STATIC_CONCURRENCY, async (file) => {
+    if (Date.now() >= deadline) {
+      return { ...file, content: "", truncated: false, fetchError: "scan budget exceeded" };
+    }
     try {
       const raw = await fetchRawStatic(owner, repo, commitSha, file.path);
       return { ...file, content: raw.slice(0, STATIC_FILE_BYTES), truncated: raw.length > STATIC_FILE_BYTES, fetchError: "" };
@@ -369,17 +380,16 @@ async function runFullStaticScan(owner: string, repo: string, commitSha: string,
       return { ...file, content: "", truncated: false, fetchError: error instanceof Error ? error.message : "fetch failed" };
     }
   });
+
   const successful = files.filter((file) => Boolean(file.content));
-  const dependency = await queryOsvDependencyVulnerabilities(successful);
+  const dependencyPromise = queryOsvDependencyVulnerabilities(successful);
   return {
     files: successful,
     candidates: candidates.length,
     scanned: successful.length,
     complete: candidates.length === selected.length && !byteLimited && files.every((file) => !file.fetchError) && limited.length === candidates.length,
     bytes: successful.reduce((sum, file) => sum + file.content.length, 0),
-    dependencyVulnerabilities: dependency.count,
-    dependencyCheckAvailable: dependency.available,
-    dependencyFindings: dependency.findings,
+    dependencyPromise,
   };
 }
 
@@ -1071,15 +1081,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
 
   const fullScan = await runFullStaticScan(owner, repo, commitSha, treeItems);
   const staticRiskFindings = deterministicFindings(fullScan.files);
-  const dependencyRiskFindings = (fullScan.dependencyFindings || []).map((finding) => ({
-    category: "Known dependency vulnerability",
-    severity: "MODERATE" as const,
-    file: finding.file,
-    line: 1,
-    evidence: redact(finding.name + "@" + finding.version + " -> " + finding.ids.join(", ")),
-    reason: "OSV.dev reported one or more vulnerability records for this exact dependency version.",
-  }));
-  const allStaticFindings = [...staticRiskFindings, ...dependencyRiskFindings];
+  const allStaticFindings = staticRiskFindings;
 
   const preferred = new Set(selectPaths(rootNames, treeItems, INITIAL_FILES));
   const rankMap = new Map(allStaticFindings.map((finding) => [
@@ -1118,7 +1120,8 @@ async function analyze(owner: string, repo: string, fresh = false) {
     arr.findIndex(x => x.path === file.path) === index
   );
 
-  const finalRiskFindings = [...deterministicFindings(fullScan.files), ...((fullScan.dependencyFindings || []).map((finding) => ({
+  const dependency = await fullScan.dependencyPromise;
+  const finalRiskFindings = [...deterministicFindings(fullScan.files), ...((dependency.findings || []).map((finding) => ({
     category: "Known dependency vulnerability",
     severity: "MODERATE" as const,
     file: finding.file,
@@ -1153,7 +1156,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
       staticScannedFiles: fullScan.scanned,
       staticComplete: fullScan.complete,
       staticBytes: fullScan.bytes,
-      dependencyVulnerabilities: fullScan.dependencyVulnerabilities || 0,
+      dependencyVulnerabilities: dependency.count || 0,
     },
   };
 
