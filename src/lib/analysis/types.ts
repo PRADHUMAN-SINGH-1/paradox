@@ -97,6 +97,7 @@ export type AnalysisCoverage = {
   staticComplete?: boolean;
   staticBytes?: number;
   dependencyVulnerabilities?: number;
+  dependencyCheckAvailable?: boolean;
   analysisVersion?: string;
   commitSha?: string;
   ref?: string;
