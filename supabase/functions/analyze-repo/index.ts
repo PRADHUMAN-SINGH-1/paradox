@@ -321,7 +321,7 @@ async function queryOsvDependencyVulnerabilities(files: Array<{ path: string; co
     pair,
   ])).values()].slice(0, 350);
 
-  if (!unique.length) return { count: 0, findings: [] as Array<{ file: string; name: string; version: string; ids: string[] }> };
+  if (!unique.length) return { count: 0, available: true, findings: [] as Array<{ file: string; name: string; version: string; ids: string[] }> };
 
   try {
     const response = await fetch("https://api.osv.dev/v1/querybatch", {
@@ -335,7 +335,7 @@ async function queryOsvDependencyVulnerabilities(files: Array<{ path: string; co
       }),
       signal: AbortSignal.timeout(9_000),
     });
-    if (!response.ok) return { count: 0, findings: [] };
+    if (!response.ok) return { count: 0, available: false, findings: [] };
     const body = await response.json().catch(() => null);
     const results = Array.isArray(body?.results) ? body.results : [];
     const findings: Array<{ file: string; name: string; version: string; ids: string[] }> = [];
@@ -345,9 +345,9 @@ async function queryOsvDependencyVulnerabilities(files: Array<{ path: string; co
       const pair = unique[index];
       findings.push({ file: pair.file, name: pair.name, version: pair.version, ids: vulns.slice(0, 8).map((v) => String(v.id || "unknown")) });
     });
-    return { count: findings.length, findings };
+    return { count: findings.length, available: true, findings };
   } catch {
-    return { count: 0, findings: [] };
+    return { count: 0, available: false, findings: [] };
   }
 }
 
@@ -378,6 +378,8 @@ async function runFullStaticScan(owner: string, repo: string, commitSha: string,
     complete: candidates.length === selected.length && !byteLimited && files.every((file) => !file.fetchError) && limited.length === candidates.length,
     bytes: successful.reduce((sum, file) => sum + file.content.length, 0),
     dependencyVulnerabilities: dependency.count,
+    dependencyCheckAvailable: dependency.available,
+    dependencyFindings: dependency.findings,
     dependencyFindings: dependency.findings,
   };
 }
