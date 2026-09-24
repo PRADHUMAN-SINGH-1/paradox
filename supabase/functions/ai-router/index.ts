@@ -2,8 +2,10 @@ const ALLOWED_ORIGINS = new Set(['https://paradox.engineer','http://localhost:43
 const MAX_PROMPT = 400_000;
 const MINUTE = 60_000;
 const hits = new Map<string, { at: number; count: number }>();
-const PROVIDER_TIMEOUT_MS = 9_000;
+const PROVIDER_TIMEOUT_MS = 7_000;
 const PROVIDER_COOLDOWN_MS = 60_000;
+const VERIFY_AUTO_MAX_PROVIDERS = 4;
+const GENERAL_AUTO_MAX_PROVIDERS = 6;
 const providerCooldowns = new Map<string, number>();
 
 function cors(req: Request) {
@@ -96,6 +98,8 @@ function candidates(requested: Provider, task: string): Provider[] {
 
     if (configuredOrder.length) {
       order = configuredOrder;
+    } else if (/planner|routing|critic/i.test(task)) {
+      order = ['groq','cerebras','gemini','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/code|debug|program|technical|repo|security/i.test(task)) {
       order = ['gemini','cerebras','groq','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/resume|interview|study|research|content/i.test(task)) {
@@ -105,10 +109,15 @@ function candidates(requested: Provider, task: string): Provider[] {
     }
   }
 
+  const autoBudget = /repository security verification/i.test(task)
+    ? VERIFY_AUTO_MAX_PROVIDERS
+    : GENERAL_AUTO_MAX_PROVIDERS;
+
   return order
     .filter((provider) => configured(provider))
     .filter((provider, index, all) => all.indexOf(provider) === index)
-    .filter((provider) => (providerCooldowns.get(provider) || 0) <= Date.now());
+    .filter((provider) => (providerCooldowns.get(provider) || 0) <= Date.now())
+    .slice(0, requested === 'auto' ? autoBudget : 1);
 }
 
 async function requireAuthenticatedUser(req: Request) {
@@ -169,7 +178,7 @@ async function requestOpenAICompatible(
     body: JSON.stringify({
       model,
       temperature: 0.1,
-      max_tokens: 4200,
+      max_tokens: /repository investigation planner/i.test(prompt) ? 1200 : /adversarial evidence critic/i.test(system) ? 1800 : 3200,
       ...(structured && useJsonMode ? { response_format: { type: 'json_object' } } : {}),
       messages: [
         { role: 'system', content: system },
@@ -277,7 +286,7 @@ function providerModel(provider: Provider): string {
     case 'mistral': return env('MISTRAL_MODEL') || 'mistral-small-latest';
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
     case 'openrouter': return env('OPENROUTER_MODEL') || 'openrouter/free';
-    case 'huggingface': return env('HF_MODEL') || 'meta-llama/Llama-3.3-70B-Instruct';
+    case 'huggingface': return env('HF_MODEL') || 'openai/gpt-oss-120b:fastest';
     case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
     case 'cohere': return env('COHERE_MODEL') || 'command-a-plus-05-2026';
     case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
