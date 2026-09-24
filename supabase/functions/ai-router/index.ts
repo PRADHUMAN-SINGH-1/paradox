@@ -4,6 +4,12 @@ const MINUTE = 60_000;
 const hits = new Map<string, { at: number; count: number }>();
 const PROVIDER_TIMEOUT_MS = 5_500;
 const PROVIDER_COOLDOWN_MS = 60_000;
+
+function providerTimeoutMs(provider: Provider): number {
+  if (provider === 'nvidia' || provider === 'cohere') return 12_000;
+  if (provider === 'openrouter') return 8_000;
+  return PROVIDER_TIMEOUT_MS;
+}
 const VERIFY_AUTO_MAX_PROVIDERS = 10;
 const GENERAL_AUTO_MAX_PROVIDERS = 6;
 const providerCooldowns = new Map<string, number>();
@@ -99,10 +105,11 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
     if (configuredOrder.length) {
       // Treat AI_PROVIDER_ORDER as a preference, not an allowlist. Any configured
       // provider omitted from the preference still remains eligible for fallback.
-      const preferred = configuredOrder;
-      const preferredSet = new Set(preferred);
+      const preferredSet = new Set(configuredOrder);
       const fallback = providers.filter((provider) => !preferredSet.has(provider));
-      order = [...preferred, ...fallback];
+      order = /repository security verification|planner|routing|critic/i.test(task)
+        ? [...new Set(['gemini', 'openrouter', ...configuredOrder, ...fallback])]
+        : [...configuredOrder, ...fallback];
     } else if (/planner|routing|critic/i.test(task)) {
       order = ['groq','cerebras','gemini','mistral','nvidia','cloudflare','openrouter','cohere','huggingface','ollama'];
     } else if (/code|debug|program|technical|repo|security/i.test(task)) {
@@ -170,6 +177,7 @@ async function requestOpenAICompatible(
   structured: boolean,
   extraHeaders: Record<string, string> = {},
   useJsonMode = true,
+  timeoutMs = PROVIDER_TIMEOUT_MS,
 ) {
   if (!base) throw new Error('Provider base URL is not configured');
   if (!key) throw new Error('Provider credential is not configured');
@@ -192,7 +200,7 @@ async function requestOpenAICompatible(
         { role: 'user', content: prompt },
       ],
     }),
-    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   const data = await res.json().catch(() => null);
@@ -230,7 +238,7 @@ async function requestGemini(system: string, prompt: string, structured: boolean
           : {}),
       },
     }),
-    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
+    signal: AbortSignal.timeout(providerTimeoutMs('cohere')),
   });
 
   const data = await res.json().catch(() => null);
@@ -292,7 +300,7 @@ function providerModel(provider: Provider): string {
     case 'cerebras': return env('CEREBRAS_MODEL') || 'gpt-oss-120b';
     case 'mistral': return env('MISTRAL_MODEL') || 'mistral-small-latest';
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
-    case 'openrouter': return env('OPENROUTER_MODEL') || 'openrouter/free';
+    case 'openrouter': return env('OPENROUTER_MODEL') || 'openai/gpt-oss-120b:free';
     case 'huggingface': return env('HF_MODEL') || 'openai/gpt-oss-120b:fastest';
     case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
     case 'cohere': return env('COHERE_MODEL') || 'command-a-plus-05-2026';
@@ -329,6 +337,8 @@ async function runProvider(provider: Provider, system: string, prompt: string, s
         prompt,
         structured,
         { 'HTTP-Referer': 'https://paradox.engineer', 'X-Title': 'PARADOX' },
+        true,
+        providerTimeoutMs(provider),
       );
     case 'huggingface':
       return requestOpenAICompatible('https://router.huggingface.co/v1', env('HF_API_KEY'), providerModel(provider), system, prompt, structured);
@@ -342,6 +352,7 @@ async function runProvider(provider: Provider, system: string, prompt: string, s
         structured,
         {},
         false,
+        providerTimeoutMs(provider),
       );
     case 'cohere':
       return requestCohere(system, prompt, structured);
@@ -374,6 +385,8 @@ function publicFailureCodes(failures: Array<{ provider: Provider; error: unknown
       /429|rate limit|quota|capacity/i.test(message) ? 'QUOTA' :
       /timeout|timed out/i.test(message) ? 'TIMEOUT' :
       /invalid json|no text/i.test(message) ? 'OUTPUT' :
+      /returned 404/i.test(message) ? 'HTTP_404' :
+      /returned 5\d\d/i.test(message) ? 'HTTP_5XX' :
       'UNAVAILABLE';
     return provider + ':' + code;
   }).slice(0, 10);
