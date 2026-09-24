@@ -821,9 +821,52 @@ async function requestGemini(
           __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
         });
       }
-      if (routed.status === 503) throw new Error(String(payload?.error || "No configured AI provider is currently available."));
+      if (routed.status === 503) {
+        throw new Error(String(payload?.error || "No configured AI provider is currently available."));
+      }
     } catch (error) {
-      if (error instanceof Error && /No configured AI provider|currently unavailable/i.test(error.message)) throw error;
+      if (error instanceof Error && /No configured AI provider|currently unavailable/i.test(error.message)) {
+        // A selected fallback provider can fail independently; try the remaining configured providers once.
+        if (preferred !== "gemini" && supabaseUrl && serviceKey) {
+          try {
+            const retry = await fetch(supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                apikey: serviceKey,
+                Authorization: "Bearer " + serviceKey,
+                "x-paradox-internal-key": serviceKey,
+              },
+              body: JSON.stringify({
+                prompt,
+                system: contract,
+                task,
+                provider: "auto",
+                excludeProviders: [preferred],
+                json: true,
+              }),
+              signal: AbortSignal.timeout(15_000),
+            });
+            const retryPayload = await retry.json().catch(() => null);
+            if (retry.ok && typeof retryPayload?.text === "string") {
+              const raw = retryPayload.text.trim();
+              const first = raw.indexOf("{");
+              const last = raw.lastIndexOf("}");
+              const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
+              const parsed = JSON.parse(jsonText);
+              if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
+              return Object.assign(parsed as Record<string, unknown>, {
+                __aiProvider: String(retryPayload.provider || preferred),
+                __aiModel: String(retryPayload.model || provider.model),
+                __aiAttempted: Array.isArray(retryPayload.attempted) ? retryPayload.attempted.map(String).slice(0, 10) : [],
+              });
+            }
+          } catch {
+            // Continue to the final unavailable state.
+          }
+        }
+        throw error;
+      }
     }
   }
 
