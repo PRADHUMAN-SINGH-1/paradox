@@ -15,7 +15,12 @@ const MAX_URL_LENGTH = 512;
 const MAX_QUERY_LENGTH = 120;
 const MAX_CACHE_ENTRIES = 160;
 const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
-const ANALYSIS_VERSION = "2026-09-21.2";
+const ANALYSIS_VERSION = "2026-09-24.1";
+const STATIC_FILE_BYTES = 200_000;
+const STATIC_MAX_FILES = 2_500;
+const STATIC_MAX_TOTAL_BYTES = 24 * 1024 * 1024;
+const STATIC_CONCURRENCY = 12;
+const STATIC_TIMEOUT_MS = 7_000;
 
 const searchCache = new Map<string, { at: number; data: unknown }>();
 const analysisCache = new Map<string, { at: number; data: unknown }>();
@@ -228,6 +233,61 @@ async function readFile(owner: string, repo: string, path: string, ref?: string)
   if (size > MAX_FILE) return { path, content: "", size, skipped: true };
   const raw = typeof r.data.content === "string" ? decodeBase64(r.data.content) : "";
   return { path, content: raw.slice(0, MAX_FILE), size, skipped: false };
+}
+
+function staticScannable(path: string, size: number) {
+  const binary = /\.(?:png|jpe?g|gif|webp|ico|bmp|tiff|woff2?|ttf|eot|zip|tar|gz|bz2|xz|7z|rar|mp3|mp4|mov|avi|mkv|pdf|exe|dll|so|dylib|class|jar|wasm|bin|db|sqlite)$/i;
+  const skip = /(?:^|\/)(?:node_modules|\.git|dist|build|coverage|vendor|target|\.next|\.astro|out|bin|obj|third_party)(?:\/|$)/i;
+  return Boolean(path) && size >= 0 && size <= STATIC_FILE_BYTES && !binary.test(path) && !skip.test(path);
+}
+
+async function fetchRawStatic(owner: string, repo: string, commitSha: string, path: string) {
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
+  const r = await fetch("https://raw.githubusercontent.com/" + owner + "/" + repo + "/" + commitSha + "/" + encoded, { signal: AbortSignal.timeout(STATIC_TIMEOUT_MS) });
+  if (!r.ok) throw new Error("raw fetch " + r.status);
+  return r.text();
+}
+
+async function mapStatic<T>(items: T[], limit: number, fn: (item: T) => Promise<T>) {
+  const results: T[] = new Array(items.length);
+  let cursor = 0;
+  async function worker() {
+    while (true) {
+      const index = cursor++;
+      if (index >= items.length) return;
+      results[index] = await fn(items[index]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+async function runFullStaticScan(owner: string, repo: string, commitSha: string, treeItems: Array<{ path?: string; type?: string; size?: number }>) {
+  const candidates = treeItems.filter((x) => x.type === "blob" && x.path && staticScannable(x.path, Number(x.size || 0))).map((x) => ({ path: x.path as string, size: Number(x.size || 0) })).sort((a, b) => a.path.localeCompare(b.path));
+  const limited = candidates.slice(0, STATIC_MAX_FILES);
+  const selected: typeof limited = [];
+  let bytes = 0;
+  let byteLimited = false;
+  for (const file of limited) {
+    if (bytes + file.size > STATIC_MAX_TOTAL_BYTES) { byteLimited = true; continue; }
+    selected.push(file); bytes += file.size;
+  }
+  const files = await mapStatic(selected, STATIC_CONCURRENCY, async (file) => {
+    try {
+      const raw = await fetchRawStatic(owner, repo, commitSha, file.path);
+      return { ...file, content: raw.slice(0, STATIC_FILE_BYTES), truncated: raw.length > STATIC_FILE_BYTES };
+    } catch (error) {
+      return { ...file, content: "", truncated: false, fetchError: error instanceof Error ? error.message : "fetch failed" };
+    }
+  });
+  const successful = files.filter((file) => Boolean(file.content));
+  return {
+    files: successful,
+    candidates: candidates.length,
+    scanned: successful.length,
+    complete: candidates.length === selected.length && !byteLimited && files.every((file) => !file.fetchError) && limited.length === candidates.length,
+    bytes: successful.reduce((sum, file) => sum + file.content.length, 0),
+  };
 }
 
 function fileScore(path: string, size: number, treeType = "blob") {
