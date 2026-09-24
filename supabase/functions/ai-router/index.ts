@@ -399,9 +399,10 @@ Deno.serve(async (req) => {
 
     if (!prompt.trim()) return json({ error: 'Prompt is required.' }, 400, h);
 
-    const excluded = Array.isArray(body.excludeProviders)
-      ? body.excludeProviders.map((value: unknown) => String(value).trim().toLowerCase()).filter((value): value is Provider => providers.includes(value as Provider))
+    const excludedValues = Array.isArray(body.excludeProviders)
+      ? body.excludeProviders.map((value: unknown) => String(value).trim().toLowerCase())
       : [];
+    const excluded = excludedValues.filter((value: string) => providers.includes(value as Provider)) as Provider[];
     const order = candidates(
       providers.includes(requested) || requested === 'auto' ? requested : 'auto',
       task,
