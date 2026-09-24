@@ -15,7 +15,7 @@ const MAX_URL_LENGTH = 512;
 const MAX_QUERY_LENGTH = 120;
 const MAX_CACHE_ENTRIES = 160;
 const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
-const ANALYSIS_VERSION = "2026-09-24.1";
+const ANALYSIS_VERSION = "2026-09-24.2";
 const STATIC_FILE_BYTES = 200_000;
 const STATIC_MAX_FILES = 2_500;
 const STATIC_MAX_TOTAL_BYTES = 24 * 1024 * 1024;
@@ -627,6 +627,9 @@ function providers(): Provider[] {
   const groq = env("GROQ_API_KEY");
   const cerebras = env("CEREBRAS_API_KEY");
   const mistral = env("MISTRAL_API_KEY");
+  const nvidia = env("NVIDIA_API_KEY");
+  const cohere = env("COHERE_API_KEY");
+  const ollama = env("OLLAMA_BASE_URL");
   const cfToken = env("CLOUDFLARE_API_TOKEN");
   const cfAccount = env("CLOUDFLARE_ACCOUNT_ID");
   const openrouter = env("OPENROUTER_API_KEY");
@@ -635,6 +638,9 @@ function providers(): Provider[] {
   if (groq) out.push({ name: "groq", model: env("GROQ_MODEL") || "openai/gpt-oss-20b", key: groq });
   if (cerebras) out.push({ name: "cerebras", model: env("CEREBRAS_MODEL") || "gpt-oss-120b", key: cerebras });
   if (mistral) out.push({ name: "mistral", model: env("MISTRAL_MODEL") || "mistral-small-latest", key: mistral });
+  if (nvidia) out.push({ name: "nvidia", model: env("NVIDIA_MODEL") || "openai/gpt-oss-20b", key: nvidia });
+  if (cohere) out.push({ name: "cohere", model: env("COHERE_MODEL") || "command-a-plus-05-2026", key: cohere });
+  if (ollama) out.push({ name: "ollama", model: env("OLLAMA_MODEL") || "llama3.2", key: ollama });
   if (cfToken && cfAccount) out.push({ name: "cloudflare", model: env("CLOUDFLARE_MODEL") || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", key: cfToken });
   if (openrouter) out.push({ name: "openrouter", model: env("OPENROUTER_MODEL") || "openrouter/free", key: openrouter });
   if (hf) out.push({ name: "huggingface", model: env("HF_MODEL") || "meta-llama/Llama-3.3-70B-Instruct", key: hf });
@@ -866,7 +872,7 @@ function sanitizeReview(
     claims,
     provider: String(raw.__aiProvider || meta.provider),
     model: String(raw.__aiModel || meta.model),
-    attemptedProviders: Array.isArray(raw.__aiAttempted) ? raw.__aiAttempted.map(String).slice(0, 8) : [String(raw.__aiProvider || meta.provider)],
+    attemptedProviders: Array.isArray(raw.__aiAttempted) ? raw.__aiAttempted.map(String).slice(0, 10) : [String(raw.__aiProvider || meta.provider)],
     status: validated ? "READY" as const : "UNAVAILABLE" as const,
     coverage: {
       treeFiles: meta.treeFiles,
