@@ -2,7 +2,7 @@ const ALLOWED_ORIGINS = new Set(['https://paradox.engineer','http://localhost:43
 const MAX_PROMPT = 400_000;
 const MINUTE = 60_000;
 const hits = new Map<string, { at: number; count: number }>();
-const PROVIDER_TIMEOUT_MS = 7_000;
+const PROVIDER_TIMEOUT_MS = 5_500;
 const PROVIDER_COOLDOWN_MS = 60_000;
 const VERIFY_AUTO_MAX_PROVIDERS = 4;
 const GENERAL_AUTO_MAX_PROVIDERS = 6;
@@ -180,6 +180,7 @@ async function requestOpenAICompatible(
       temperature: 0.1,
       max_tokens: /repository investigation planner/i.test(system) ? 1200 : /adversarial evidence critic/i.test(system) ? 1800 : 3200,
       ...(structured && useJsonMode ? { response_format: { type: 'json_object' } } : {}),
+      ...(base.includes('api.cloudflare.com') ? { options: { rejectIfBusy: true } } : {}),
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: prompt },
