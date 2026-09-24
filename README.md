@@ -460,7 +460,7 @@ Supported AI-router configuration includes providers/models for:
 
 The Verify analyzer uses its own repository-investigation path and defaults to Gemini through `GEMINI_MODEL`, but it now supports bounded provider failover through the AI Router. Supported provider targets are Gemini, Groq, Cerebras, Mistral, Cloudflare Workers AI, OpenRouter, Hugging Face Inference Providers, and optional Ollama for self-hosted development.
 
-Provider failover is sequential rather than multi-model voting: Verify keeps its deterministic evidence rules authoritative, and falls through to the next configured provider when a provider is unavailable, rate-limited, times out, or returns invalid structured output. The successful provider, model and attempted provider path are returned in the analysis metadata.
+Provider failover is sequential rather than multi-model voting: Verify keeps its deterministic evidence rules authoritative, and falls through to the next configured provider when a provider is unavailable, rate-limited, times out, or returns invalid structured output. The successful provider, model and attempted provider path are returned in the analysis metadata. Providers that fail are placed on a short server-side cooldown to avoid repeatedly spending latency on an exhausted endpoint.
 
 Current free/freemium availability varies by account and provider. Groq, Cerebras and Mistral expose free modes/tiers with provider-specific limits; Cloudflare Workers AI currently includes a 10,000-Neuron-per-day free allocation; OpenRouter documents 25+ free models and a 50-requests/day free-plan limit; Hugging Face currently gives free users $0.10/month of Inference Provider credits. These quotas can change independently of PARADOX.
 
@@ -821,7 +821,7 @@ Run the complete validation command:
 npm run validate
 ```
 
-The production Pages workflow runs validation before deployment.
+The production Pages workflow runs validation before deployment. CI also type-checks both Verify Edge Functions with Deno before the production dependency audit and Astro build.
 
 ---
 
