@@ -757,136 +757,65 @@ async function requestGemini(
   ]);
   const preferred = allowed.has(preferredProvider) ? preferredProvider : "gemini";
   const contract = system + "\nReturn ONLY valid JSON matching this schema:\n" + JSON.stringify(schema);
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
-  function parseRouterPayload(payload: Record<string, unknown>, fallbackProvider: string, fallbackModel: string) {
-    if (typeof payload.text !== "string") throw new Error("AI router returned no text");
+  if (!supabaseUrl || !serviceKey) {
+    throw new AIUnavailableError("AI router is not configured");
+  }
+
+  const routed = await fetch(
+    supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: serviceKey,
+        Authorization: "Bearer " + serviceKey,
+        "x-paradox-internal-key": serviceKey,
+      },
+      body: JSON.stringify({
+        prompt,
+        system: contract,
+        task,
+        // Let the router own Gemini selection and provider health state.
+        // For a later stage, explicitly prefer the provider that already succeeded.
+        provider: preferred === "gemini" || !preferred ? "auto" : preferred,
+        excludeProviders: preferred === "gemini" ? [] : [preferred],
+        json: true,
+      }),
+      // The router has a bounded two-provider Verify budget. Keep enough time for
+      // one primary + one fallback attempt without stretching the entire analysis.
+      signal: AbortSignal.timeout(22_000),
+    },
+  );
+
+  const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
+  if (routed.ok && payload && typeof payload.text === "string") {
     const raw = payload.text.trim();
     const first = raw.indexOf("{");
     const last = raw.lastIndexOf("}");
     const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
     const parsed = JSON.parse(jsonText);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("AI router returned invalid JSON");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new AIUnavailableError(
+        "AI provider returned invalid JSON",
+        Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+        ["OUTPUT"],
+      );
+    }
     return Object.assign(parsed as Record<string, unknown>, {
-      __aiProvider: String(payload.provider || fallbackProvider),
-      __aiModel: String(payload.model || fallbackModel),
+      __aiProvider: String(payload.provider || preferred),
+      __aiModel: String(payload.model || preferred),
       __aiAttempted: Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
     });
   }
 
-  const geminiKey = Deno.env.get("GEMINI_API_KEY") || "";
-  if (preferred === "gemini" && geminiKey) {
-    try {
-      const model = Deno.env.get("GEMINI_MODEL") || GEMINI_MODEL;
-      const thinkingLevel =
-        schema === investigationSchema ? "medium" :
-        schema === criticSchema ? "low" :
-        "high";
-      const r = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": geminiKey,
-          },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: {
-              maxOutputTokens:
-                schema === investigationSchema ? 1800 :
-                schema === criticSchema ? 2400 :
-                5200,
-              responseFormat: { text: { mimeType: "application/json", schema } },
-              thinkingConfig: { thinkingLevel },
-            },
-          }),
-          signal: AbortSignal.timeout(12_000),
-        },
-      );
-      const data = await r.json().catch(() => null);
-      if (r.ok) {
-        const text = data?.candidates?.[0]?.content?.parts
-          ?.filter((p: { text?: string; thought?: boolean }) => p.text && !p.thought)
-          .map((p: { text?: string }) => p.text || "")
-          .join("") || "";
-        if (text) {
-          const parsed = JSON.parse(text);
-          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-            throw new Error("Gemini returned invalid JSON");
-          }
-          return Object.assign(parsed as Record<string, unknown>, {
-            __aiProvider: "gemini",
-            __aiModel: model,
-            __aiAttempted: ["gemini"],
-          });
-        }
-      }
-    } catch {
-      // Continue to the routed provider path.
-    }
-  }
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  if (!supabaseUrl || !serviceKey) {
-    throw new Error("AI router is not configured");
-  }
-
-  async function callRouter(requested: string, excludeProviders: string[], timeoutMs: number) {
-    const routed = await fetch(
-      supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: serviceKey,
-          Authorization: "Bearer " + serviceKey,
-          "x-paradox-internal-key": serviceKey,
-        },
-        body: JSON.stringify({
-          prompt,
-          system: contract,
-          task,
-          provider: requested,
-          excludeProviders,
-          json: true,
-        }),
-        signal: AbortSignal.timeout(timeoutMs),
-      },
-    );
-    const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
-    if (routed.ok && payload) {
-      return parseRouterPayload(payload, requested === "auto" ? "auto" : requested, preferred);
-    }
-    const attempted = Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [];
-    const failureCodes = Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [];
-    const message = String(payload?.error || "No configured AI provider is currently available.");
-    throw new AIUnavailableError(message, attempted, failureCodes);
-  }
-
-  try {
-    if (preferred === "gemini") {
-      return await callRouter("auto", ["gemini"], 22_000);
-    }
-
-    try {
-      // Continue using the successful fallback provider for later stages.
-      return await callRouter(preferred, [], 14_000);
-    } catch (error) {
-      if (!(error instanceof AIUnavailableError)) throw error;
-      // The preferred fallback itself failed. Try another configured provider,
-      // explicitly excluding the known-failed provider and Gemini.
-      return await callRouter("auto", [preferred, "gemini"], 22_000);
-    }
-  } catch (error) {
-    if (error instanceof AIUnavailableError) throw error;
-    throw new AIUnavailableError(
-      error instanceof Error ? error.message : "AI provider request failed.",
-      [],
-      [],
-    );
-  }
+  throw new AIUnavailableError(
+    String(payload?.error || "No configured AI provider is currently available."),
+    Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
+    Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [],
+  );
 }
 function safePathSet(treeItems: Array<{ path?: string; type?: string }>) {
   return new Set(
@@ -1009,7 +938,7 @@ async function intelligence(
   const ps = providers();
   if (!ps.length) return null;
 
-  let activeProvider = ps.some((p) => p.name === "gemini") ? "gemini" : ps[0].name;
+  let activeProvider = "gemini";
   const pathSet = safePathSet(treeItems);
   const initialMap = new Map(initialFiles.map(f => [f.path, f.content]));
   const scannedMap = new Map(scannedFiles.map(f => [f.path, f]));
