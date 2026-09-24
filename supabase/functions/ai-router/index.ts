@@ -246,6 +246,7 @@ async function requestCohere(system: string, prompt: string, structured: boolean
       stream: false,
       temperature: 0.1,
       max_tokens: 4200,
+      ...(structured ? { response_format: { type: 'json_object' } } : {}),
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: prompt },
@@ -277,7 +278,7 @@ function providerModel(provider: Provider): string {
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
     case 'openrouter': return env('OPENROUTER_MODEL') || 'openrouter/free';
     case 'huggingface': return env('HF_MODEL') || 'meta-llama/Llama-3.3-70B-Instruct';
-    case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-120b';
+    case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
     case 'cohere': return env('COHERE_MODEL') || 'command-a-plus-05-2026';
     case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
     default: return '';
