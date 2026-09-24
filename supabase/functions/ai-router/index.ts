@@ -85,7 +85,7 @@ function configured(provider: Provider) {
   }
 }
 
-function candidates(requested: Provider, task: string): Provider[] {
+function candidates(requested: Provider, task: string, excluded: Provider[] = []): Provider[] {
   let order: Provider[];
 
   if (requested !== 'auto') {
@@ -114,6 +114,7 @@ function candidates(requested: Provider, task: string): Provider[] {
     : GENERAL_AUTO_MAX_PROVIDERS;
 
   return order
+    .filter((provider) => !excluded.includes(provider))
     .filter((provider) => configured(provider))
     .filter((provider, index, all) => all.indexOf(provider) === index)
     .filter((provider) => (providerCooldowns.get(provider) || 0) <= Date.now())
@@ -398,9 +399,14 @@ Deno.serve(async (req) => {
 
     if (!prompt.trim()) return json({ error: 'Prompt is required.' }, 400, h);
 
+    const excludedValues = Array.isArray(body.excludeProviders)
+      ? body.excludeProviders.map((value: unknown) => String(value).trim().toLowerCase())
+      : [];
+    const excluded = excludedValues.filter((value: string) => providers.includes(value as Provider)) as Provider[];
     const order = candidates(
       providers.includes(requested) || requested === 'auto' ? requested : 'auto',
       task,
+      excluded,
     );
 
     const failures: Array<{ provider: Provider; error: unknown }> = [];
