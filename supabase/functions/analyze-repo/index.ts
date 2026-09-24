@@ -641,7 +641,7 @@ function providers(): Provider[] {
   if (nvidia) out.push({ name: "nvidia", model: env("NVIDIA_MODEL") || "openai/gpt-oss-20b", key: nvidia });
   if (cohere) out.push({ name: "cohere", model: env("COHERE_MODEL") || "command-a-plus-05-2026", key: cohere });
   if (ollama) out.push({ name: "ollama", model: env("OLLAMA_MODEL") || "llama3.2", key: ollama });
-  if (cfToken) && cfAccount) out.push({ name: "cloudflare", model: env("CLOUDFLARE_MODEL") || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", key: cfToken });
+  if (cfToken && cfAccount) out.push({ name: "cloudflare", model: env("CLOUDFLARE_MODEL") || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", key: cfToken });
   if (openrouter) out.push({ name: "openrouter", model: env("OPENROUTER_MODEL") || "openrouter/free", key: openrouter });
   if (hf) out.push({ name: "huggingface", model: env("HF_MODEL") || "meta-llama/Llama-3.3-70B-Instruct", key: hf });
   const requested = env("AI_PROVIDER_ORDER").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
