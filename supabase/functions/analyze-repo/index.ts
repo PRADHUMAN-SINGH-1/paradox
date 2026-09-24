@@ -827,7 +827,7 @@ async function requestGemini(
   try {
     // The provider already succeeded on a previous stage; use it directly first.
     // Do NOT exclude the selected provider from its own request.
-    return await callRouter(preferred as Provider, []);
+    return await callRouter(preferred as unknown as Provider, []);
   } catch (error) {
     if (!(error instanceof AIUnavailableError)) throw error;
 
