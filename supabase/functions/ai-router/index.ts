@@ -58,37 +58,61 @@ function internalRequest(req: Request): boolean {
   const expected = env('SUPABASE_SERVICE_ROLE_KEY');
   return Boolean(supplied && expected && supplied === expected);
 }
-async function requestOpenAICompatible(base: string, key: string, model: string, system: string, prompt: string) {
+function validateJsonOutput(text: string) {
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  const candidate = first >= 0 && last > first ? cleaned.slice(first, last + 1) : cleaned;
+  const parsed = JSON.parse(candidate);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Provider returned invalid JSON');
+  return candidate;
+}
+
+async function requestOpenAICompatible(base: string, key: string, model: string, system: string, prompt: string, structured: boolean) {
   if (!base) throw new Error('Provider base URL is not configured');
   if (!key) throw new Error('Provider credential is not configured');
-  const res = await fetch(`${base.replace(/\/$/, '')}/chat/completions`, {
+  const res = await fetch(base.replace(/\/$/, '') + '/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model, temperature: .35, max_tokens: 5000, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }),
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
+    body: JSON.stringify({
+      model,
+      temperature: 0.1,
+      max_tokens: 4200,
+      ...(structured ? { response_format: { type: 'json_object' } } : {}),
+      messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+    }),
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error?.message || `Provider returned ${res.status}`);
+  if (!res.ok) throw new Error(String(data?.error?.message || data?.message || 'Provider returned ' + res.status));
   const text = data?.choices?.[0]?.message?.content || '';
   if (!text) throw new Error('Provider returned no text');
-  return text;
+  return structured ? validateJsonOutput(String(text)) : String(text);
 }
-async function requestGemini(system: string, prompt: string) {
+
+async function requestGemini(system: string, prompt: string, structured: boolean) {
   const key = env('GEMINI_API_KEY');
   if (!key) throw new Error('Gemini is not configured');
-  const model = env('GEMINI_MODEL') || 'gemini-3.6-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+  const model = env('GEMINI_MODEL') || 'gemini-3.8-flash';
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(key);
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 5000 } }),
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 4200, ...(structured ? { responseMimeType: 'application/json' } : {}) },
+    }),
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error?.message || `Gemini returned ${res.status}`);
+  if (!res.ok) throw new Error(String(data?.error?.message || 'Gemini returned ' + res.status));
   const text = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('\n') || '';
   if (!text) throw new Error('Gemini returned no text');
-  return text;
+  return structured ? validateJsonOutput(text) : text;
 }
-async function providerModel(provider: Provider): string {
+
+function providerModel(provider: Provider): string {
   switch (provider) {
     case 'gemini': return env('GEMINI_MODEL') || 'gemini-3.8-flash';
     case 'groq': return env('GROQ_MODEL') || 'openai/gpt-oss-20b';
@@ -101,16 +125,16 @@ async function providerModel(provider: Provider): string {
   }
 }
 
-async function runProvider(provider: Provider, system: string, prompt: string) {
+async function runProvider(provider: Provider, system: string, prompt: string, structured: boolean) {
   switch (provider) {
-    case 'gemini': return requestGemini(system, prompt);
-    case 'groq': return requestOpenAICompatible('https://api.groq.com/openai/v1', env('GROQ_API_KEY'), providerModel(provider), system, prompt);
-    case 'cerebras': return requestOpenAICompatible(env('CEREBRAS_BASE_URL') || 'https://api.cerebras.ai/v1', env('CEREBRAS_API_KEY'), providerModel(provider), system, prompt);
-    case 'mistral': return requestOpenAICompatible('https://api.mistral.ai/v1', env('MISTRAL_API_KEY'), providerModel(provider), system, prompt);
-    case 'cloudflare': return requestOpenAICompatible('https://api.cloudflare.com/client/v4/accounts/' + encodeURIComponent(env('CLOUDFLARE_ACCOUNT_ID')) + '/ai/v1', env('CLOUDFLARE_API_TOKEN'), providerModel(provider), system, prompt);
-    case 'openrouter': return requestOpenAICompatible('https://openrouter.ai/api/v1', env('OPENROUTER_API_KEY'), providerModel(provider), system, prompt);
-    case 'huggingface': return requestOpenAICompatible('https://router.huggingface.co/v1', env('HF_API_KEY'), providerModel(provider), system, prompt);
-    case 'ollama': return requestOpenAICompatible(env('OLLAMA_BASE_URL'), env('OLLAMA_API_KEY'), providerModel(provider), system, prompt);
+    case 'gemini': return requestGemini(system, prompt, structured);
+    case 'groq': return requestOpenAICompatible('https://api.groq.com/openai/v1', env('GROQ_API_KEY'), providerModel(provider), system, prompt, structured);
+    case 'cerebras': return requestOpenAICompatible(env('CEREBRAS_BASE_URL') || 'https://api.cerebras.ai/v1', env('CEREBRAS_API_KEY'), providerModel(provider), system, prompt, structured);
+    case 'mistral': return requestOpenAICompatible('https://api.mistral.ai/v1', env('MISTRAL_API_KEY'), providerModel(provider), system, prompt, structured);
+    case 'cloudflare': return requestOpenAICompatible('https://api.cloudflare.com/client/v4/accounts/' + encodeURIComponent(env('CLOUDFLARE_ACCOUNT_ID')) + '/ai/v1', env('CLOUDFLARE_API_TOKEN'), providerModel(provider), system, prompt, structured);
+    case 'openrouter': return requestOpenAICompatible('https://openrouter.ai/api/v1', env('OPENROUTER_API_KEY'), providerModel(provider), system, prompt, structured);
+    case 'huggingface': return requestOpenAICompatible('https://router.huggingface.co/v1', env('HF_API_KEY'), providerModel(provider), system, prompt, structured);
+    case 'ollama': return requestOpenAICompatible(env('OLLAMA_BASE_URL'), env('OLLAMA_API_KEY'), providerModel(provider), system, prompt, structured);
   }
 }
 Deno.serve(async (req) => {
@@ -126,13 +150,14 @@ Deno.serve(async (req) => {
     const system = String(body.system || 'You are PARADOX AI. Be accurate, specific and transparent about uncertainty. Never invent credentials, sources or facts.').slice(0, 10000);
     const task = String(body.task || 'general').slice(0, 100);
     const requested = String(body.provider || 'auto') as Provider;
+    const structured = body.json === true;
     const order = candidates(providers.includes(requested) || requested === 'auto' ? requested : 'auto', task);
     if (!prompt.trim()) return json({ error: 'Prompt is required.' }, 400, h);
     const failures: string[] = [];
     for (const provider of order) {
       try {
         const started = Date.now();
-        const text = await runProvider(provider, system, prompt);
+        const text = await runProvider(provider, system, prompt, structured);
         return json({
           text,
           provider,
