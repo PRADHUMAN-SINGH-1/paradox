@@ -300,6 +300,14 @@ The server also applies bounded request, file, evidence, rate-limit and cache co
 
 The Edge Function includes a checked-in `deno.json` runtime configuration and is deployed as the public Verify execution boundary. The function remains intentionally unauthenticated because Verify analyzes public repositories; abuse controls are implemented at the endpoint rather than relying on a user session.
 
+### Full repository static coverage
+
+Verify now separates **full static coverage** from bounded LLM investigation. For a fresh run, the backend resolves the repository default branch to an immutable commit SHA, retrieves one recursive Git tree, then fetches eligible text/source files from `raw.githubusercontent.com` at that exact commit with bounded concurrency. Files are ranked from deterministic static evidence before the LLM receives its bounded investigation subset.
+
+The static scanner covers every **scannable** file until explicit safety ceilings are reached: non-binary, non-generated/non-vendored files up to 200 KB each, up to 2,500 files and 24 MB total per run. The UI reports candidate count, scanned count, byte coverage and whether the scan is complete. A partial scan is never represented as exhaustive coverage.
+
+Static checks include secret/token patterns, dynamic execution/module loading, shell execution, container exposure, GitHub Actions injection surfaces, prompt-injection text, license presence and exact dependency-version vulnerability checks through OSV.dev's batch API. OSV is an advisory signal, not a certification.
+
 Verify also uses a shared Supabase-backed rate-limit bucket in addition to an in-memory per-runtime limiter. Client identifiers are SHA-256-derived before storage, and the shared limiter is protected by RLS plus a service-role-only mutation function.
 
 ### Security analysis scope
@@ -408,6 +416,8 @@ site: https://paradox.engineer
 
 There is no Express/Node application server in the frontend architecture.
 
+The Verify and Compare surfaces use the same evidence pipeline, so Compare can consume the same deterministic scan, LLM review, provider fallback metadata, evidence quality, static coverage and dependency-vulnerability signals for each repository. Compare remains a descriptive side-by-side matrix rather than a security certification.
+
 The frontend contains reusable analysis modules for:
 
 - analysis fetching
@@ -448,7 +458,11 @@ Supported AI-router configuration includes providers/models for:
 - Hugging Face
 - Ollama
 
-The Verify analyzer uses its own repository-investigation path and currently defaults to Gemini through `GEMINI_MODEL`.
+The Verify analyzer uses its own repository-investigation path and defaults to Gemini through `GEMINI_MODEL`, but it now supports bounded provider failover through the AI Router. Supported provider targets are Gemini, Groq, Cerebras, Mistral, Cloudflare Workers AI, OpenRouter, Hugging Face Inference Providers, and optional Ollama for self-hosted development.
+
+Provider failover is sequential rather than multi-model voting: Verify keeps its deterministic evidence rules authoritative, and falls through to the next configured provider when a provider is unavailable, rate-limited, times out, or returns invalid structured output. The successful provider, model and attempted provider path are returned in the analysis metadata.
+
+Current free/freemium availability varies by account and provider. Groq, Cerebras and Mistral expose free modes/tiers with provider-specific limits; Cloudflare Workers AI currently includes a 10,000-Neuron-per-day free allocation; OpenRouter documents 25+ free models and a 50-requests/day free-plan limit; Hugging Face currently gives free users $0.10/month of Inference Provider credits. These quotas can change independently of PARADOX.
 
 ---
 
@@ -738,6 +752,21 @@ These values are intended for the browser-side Supabase client.
 GITHUB_TOKEN
 GEMINI_API_KEY
 GEMINI_MODEL
+GROQ_API_KEY
+GROQ_MODEL
+CEREBRAS_API_KEY
+CEREBRAS_MODEL
+CEREBRAS_BASE_URL
+MISTRAL_API_KEY
+MISTRAL_MODEL
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+CLOUDFLARE_MODEL
+OPENROUTER_API_KEY
+OPENROUTER_MODEL
+HF_API_KEY
+HF_MODEL
+AI_PROVIDER_ORDER
 ```
 
 The AI Router has additional provider-specific server-side configuration:
@@ -772,6 +801,8 @@ The repository contains automated tests covering core analysis behavior, includi
 - Security-risk detection
 - Score calculations
 - Utility/guard behavior
+- Full-scan coverage and bounded raw-content ingestion
+- Multi-provider Verify fallback and exact provider metadata
 - Strict public-GitHub URL validation
 - Sensitive evidence redaction across risk and implementation signals
 - Verify security-boundary regression cases
@@ -859,7 +890,9 @@ PARADOX is intentionally bounded.
 - Verification is reproducible only for the immutable commit revision captured by the run; a later repository commit is a different evidence state.
 - Dynamic verification results are not the same thing as prebuilt catalog pages.
 - GitHub API availability/rate limits can affect degraded fallback behavior.
-- AI provider availability can affect whether an LLM investigation is available for a specific run.
+- AI provider availability can affect whether an LLM investigation is available for a specific run; configured failover reduces single-provider dependency but does not guarantee that another provider has capacity.
+- Free-provider quotas are external service limits and can change independently of PARADOX.
+- Full static coverage is bounded to scannable-file safety ceilings; very large repositories can therefore receive a partial static scan.
 - The shared Verify rate limiter falls back to the bounded in-memory limiter when the database path is temporarily unavailable.
 - Cached results can be older than the repository's current state until a fresh analysis is requested.
 
