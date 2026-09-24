@@ -380,7 +380,6 @@ async function runFullStaticScan(owner: string, repo: string, commitSha: string,
     dependencyVulnerabilities: dependency.count,
     dependencyCheckAvailable: dependency.available,
     dependencyFindings: dependency.findings,
-    dependencyFindings: dependency.findings,
   };
 }
 
@@ -1061,7 +1060,7 @@ async function analyze(owner: string, repo: string, fresh = false) {
   const treeItems = tree.data.tree;
   const rootNames = rootItems.length
     ? rootItems.map((x: { name?: string }) => String(x.name || ""))
-    : [...new Set(treeItems.map((x: { path?: string }) => String(x.path || "").split("/")[0]).filter(Boolean))];
+    : [...new Set(treeItems.map((x: { path?: string }) => String(x.path || "").split("/")[0]).filter(Boolean))] as string[];
 
   const fullScan = await runFullStaticScan(owner, repo, commitSha, treeItems);
   const staticRiskFindings = deterministicFindings(fullScan.files);
@@ -1100,8 +1099,10 @@ async function analyze(owner: string, repo: string, fresh = false) {
   let targetedFiles: Array<{ path: string; content: string; size?: number }> = [];
   try {
     const agentResult = await intelligence(owner, repo, rr.data, commitSha, treeItems, initialFiles, riskFindings, fullScan.files);
-    aiReview = agentResult.review;
-    targetedFiles = agentResult.targeted;
+    if (agentResult) {
+      aiReview = agentResult.review;
+      targetedFiles = agentResult.targeted;
+    }
   } catch {
     aiReview = null;
   }
