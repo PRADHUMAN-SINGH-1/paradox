@@ -130,7 +130,6 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
     ? VERIFY_AUTO_MAX_PROVIDERS
     : GENERAL_AUTO_MAX_PROVIDERS;
 
-  const verifyTask = /repository security verification|repository investigation planner|repository adversarial evidence critic/i.test(task);
   return order
     .filter((provider) => !excluded.includes(provider))
     .filter((provider) => configured(provider))
