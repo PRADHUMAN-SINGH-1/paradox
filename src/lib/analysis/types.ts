@@ -49,6 +49,7 @@ export type IntelligenceReview = {
   provider?: string;
   model?: string;
   status?: 'READY' | 'UNAVAILABLE';
+  attemptedProviders?: string[];
   coverage?: IntelligenceCoverage;
 };
 
@@ -91,6 +92,11 @@ export type AnalysisCoverage = {
   treeFiles?: number;
   targetedFiles?: number;
   evidenceChars?: number;
+  staticCandidates?: number;
+  staticScannedFiles?: number;
+  staticComplete?: boolean;
+  staticBytes?: number;
+  dependencyVulnerabilities?: number;
   analysisVersion?: string;
   commitSha?: string;
   ref?: string;
