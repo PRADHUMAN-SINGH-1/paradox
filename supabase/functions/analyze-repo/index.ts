@@ -732,11 +732,11 @@ const reviewSchema = {
 };
 
 async function requestGemini(
-  provider: Provider,
+  _provider: Provider,
   system: string,
   prompt: string,
   schema: Record<string, unknown>,
-  preferredProvider = "gemini",
+  _preferredProvider = "auto",
 ) {
   const task =
     schema === investigationSchema ? "repository investigation planner" :
@@ -746,185 +746,12 @@ async function requestGemini(
   const contract = system + "\nReturn ONLY one valid JSON object matching this schema:\n" + JSON.stringify(schema);
   const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  const geminiKey = Deno.env.get("GEMINI_API_KEY") || "";
-  const openRouterKey = Deno.env.get("OPENROUTER_API_KEY") || "";
 
   if (!supabaseUrl || !serviceKey) {
     throw new AIUnavailableError("AI router is not configured");
   }
 
-  function parsePayload(payload: Record<string, unknown>, fallbackProvider: string) {
-    const raw = String(payload.text || "").trim();
-    const first = raw.indexOf("{");
-    const last = raw.lastIndexOf("}");
-    const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
-    const parsed = JSON.parse(jsonText);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("AI provider returned invalid JSON");
-    }
-    return Object.assign(parsed as Record<string, unknown>, {
-      __aiProvider: String(payload.provider || fallbackProvider),
-      __aiModel: String(payload.model || fallbackProvider),
-      __aiAttempted: Array.isArray(payload.attempted)
-        ? payload.attempted.map(String).slice(0, 10)
-        : [fallbackProvider],
-    });
-  }
-
-  async function callGeminiDirect() {
-    if (!geminiKey) throw new AIUnavailableError("Gemini is not configured");
-    const model =
-      Deno.env.get("GEMINI_MODEL") ||
-      GEMINI_MODEL ||
-      "gemini-3.8-flash";
-
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/" +
-        encodeURIComponent(model) +
-        ":generateContent?key=" +
-        encodeURIComponent(geminiKey),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: system }] },
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            maxOutputTokens:
-              schema === investigationSchema ? 1600 :
-              schema === criticSchema ? 2200 :
-              4200,
-            responseMimeType: "application/json",
-          },
-        }),
-        signal: AbortSignal.timeout(8_000),
-      },
-    );
-
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      const message = String(
-        data?.error?.message || "Gemini returned " + response.status,
-      );
-      throw new AIUnavailableError(
-        message,
-        ["gemini"],
-        [
-          response.status === 429
-            ? "gemini:QUOTA"
-            : response.status === 401 || response.status === 403
-              ? "gemini:AUTH"
-              : response.status === 404
-                ? "gemini:HTTP_404"
-                : response.status >= 500
-                  ? "gemini:HTTP_5XX"
-                  : "gemini:UNAVAILABLE",
-        ],
-      );
-    }
-
-    const text = Array.isArray(data?.candidates?.[0]?.content?.parts)
-      ? data.candidates[0].content.parts
-          .filter((part: { text?: string; thought?: boolean }) => part?.text && !part?.thought)
-          .map((part: { text?: string }) => String(part.text))
-          .join("\n")
-      : "";
-
-    if (!text.trim()) throw new AIUnavailableError(
-      "Gemini returned no text",
-      ["gemini"],
-      ["gemini:OUTPUT"],
-    );
-
-    return parsePayload(
-      { text, provider: "gemini", model, attempted: ["gemini"] },
-      "gemini",
-    );
-  }
-
-  async function callOpenRouterDirect() {
-    if (!openRouterKey) throw new AIUnavailableError("OpenRouter is not configured");
-
-    const model = "openai/gpt-oss-120b:free";
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + openRouterKey,
-          "HTTP-Referer": "https://paradox.engineer",
-          "X-Title": "PARADOX",
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.1,
-          max_tokens:
-            schema === investigationSchema ? 1600 :
-            schema === criticSchema ? 2200 :
-            4200,
-          messages: [
-            {
-              role: "system",
-              content:
-                contract +
-                "\nReturn ONLY one valid JSON object. Do not use markdown fences. Do not add commentary.",
-            },
-            { role: "user", content: prompt },
-          ],
-        }),
-        signal: AbortSignal.timeout(10_000),
-      },
-    );
-
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      const message = String(
-        data?.error?.message ||
-        data?.message ||
-        "OpenRouter returned " + response.status,
-      );
-      throw new AIUnavailableError(
-        message,
-        ["openrouter"],
-        [
-          response.status === 429
-            ? "openrouter:QUOTA"
-            : response.status === 401 || response.status === 403
-              ? "openrouter:AUTH"
-              : response.status === 404
-                ? "openrouter:HTTP_404"
-                : response.status >= 500
-                  ? "openrouter:HTTP_5XX"
-                  : "openrouter:UNAVAILABLE",
-        ],
-      );
-    }
-
-    const message = data?.choices?.[0]?.message;
-    const text = typeof message?.content === "string"
-      ? message.content
-      : Array.isArray(message?.content)
-        ? message.content
-            .map((part: { text?: string }) => part?.text || "")
-            .join("\n")
-        : String(message?.text || data?.output_text || "");
-
-    if (!text.trim()) {
-      throw new AIUnavailableError(
-        "OpenRouter returned no text",
-        ["openrouter"],
-        ["openrouter:OUTPUT"],
-      );
-    }
-
-    return parsePayload(
-      { text, provider: "openrouter", model, attempted: ["openrouter"] },
-      "openrouter",
-    );
-  }
-
-  async function callRouter(excludeProviders: string[]) {
+  try {
     const routed = await fetch(
       supabaseUrl.replace(/\/$/, "") + "/functions/v1/ai-router",
       {
@@ -940,24 +767,33 @@ async function requestGemini(
           system: contract,
           task,
           provider: "auto",
-          excludeProviders,
+          excludeProviders: [],
           json: true,
         }),
         signal: AbortSignal.timeout(25_000),
       },
     );
 
-    const payload = await routed.json().catch(() => null);
-    if (routed.ok && payload && typeof payload.text === "string") {
-      try {
-        return parsePayload(payload, String(payload.provider || "auto"));
-      } catch {
-        throw new AIUnavailableError(
-          "AI provider returned invalid JSON",
-          Array.isArray(payload.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
-          ["router:OUTPUT"],
-        );
+    const payload = await routed.json().catch(() => null) as Record<string, unknown> | null;
+
+    if (routed.ok && typeof payload?.text === "string") {
+      const raw = String(payload.text).trim();
+      const first = raw.indexOf("{");
+      const last = raw.lastIndexOf("}");
+      const jsonText = first >= 0 && last > first ? raw.slice(first, last + 1) : raw;
+      const parsed = JSON.parse(jsonText);
+
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("AI provider returned invalid JSON");
       }
+
+      return Object.assign(parsed as Record<string, unknown>, {
+        __aiProvider: String(payload.provider || "auto"),
+        __aiModel: String(payload.model || "unknown"),
+        __aiAttempted: Array.isArray(payload.attempted)
+          ? payload.attempted.map(String).slice(0, 10)
+          : [],
+      });
     }
 
     throw new AIUnavailableError(
@@ -965,59 +801,13 @@ async function requestGemini(
       Array.isArray(payload?.attempted) ? payload.attempted.map(String).slice(0, 10) : [],
       Array.isArray(payload?.failureCodes) ? payload.failureCodes.map(String).slice(0, 10) : [],
     );
-  }
-
-  const failures: string[] = [];
-
-  // Real primary: use Gemini directly. If its quota is exhausted, move to
-  // OpenRouter, then let the central router try the remaining providers.
-  if (preferredProvider === "gemini") {
-    try {
-      return await callGeminiDirect();
-    } catch (error) {
-      if (error instanceof AIUnavailableError) {
-        failures.push(...error.failureCodes);
-      } else {
-        failures.push("gemini:UNAVAILABLE");
-      }
-    }
-
-    try {
-      return await callOpenRouterDirect();
-    } catch (error) {
-      if (error instanceof AIUnavailableError) {
-        failures.push(...error.failureCodes);
-      } else {
-        failures.push("openrouter:UNAVAILABLE");
-      }
-    }
-
-    try {
-      return await callRouter(["gemini", "openrouter"]);
-    } catch (error) {
-      if (error instanceof AIUnavailableError) {
-        failures.push(...error.failureCodes);
-        throw new AIUnavailableError(
-          "AI providers were exhausted for this Verify stage.",
-          error.attemptedProviders.length ? error.attemptedProviders : ["gemini", "openrouter"],
-          [...new Set([...failures, ...error.failureCodes])].slice(0, 10),
-        );
-      }
-      throw error;
-    }
-  }
-
-  try {
-    return await callRouter([preferredProvider, "gemini"]);
   } catch (error) {
-    if (error instanceof AIUnavailableError) {
-      throw new AIUnavailableError(
-        "AI providers were exhausted for this Verify stage.",
-        error.attemptedProviders,
-        [...new Set([...failures, ...error.failureCodes])].slice(0, 10),
-      );
-    }
-    throw error;
+    if (error instanceof AIUnavailableError) throw error;
+    throw new AIUnavailableError(
+      error instanceof Error ? error.message : "AI provider request failed.",
+      [],
+      ["router:UNAVAILABLE"],
+    );
   }
 }
 
