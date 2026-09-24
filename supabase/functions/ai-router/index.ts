@@ -10,7 +10,7 @@ function providerTimeoutMs(provider: Provider): number {
   if (provider === 'openrouter') return 8_000;
   return PROVIDER_TIMEOUT_MS;
 }
-const VERIFY_AUTO_MAX_PROVIDERS = 10;
+const VERIFY_AUTO_MAX_PROVIDERS = 2;
 const GENERAL_AUTO_MAX_PROVIDERS = 6;
 const providerCooldowns = new Map<string, number>();
 
@@ -109,7 +109,7 @@ function candidates(requested: Provider, task: string, excluded: Provider[] = []
       const fallback = providers.filter((provider) => !preferredSet.has(provider));
       order = (
         /repository security verification|planner|routing|critic/i.test(task)
-          ? [...new Set(['gemini', 'openrouter', ...configuredOrder, ...fallback])]
+          ? [...new Set(['gemini', 'openrouter', 'huggingface', ...configuredOrder, ...fallback])]
           : [...configuredOrder, ...fallback]
       ) as Provider[];
     } else if (/planner|routing|critic/i.test(task)) {
@@ -210,9 +210,15 @@ async function requestOpenAICompatible(
     throw new Error(String(data?.error?.message || data?.message || 'Provider returned ' + res.status));
   }
 
-  const text = data?.choices?.[0]?.message?.content || '';
+  const message = data?.choices?.[0]?.message;
+  const rawContent = message?.content;
+  const text = typeof rawContent === 'string'
+    ? rawContent
+    : Array.isArray(rawContent)
+      ? rawContent.map((part: { text?: string }) => part?.text || '').join('\n').trim()
+      : String(message?.text || data?.output_text || '').trim();
   if (!text) throw new Error('Provider returned no text');
-  return structured ? validateJsonOutput(String(text)) : String(text);
+  return structured ? validateJsonOutput(text) : text;
 }
 
 async function requestGemini(system: string, prompt: string, structured: boolean) {
@@ -302,18 +308,10 @@ function providerModel(provider: Provider): string {
     case 'cerebras': return env('CEREBRAS_MODEL') || 'gpt-oss-120b';
     case 'mistral': return env('MISTRAL_MODEL') || 'mistral-small-latest';
     case 'cloudflare': return env('CLOUDFLARE_MODEL') || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
-    case 'openrouter': {
-      const configuredModel = env('OPENROUTER_MODEL');
-      return !configuredModel || configuredModel === 'openrouter/free'
-        ? 'openai/gpt-oss-120b:free'
-        : configuredModel;
-    }
-    case 'huggingface': {
-      const configuredModel = env('HF_MODEL');
-      return !configuredModel || configuredModel === 'meta-llama/Llama-3.3-70B-Instruct'
-        ? 'openai/gpt-oss-120b:fastest'
-        : configuredModel;
-    }
+    case 'openrouter':
+      return 'openai/gpt-oss-120b:free';
+    case 'huggingface':
+      return 'openai/gpt-oss-120b:fastest';
     case 'nvidia': return env('NVIDIA_MODEL') || 'openai/gpt-oss-20b';
     case 'cohere': return env('COHERE_MODEL') || 'command-a-plus-05-2026';
     case 'ollama': return env('OLLAMA_MODEL') || 'llama3.2';
