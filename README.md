@@ -2,7 +2,7 @@
 
 PARADOX is an AI-agent intelligence platform for discovering, understanding, verifying, comparing, and saving public AI-agent repositories and projects.
 
-**Live:** https://paradox.engineer/
+**Live:** https://paradox-tau-tawny.vercel.app/
 
 **Repository:** https://github.com/PRADHUMAN-SINGH-1/paradox
 
